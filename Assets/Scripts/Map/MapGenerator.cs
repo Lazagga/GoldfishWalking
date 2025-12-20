@@ -68,8 +68,8 @@ public class MapGenerator : MonoBehaviour
                     indexInLayer = i,
                     type = NodeType.Battle
                 };
-                if(i == 1) n.type = NodeType.Rest;
                 map.nodes.Add(n);
+                if (i == 1) map.nodes[rng.Next(n.id - 1, n.id + 1)].type = NodeType.Rest;
                 layerIds[layer].Add(n.id);
             }
         }

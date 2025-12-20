@@ -133,7 +133,6 @@ public class MapWorldController : MonoBehaviour
         foreach (var n in map.nodes)
             byId[n.id] = n;
 
-        // 1) 노드 생성
         foreach (var n in map.nodes)
         {
             var worldPos = ToWorld(n.pos);
@@ -145,7 +144,6 @@ public class MapWorldController : MonoBehaviour
             nodeViews[n.id] = view;
         }
 
-        // 2) 라인 생성 (유향)
         foreach (var from in map.nodes)
         {
             var fromWorld = ToWorld(from.pos);

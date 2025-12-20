@@ -1,8 +1,12 @@
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CameraMovement : MonoBehaviour
 {
+    public Image fade;
+    float alpha = 0;
+
     [Header("Lerp Settings")]
     public float lerpSpeed = 6f;
     public float stopThreshold = 0.01f;
@@ -34,6 +38,9 @@ public class CameraMovement : MonoBehaviour
             targetPos,
             Time.deltaTime * lerpSpeed
         );
+
+        alpha = Mathf.Lerp(alpha, 1, Time.deltaTime * lerpSpeed);
+        fade.color = new Color(0, 0, 0, alpha);
 
         if (Vector3.Distance(transform.position, targetPos) < stopThreshold)
         {
