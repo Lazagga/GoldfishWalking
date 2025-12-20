@@ -1,59 +1,78 @@
 using System.Collections.Generic;
+using TMPro;
+using UnityEditor.Analytics;
 using UnityEngine;
 
 public class MatchManager : MonoBehaviour
 {
-    public static MatchManager Instance;
-
-    private List<int> Digits = new List<int>();
-    public List<GameObject> DigitManagers;
-    public List<RectTransform> Rect = new List<RectTransform>();
-
-    public int Length;
-
-    private void Awake()
+    private static MatchManager instance = null;
+    public static MatchManager Instance
     {
-        Instance = this;
-        foreach(GameObject obj in DigitManagers)
+        get
         {
-            RectTransform rectTransform = obj.GetComponent<RectTransform>();
-            Rect.Add(rectTransform);
+            if (null == instance)
+            {
+                return null;
+            }
+            return instance;
         }
     }
 
-    public void Setting()
-    {
-        Digits.Clear();
-        int num = GameManager.instance.ChangedNumber;
-        while (num > 0)
-        {
-            Digits.Add(num % 10);
-            num /= 10;
-        }
-        Digits.Reverse();
-        Length = Digits.Count;
+    public GameObject matchstickPrefab;
+    public GameObject matchSlotPrefab;
 
-        for (int i = 0; i < DigitManagers.Count; i++)
+    private List<Transform> slots = new List<Transform>();
+    private MatchContainer sevenSeg = null;
+    public TextMeshProUGUI text = null;
+    public Transform selectedMatch = null;
+
+
+    void Awake()
+    {
+        if(instance == null)
         {
-            if (i < Length)
-            {
-                DigitManagers[i].SetActive(true);
-                Rect[i].anchoredPosition = new Vector3(-(Length - 1) * 0.5f / 2 + 0.5f * i, 0, 0);
-                DigitManagers[i].GetComponent<DigitManager>().Setting(Digits[i]);
-            }
-            else DigitManagers[i].SetActive(false);
+            instance = this;
         }
+        else
+        {
+            Destroy(this.gameObject);
+        }
+
+        sevenSeg = transform.GetChild(0).GetComponent<MatchContainer>();
+        for(int i = 0; i < 7; ++i)
+        {
+            slots.Add(sevenSeg.transform.GetChild(i));
+        }
+    }
+
+
+    public Transform getNearestSlot(Vector3 pos)
+    {
+        Transform bestSlot = null;
+        float bestDist = float.MaxValue;
+
+        foreach(Transform slot in slots)
+        {
+            if(slot.childCount >= 1) continue; // 이미 다른 성냥이 들어가있으면 skip
+
+            float distSq = (pos - slot.position).sqrMagnitude;
+            
+            if(distSq > 3000f || bestDist < distSq) continue;
+            
+            bestSlot = slot;
+            bestDist = distSq;
+        }
+
+        return bestSlot;
+    }
+
+    void Update()
+    {
+        text.text = sevenSeg.getNum().ToString();
     }
 
     public int GetNumber()
     {
-        int result = 0;
-        for (int i = 0; i < Length; i++)
-        {
-            result *= 10;
-            result += DigitManagers[i].GetComponent<DigitManager>().GetNumber();
-            if (DigitManagers[i].GetComponent<DigitManager>().GetNumber() < 0) return -1;
-        }
-        return result;
+        return sevenSeg.getNum();
     }
 }

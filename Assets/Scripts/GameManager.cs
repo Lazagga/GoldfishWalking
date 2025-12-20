@@ -62,7 +62,7 @@ public class GameManager : MonoBehaviour
     public void CamActionPlayer()
     {
         dest = new Vector3(-4, 0, -10);
-        MatchManager.Instance.Setting();
+        // MatchManager.Instance.Setting();
         StartCoroutine("ZoomIn");
     }
 
@@ -122,6 +122,6 @@ public class GameManager : MonoBehaviour
     {
         MoveCount = MaxMoveCount;
         ChangedNumber = BeginNumber;
-        MatchManager.Instance.Setting();
+        // MatchManager.Instance.Setting();
     }
 }
