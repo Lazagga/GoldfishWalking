@@ -7,6 +7,7 @@ public class MatchManager : MonoBehaviour
     public GameObject matchstickPrefab;
     private List<Transform> slots = new List<Transform>();
     public List<int> slotStateOriginal = new List<int>();
+
     public Transform digitManagersContainer;
     private List<DigitManager> digitManagers = new List<DigitManager>();
     public TextMeshProUGUI text = null;
@@ -28,19 +29,13 @@ public class MatchManager : MonoBehaviour
         }
     }
 
-    private void OnEnable()
+    public void Init(int num)
     {
-
         slotStateOriginal.Clear();
         foreach(DigitManager digitManager in digitManagers){
             slotStateOriginal.AddRange(digitManager.slotState);
         }
-        SetNumber(GameManager.instance.ChangedNumber);
-    }
-
-    private void OnDisable()
-    {
-        GameManager.instance.ChangedNumber = GetNumber();
+        SetNumber(num);
     }
     
     void Update()
