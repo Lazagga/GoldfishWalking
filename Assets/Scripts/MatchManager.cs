@@ -1,59 +1,105 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class MatchManager : MonoBehaviour
 {
-    public static MatchManager Instance;
+    public GameObject matchstickPrefab;
+    private List<Transform> slots = new List<Transform>();
+    public List<int> slotStateOriginal = new List<int>();
+    public Transform digitManagersContainer;
+    private List<DigitManager> digitManagers = new List<DigitManager>();
+    public TextMeshProUGUI text = null;
+    public Transform selectedMatch = null;
 
-    private List<int> Digits = new List<int>();
-    public List<GameObject> DigitManagers;
-    public List<RectTransform> Rect = new List<RectTransform>();
 
-    public int Length;
-
-    private void Awake()
+    void Awake()
     {
-        Instance = this;
-        foreach(GameObject obj in DigitManagers)
+        for(int i = 0; i < digitManagersContainer.childCount; i++)
         {
-            RectTransform rectTransform = obj.GetComponent<RectTransform>();
-            Rect.Add(rectTransform);
+            digitManagers.Add(digitManagersContainer.GetChild(i).GetComponent<DigitManager>());
+        }
+
+        foreach(DigitManager digitManager in digitManagers){
+            for(int i = 0; i < 7; ++i)
+            {
+                slots.Add(digitManager.transform.GetChild(i));
+            }
         }
     }
 
-    public void Setting()
+    private void OnEnable()
     {
-        Digits.Clear();
-        int num = GameManager.instance.ChangedNumber;
-        while (num > 0)
-        {
-            Digits.Add(num % 10);
-            num /= 10;
-        }
-        Digits.Reverse();
-        Length = Digits.Count;
 
-        for (int i = 0; i < DigitManagers.Count; i++)
+        slotStateOriginal.Clear();
+        foreach(DigitManager digitManager in digitManagers){
+            slotStateOriginal.AddRange(digitManager.slotState);
+        }
+        SetNumber(GameManager.instance.ChangedNumber);
+    }
+
+    private void OnDisable()
+    {
+        GameManager.instance.ChangedNumber = GetNumber();
+    }
+    
+    void Update()
+    {
+        text.text = GetNumber().ToString();
+    }
+
+    public void UpdateState()
+    {
+        int count = 0;
+        for(int i=0; i<slots.Count; i++)
         {
-            if (i < Length)
-            {
-                DigitManagers[i].SetActive(true);
-                Rect[i].anchoredPosition = new Vector3(-(Length - 1) * 0.5f / 2 + 0.5f * i, 0, 0);
-                DigitManagers[i].GetComponent<DigitManager>().Setting(Digits[i]);
-            }
-            else DigitManagers[i].SetActive(false);
+            if( slots[i].childCount != slotStateOriginal[i]  )
+                count++;
+        }
+        GameManager.instance.MoveCount = GameManager.instance.MaxMoveCount - count/2;
+    }
+
+    public Transform GetNearestSlot(Vector3 pos)
+    {
+        Transform bestSlot = null;
+        float bestDist = float.MaxValue;
+
+        foreach(Transform slot in slots)
+        {
+            if(slot.childCount >= 1) continue; // 이미 다른 성냥이 들어가있으면 skip
+
+            float distSq = (pos - slot.position).sqrMagnitude;
+            
+            if(distSq > 3000f || bestDist < distSq) continue;
+            
+            bestSlot = slot;
+            bestDist = distSq;
+        }
+
+        return bestSlot;
+    }
+
+    public void SetNumber(int num)
+    {
+        for (int i = digitManagers.Count - 1; i >= 0; i--){
+            digitManagers[i].SetNumber(num % 10);
+            num /= 10;
         }
     }
 
     public int GetNumber()
     {
-        int result = 0;
-        for (int i = 0; i < Length; i++)
-        {
-            result *= 10;
-            result += DigitManagers[i].GetComponent<DigitManager>().GetNumber();
-            if (DigitManagers[i].GetComponent<DigitManager>().GetNumber() < 0) return -1;
+        int res = 0;
+
+        foreach(DigitManager digitManager in digitManagers){
+            int digit = digitManager.GetNumber();
+            if(digit < 0) {
+                res = -1;
+                break;
+            }
+            res = res * 10 + digit;
         }
-        return result;
+
+        return res;
     }
 }

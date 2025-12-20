@@ -1,48 +1,78 @@
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class DigitManager : MonoBehaviour
 {
-    public static DigitManager instance;
+    public GameObject matchstickPrefab;
+    public MatchManager matchManager;
 
-    public Match[] Matches;
+    public int[] slotState = {0,0,0,0,0,0,0};
 
-    private int[,] DigitRule = {{ 1, 1, 1, 0, 1, 1, 1 },
-                                { 0, 0, 1, 0, 0, 1, 0 },
-                                { 1, 0, 1, 1, 1, 0, 1 },
-                                { 1, 0, 1, 1, 0, 1, 1 },
-                                { 0, 1, 1, 1, 0, 1, 0 },
-                                { 1, 1, 0, 1, 0, 1, 1 },
-                                { 1, 1, 0, 1, 1, 1, 1 },
-                                { 1, 1, 1, 0, 0, 1, 0 },
-                                { 1, 1, 1, 1, 1, 1, 1 },
-                                { 1, 1, 1, 1, 0, 1, 1 }};
-
-    private void Awake()
+    private string[] properStrs = new string[] {
+        "1111110", // 0 
+        "0110000", // 1
+        "1101101", // 2
+        "1111001", // 3
+        "0110011", // 4
+        "1011011", // 5
+        "1011111", // 6
+        "1110010", // 7
+        "1111111", // 8
+        "1111011"  // 9
+    };
+    public void SetNumber(int digit)
     {
-        instance = this;
+        if(digit < 0 || digit > 9)
+            return;
+        
+        for(int i = 0; i < 7; i++)
+        {
+            SetMatchstick(i, properStrs[digit][i] == '1' ? 1 : 0);
+        }
     }
 
-    public void Setting(int num)
+    public void SetSlots(List<int> state)
     {
-        for (int i = 0; i < 7; i++)
+        for(int i = 0; i < 7; i++)
         {
-            Matches[i].Setting(DigitRule[num,i]);
+            SetMatchstick(i, state[i]);
         }
+    }
+
+    private void SetMatchstick(int slotNo, int state)
+    {
+        Transform slot = transform.GetChild(slotNo);
+
+        if(slot.childCount > 0)
+            Destroy( slot.GetChild(0).gameObject );
+
+        if(state == 1)
+        {
+            GameObject matchstick = Instantiate(matchstickPrefab);
+            matchstick.GetComponent<Matchstick>().matchManager = matchManager;
+
+            matchstick.transform.SetParent(slot);
+            matchstick.transform.SetPositionAndRotation(slot.position, slot.rotation);
+        }
+        
+        slotState[slotNo] = state;
     }
 
     public int GetNumber()
     {
-        bool check;
-        for (int i = 0; i < 10; i ++)
+        string hasMatch = "";
+
+        for(int i = 0; i < 7; i++)
         {
-            check = true;
-            for(int j = 0; j < 8; j ++)
-            {
-                if (Matches[j].Filled != DigitRule[i,j]) check = false;
-            }
-            if (check) return i;
+            hasMatch += transform.GetChild(i).childCount>=1 ? "1": "0";
         }
+
+        for(int i = 0; i<10; ++i)
+        {
+            if(hasMatch.Equals(properStrs[i]))
+                return i;
+        }
+
         return -1;
     }
 }
