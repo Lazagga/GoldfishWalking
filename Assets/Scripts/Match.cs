@@ -30,12 +30,14 @@ public class Match : MonoBehaviour
             }
             Source.sprite = GameManager.instance.EmptyImage;
             GameManager.instance.Match = true;
+            Filled = 0;
         }
         else if (Filled == 0 && GameManager.instance.Match)
         {
             Source.sprite = GameManager.instance.MatchImage;
             GameManager.instance.Match = false;
             GameManager.instance.MoveCount--;
+            Filled = 1;
         }
     }
 }
