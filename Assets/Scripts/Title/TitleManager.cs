@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class TitleManager : MonoBehaviour
@@ -13,7 +14,7 @@ public class TitleManager : MonoBehaviour
 
     public void OnStart()
     {
-        //æ¿¿Ãµø
+        SceneManager.LoadScene("Map");
     }
 
     public void OnOption()
