@@ -82,7 +82,7 @@ public class MapGenerator : MonoBehaviour
                 id = idCounter++,
                 layer = endLayer,
                 indexInLayer = 0,
-                type = NodeType.End
+                type = NodeType.Battle
             };
             map.nodes.Add(n);
             map.endId = n.id;

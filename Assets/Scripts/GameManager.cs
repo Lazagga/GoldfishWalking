@@ -3,6 +3,8 @@ using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using System.Collections;
+using Unity.VisualScripting;
 //using System;
 
 
@@ -30,6 +32,8 @@ public class GameManager : MonoBehaviour
     public int enemyHealth;
 
     public TextMeshProUGUI PlayerHPBar, EnemyHPBar;
+
+    public Animator player, enemy;
 
     private void Awake()
     {
@@ -155,24 +159,7 @@ public class GameManager : MonoBehaviour
 
         // Debug.Log(PlayerNumber * PlayerMultNumber);
 
-        enemyHealth -= PlayerNumber;
-        EnemyHPBar.text = enemyHealth.ToString();
-
-        if(enemyHealth <= 0)
-        {
-            SceneManager.LoadScene("Map");
-        }
-
-
-        PlayerData.Instance.ChangeHealth(-EnemyNumber);
-        PlayerHPBar.text = PlayerData.Instance.Health.ToString();
-
-
-        if (PlayerData.Instance.Health <= 0)
-        {
-            PlayerData.Instance.ChangeHealth(-PlayerData.Instance.Health);
-            SceneManager.LoadScene("Title");
-        }
+        StartCoroutine(Fight());
 
         PlayerNumberOriginal = Random.Range(10, 100);
         PlayerNumber = PlayerNumberOriginal;
@@ -186,6 +173,34 @@ public class GameManager : MonoBehaviour
         foreach(MatchManager matchManager in matchManagers)
         {
             matchManager.Reset();
+        }
+    }
+
+    public IEnumerator Fight()
+    {
+        player.SetTrigger("Attack");
+        yield return new WaitForSeconds(0.5f);
+        enemyHealth -= PlayerNumber;
+        EnemyHPBar.text = enemyHealth.ToString();
+
+        if (enemyHealth <= 0)
+        {
+            SceneManager.LoadScene("Map");
+            yield break;
+        }
+
+        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.5f);
+
+        enemy.SetTrigger("Attack");
+        yield return new WaitForSeconds(0.5f);
+        PlayerData.Instance.ChangeHealth(-EnemyNumber);
+        PlayerHPBar.text = PlayerData.Instance.Health.ToString();
+
+        if (PlayerData.Instance.Health <= 0)
+        {
+            PlayerData.Instance.ChangeHealth(-PlayerData.Instance.Health);
+            SceneManager.LoadScene("Title");
         }
     }
 }
