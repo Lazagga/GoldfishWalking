@@ -9,6 +9,8 @@ public class MatchManager : MonoBehaviour
     private List<Transform> slots = new List<Transform>();
     public List<int> slotStateOriginal = new List<int>();
 
+    public int usedMoveInThisPanel = 0;
+
     public Transform digitManagersContainer;
     private List<DigitManager> digitManagers = new List<DigitManager>();
     public TextMeshProUGUI text = null;
@@ -33,11 +35,27 @@ public class MatchManager : MonoBehaviour
     public void Init(int num)
     {
         SetNumber(num);
-        slotStateOriginal.Clear();
-        foreach(DigitManager digitManager in digitManagers){
-            slotStateOriginal.AddRange(digitManager.slotState);
+        if (slotStateOriginal.Count == 0)
+        {
+            foreach(DigitManager digitManager in digitManagers){
+                slotStateOriginal.AddRange(digitManager.slotState);
+            }
         }
     }
+
+    public void Reset()
+    {
+        slotStateOriginal.Clear();
+        usedMoveInThisPanel = 0;
+        if (gameObject.activeInHierarchy)
+        {
+            foreach(DigitManager digitManager in digitManagers){
+                slotStateOriginal.AddRange(digitManager.slotState);
+            }
+        }
+    }
+
+    
     
     void Update()
     {
@@ -54,16 +72,15 @@ public class MatchManager : MonoBehaviour
                 hasMatchIndexes.Add(i);
         }
 
-        int count = 0;
+        usedMoveInThisPanel = 0;
         foreach(int i in hasMatchIndexes)
         {
-            if( slotStateOriginal[i] == 0)
+            if( slotStateOriginal[i] == 0 )
             {
-                count++;
+                usedMoveInThisPanel++;
             }
         }
-
-        GameManager.instance.MoveCount = GameManager.instance.MaxMoveCount - count;
+        GameManager.instance.UpdateMoveCount();
     }
 
     public Transform GetNearestSlot(Vector3 pos)

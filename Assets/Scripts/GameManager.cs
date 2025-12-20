@@ -1,8 +1,9 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using System.Collections;
 using System.Collections.Generic;
+//using System;
+
 
 public class GameManager : MonoBehaviour
 {
@@ -12,12 +13,13 @@ public class GameManager : MonoBehaviour
     public int MaxMoveCount;
     public TMP_Text MoveCountTxt;
 
-    public int BeginNumber;
-    public int ChangedNumber;
+    public int PlayerNumber, PlayerNumberOriginal;
 
-    public int EnemyNumber;
+    public int PlayerMultNumber, PlayerMultNumberOriginal;
 
-    public Button PlayerEnter, EnemyEnter, ResetButton, NextTurnButton;
+    public int EnemyNumber, EnemyNumberOriginal;
+
+    public Button PlayerEnter, PlayerMultEnter, EnemyEnter, ResetButton, NextTurnButton;
 
     public Transform matchManagerContainer;
     private List<MatchManager> matchManagers = new List<MatchManager>();
@@ -37,9 +39,10 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         PlayerEnter.onClick.AddListener(OpenMatchPanelPlayer);
+        PlayerMultEnter.onClick.AddListener(OpenMatchPanelPlayerMult);
         EnemyEnter.onClick.AddListener(OpenMatchPanelEnemy);
-        NextTurnButton.onClick.AddListener(OnReset);
         ResetButton.onClick.AddListener(OnReset);
+        NextTurnButton.onClick.AddListener(OnEndTurn);
     }
 
     // Update is called once per frame
@@ -47,22 +50,43 @@ public class GameManager : MonoBehaviour
     {
         MoveCountTxt.text = MoveCount + " / " + MaxMoveCount;
     }
+
+    public void UpdateMoveCount()
+    {
+        int sumUsedMove = 0;
+        foreach(MatchManager matchManager in matchManagers)
+        {
+            sumUsedMove += matchManager.usedMoveInThisPanel;
+        }
+        MoveCount = MaxMoveCount - sumUsedMove;
+    }
+
     public void OpenMatchPanelPlayer()
     {
         MatchManager matchManager = matchManagers[0];
         
         matchManager.gameObject.SetActive(true);
         openMatchManagerIdx = 0;
-        matchManager.Init(ChangedNumber);
+        matchManager.Init(PlayerNumber);
         NextTurnButton.gameObject.SetActive(false);
     }
 
-    public void OpenMatchPanelEnemy()
+    public void OpenMatchPanelPlayerMult()
     {
         MatchManager matchManager = matchManagers[1];
         
         matchManager.gameObject.SetActive(true);
         openMatchManagerIdx = 1;
+        matchManager.Init(PlayerMultNumber);
+        NextTurnButton.gameObject.SetActive(false);
+    }
+
+    public void OpenMatchPanelEnemy()
+    {
+        MatchManager matchManager = matchManagers[2];
+        
+        matchManager.gameObject.SetActive(true);
+        openMatchManagerIdx = 2;
         matchManager.Init(EnemyNumber);
         NextTurnButton.gameObject.SetActive(false);
     }
@@ -75,13 +99,18 @@ public class GameManager : MonoBehaviour
 
         int res = matchManagers[openMatchManagerIdx].GetNumber();
 
-        if(openMatchManagerIdx == 0)
+
+        switch (openMatchManagerIdx)
         {
-            ChangedNumber = res;
-        }
-        else
-        {
-            EnemyNumber = res;
+            case 0:
+                PlayerNumber = res;
+                break;
+            case 1:
+                PlayerMultNumber = res;
+                break;
+            case 2:
+                EnemyNumber = res;
+                break;
         }
 
         matchManager.gameObject.SetActive(false);
@@ -91,8 +120,37 @@ public class GameManager : MonoBehaviour
     public void OnReset()
     {
         MoveCount = MaxMoveCount;
-        ChangedNumber = BeginNumber;
+
+        PlayerNumber = PlayerNumberOriginal;
+
+        PlayerMultNumber = PlayerMultNumberOriginal;
+
+        EnemyNumber = EnemyNumberOriginal;
+
+        matchManagers[openMatchManagerIdx].Init(PlayerMultNumber);
         
-        matchManagers[openMatchManagerIdx].SetNumber(BeginNumber);
+        foreach(MatchManager matchManager in matchManagers)
+        {
+            matchManager.Reset();
+        }
+    }
+
+    public void OnEndTurn()
+    {
+        Debug.Log(PlayerNumber * PlayerMultNumber);
+
+        PlayerNumberOriginal = Random.Range(10, 100);
+        PlayerNumber = PlayerNumberOriginal;
+
+        PlayerMultNumberOriginal = Random.Range(0, 10);
+        PlayerMultNumber = PlayerMultNumberOriginal;
+
+        EnemyNumberOriginal = Random.Range(10, 100);
+        EnemyNumber = EnemyNumberOriginal;
+
+        foreach(MatchManager matchManager in matchManagers)
+        {
+            matchManager.Reset();
+        }
     }
 }
