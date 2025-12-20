@@ -39,7 +39,6 @@ public class Matchstick : MonoBehaviour, IPointerClickHandler
             transform.SetPositionAndRotation(bestSlot.position, bestSlot.rotation);
             transform.SetParent(bestSlot);
 
-            // 매니저에 보고
             matchManager.UpdateState();
         }
     }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -7,6 +8,9 @@ public class MatchManager : MonoBehaviour
     public GameObject matchstickPrefab;
     private List<Transform> slots = new List<Transform>();
     public List<int> slotStateOriginal = new List<int>();
+
+    public int usedMoveInThisPanel = 0;
+
     public Transform digitManagersContainer;
     private List<DigitManager> digitManagers = new List<DigitManager>();
     public TextMeshProUGUI text = null;
@@ -28,20 +32,30 @@ public class MatchManager : MonoBehaviour
         }
     }
 
-    private void OnEnable()
+    public void Init(int num)
     {
-
-        slotStateOriginal.Clear();
-        foreach(DigitManager digitManager in digitManagers){
-            slotStateOriginal.AddRange(digitManager.slotState);
+        SetNumber(num);
+        if (slotStateOriginal.Count == 0)
+        {
+            foreach(DigitManager digitManager in digitManagers){
+                slotStateOriginal.AddRange(digitManager.slotState);
+            }
         }
-        SetNumber(GameManager.instance.ChangedNumber);
     }
 
-    private void OnDisable()
+    public void Reset()
     {
-        GameManager.instance.ChangedNumber = GetNumber();
+        slotStateOriginal.Clear();
+        usedMoveInThisPanel = 0;
+        if (gameObject.activeInHierarchy)
+        {
+            foreach(DigitManager digitManager in digitManagers){
+                slotStateOriginal.AddRange(digitManager.slotState);
+            }
+        }
     }
+
+    
     
     void Update()
     {
@@ -50,13 +64,23 @@ public class MatchManager : MonoBehaviour
 
     public void UpdateState()
     {
-        int count = 0;
+        List<int> hasMatchIndexes = new List<int>();
+
         for(int i=0; i<slots.Count; i++)
         {
-            if( slots[i].childCount != slotStateOriginal[i]  )
-                count++;
+            if( slots[i].childCount > 0 )
+                hasMatchIndexes.Add(i);
         }
-        GameManager.instance.MoveCount = GameManager.instance.MaxMoveCount - count/2;
+
+        usedMoveInThisPanel = 0;
+        foreach(int i in hasMatchIndexes)
+        {
+            if( slotStateOriginal[i] == 0 )
+            {
+                usedMoveInThisPanel++;
+            }
+        }
+        GameManager.instance.UpdateMoveCount();
     }
 
     public Transform GetNearestSlot(Vector3 pos)
