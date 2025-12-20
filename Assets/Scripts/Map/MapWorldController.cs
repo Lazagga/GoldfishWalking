@@ -140,15 +140,16 @@ public class MapWorldController : MonoBehaviour
             var worldPos = ToWorld(n.pos);
 
             var view = Instantiate(nodePrefab, worldPos, Quaternion.identity, transform);
-        //    view.GetComponent<SpriteRenderer>().sprite = n.type switch
-        //    {
-        //        NodeType.Start => Battle,
-        //        NodeType.Battle => Battle,
-        //        NodeType.Battle2 => Battle,
-        //        NodeType.Rest => Rest,
+            view.transform.localScale = Vector3.one * 8;
+            view.GetComponent<SpriteRenderer>().sprite = n.type switch
+            {
+                NodeType.Start => Battle,
+                NodeType.Battle => Battle,
+                NodeType.Battle2 => Battle,
+                NodeType.Rest => Rest,
         //        NodeType.End => Boss,
-        //        _ => null
-        //    };
+                _ => null
+            };
             view.name = $"Node_{n.id}_{n.type}";
             view.Init(this, n.id);
 
