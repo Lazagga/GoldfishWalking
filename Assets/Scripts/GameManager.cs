@@ -9,6 +9,8 @@ public class GameManager : MonoBehaviour
     public bool Match;
     public GameObject MatchCursor;
 
+    public GameObject matchPanel;
+
     public Sprite MatchImage;
     public Sprite EmptyImage;
 
@@ -36,8 +38,8 @@ public class GameManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        PlayerEnter.GetComponent<Button>().onClick.AddListener(CamActionPlayer);
-        EnemyEnter.GetComponent<Button>().onClick.AddListener(CamActionEnemy);
+        PlayerEnter.GetComponent<Button>().onClick.AddListener(OpenMatchPanel);
+        // EnemyEnter.GetComponent<Button>().onClick.AddListener(CamActionEnemy);
     }
 
     // Update is called once per frame
@@ -58,6 +60,18 @@ public class GameManager : MonoBehaviour
         }
         MoveCountTxt.text = MoveCount + " / " + MaxMoveCount;
     }
+
+    public void OpenMatchPanel()
+    {
+        matchPanel.SetActive(true);
+    }
+
+    public void CloseMatchPanel()
+    {
+        matchPanel.SetActive(false);
+    }
+
+    /*
 
     public void CamActionPlayer()
     {
@@ -112,12 +126,13 @@ public class GameManager : MonoBehaviour
 
     public void OnExit()
     {
-        int result = MatchManager.Instance.GetNumber();
-        if (result < 0) return;//Match Positioning Error
-        ChangedNumber = result;
-        StartCoroutine("ZoomOut");
+        // int result = MatchManager.Instance.GetNumber();
+        // if (result < 0) return;//Match Positioning Error
+        // ChangedNumber = result;
+        // StartCoroutine("ZoomOut");
     }
 
+    */
     public void OnReset()
     {
         MoveCount = MaxMoveCount;

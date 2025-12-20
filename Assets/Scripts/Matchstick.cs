@@ -3,24 +3,38 @@ using UnityEngine.EventSystems;
 
 public class Matchstick : MonoBehaviour, IPointerClickHandler
 {
+    public MatchManager matchManager;
+    private Transform originalParent;
+
+    private void OnEnable()
+    {
+        originalParent = transform.parent;
+    }
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        // 남은 이동이 없다면 무시
+        if(GameManager.instance.MoveCount == 0) return;
+
         // 성냥 선택
-        if(MatchManager.Instance.selectedMatch == null)
+        if(matchManager.selectedMatch == null)
         {
-            MatchManager.Instance.selectedMatch = transform;
-            transform.SetParent(MatchManager.Instance.transform);
+            matchManager.selectedMatch = transform;
+            // transform.SetParent(MatchManager.Instance.transform);
         }
 
         // 성냥 놓기
-        else if(MatchManager.Instance.selectedMatch == transform)
+        else if(matchManager.selectedMatch == transform)
         {
-            MatchManager.Instance.selectedMatch = null;
+            matchManager.selectedMatch = null;
 
-            Transform bestSlot = MatchManager.Instance.getNearestSlot(transform.position);
+            Transform bestSlot = matchManager.GetNearestSlot(transform.position);
 
-            if(bestSlot == null) return;
+            if(bestSlot == null)
+            {
+                transform.position = transform.parent.position;
+                return;
+            }
 
             transform.SetPositionAndRotation(bestSlot.position, bestSlot.rotation);
             transform.SetParent(bestSlot);
@@ -30,7 +44,7 @@ public class Matchstick : MonoBehaviour, IPointerClickHandler
     void Update()
     {
         // 선택된 성냥이면 마우스 따라가기
-        if(MatchManager.Instance.selectedMatch == transform)
+        if(matchManager.selectedMatch == transform)
         {
             transform.position = Input.mousePosition;
         }

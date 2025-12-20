@@ -5,48 +5,36 @@ using UnityEngine;
 
 public class MatchManager : MonoBehaviour
 {
-    private static MatchManager instance = null;
-    public static MatchManager Instance
-    {
-        get
-        {
-            if (null == instance)
-            {
-                return null;
-            }
-            return instance;
-        }
-    }
-
     public GameObject matchstickPrefab;
     public GameObject matchSlotPrefab;
 
     private List<Transform> slots = new List<Transform>();
-    private MatchContainer sevenSeg = null;
+    public List<DigitManager> digitManagers = new List<DigitManager>();
     public TextMeshProUGUI text = null;
     public Transform selectedMatch = null;
 
 
     void Awake()
     {
-        if(instance == null)
-        {
-            instance = this;
-        }
-        else
-        {
-            Destroy(this.gameObject);
-        }
-
-        sevenSeg = transform.GetChild(0).GetComponent<MatchContainer>();
-        for(int i = 0; i < 7; ++i)
-        {
-            slots.Add(sevenSeg.transform.GetChild(i));
+        foreach(DigitManager digitManager in digitManagers){
+            for(int i = 0; i < 7; ++i)
+            {
+                slots.Add(digitManager.transform.GetChild(i));
+            }
         }
     }
 
+    private void OnEnable()
+    {
+        SetNumber(GameManager.instance.ChangedNumber);
+    }
 
-    public Transform getNearestSlot(Vector3 pos)
+    private void OnDisable()
+    {
+        GameManager.instance.ChangedNumber = GetNumber();
+    }
+
+    public Transform GetNearestSlot(Vector3 pos)
     {
         Transform bestSlot = null;
         float bestDist = float.MaxValue;
@@ -68,11 +56,30 @@ public class MatchManager : MonoBehaviour
 
     void Update()
     {
-        text.text = sevenSeg.getNum().ToString();
+        text.text = this.GetNumber().ToString();
+    }
+
+    public void SetNumber(int num)
+    {
+        for (int i = digitManagers.Count - 1; i >= 0; i--){
+            digitManagers[i].SetNumber(num % 10);
+            num /= 10;
+        }
     }
 
     public int GetNumber()
     {
-        return sevenSeg.getNum();
+        int res = 0;
+
+        foreach(DigitManager digitManager in digitManagers){
+            int digit = digitManager.GetNumber();
+            if(digit < 0) {
+                res = -1;
+                break;
+            }
+            res = res * 10 + digit;
+        }
+
+        return res;
     }
 }

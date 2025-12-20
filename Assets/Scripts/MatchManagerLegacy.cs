@@ -21,29 +21,29 @@ public class MatchManagerLegacy : MonoBehaviour
         }
     }
 
-    public void Setting()
-    {
-        Digits.Clear();
-        int num = GameManager.instance.ChangedNumber;
-        while (num > 0)
-        {
-            Digits.Add(num % 10);
-            num /= 10;
-        }
-        Digits.Reverse();
-        Length = Digits.Count;
+    // public void Setting()
+    // {
+    //     Digits.Clear();
+    //     int num = GameManager.instance.ChangedNumber;
+    //     while (num > 0)
+    //     {
+    //         Digits.Add(num % 10);
+    //         num /= 10;
+    //     }
+    //     Digits.Reverse();
+    //     Length = Digits.Count;
 
-        for (int i = 0; i < DigitManagers.Count; i++)
-        {
-            if (i < Length)
-            {
-                DigitManagers[i].SetActive(true);
-                Rect[i].anchoredPosition = new Vector3(-(Length - 1) * 0.5f / 2 + 0.5f * i, 0, 0);
-                DigitManagers[i].GetComponent<DigitManager>().Setting(Digits[i]);
-            }
-            else DigitManagers[i].SetActive(false);
-        }
-    }
+    //     for (int i = 0; i < DigitManagers.Count; i++)
+    //     {
+    //         if (i < Length)
+    //         {
+    //             DigitManagers[i].SetActive(true);
+    //             Rect[i].anchoredPosition = new Vector3(-(Length - 1) * 0.5f / 2 + 0.5f * i, 0, 0);
+    //             DigitManagers[i].GetComponent<DigitManager>().Setting(Digits[i]);
+    //         }
+    //         else DigitManagers[i].SetActive(false);
+    //     }
+    // }
 
     public int GetNumber()
     {
