@@ -30,6 +30,7 @@ public class MatchManager : MonoBehaviour
             Digits.Add(num % 10);
             num /= 10;
         }
+        Digits.Reverse();
         Length = Digits.Count;
 
         for (int i = 0; i < DigitManagers.Count; i++)
