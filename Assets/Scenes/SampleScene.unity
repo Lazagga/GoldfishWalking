@@ -442,8 +442,8 @@ MonoBehaviour:
   MoveCount: 2
   MaxMoveCount: 2
   MoveCountTxt: {fileID: 1479506446}
-  BeginNumber: 37
-  ChangedNumber: 37
+  BeginNumber: 137
+  ChangedNumber: 137
   BeforeZoom: {fileID: 125322497}
   AfterZoom: {fileID: 783242520}
   PlayerEnter: {fileID: 429625542}
@@ -2879,6 +2879,7 @@ MonoBehaviour:
   - {fileID: 1284605461}
   - {fileID: 996465162}
   - {fileID: 530781521}
+  Rect: []
   Length: 0
 --- !u!1 &816481899
 GameObject:
