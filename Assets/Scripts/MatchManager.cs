@@ -5,16 +5,21 @@ using UnityEngine;
 public class MatchManager : MonoBehaviour
 {
     public GameObject matchstickPrefab;
-    public GameObject matchSlotPrefab;
     private List<Transform> slots = new List<Transform>();
     public List<int> slotStateOriginal = new List<int>();
-    public List<DigitManager> digitManagers = new List<DigitManager>();
+    public Transform digitManagersContainer;
+    private List<DigitManager> digitManagers = new List<DigitManager>();
     public TextMeshProUGUI text = null;
     public Transform selectedMatch = null;
 
 
     void Awake()
     {
+        for(int i = 0; i < digitManagersContainer.childCount; i++)
+        {
+            digitManagers.Add(digitManagersContainer.GetChild(i).GetComponent<DigitManager>());
+        }
+
         foreach(DigitManager digitManager in digitManagers){
             for(int i = 0; i < 7; ++i)
             {
@@ -25,10 +30,12 @@ public class MatchManager : MonoBehaviour
 
     private void OnEnable()
     {
+
         slotStateOriginal.Clear();
         foreach(DigitManager digitManager in digitManagers){
             slotStateOriginal.AddRange(digitManager.slotState);
         }
+        SetNumber(GameManager.instance.ChangedNumber);
     }
 
     private void OnDisable()

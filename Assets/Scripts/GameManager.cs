@@ -44,7 +44,6 @@ public class GameManager : MonoBehaviour
         PlayerEnter.GetComponent<Button>().onClick.AddListener(OpenMatchPanel);
         NextTurnButton.onClick.AddListener(OnReset);
         ResetButton.onClick.AddListener(OnReset);
-        // EnemyEnter.GetComponent<Button>().onClick.AddListener(CamActionEnemy);
 
         for(int i = 0; i < 14; i++)
         {
@@ -56,15 +55,6 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        /*
-        if (Match)
-        {
-            MatchCursor.SetActive(true);
-            MatchCursor.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        }
-        else MatchCursor.SetActive(false);
-        */
-
         if (Input.GetMouseButtonDown(1) && Match)
         {
             Match = false;
@@ -73,7 +63,6 @@ public class GameManager : MonoBehaviour
     }
     public void OpenMatchPanel()
     {
-        matchPanel.GetComponent<MatchManager>().SetNumber(BeginNumber);
         matchPanel.SetActive(true);
         NextTurnButton.gameObject.SetActive(false);
     }
@@ -90,67 +79,4 @@ public class GameManager : MonoBehaviour
         ChangedNumber = BeginNumber;
         matchPanel.GetComponent<MatchManager>().SetNumber(BeginNumber);
     }
-
-    /*
-
-    public void CamActionPlayer()
-    {
-        dest = new Vector3(-4, 0, -10);
-        // MatchManager.Instance.Setting();
-        StartCoroutine("ZoomIn");
-    }
-
-    public void CamActionEnemy()
-    {
-        dest = new Vector3(4, 0, -10);
-        StartCoroutine("ZoomIn");
-    }
-
-    public IEnumerator ZoomIn()
-    {
-        float time = 0;
-        while (time < AnimTime)
-        {
-            time += Time.deltaTime;
-            Camera.main.transform.position = Vector3.Lerp(new Vector3(0, 0, -10), dest, time / AnimTime);
-            Camera.main.orthographicSize = Mathf.Lerp(5, 0.66f, time / AnimTime);
-            if(time / AnimTime > 0.5f)
-            {
-                BeforeZoom.SetActive(false);
-                AfterZoom.SetActive(true);
-            }
-            yield return null;
-        }
-        Camera.main.transform.position = dest;
-        Camera.main.orthographicSize = 0.66f;
-    }
-
-    public IEnumerator ZoomOut()
-    {
-        float time = 0;
-        while (time < AnimTime)
-        {
-            time += Time.deltaTime;
-            Camera.main.transform.position = Vector3.Lerp(dest, new Vector3(0, 0, -10), time / AnimTime);
-            Camera.main.orthographicSize = Mathf.Lerp(0.66f, 5, time / AnimTime);
-            if (time / AnimTime > 0.5f)
-            {
-                BeforeZoom.SetActive(true);
-                AfterZoom.SetActive(false);
-            }
-            yield return null;
-        }
-        Camera.main.transform.position = new Vector3(0, 0, -10);
-        Camera.main.orthographicSize = 5;
-    }
-
-    public void OnExit()
-    {
-        // int result = MatchManager.Instance.GetNumber();
-        // if (result < 0) return;//Match Positioning Error
-        // ChangedNumber = result;
-        // StartCoroutine("ZoomOut");
-    }
-
-    */
 }
