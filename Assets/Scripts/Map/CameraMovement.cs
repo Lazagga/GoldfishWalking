@@ -59,4 +59,9 @@ public class CameraMovement : MonoBehaviour
         hasTarget = true;
         this.onArrived = onArrived;
     }
+
+    public void MoveTo(Vector3 worldPos)
+    {
+        transform.position = new Vector3(worldPos.x, worldPos.y, fixedZ);
+    }
 }

@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 //using System;
 
 
@@ -48,7 +49,7 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        MoveCountTxt.text = MoveCount + " / " + MaxMoveCount;
+        PlayerData.Instance.MoveCountText.text = MoveCount + " / " + MaxMoveCount;
     }
 
     public void UpdateMoveCount()
@@ -137,6 +138,12 @@ public class GameManager : MonoBehaviour
 
     public void OnEndTurn()
     {
+        if (SceneManager.GetActiveScene().name == "Rest")
+        {
+            PlayerData.Instance.ChangeHealth(matchManagers[0].GetNumber());
+            SceneManager.LoadScene("Map");
+        }
+
         Debug.Log(PlayerNumber * PlayerMultNumber);
 
         PlayerNumberOriginal = Random.Range(10, 100);

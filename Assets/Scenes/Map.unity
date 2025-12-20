@@ -571,9 +571,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 534508dfe3677f541976859fe4264eda, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerData
-  Health: 0
-  MaxMoveCount: 0
-  ItemSlot: {fileID: 0}
+  Health: 80
+  MaxMoveCount: 2
+  MoveCount: 2
+  HealthText: {fileID: 1968278646}
+  MoveCountText: {fileID: 827884969}
+  isBuffed: 0
 --- !u!1 &1043313997
 GameObject:
   m_ObjectHideFlags: 0

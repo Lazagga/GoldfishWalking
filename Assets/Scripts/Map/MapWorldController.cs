@@ -93,6 +93,7 @@ public class MapWorldController : MonoBehaviour
 
         map = run.map;
         currentNodeId = run.currentNodeId;
+        cameraController.MoveTo(map.nodes[currentNodeId].pos);
 
         RenderFromMap(map);
         UpdateSelectable();

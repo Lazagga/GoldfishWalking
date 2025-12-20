@@ -49,14 +49,20 @@ public class RewardManager : MonoBehaviour
 
     public void OnLeft()
     {
-        // reward
+        if(LeftNum == 0) PlayerData.Instance.AddMaxCount();
+        //else if (LeftNum == 1) PlayerData.Instance.GetComponent<OperatorManager>().ShowOperators();
+        //else if (LeftNum == 2) PlayerData.Instance.GetComponent<ItemManager>().ShowAdditionalItems();
+        //else if (LeftNum == 3) PlayerData.Instance.GetComponent<ItemManager>().ShowRemoverItems();
         Left.GetComponent<Animator>().SetTrigger("Down");
         Right.GetComponent<Animator>().SetTrigger("Down");
     }
 
     public void OnRight()
     {
-        // reward
+        if (LeftNum == 0) PlayerData.Instance.AddMaxCount();
+        //else if (LeftNum == 1) PlayerData.Instance.GetComponent<OperatorManager>().ShowOperators();
+        //else if (LeftNum == 2) PlayerData.Instance.GetComponent<ItemManager>().ShowAdditionalItems();
+        //else if (LeftNum == 3) PlayerData.Instance.GetComponent<ItemManager>().ShowRemoverItems();
         Left.GetComponent<Animator>().SetTrigger("Down");
         Right.GetComponent<Animator>().SetTrigger("Down");
     }
