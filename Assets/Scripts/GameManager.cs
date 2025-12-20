@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
@@ -24,8 +25,10 @@ public class GameManager : MonoBehaviour
     public GameObject BeforeZoom;
     public GameObject AfterZoom;
 
-    public Button PlayerEnter, EnemyEnter;
+    public Button PlayerEnter, ResetButton, NextTurnButton;
     public Vector3 dest;
+
+    public List<int> matchSlotsState = new List<int>();
 
     public float AnimTime;
 
@@ -39,8 +42,16 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         PlayerEnter.GetComponent<Button>().onClick.AddListener(OpenMatchPanel);
+        NextTurnButton.onClick.AddListener(OnReset);
+        ResetButton.onClick.AddListener(OnReset);
         // EnemyEnter.GetComponent<Button>().onClick.AddListener(CamActionEnemy);
+
+        for(int i = 0; i < 14; i++)
+        {
+            matchSlotsState.Add(0);
+        }
     }
+
 
     // Update is called once per frame
     void Update()
@@ -60,15 +71,24 @@ public class GameManager : MonoBehaviour
         }
         MoveCountTxt.text = MoveCount + " / " + MaxMoveCount;
     }
-
     public void OpenMatchPanel()
     {
+        matchPanel.GetComponent<MatchManager>().SetNumber(BeginNumber);
         matchPanel.SetActive(true);
+        NextTurnButton.gameObject.SetActive(false);
     }
 
     public void CloseMatchPanel()
     {
+        if(matchPanel.GetComponent<MatchManager>().GetNumber() < 0) return;
         matchPanel.SetActive(false);
+    }
+
+    public void OnReset()
+    {
+        MoveCount = MaxMoveCount;
+        ChangedNumber = BeginNumber;
+        matchPanel.GetComponent<MatchManager>().SetNumber(BeginNumber);
     }
 
     /*
@@ -133,10 +153,4 @@ public class GameManager : MonoBehaviour
     }
 
     */
-    public void OnReset()
-    {
-        MoveCount = MaxMoveCount;
-        ChangedNumber = BeginNumber;
-        // MatchManager.Instance.Setting();
-    }
 }

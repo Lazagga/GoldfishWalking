@@ -1,14 +1,13 @@
 using System.Collections.Generic;
 using TMPro;
-using UnityEditor.Analytics;
 using UnityEngine;
 
 public class MatchManager : MonoBehaviour
 {
     public GameObject matchstickPrefab;
     public GameObject matchSlotPrefab;
-
     private List<Transform> slots = new List<Transform>();
+    public List<int> slotStateOriginal = new List<int>();
     public List<DigitManager> digitManagers = new List<DigitManager>();
     public TextMeshProUGUI text = null;
     public Transform selectedMatch = null;
@@ -26,12 +25,31 @@ public class MatchManager : MonoBehaviour
 
     private void OnEnable()
     {
-        SetNumber(GameManager.instance.ChangedNumber);
+        slotStateOriginal.Clear();
+        foreach(DigitManager digitManager in digitManagers){
+            slotStateOriginal.AddRange(digitManager.slotState);
+        }
     }
 
     private void OnDisable()
     {
         GameManager.instance.ChangedNumber = GetNumber();
+    }
+    
+    void Update()
+    {
+        text.text = GetNumber().ToString();
+    }
+
+    public void UpdateState()
+    {
+        int count = 0;
+        for(int i=0; i<slots.Count; i++)
+        {
+            if( slots[i].childCount != slotStateOriginal[i]  )
+                count++;
+        }
+        GameManager.instance.MoveCount = GameManager.instance.MaxMoveCount - count/2;
     }
 
     public Transform GetNearestSlot(Vector3 pos)
@@ -52,11 +70,6 @@ public class MatchManager : MonoBehaviour
         }
 
         return bestSlot;
-    }
-
-    void Update()
-    {
-        text.text = this.GetNumber().ToString();
     }
 
     public void SetNumber(int num)
