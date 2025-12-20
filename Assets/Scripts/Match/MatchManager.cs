@@ -37,9 +37,14 @@ public class MatchManager : MonoBehaviour
         SetNumber(num);
         if (slotStateOriginal.Count == 0)
         {
-            foreach(DigitManager digitManager in digitManagers){
-                slotStateOriginal.AddRange(digitManager.slotState);
-            }
+            SaveCurrentState();
+        }
+    }
+
+    public void SaveCurrentState()
+    {
+        foreach(DigitManager digitManager in digitManagers){
+            slotStateOriginal.AddRange(digitManager.slotState);
         }
     }
 
@@ -49,9 +54,7 @@ public class MatchManager : MonoBehaviour
         usedMoveInThisPanel = 0;
         if (gameObject.activeInHierarchy)
         {
-            foreach(DigitManager digitManager in digitManagers){
-                slotStateOriginal.AddRange(digitManager.slotState);
-            }
+            SaveCurrentState();
         }
     }
 

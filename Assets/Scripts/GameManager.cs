@@ -26,6 +26,11 @@ public class GameManager : MonoBehaviour
     private List<MatchManager> matchManagers = new List<MatchManager>();
     private int openMatchManagerIdx = 0;
 
+    public int maxEnemyHealth;
+    public int enemyHealth;
+
+    public TextMeshProUGUI PlayerHPBar, EnemyHPBar;
+
     private void Awake()
     {
         instance = this;
@@ -44,6 +49,10 @@ public class GameManager : MonoBehaviour
         EnemyEnter.onClick.AddListener(OpenMatchPanelEnemy);
         ResetButton.onClick.AddListener(OnReset);
         NextTurnButton.onClick.AddListener(OnEndTurn);
+
+        enemyHealth = maxEnemyHealth;
+        PlayerHPBar.text = PlayerData.Instance.Health.ToString();
+        EnemyHPBar.text = enemyHealth.ToString();
     }
 
     // Update is called once per frame
@@ -144,7 +153,26 @@ public class GameManager : MonoBehaviour
             SceneManager.LoadScene("Map");
         }
 
-        Debug.Log(PlayerNumber * PlayerMultNumber);
+        // Debug.Log(PlayerNumber * PlayerMultNumber);
+
+        enemyHealth -= PlayerNumber;
+        EnemyHPBar.text = enemyHealth.ToString();
+
+        if(enemyHealth <= 0)
+        {
+            SceneManager.LoadScene("Map");
+        }
+
+
+        PlayerData.Instance.ChangeHealth(-EnemyNumber);
+        PlayerHPBar.text = PlayerData.Instance.Health.ToString();
+
+
+        if (PlayerData.Instance.Health <= 0)
+        {
+            PlayerData.Instance.ChangeHealth(-PlayerData.Instance.Health);
+            SceneManager.LoadScene("Title");
+        }
 
         PlayerNumberOriginal = Random.Range(10, 100);
         PlayerNumber = PlayerNumberOriginal;
