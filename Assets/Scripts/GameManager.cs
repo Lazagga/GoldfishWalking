@@ -69,9 +69,9 @@ public class GameManager : MonoBehaviour
 
     public void CloseMatchPanel()
     {
-        GameObject matchPanel = matchManagers[openMatchManagerIdx].gameObject;
+        MatchManager matchManager = matchManagers[openMatchManagerIdx];
 
-        if(matchPanel.GetComponent<MatchManager>().GetNumber() < 0) return;
+        if(matchManager.GetNumber() < 0) return;
 
         int res = matchManagers[openMatchManagerIdx].GetNumber();
 
@@ -84,7 +84,8 @@ public class GameManager : MonoBehaviour
             EnemyNumber = res;
         }
 
-        matchPanel.SetActive(false);
+        matchManager.gameObject.SetActive(false);
+        NextTurnButton.gameObject.SetActive(true);
     }
 
     public void OnReset()

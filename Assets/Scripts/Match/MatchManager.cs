@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -31,11 +32,11 @@ public class MatchManager : MonoBehaviour
 
     public void Init(int num)
     {
+        SetNumber(num);
         slotStateOriginal.Clear();
         foreach(DigitManager digitManager in digitManagers){
             slotStateOriginal.AddRange(digitManager.slotState);
         }
-        SetNumber(num);
     }
     
     void Update()
@@ -45,13 +46,24 @@ public class MatchManager : MonoBehaviour
 
     public void UpdateState()
     {
-        int count = 0;
+        List<int> hasMatchIndexes = new List<int>();
+
         for(int i=0; i<slots.Count; i++)
         {
-            if( slots[i].childCount != slotStateOriginal[i]  )
-                count++;
+            if( slots[i].childCount > 0 )
+                hasMatchIndexes.Add(i);
         }
-        GameManager.instance.MoveCount = GameManager.instance.MaxMoveCount - count/2;
+
+        int count = 0;
+        foreach(int i in hasMatchIndexes)
+        {
+            if( slotStateOriginal[i] == 0)
+            {
+                count++;
+            }
+        }
+
+        GameManager.instance.MoveCount = GameManager.instance.MaxMoveCount - count;
     }
 
     public Transform GetNearestSlot(Vector3 pos)
