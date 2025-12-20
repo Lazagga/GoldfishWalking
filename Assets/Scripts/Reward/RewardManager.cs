@@ -1,36 +1,63 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class RewardManager : MonoBehaviour
 {
-    public Button Count;
-    public Button Oper;
-    public Button Reward;
+    public Button Left, Right;
 
-    private void Awake()
+    public enum RewardType
     {
-        Count.GetComponent<Button>().onClick.AddListener(OnCount);
-        Oper.GetComponent<Button>().onClick.AddListener(OnOper);
-        OnClearBattle();
+        CountUp,
+        Operator,
+        Additional,
+        Remover
     }
 
-    public void OnCount()
+    public int LeftNum, RightNum;
+    public RewardType leftReward, rightReward;
+
+    private void Update()
     {
-        GameManager.instance.MaxMoveCount++;
-        Count.GetComponent<Animator>().SetTrigger("Choose");
-        Oper.GetComponent<Animator>().SetTrigger("Choose");
+        if(Input.GetMouseButtonDown(0))
+        {
+            ShowRewards();
+        }
     }
 
-    public void OnOper()
+    public void ShowRewards()
     {
-        //연산기호 랜덤 하나 추가
-        Count.GetComponent<Animator>().SetTrigger("Choose");
-        Oper.GetComponent<Animator>().SetTrigger("Choose");
+        LeftNum = Random.Range(0, 3);
+        RightNum = Random.Range(0, 3);
+        while(RightNum == LeftNum) RightNum = Random.Range(0, 3);
+        if (LeftNum > RightNum)
+        {
+            int temp = LeftNum;
+            LeftNum = RightNum;
+            RightNum = temp;
+        }
+
+        leftReward = (RewardType)LeftNum;
+        rightReward = (RewardType)RightNum;
+
+        Left.GetComponentInChildren<TMP_Text>().text = leftReward.ToString();
+        Right.GetComponentInChildren<TMP_Text>().text = rightReward.ToString();
+
+        Left.GetComponent<Animator>().SetTrigger("Up");
+        Right.GetComponent<Animator>().SetTrigger("Up");
     }
 
-    public void OnClearBattle()
+    public void OnLeft()
     {
-        Count.GetComponent<Animator>().SetTrigger("Clear");
-        Oper.GetComponent<Animator>().SetTrigger("Clear");
+        // reward
+        Left.GetComponent<Animator>().SetTrigger("Down");
+        Right.GetComponent<Animator>().SetTrigger("Down");
+    }
+
+    public void OnRight()
+    {
+        // reward
+        Left.GetComponent<Animator>().SetTrigger("Down");
+        Right.GetComponent<Animator>().SetTrigger("Down");
     }
 }

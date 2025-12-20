@@ -292,7 +292,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
   m_UiScaleMode: 0
-  m_ReferencePixelsPerUnit: 100
+  m_ReferencePixelsPerUnit: 1
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 800, y: 600}
   m_ScreenMatchMode: 0
@@ -530,7 +530,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4c6b5f11098da04b9e957b3e7c5261b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MapGenerator
-  middleLayers: 10
+  middleLayers: 7
   xStep: 5
   yOffset: 2
 --- !u!114 &1809459221
@@ -574,6 +574,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MapWorldController
   cameraController: {fileID: 1154686759}
+  Battle: {fileID: 0}
+  Rest: {fileID: 0}
+  Boss: {fileID: 0}
   nodePrefab: {fileID: 7916565577119456705, guid: 3bbfde6b032371d4783b7cd686601123, type: 3}
   linePrefab: {fileID: 3288145144342733898, guid: eb7b8743b3019234c9404b14adfc2f3c, type: 3}
   worldOrigin: {x: 0, y: 0, z: 0}

@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 public class MapWorldController : MonoBehaviour
 {
     public CameraMovement cameraController;
+    public Sprite Battle, Rest, Boss;
 
     [Header("Prefabs")]
     public NodeWorldView nodePrefab;
@@ -138,6 +139,15 @@ public class MapWorldController : MonoBehaviour
             var worldPos = ToWorld(n.pos);
 
             var view = Instantiate(nodePrefab, worldPos, Quaternion.identity, transform);
+        //    view.GetComponent<SpriteRenderer>().sprite = n.type switch
+        //    {
+        //        NodeType.Start => Battle,
+        //        NodeType.Battle => Battle,
+        //        NodeType.Battle2 => Battle,
+        //        NodeType.Rest => Rest,
+        //        NodeType.End => Boss,
+        //        _ => null
+        //    };
             view.name = $"Node_{n.id}_{n.type}";
             view.Init(this, n.id);
 
@@ -165,6 +175,8 @@ public class MapWorldController : MonoBehaviour
                 lr.useWorldSpace = true;
                 lr.SetPosition(0, fromWorld);
                 lr.SetPosition(1, toWorld);
+                lr.startColor = Color.white;
+                lr.endColor = Color.white;
 
                 lines.Add(lr);
             }

@@ -66,7 +66,7 @@ public class MapGenerator : MonoBehaviour
                     id = idCounter++,
                     layer = layer,
                     indexInLayer = i,
-                    type = layer < 3 ? NodeType.Battle : NodeType.Battle2
+                    type = layer < 4 ? NodeType.Battle : NodeType.Battle2
                 };
                 map.nodes.Add(n);
                 if (i == 1) map.nodes[rng.Next(n.id - 1, n.id + 1)].type = NodeType.Rest;
