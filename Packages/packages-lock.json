@@ -40,7 +40,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.2d.pixel-perfect": {
-      "version": "5.1.0",
+      "version": "5.1.1",
       "depth": 1,
       "source": "registry",
       "dependencies": {
@@ -166,7 +166,7 @@
       "source": "builtin",
       "dependencies": {
         "com.unity.2d.animation": "12.0.2",
-        "com.unity.2d.pixel-perfect": "5.1.0",
+        "com.unity.2d.pixel-perfect": "5.1.1",
         "com.unity.2d.psdimporter": "11.0.1",
         "com.unity.2d.sprite": "1.0.0",
         "com.unity.2d.spriteshape": "12.0.1",
@@ -310,9 +310,9 @@
       "depth": 1,
       "source": "registry",
       "dependencies": {
-        "com.unity.modules.unitywebrequest": "1.0.0",
+        "com.unity.modules.androidjni": "1.0.0",
         "com.unity.nuget.newtonsoft-json": "3.2.1",
-        "com.unity.modules.androidjni": "1.0.0"
+        "com.unity.modules.unitywebrequest": "1.0.0"
       },
       "url": "https://packages.unity.com"
     },
