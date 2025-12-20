@@ -45,6 +45,7 @@ public class Matchstick : MonoBehaviour, IPointerClickHandler
 
     void Update()
     {
+        transform.localScale = Vector3.one;
         // 선택된 성냥이면 마우스 따라가기
         if(matchManager.selectedMatch == transform)
         {
