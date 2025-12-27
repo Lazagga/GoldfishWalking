@@ -54,9 +54,19 @@ public class GameManager : MonoBehaviour
         ResetButton.onClick.AddListener(OnReset);
         NextTurnButton.onClick.AddListener(OnEndTurn);
 
+        PlayerNumberOriginal = Random.Range(10, 100);
+        PlayerNumber = PlayerNumberOriginal;
+
+        PlayerMultNumberOriginal = Random.Range(0, 10);
+        PlayerMultNumber = PlayerMultNumberOriginal;
+
+        EnemyNumberOriginal = Random.Range(10, 100);
+        EnemyNumber = EnemyNumberOriginal;
+
         enemyHealth = maxEnemyHealth;
         PlayerHPBar.text = PlayerData.Instance.Health.ToString();
         EnemyHPBar.text = enemyHealth.ToString();
+
     }
 
     // Update is called once per frame
@@ -161,19 +171,6 @@ public class GameManager : MonoBehaviour
 
         StartCoroutine(Fight());
 
-        PlayerNumberOriginal = Random.Range(10, 100);
-        PlayerNumber = PlayerNumberOriginal;
-
-        PlayerMultNumberOriginal = Random.Range(0, 10);
-        PlayerMultNumber = PlayerMultNumberOriginal;
-
-        EnemyNumberOriginal = Random.Range(10, 100);
-        EnemyNumber = EnemyNumberOriginal;
-
-        foreach(MatchManager matchManager in matchManagers)
-        {
-            matchManager.Reset();
-        }
     }
 
     public IEnumerator Fight()
@@ -200,7 +197,22 @@ public class GameManager : MonoBehaviour
         if (PlayerData.Instance.Health <= 0)
         {
             PlayerData.Instance.ChangeHealth(-PlayerData.Instance.Health);
-            SceneManager.LoadScene("Title");
+            Application.Quit();
         }
+
+        PlayerNumberOriginal = Random.Range(10, 100);
+        PlayerNumber = PlayerNumberOriginal;
+
+        PlayerMultNumberOriginal = Random.Range(0, 10);
+        PlayerMultNumber = PlayerMultNumberOriginal;
+
+        EnemyNumberOriginal = Random.Range(10, 100);
+        EnemyNumber = EnemyNumberOriginal;
+
+        foreach (MatchManager matchManager in matchManagers)
+        {
+            matchManager.Reset();
+        }
+        MoveCount = MaxMoveCount;
     }
 }

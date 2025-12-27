@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -177,8 +176,6 @@ public class MapWorldController : MonoBehaviour
                 lr.useWorldSpace = true;
                 lr.SetPosition(0, fromWorld);
                 lr.SetPosition(1, toWorld);
-                lr.startColor = Color.white;
-                lr.endColor = Color.white;
 
                 lines.Add(lr);
             }

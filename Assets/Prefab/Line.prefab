@@ -91,7 +91,7 @@ LineRenderer:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.19708824
+        value: 0.11106682
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -121,8 +121,8 @@ LineRenderer:
       ctime7: 0
       atime0: 0
       atime1: 65535
-      atime2: 0
-      atime3: 0
+      atime2: 65535
+      atime3: 65535
       atime4: 0
       atime5: 0
       atime6: 0

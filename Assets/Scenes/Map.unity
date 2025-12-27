@@ -984,8 +984,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MapWorldController
   cameraController: {fileID: 1154686759}
-  Battle: {fileID: 7378561555977232062, guid: 69a3ce5b77eefd346adc390d773882c7, type: 3}
-  Rest: {fileID: -6781120428374379586, guid: eda954ad5d9f4ec458caff609c6ae427, type: 3}
+  Battle: {fileID: 21300000, guid: c74b2da9a33209840a9769356d067736, type: 3}
+  Rest: {fileID: 21300000, guid: 25bc9b82db5680b4fa50bfd73983a0d0, type: 3}
   Boss: {fileID: 0}
   nodePrefab: {fileID: 7916565577119456705, guid: 3bbfde6b032371d4783b7cd686601123, type: 3}
   linePrefab: {fileID: 3288145144342733898, guid: eb7b8743b3019234c9404b14adfc2f3c, type: 3}
