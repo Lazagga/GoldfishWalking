@@ -1,58 +1,79 @@
-using UnityEngine;
-using TMPro;
-using UnityEngine.UI;
-using System.Collections.Generic;
-using UnityEngine.SceneManagement;
 using System.Collections;
-using Unity.VisualScripting;
-//using System;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
-
+/// <summary>
+/// Battle 패널 전담 컨트롤러.
+/// 씬 전환 대신 GameEvents를 통해 GameFlowController에 결과를 알린다.
+/// </summary>
 public class GameManager : MonoBehaviour
 {
-    public static GameManager instance = null;
+    public static GameManager instance;
 
-    public int MoveCount;
-    public int MaxMoveCount;
-    public TMP_Text MoveCountTxt;
+    [Header("Player Data")]
+    public PlayerRunData playerData;
 
+    [Header("Numbers")]
     public int PlayerNumber, PlayerNumberOriginal;
-
     public int PlayerMultNumber, PlayerMultNumberOriginal;
-
     public int EnemyNumber, EnemyNumberOriginal;
 
+    [Header("Enemy")]
+    public int maxEnemyHealth;
+    private int enemyHealth;
+
+    [Header("UI")]
+    public TextMeshProUGUI EnemyHPBar; // 플레이어 HP는 PlayerHUD가 담당
     public Button PlayerEnter, PlayerMultEnter, EnemyEnter, ResetButton, NextTurnButton;
 
-    public Transform matchManagerContainer;
-    private List<MatchManager> matchManagers = new List<MatchManager>();
-    private int openMatchManagerIdx = 0;
-
-    public int maxEnemyHealth;
-    public int enemyHealth;
-
-    public TextMeshProUGUI PlayerHPBar, EnemyHPBar;
-
+    [Header("Animators")]
     public Animator player, enemy;
+
+    [Header("Match Panels")]
+    public Transform matchManagerContainer;
+    private List<MatchManager> matchManagers = new();
+
+    private enum PanelTarget { Player, Multiplier, Enemy }
+    private PanelTarget currentTarget;
+
+    private int moveCountRemaining;
 
     private void Awake()
     {
         instance = this;
-
-        for(int i = 0; i < matchManagerContainer.childCount; i++)
-        {
-            matchManagers.Add(matchManagerContainer.GetChild(i).GetComponent<MatchManager>());
-        }
+        foreach (Transform child in matchManagerContainer)
+            matchManagers.Add(child.GetComponent<MatchManager>());
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void OnEnable()
     {
+        GameEvents.OnMatchMoved += RecalculateMoveCount;
+
         PlayerEnter.onClick.AddListener(OpenMatchPanelPlayer);
         PlayerMultEnter.onClick.AddListener(OpenMatchPanelPlayerMult);
         EnemyEnter.onClick.AddListener(OpenMatchPanelEnemy);
         ResetButton.onClick.AddListener(OnReset);
         NextTurnButton.onClick.AddListener(OnEndTurn);
+
+        InitTurn();
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.OnMatchMoved -= RecalculateMoveCount;
+
+        PlayerEnter.onClick.RemoveListener(OpenMatchPanelPlayer);
+        PlayerMultEnter.onClick.RemoveListener(OpenMatchPanelPlayerMult);
+        EnemyEnter.onClick.RemoveListener(OpenMatchPanelEnemy);
+        ResetButton.onClick.RemoveListener(OnReset);
+        NextTurnButton.onClick.RemoveListener(OnEndTurn);
+    }
+
+    private void InitTurn()
+    {
+        moveCountRemaining = playerData.maxMoveCount;
 
         PlayerNumberOriginal = Random.Range(10, 100);
         PlayerNumber = PlayerNumberOriginal;
@@ -64,155 +85,110 @@ public class GameManager : MonoBehaviour
         EnemyNumber = EnemyNumberOriginal;
 
         enemyHealth = maxEnemyHealth;
-        PlayerHPBar.text = PlayerData.Instance.Health.ToString();
+
+        foreach (var mm in matchManagers) mm.Reset();
+
+        RefreshUI();
+        GameEvents.MoveCountChanged(moveCountRemaining);
+    }
+
+    private void RefreshUI()
+    {
         EnemyHPBar.text = enemyHealth.ToString();
-
     }
 
-    // Update is called once per frame
-    void Update()
+    // --- 이동 횟수 ---
+
+    private void RecalculateMoveCount()
     {
-        PlayerData.Instance.MoveCountText.text = MoveCount + " / " + MaxMoveCount;
+        int used = 0;
+        foreach (var mm in matchManagers) used += mm.usedMoveInThisPanel;
+        moveCountRemaining = playerData.maxMoveCount - used;
+        GameEvents.MoveCountChanged(moveCountRemaining);
     }
 
-    public void UpdateMoveCount()
+    // --- 패널 열기 ---
+
+    public void OpenMatchPanelPlayer()     => OpenPanel(PanelTarget.Player);
+    public void OpenMatchPanelPlayerMult() => OpenPanel(PanelTarget.Multiplier);
+    public void OpenMatchPanelEnemy()      => OpenPanel(PanelTarget.Enemy);
+
+    private void OpenPanel(PanelTarget target)
     {
-        int sumUsedMove = 0;
-        foreach(MatchManager matchManager in matchManagers)
+        currentTarget = target;
+        int idx = (int)target;
+        int initNum = target switch
         {
-            sumUsedMove += matchManager.usedMoveInThisPanel;
-        }
-        MoveCount = MaxMoveCount - sumUsedMove;
-    }
+            PanelTarget.Player     => PlayerNumber,
+            PanelTarget.Multiplier => PlayerMultNumber,
+            PanelTarget.Enemy      => EnemyNumber,
+            _                      => 0
+        };
 
-    public void OpenMatchPanelPlayer()
-    {
-        MatchManager matchManager = matchManagers[0];
-        
-        matchManager.gameObject.SetActive(true);
-        openMatchManagerIdx = 0;
-        matchManager.Init(PlayerNumber);
-        NextTurnButton.gameObject.SetActive(false);
-    }
-
-    public void OpenMatchPanelPlayerMult()
-    {
-        MatchManager matchManager = matchManagers[1];
-        
-        matchManager.gameObject.SetActive(true);
-        openMatchManagerIdx = 1;
-        matchManager.Init(PlayerMultNumber);
-        NextTurnButton.gameObject.SetActive(false);
-    }
-
-    public void OpenMatchPanelEnemy()
-    {
-        MatchManager matchManager = matchManagers[2];
-        
-        matchManager.gameObject.SetActive(true);
-        openMatchManagerIdx = 2;
-        matchManager.Init(EnemyNumber);
+        matchManagers[idx].gameObject.SetActive(true);
+        matchManagers[idx].Init(initNum);
         NextTurnButton.gameObject.SetActive(false);
     }
 
     public void CloseMatchPanel()
     {
-        MatchManager matchManager = matchManagers[openMatchManagerIdx];
+        int idx = (int)currentTarget;
+        int res = matchManagers[idx].GetNumber();
+        if (res < 0) return;
 
-        if(matchManager.GetNumber() < 0) return;
-
-        int res = matchManagers[openMatchManagerIdx].GetNumber();
-
-
-        switch (openMatchManagerIdx)
+        switch (currentTarget)
         {
-            case 0:
-                PlayerNumber = res;
-                break;
-            case 1:
-                PlayerMultNumber = res;
-                break;
-            case 2:
-                EnemyNumber = res;
-                break;
+            case PanelTarget.Player:     PlayerNumber     = res; break;
+            case PanelTarget.Multiplier: PlayerMultNumber = res; break;
+            case PanelTarget.Enemy:      EnemyNumber      = res; break;
         }
 
-        matchManager.gameObject.SetActive(false);
+        matchManagers[idx].gameObject.SetActive(false);
         NextTurnButton.gameObject.SetActive(true);
     }
 
     public void OnReset()
     {
-        MoveCount = MaxMoveCount;
-
-        PlayerNumber = PlayerNumberOriginal;
-
+        PlayerNumber     = PlayerNumberOriginal;
         PlayerMultNumber = PlayerMultNumberOriginal;
+        EnemyNumber      = EnemyNumberOriginal;
 
-        EnemyNumber = EnemyNumberOriginal;
+        foreach (var mm in matchManagers) mm.Reset();
 
-        matchManagers[openMatchManagerIdx].Init(PlayerMultNumber);
-        
-        foreach(MatchManager matchManager in matchManagers)
-        {
-            matchManager.Reset();
-        }
+        moveCountRemaining = playerData.maxMoveCount;
+        GameEvents.MoveCountChanged(moveCountRemaining);
     }
 
-    public void OnEndTurn()
-    {
-        if (SceneManager.GetActiveScene().name == "Rest")
-        {
-            PlayerData.Instance.ChangeHealth(matchManagers[0].GetNumber());
-            SceneManager.LoadScene("Map");
-        }
+    public void OnEndTurn() => StartCoroutine(Fight());
 
-        // Debug.Log(PlayerNumber * PlayerMultNumber);
-
-        StartCoroutine(Fight());
-
-    }
-
-    public IEnumerator Fight()
+    private IEnumerator Fight()
     {
         player.SetTrigger("Attack");
         yield return new WaitForSeconds(0.5f);
+
         enemyHealth -= PlayerNumber;
         EnemyHPBar.text = enemyHealth.ToString();
 
         if (enemyHealth <= 0)
         {
-            SceneManager.LoadScene("Map");
+            GameEvents.BattleWon();
             yield break;
         }
 
-        yield return new WaitForSeconds(0.5f);
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(1f);
 
         enemy.SetTrigger("Attack");
         yield return new WaitForSeconds(0.5f);
-        PlayerData.Instance.ChangeHealth(-EnemyNumber);
-        PlayerHPBar.text = PlayerData.Instance.Health.ToString();
 
-        if (PlayerData.Instance.Health <= 0)
+        playerData.ChangeHealth(-EnemyNumber); // PlayerHUD가 이벤트로 자동 갱신
+
+        if (playerData.health <= 0)
         {
-            PlayerData.Instance.ChangeHealth(-PlayerData.Instance.Health);
-            Application.Quit();
+            GameEvents.BattleLost();
+            yield break;
         }
 
-        PlayerNumberOriginal = Random.Range(10, 100);
-        PlayerNumber = PlayerNumberOriginal;
-
-        PlayerMultNumberOriginal = Random.Range(0, 10);
-        PlayerMultNumber = PlayerMultNumberOriginal;
-
-        EnemyNumberOriginal = Random.Range(10, 100);
-        EnemyNumber = EnemyNumberOriginal;
-
-        foreach (MatchManager matchManager in matchManagers)
-        {
-            matchManager.Reset();
-        }
-        MoveCount = MaxMoveCount;
+        // 다음 턴
+        InitTurn();
     }
 }

@@ -14,7 +14,7 @@ public class TitleManager : MonoBehaviour
 
     public void OnStart()
     {
-        SceneManager.LoadScene("Map");
+        SceneManager.LoadScene("Game"); // "Map" 씬 제거 → 단일 "Game" 씬으로
     }
 
     public void OnOption()
@@ -22,13 +22,13 @@ public class TitleManager : MonoBehaviour
         OptionAnim.SetTrigger("Up");
     }
 
-    public void OnExit()
-    {
-        Application.Quit();
-    }
-
     public void OnDone()
     {
         OptionAnim.SetTrigger("Down");
+    }
+
+    public void OnExit()
+    {
+        Application.Quit();
     }
 }

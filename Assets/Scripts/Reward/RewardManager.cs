@@ -1,47 +1,46 @@
+using System.Collections.Generic;
+using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
+/// <summary>
+/// Reward 패널 전담 컨트롤러.
+/// Strategy 패턴: IReward 목록에서 랜덤 2개를 선택해 제시한다.
+/// 새 보상 추가 = rewardPool에 항목 추가만으로 완결.
+/// </summary>
 public class RewardManager : MonoBehaviour
 {
+    [Header("Player Data")]
+    public PlayerRunData playerData;
+
+    [Header("UI")]
     public Button Left, Right;
 
-    public enum RewardType
+    private IReward leftReward;
+    private IReward rightReward;
+
+    private readonly List<IReward> rewardPool = new()
     {
-        CountUp,
-        Operator,
-        Additional,
-        Remover
+        new CountUpReward(),
+        // new OperatorReward(),
+        // new RemoverReward(),
+    };
+
+    private void OnEnable()
+    {
+        ShowRewards();
     }
 
-    public int LeftNum, RightNum;
-    public RewardType leftReward, rightReward;
-
-    private void Update()
+    private void ShowRewards()
     {
-        if(Input.GetMouseButtonDown(0))
-        {
-            ShowRewards();
-        }
-    }
+        var shuffled = rewardPool.OrderBy(_ => Random.value).ToList();
 
-    public void ShowRewards()
-    {
-        LeftNum = Random.Range(0, 3);
-        RightNum = Random.Range(0, 3);
-        while(RightNum == LeftNum) RightNum = Random.Range(0, 3);
-        if (LeftNum > RightNum)
-        {
-            int temp = LeftNum;
-            LeftNum = RightNum;
-            RightNum = temp;
-        }
+        leftReward  = shuffled[0];
+        rightReward = shuffled.Count > 1 ? shuffled[1] : shuffled[0];
 
-        leftReward = (RewardType)LeftNum;
-        rightReward = (RewardType)RightNum;
-
-        Left.GetComponentInChildren<TMP_Text>().text = leftReward.ToString();
-        Right.GetComponentInChildren<TMP_Text>().text = rightReward.ToString();
+        Left.GetComponentInChildren<TMP_Text>().text  = leftReward.DisplayName;
+        Right.GetComponentInChildren<TMP_Text>().text = rightReward.DisplayName;
 
         Left.GetComponent<Animator>().SetTrigger("Up");
         Right.GetComponent<Animator>().SetTrigger("Up");
@@ -49,21 +48,20 @@ public class RewardManager : MonoBehaviour
 
     public void OnLeft()
     {
-        if(LeftNum == 0) PlayerData.Instance.AddMaxCount();
-        //else if (LeftNum == 1) PlayerData.Instance.GetComponent<OperatorManager>().ShowOperators();
-        //else if (LeftNum == 2) PlayerData.Instance.GetComponent<ItemManager>().ShowAdditionalItems();
-        //else if (LeftNum == 3) PlayerData.Instance.GetComponent<ItemManager>().ShowRemoverItems();
-        Left.GetComponent<Animator>().SetTrigger("Down");
-        Right.GetComponent<Animator>().SetTrigger("Down");
+        leftReward.Apply(playerData);
+        Complete();
     }
 
     public void OnRight()
     {
-        if (LeftNum == 0) PlayerData.Instance.AddMaxCount();
-        //else if (LeftNum == 1) PlayerData.Instance.GetComponent<OperatorManager>().ShowOperators();
-        //else if (LeftNum == 2) PlayerData.Instance.GetComponent<ItemManager>().ShowAdditionalItems();
-        //else if (LeftNum == 3) PlayerData.Instance.GetComponent<ItemManager>().ShowRemoverItems();
+        rightReward.Apply(playerData); // 수정: 기존 코드는 rightReward에서도 LeftNum을 체크하는 버그 있었음
+        Complete();
+    }
+
+    private void Complete()
+    {
         Left.GetComponent<Animator>().SetTrigger("Down");
         Right.GetComponent<Animator>().SetTrigger("Down");
+        GameEvents.RewardCompleted();
     }
 }

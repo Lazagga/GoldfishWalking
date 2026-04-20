@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -6,46 +5,37 @@ using UnityEngine;
 public class MatchManager : MonoBehaviour
 {
     public GameObject matchstickPrefab;
-    private List<Transform> slots = new List<Transform>();
-    public List<int> slotStateOriginal = new List<int>();
+    private List<Transform> slots = new();
+    public List<int> slotStateOriginal = new();
 
     public int usedMoveInThisPanel = 0;
 
     public Transform digitManagersContainer;
-    private List<DigitManager> digitManagers = new List<DigitManager>();
+    private List<DigitManager> digitManagers = new();
     public TextMeshProUGUI text = null;
     public Transform selectedMatch = null;
 
-
-    void Awake()
+    private void Awake()
     {
-        for(int i = 0; i < digitManagersContainer.childCount; i++)
-        {
+        for (int i = 0; i < digitManagersContainer.childCount; i++)
             digitManagers.Add(digitManagersContainer.GetChild(i).GetComponent<DigitManager>());
-        }
 
-        foreach(DigitManager digitManager in digitManagers){
-            for(int i = 0; i < 7; ++i)
-            {
-                slots.Add(digitManager.transform.GetChild(i));
-            }
-        }
+        foreach (var dm in digitManagers)
+            for (int i = 0; i < 7; i++)
+                slots.Add(dm.transform.GetChild(i));
     }
 
     public void Init(int num)
     {
         SetNumber(num);
         if (slotStateOriginal.Count == 0)
-        {
             SaveCurrentState();
-        }
     }
 
     public void SaveCurrentState()
     {
-        foreach(DigitManager digitManager in digitManagers){
-            slotStateOriginal.AddRange(digitManager.slotState);
-        }
+        foreach (var dm in digitManagers)
+            slotStateOriginal.AddRange(dm.slotState);
     }
 
     public void Reset()
@@ -53,37 +43,26 @@ public class MatchManager : MonoBehaviour
         slotStateOriginal.Clear();
         usedMoveInThisPanel = 0;
         if (gameObject.activeInHierarchy)
-        {
             SaveCurrentState();
-        }
     }
 
-    
-    
-    void Update()
+    private void Update()
     {
-        text.text = GetNumber().ToString();
+        if (text != null)
+            text.text = GetNumber().ToString();
     }
 
     public void UpdateState()
     {
-        List<int> hasMatchIndexes = new List<int>();
-
-        for(int i=0; i<slots.Count; i++)
-        {
-            if( slots[i].childCount > 0 )
-                hasMatchIndexes.Add(i);
-        }
-
         usedMoveInThisPanel = 0;
-        foreach(int i in hasMatchIndexes)
+
+        for (int i = 0; i < slots.Count; i++)
         {
-            if( slotStateOriginal[i] == 0 )
-            {
+            if (slots[i].childCount > 0 && slotStateOriginal.Count > i && slotStateOriginal[i] == 0)
                 usedMoveInThisPanel++;
-            }
         }
-        GameManager.instance.UpdateMoveCount();
+
+        GameEvents.MatchMoved(); // GameManager.instance 직접 호출 제거
     }
 
     public Transform GetNearestSlot(Vector3 pos)
@@ -91,14 +70,13 @@ public class MatchManager : MonoBehaviour
         Transform bestSlot = null;
         float bestDist = float.MaxValue;
 
-        foreach(Transform slot in slots)
+        foreach (var slot in slots)
         {
-            if(slot.childCount >= 1) continue; // 이미 다른 성냥이 들어가있으면 skip
+            if (slot.childCount >= 1) continue;
 
             float distSq = (pos - slot.position).sqrMagnitude;
-            
-            if(distSq > 3000f || bestDist < distSq) continue;
-            
+            if (distSq > 3000f || bestDist < distSq) continue;
+
             bestSlot = slot;
             bestDist = distSq;
         }
@@ -108,7 +86,8 @@ public class MatchManager : MonoBehaviour
 
     public void SetNumber(int num)
     {
-        for (int i = digitManagers.Count - 1; i >= 0; i--){
+        for (int i = digitManagers.Count - 1; i >= 0; i--)
+        {
             digitManagers[i].SetNumber(num % 10);
             num /= 10;
         }
@@ -117,16 +96,12 @@ public class MatchManager : MonoBehaviour
     public int GetNumber()
     {
         int res = 0;
-
-        foreach(DigitManager digitManager in digitManagers){
-            int digit = digitManager.GetNumber();
-            if(digit < 0) {
-                res = -1;
-                break;
-            }
+        foreach (var dm in digitManagers)
+        {
+            int digit = dm.GetNumber();
+            if (digit < 0) return -1;
             res = res * 10 + digit;
         }
-
         return res;
     }
 }

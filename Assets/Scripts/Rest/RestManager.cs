@@ -1,42 +1,52 @@
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
+/// <summary>
+/// Rest 패널 전담 컨트롤러.
+/// 완료 시 SceneManager 대신 GameEvents.RestCompleted를 발행한다.
+/// </summary>
 public class RestManager : MonoBehaviour
 {
-    public bool didRest = false;
-    public GameObject Matchspace;
+    [Header("Player Data")]
+    public PlayerRunData playerData;
+
+    [Header("UI")]
+    public GameObject matchspace;
     public MatchManager manager;
 
-    int value = 0;
+    private bool didRest = false;
+    private int healValue = 0;
+
+    private void OnEnable()
+    {
+        didRest = false;
+        healValue = 0;
+    }
 
     public void OnClick()
     {
-        Matchspace.SetActive(true);
-        manager.Init(PlayerData.Instance.Health);
+        matchspace.SetActive(true);
+        manager.Init(playerData.health);
     }
 
     public void OnClose()
     {
-        value = manager.GetNumber();
-        if (value < 0)
-        {
-            return;
-        }
-        Matchspace.SetActive(false);
+        int value = manager.GetNumber();
+        if (value < 0) return;
+
+        healValue = value;
+        matchspace.SetActive(false);
     }
 
     public void OnRest()
     {
-        if (Matchspace.activeSelf) return;
+        if (matchspace.activeSelf) return;
         didRest = true;
-        PlayerData.Instance.ChangeHealth(value);
+        playerData.ChangeHealth(healValue);
     }
 
     public void OnDone()
     {
-        //fade
-        if (!didRest) PlayerData.Instance.isBuffed = true;
-        SceneManager.LoadScene("Map");
+        if (!didRest) playerData.isBuffed = true;
+        GameEvents.RestCompleted();
     }
 }
