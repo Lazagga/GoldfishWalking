@@ -1,0 +1,791 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 612a3f3953f3ed84fb589c83b101daa0, type: 3}
+  m_Name: MonsterDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Data.MonsterDatabase
+  monsters:
+  - id: Mob_10101_Fairy
+    sourceId: 10101
+    act: 1
+    grade: 0
+    difficulty: 1
+    devName: "\uC694\uC815"
+    dataName: Mob_10101_Fairy
+    nameStringId: 
+    descStringId: 
+    displayName: "\uC694\uC815"
+    description: 
+    baseHealth: 150
+    baseStrength: 0
+    aiType: 1
+    patternIds:
+    - 2_Single
+    - 2_Multi_1
+    rawPatternArray: 2_Single, 2_Multi_1
+    sprite: 
+  - id: Mob_10102_WildDog
+    sourceId: 10102
+    act: 1
+    grade: 0
+    difficulty: 1
+    devName: "\uB4E4\uAC1C"
+    dataName: Mob_10102_WildDog
+    nameStringId: 
+    descStringId: 
+    displayName: "\uB4E4\uAC1C"
+    description: 
+    baseHealth: 120
+    baseStrength: 0
+    aiType: 0
+    patternIds:
+    - 2_Single
+    - 2_Single
+    - Str_1
+    rawPatternArray: 2_Single, 2_Single, Str_1
+    sprite: 
+  - id: Mob_10103_Slime
+    sourceId: 10103
+    act: 1
+    grade: 0
+    difficulty: 1
+    devName: "\uC2AC\uB77C\uC784"
+    dataName: Mob_10103_Slime
+    nameStringId: 
+    descStringId: 
+    displayName: "\uC2AC\uB77C\uC784"
+    description: 
+    baseHealth: 160
+    baseStrength: 0
+    aiType: 1
+    patternIds:
+    - SlimeSingle
+    - 2_Single
+    rawPatternArray: SlimeSingle, 2_Single
+    sprite: 
+  - id: Mob_10104_MushroomMan
+    sourceId: 10104
+    act: 1
+    grade: 0
+    difficulty: 2
+    devName: "\uBC84\uC12F\uC778\uAC04"
+    dataName: Mob_10104_MushroomMan
+    nameStringId: 
+    descStringId: 
+    displayName: "\uBC84\uC12F\uC778\uAC04"
+    description: 
+    baseHealth: 220
+    baseStrength: 0
+    aiType: 1
+    patternIds:
+    - MushroomLock
+    - 2_Single
+    - Str_1
+    - 2_Multi_1
+    rawPatternArray: MushroomLock, 2_Single, Str_1, 2_Multi_1
+    sprite: 
+  - id: Mob_10105_Frog
+    sourceId: 10105
+    act: 1
+    grade: 0
+    difficulty: 2
+    devName: "\uAC1C\uAD6C\uB9AC"
+    dataName: Mob_10105_Frog
+    nameStringId: 
+    descStringId: 
+    displayName: "\uAC1C\uAD6C\uB9AC"
+    description: 
+    baseHealth: 450
+    baseStrength: 0
+    aiType: 0
+    patternIds:
+    - Skip
+    - Skip
+    - Skip
+    - 3_Single
+    rawPatternArray: Skip, Skip, Skip, 3_Single
+    sprite: 
+  - id: Mob_10106_GiantBird
+    sourceId: 10106
+    act: 1
+    grade: 0
+    difficulty: 2
+    devName: "\uAC70\uB300 \uC0C8"
+    dataName: Mob_10106_GiantBird
+    nameStringId: 
+    descStringId: 
+    displayName: "\uAC70\uB300 \uC0C8"
+    description: 
+    baseHealth: 550
+    baseStrength: 0
+    aiType: 0
+    patternIds:
+    - 2_Multi_1
+    - Str_1
+    - 2_Single
+    rawPatternArray: 2_Multi_1, Str_1, 2_Single
+    sprite: 
+  - id: Mob_10107_Bandit
+    sourceId: 10107
+    act: 1
+    grade: 0
+    difficulty: 2
+    devName: "\uB178\uC0C1\uAC15\uB3C4"
+    dataName: Mob_10107_Bandit
+    nameStringId: 
+    descStringId: 
+    displayName: "\uB178\uC0C1\uAC15\uB3C4"
+    description: 
+    baseHealth: 420
+    baseStrength: 0
+    aiType: 0
+    patternIds:
+    - BanditSingle
+    rawPatternArray: BanditSingle
+    sprite: 
+  - id: Mob_10201_WhiteRabbit
+    sourceId: 10201
+    act: 1
+    grade: 1
+    difficulty: 2
+    devName: "\uD654\uC774\uD2B8 \uB798\uBE57"
+    dataName: Mob_10201_WhiteRabbit
+    nameStringId: 
+    descStringId: 
+    displayName: "\uD654\uC774\uD2B8 \uB798\uBE57"
+    description: 
+    baseHealth: 650
+    baseStrength: 0
+    aiType: 1
+    patternIds:
+    - 1_Multi_1
+    - 2_Single
+    - 1_Multi_1
+    - 2_Single
+    - Str_2
+    rawPatternArray: 1_Multi_1, 2_Single, 1_Multi_1, 2_Single, Str_2
+    sprite: 
+  - id: Mob_10202_LittleWitch
+    sourceId: 10202
+    act: 1
+    grade: 1
+    difficulty: 2
+    devName: "\uC791\uC740 \uB9C8\uB140"
+    dataName: Mob_10202_LittleWitch
+    nameStringId: 
+    descStringId: 
+    displayName: "\uC791\uC740 \uB9C8\uB140"
+    description: 
+    baseHealth: 550
+    baseStrength: 0
+    aiType: 0
+    patternIds:
+    - LittleWitchSkill
+    - 2_Single
+    - 2_Single
+    rawPatternArray: LittleWitchSkill, 2_Single, 2_Single
+    sprite: 
+  - id: Mob_10203_Hunter
+    sourceId: 10203
+    act: 1
+    grade: 1
+    difficulty: 2
+    devName: "\uC0AC\uB0E5\uAFBC"
+    dataName: Mob_10203_Hunter
+    nameStringId: 
+    descStringId: 
+    displayName: "\uC0AC\uB0E5\uAFBC"
+    description: 
+    baseHealth: 600
+    baseStrength: 0
+    aiType: 0
+    patternIds:
+    - HunterSingle
+    - HunterSingle
+    - 2_Single
+    - 2_Single
+    - Str_1
+    rawPatternArray: HunterSingle, HunterSingle, 2_Single, 2_Single, Str_1
+    sprite: 
+  - id: Mob_10301_HeartQueen
+    sourceId: 10301
+    act: 1
+    grade: 2
+    difficulty: 2
+    devName: "\uD558\uD2B8 \uC5EC\uC655"
+    dataName: Mob_10301_HeartQueen
+    nameStringId: 
+    descStringId: 
+    displayName: "\uD558\uD2B8 \uC5EC\uC655"
+    description: 
+    baseHealth: 800
+    baseStrength: 0
+    aiType: 0
+    patternIds:
+    - 2_Single
+    - 2_Multi_1
+    - Str_1
+    rawPatternArray: 2_Single, 2_Multi_1, Str_1
+    sprite: 
+  - id: Mob_10302_Witch
+    sourceId: 10302
+    act: 1
+    grade: 2
+    difficulty: 2
+    devName: "\uB9C8\uB140"
+    dataName: Mob_10302_Witch
+    nameStringId: 
+    descStringId: 
+    displayName: "\uB9C8\uB140"
+    description: 
+    baseHealth: 1000
+    baseStrength: 0
+    aiType: 0
+    patternIds:
+    - 2_Single
+    - 2_Multi_1
+    - Str_1
+    rawPatternArray: 2_Single, 2_Multi_1, Str_1
+    sprite: 
+  - id: Mob_10303_Elf
+    sourceId: 10303
+    act: 1
+    grade: 2
+    difficulty: 2
+    devName: "\uC5D8\uD504"
+    dataName: Mob_10303_Elf
+    nameStringId: 
+    descStringId: 
+    displayName: "\uC5D8\uD504"
+    description: 
+    baseHealth: 750
+    baseStrength: 0
+    aiType: 1
+    patternIds:
+    - 2_Single
+    - 2_Multi_2
+    rawPatternArray: 2_Single, 2_Multi_2
+    sprite: 
+  - id: Mob_20101_Snowman
+    sourceId: 20101
+    act: 2
+    grade: 0
+    difficulty: 1
+    devName: "\uB208\uC0AC\uB78C"
+    dataName: Mob_20101_Snowman
+    nameStringId: 
+    descStringId: 
+    displayName: "\uB208\uC0AC\uB78C"
+    description: 
+    baseHealth: 700
+    baseStrength: 0
+    aiType: 0
+    patternIds:
+    - 2_Multi_1
+    - 2_Multi_2
+    - 3_Single
+    rawPatternArray: 2_Multi_1, 2_Multi_2, 3_Single
+    sprite: 
+  - id: Mob_20102_Robber
+    sourceId: 20102
+    act: 2
+    grade: 0
+    difficulty: 1
+    devName: "\uAC15\uB3C4"
+    dataName: Mob_20102_Robber
+    nameStringId: 
+    descStringId: 
+    displayName: "\uAC15\uB3C4"
+    description: 
+    baseHealth: 650
+    baseStrength: 0
+    aiType: 1
+    patternIds:
+    - RobberSingle
+    rawPatternArray: RobberSingle
+    sprite: 
+  - id: Mob_20103_Ghost
+    sourceId: 20103
+    act: 2
+    grade: 0
+    difficulty: 1
+    devName: "\uC720\uB839"
+    dataName: Mob_20103_Ghost
+    nameStringId: 
+    descStringId: 
+    displayName: "\uC720\uB839"
+    description: 
+    baseHealth: 800
+    baseStrength: 0
+    aiType: 1
+    patternIds:
+    - GhostSingle
+    - GhostMulti
+    rawPatternArray: GhostSingle, GhostMulti
+    sprite: 
+  - id: Mob_20104_Magician
+    sourceId: 20104
+    act: 2
+    grade: 0
+    difficulty: 2
+    devName: "\uB9C8\uC220\uC0AC"
+    dataName: Mob_20104_Magician
+    nameStringId: 
+    descStringId: 
+    displayName: "\uB9C8\uC220\uC0AC"
+    description: 
+    baseHealth: 850
+    baseStrength: 0
+    aiType: 1
+    patternIds:
+    - 2_Multi_1
+    - 2_Multi_2
+    - 2_Single
+    rawPatternArray: 2_Multi_1, 2_Multi_2, 2_Single
+    sprite: 
+  - id: Mob_20105_Automaton
+    sourceId: 20105
+    act: 2
+    grade: 0
+    difficulty: 2
+    devName: "\uC790\uB3D9\uC778\uD615"
+    dataName: Mob_20105_Automaton
+    nameStringId: 
+    descStringId: 
+    displayName: "\uC790\uB3D9\uC778\uD615"
+    description: 
+    baseHealth: 900
+    baseStrength: 0
+    aiType: 0
+    patternIds:
+    - AutomatonSingle
+    - AutomatonSingle
+    - AutomatonSingle
+    - AutomatonSingleStun
+    rawPatternArray: AutomatonSingle, AutomatonSingle, AutomatonSingle, AutomatonSingleStun
+    sprite: 
+  - id: Mob_20106_GiantRat
+    sourceId: 20106
+    act: 2
+    grade: 0
+    difficulty: 2
+    devName: "\uC950"
+    dataName: Mob_20106_GiantRat
+    nameStringId: 
+    descStringId: 
+    displayName: "\uC950"
+    description: 
+    baseHealth: 700
+    baseStrength: 0
+    aiType: 0
+    patternIds:
+    - 2_Single
+    - 2_Multi_1
+    - GiantRatSkill
+    rawPatternArray: 2_Single, 2_Multi_1, GiantRatSkill
+    sprite: 
+  - id: Mob_20107_Guard
+    sourceId: 20107
+    act: 2
+    grade: 0
+    difficulty: 2
+    devName: "\uACBD\uBE44\uBCD1"
+    dataName: Mob_20107_Guard
+    nameStringId: 
+    descStringId: 
+    displayName: "\uACBD\uBE44\uBCD1"
+    description: 
+    baseHealth: 360
+    baseStrength: 0
+    aiType: 0
+    patternIds:
+    - 2_Single
+    rawPatternArray: 2_Single
+    sprite: 
+  - id: Mob_20201_FortuneTeller
+    sourceId: 20201
+    act: 2
+    grade: 1
+    difficulty: 2
+    devName: "\uC810\uC220\uC0AC"
+    dataName: Mob_20201_FortuneTeller
+    nameStringId: 
+    descStringId: 
+    displayName: "\uC810\uC220\uC0AC"
+    description: 
+    baseHealth: 1000
+    baseStrength: 0
+    aiType: 1
+    patternIds:
+    - 2_Single
+    - 2_Multi_1
+    - FortuneTellerSkill
+    - FortuneTellerExplode
+    rawPatternArray: 2_Single, 2_Multi_1, FortuneTellerSkill, FortuneTellerExplode
+    sprite: 
+  - id: Mob_20202_Alchemist
+    sourceId: 20202
+    act: 2
+    grade: 1
+    difficulty: 2
+    devName: "\uC5F0\uAE08\uC220\uC0AC"
+    dataName: Mob_20202_Alchemist
+    nameStringId: 
+    descStringId: 
+    displayName: "\uC5F0\uAE08\uC220\uC0AC"
+    description: 
+    baseHealth: 1200
+    baseStrength: 0
+    aiType: 0
+    patternIds:
+    - AlchemistSingle
+    - AlchemistSkill
+    rawPatternArray: AlchemistSingle, AlchemistSkill
+    sprite: 
+  - id: Mob_20203_Conductor
+    sourceId: 20203
+    act: 2
+    grade: 1
+    difficulty: 2
+    devName: "\uC9C0\uD718\uC790"
+    dataName: Mob_20203_Conductor
+    nameStringId: 
+    descStringId: 
+    displayName: "\uC9C0\uD718\uC790"
+    description: 
+    baseHealth: 900
+    baseStrength: 0
+    aiType: 1
+    patternIds:
+    - 2_Single
+    - 2_Multi_2
+    rawPatternArray: 2_Single, 2_Multi_2
+    sprite: 
+  - id: Mob_20301_PiedPiper
+    sourceId: 20301
+    act: 2
+    grade: 2
+    difficulty: 2
+    devName: "\uD53C\uB9AC\uBD80\uB294\uC0AC\uB098\uC774"
+    dataName: Mob_20301_PiedPiper
+    nameStringId: 
+    descStringId: 
+    displayName: "\uD53C\uB9AC\uBD80\uB294\uC0AC\uB098\uC774"
+    description: 
+    baseHealth: 1400
+    baseStrength: 0
+    aiType: 0
+    patternIds:
+    - Str_1
+    - 2_Single
+    - 2_Multi_2
+    rawPatternArray: Str_1, 2_Single, 2_Multi_2
+    sprite: 
+  - id: Mob_20302_PlagueDoctor
+    sourceId: 20302
+    act: 2
+    grade: 2
+    difficulty: 2
+    devName: "\uC5ED\uBCD1 \uC758\uC0AC"
+    dataName: Mob_20302_PlagueDoctor
+    nameStringId: 
+    descStringId: 
+    displayName: "\uC5ED\uBCD1 \uC758\uC0AC"
+    description: 
+    baseHealth: 1500
+    baseStrength: 0
+    aiType: 0
+    patternIds:
+    - PlagueDoctorSingle
+    - PlagueDoctorSkill
+    rawPatternArray: PlagueDoctorSingle, PlagueDoctorSkill
+    sprite: 
+  - id: Mob_20303_Prophet
+    sourceId: 20303
+    act: 2
+    grade: 2
+    difficulty: 2
+    devName: "\uC608\uC5B8\uC790"
+    dataName: Mob_20303_Prophet
+    nameStringId: 
+    descStringId: 
+    displayName: "\uC608\uC5B8\uC790"
+    description: 
+    baseHealth: 1650
+    baseStrength: 0
+    aiType: 1
+    patternIds:
+    - ProphetSingle
+    - ProphetMulti
+    - ProphetExplode
+    rawPatternArray: ProphetSingle, ProphetMulti, ProphetExplode
+    sprite: 
+  - id: Mob_30101_SteelScarecrow
+    sourceId: 30101
+    act: 3
+    grade: 0
+    difficulty: 1
+    devName: "\uAC15\uCCA0 \uD5C8\uC218\uC544\uBE44"
+    dataName: Mob_30101_SteelScarecrow
+    nameStringId: 
+    descStringId: 
+    displayName: "\uAC15\uCCA0 \uD5C8\uC218\uC544\uBE44"
+    description: 
+    baseHealth: 950
+    baseStrength: 0
+    aiType: 0
+    patternIds:
+    - Str_1
+    - 2_Multi_1
+    - 2_Multi_2
+    rawPatternArray: Str_1, 2_Multi_1, 2_Multi_2
+    sprite: 
+  - id: Mob_30102_Jellyfish
+    sourceId: 30102
+    act: 3
+    grade: 0
+    difficulty: 1
+    devName: "\uD574\uD30C\uB9AC"
+    dataName: Mob_30102_Jellyfish
+    nameStringId: 
+    descStringId: 
+    displayName: "\uD574\uD30C\uB9AC"
+    description: 
+    baseHealth: 900
+    baseStrength: 0
+    aiType: 0
+    patternIds:
+    - JellyfishSingle
+    - JellyfishSingle
+    - JellyfishSkill
+    rawPatternArray: JellyfishSingle, JellyfishSingle, JellyfishSkill
+    sprite: 
+  - id: Mob_30103_Orb
+    sourceId: 30103
+    act: 3
+    grade: 0
+    difficulty: 1
+    devName: "\uAD6C\uCCB4"
+    dataName: Mob_30103_Orb
+    nameStringId: 
+    descStringId: 
+    displayName: "\uAD6C\uCCB4"
+    description: 
+    baseHealth: 1000
+    baseStrength: 0
+    aiType: 0
+    patternIds:
+    - 2_Multi_1
+    - 2_Multi_2
+    - 2_Multi_3
+    - OrbSkill
+    rawPatternArray: 2_Multi_1, 2_Multi_2, 2_Multi_3, OrbSkill
+    sprite: 
+  - id: Mob_30104_Librarian
+    sourceId: 30104
+    act: 3
+    grade: 0
+    difficulty: 2
+    devName: "\uC0AC\uC11C"
+    dataName: Mob_30104_Librarian
+    nameStringId: 
+    descStringId: 
+    displayName: "\uC0AC\uC11C"
+    description: 
+    baseHealth: 1100
+    baseStrength: 0
+    aiType: 1
+    patternIds:
+    - LibrarianSingle
+    - LibrarianMulti
+    rawPatternArray: LibrarianSingle, LibrarianMulti
+    sprite: 
+  - id: Mob_30105_Golem
+    sourceId: 30105
+    act: 3
+    grade: 0
+    difficulty: 2
+    devName: "\uACE8\uB818"
+    dataName: Mob_30105_Golem
+    nameStringId: 
+    descStringId: 
+    displayName: "\uACE8\uB818"
+    description: 
+    baseHealth: 1300
+    baseStrength: 0
+    aiType: 0
+    patternIds:
+    - 2_Single
+    rawPatternArray: 2_Single
+    sprite: 
+  - id: Mob_30106_Anglerfish
+    sourceId: 30106
+    act: 3
+    grade: 0
+    difficulty: 2
+    devName: "\uCD08\uB871\uC544\uADC0"
+    dataName: Mob_30106_Anglerfish
+    nameStringId: 
+    descStringId: 
+    displayName: "\uCD08\uB871\uC544\uADC0"
+    description: 
+    baseHealth: 1500
+    baseStrength: 0
+    aiType: 1
+    patternIds:
+    - 2_Single
+    - 2_Multi_3
+    rawPatternArray: 2_Single, 2_Multi_3
+    sprite: 
+  - id: Mob_30107_Shadow
+    sourceId: 30107
+    act: 3
+    grade: 0
+    difficulty: 2
+    devName: "\uADF8\uB9BC\uC790"
+    dataName: Mob_30107_Shadow
+    nameStringId: 
+    descStringId: 
+    displayName: "\uADF8\uB9BC\uC790"
+    description: 
+    baseHealth: 1200
+    baseStrength: 0
+    aiType: 0
+    patternIds:
+    - 3_Single
+    - 3_Single
+    - 3_Multi_1
+    rawPatternArray: 3_Single, 3_Single, 3_Multi_1
+    sprite: 
+  - id: Mob_30201_Vampire
+    sourceId: 30201
+    act: 3
+    grade: 1
+    difficulty: 2
+    devName: "\uBC40\uD30C\uC774\uC5B4"
+    dataName: Mob_30201_Vampire
+    nameStringId: 
+    descStringId: 
+    displayName: "\uBC40\uD30C\uC774\uC5B4"
+    description: 
+    baseHealth: 2000
+    baseStrength: 0
+    aiType: 1
+    patternIds:
+    - 2_Single
+    - 2_Single
+    - 2_Multi_3
+    - VampireSkill
+    rawPatternArray: 2_Single, 2_Single, 2_Multi_3, VampireSkill
+    sprite: 
+  - id: Mob_30202_Knight
+    sourceId: 30202
+    act: 3
+    grade: 1
+    difficulty: 2
+    devName: "\uAE30\uC0AC"
+    dataName: Mob_30202_Knight
+    nameStringId: 
+    descStringId: 
+    displayName: "\uAE30\uC0AC"
+    description: 
+    baseHealth: 1200
+    baseStrength: 0
+    aiType: 1
+    patternIds:
+    - 2_Single
+    - 2_Single
+    - 2_Multi_3
+    - KnightSkill
+    rawPatternArray: 2_Single, 2_Single, 2_Multi_3, KnightSkill
+    sprite: 
+  - id: Mob_30203_Planetarium
+    sourceId: 30203
+    act: 3
+    grade: 1
+    difficulty: 2
+    devName: "\uCC9C\uCCB4\uD22C\uC601\uAE30"
+    dataName: Mob_30203_Planetarium
+    nameStringId: 
+    descStringId: 
+    displayName: "\uCC9C\uCCB4\uD22C\uC601\uAE30"
+    description: 
+    baseHealth: 1900
+    baseStrength: 0
+    aiType: 0
+    patternIds:
+    - 2_Multi_2
+    - 3_Single
+    - 2_Multi_3
+    - 3_Single
+    rawPatternArray: 2_Multi_2, 3_Single, 2_Multi_3, 3_Single
+    sprite: 
+  - id: Mob_30301_Stargazer
+    sourceId: 30301
+    act: 3
+    grade: 2
+    difficulty: 2
+    devName: "\uBCC4\uAD00\uCC30\uC790"
+    dataName: Mob_30301_Stargazer
+    nameStringId: 
+    descStringId: 
+    displayName: "\uBCC4\uAD00\uCC30\uC790"
+    description: 
+    baseHealth: 3000
+    baseStrength: 0
+    aiType: 0
+    patternIds:
+    - StargazerSingle
+    - StargazerSingle
+    - StargazerSingle
+    - StargazerSkill
+    rawPatternArray: StargazerSingle, StargazerSingle, StargazerSingle, StargazerSkill
+    sprite: 
+  - id: Mob_30302_CosmicTree
+    sourceId: 30302
+    act: 3
+    grade: 2
+    difficulty: 2
+    devName: "\uC138\uACC4\uC218"
+    dataName: Mob_30302_CosmicTree
+    nameStringId: 
+    descStringId: 
+    displayName: "\uC138\uACC4\uC218"
+    description: 
+    baseHealth: 3000
+    baseStrength: 0
+    aiType: 0
+    patternIds:
+    - CosmictreeSingle
+    - CosmictreeSingle
+    - CosmictreeHeal
+    rawPatternArray: CosmictreeSingle, CosmictreeSingle, CosmictreeHeal
+    sprite: 
+  - id: Mob_30303_Whale
+    sourceId: 30303
+    act: 3
+    grade: 2
+    difficulty: 2
+    devName: "\uACE0\uB798"
+    dataName: Mob_30303_Whale
+    nameStringId: 
+    descStringId: 
+    displayName: "\uACE0\uB798"
+    description: 
+    baseHealth: 3000
+    baseStrength: 0
+    aiType: 1
+    patternIds:
+    - WhaleSingle
+    - WhaleStr
+    - WhaleMulti
+    rawPatternArray: WhaleSingle, WhaleStr, WhaleMulti
+    sprite: 

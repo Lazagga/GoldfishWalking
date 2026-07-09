@@ -1,0 +1,503 @@
+using GoldfishWalking.Core;
+using GoldfishWalking.Data;
+using GoldfishWalking.Item;
+using UnityEngine;
+
+namespace GoldfishWalking.Fantasy
+{
+    public sealed class FantasyEffectRunner
+    {
+        public void AddItemWithAcquireEffects(RunContext runContext, ItemType itemType, int count)
+        {
+            if (runContext == null || count <= 0)
+                return;
+
+            runContext.itemInventory.Add(itemType, count);
+            runContext.lastAcquiredItemType = itemType;
+            runContext.lastAcquiredItemCount = count;
+            ApplyTrigger(runContext, "Acquire_Item");
+            runContext.lastAcquiredItemCount = 0;
+            GameEventHub.RaiseItemInventoryChanged();
+        }
+
+        public void ApplyItemUsedEffects(RunContext runContext, ItemType itemType)
+        {
+            if (runContext == null)
+                return;
+
+            runContext.lastUsedItemType = itemType;
+            ApplyTrigger(runContext, "Use_Item");
+            GameEventHub.RaiseItemInventoryChanged();
+        }
+
+        public void ApplyTrigger(RunContext runContext, string trigger)
+        {
+            if (runContext == null || runContext.fantasyInventory == null || string.IsNullOrWhiteSpace(trigger))
+                return;
+
+            foreach (FantasyData fantasy in runContext.fantasyInventory.ownedFantasies)
+                Apply(fantasy, runContext, trigger);
+        }
+
+        public void Apply(FantasyData fantasy, RunContext runContext)
+        {
+            Apply(fantasy, runContext, null);
+        }
+
+        public void Apply(FantasyData fantasy, RunContext runContext, string trigger)
+        {
+            if (fantasy == null || runContext == null)
+                return;
+
+            if (ApplySpecialFantasy(fantasy, runContext, trigger))
+                return;
+
+            if (fantasy.effects == null || fantasy.effects.Length == 0)
+            {
+                ApplyLegacyEffect(fantasy, runContext);
+                return;
+            }
+
+            foreach (FantasyEffectData effect in fantasy.effects)
+            {
+                if (effect == null)
+                    continue;
+
+                if (!string.IsNullOrWhiteSpace(trigger) && !TriggerMatches(effect.trigger, trigger))
+                    continue;
+
+                ApplyEffect(effect, runContext);
+            }
+        }
+
+        public int ModifyValue(RunContext runContext, int baseValue, string trigger, params string[] targets)
+        {
+            if (runContext == null || runContext.fantasyInventory == null)
+                return baseValue;
+
+            int value = baseValue;
+            foreach (FantasyData fantasy in runContext.fantasyInventory.ownedFantasies)
+            {
+                if (fantasy == null || fantasy.effects == null)
+                    continue;
+
+                foreach (FantasyEffectData effect in fantasy.effects)
+                {
+                    if (effect == null)
+                        continue;
+                    if (TryModifySpecialFantasyValue(fantasy, runContext, trigger, targets, ref value))
+                        continue;
+                    if (!TriggerMatches(effect.trigger, trigger))
+                        continue;
+                    if (!TargetMatches(effect.target, targets))
+                        continue;
+
+                    value = ApplyCalculation(value, Normalize(effect.calc), EvaluateValue(effect.valueExpression, runContext));
+                }
+            }
+
+            return value;
+        }
+
+        private bool ApplySpecialFantasy(FantasyData fantasy, RunContext runContext, string trigger)
+        {
+            string id = NormalizeId(fantasy.id);
+            string normalizedTrigger = NormalizeTrigger(trigger);
+
+            switch (id)
+            {
+                case "fanend8ball":
+                    if (normalizedTrigger == NormalizeTrigger("Turn_End"))
+                    {
+                        runContext.pendingMonsterDamage += CountDigitInBattleNumbers(runContext, 8) * 20;
+                        return true;
+                    }
+                    break;
+                case "fanendgrape":
+                    if (normalizedTrigger == NormalizeTrigger("Turn_End"))
+                    {
+                        runContext.health += Mathf.Max(0, runContext.remainingMoveCount) * 50;
+                        return true;
+                    }
+                    break;
+                case "fanendfan":
+                    if (normalizedTrigger == NormalizeTrigger("Turn_End"))
+                    {
+                        runContext.pendingMonsterDamage += Mathf.FloorToInt(runContext.health * 0.2f);
+                        return true;
+                    }
+                    break;
+                case "fanendfirecracker":
+                    if (normalizedTrigger == NormalizeTrigger("Turn_End"))
+                    {
+                        runContext.pendingMonsterDamage += Mathf.Max(0, runContext.itemUseCountThisBattle) * 30;
+                        return true;
+                    }
+                    break;
+                case "fanendpaperplane":
+                    if (normalizedTrigger == NormalizeTrigger("Turn_End") && runContext.currentBattle != null && runContext.currentBattle.playerBaseDamage == runContext.currentBattle.monsterBaseDamage)
+                    {
+                        runContext.pendingMonsterDamage *= 2;
+                        return true;
+                    }
+                    break;
+                case "fanstartcuestick":
+                    if (normalizedTrigger == NormalizeTrigger("Battle_Start") && runContext.currentBattle != null)
+                    {
+                        runContext.currentBattle.playerBaseDamage = SetFirstDigit(runContext.currentBattle.playerBaseDamage, 8);
+                        return true;
+                    }
+                    break;
+                case "fanendtrumpcard":
+                    if (normalizedTrigger == NormalizeTrigger("Turn_End"))
+                    {
+                        runContext.temporaryMoveBonus += Mathf.Max(0, runContext.remainingMoveCount);
+                        runContext.remainingMoveCount = 0;
+                        return true;
+                    }
+                    break;
+                case "fanturnpisces":
+                    if (normalizedTrigger == NormalizeTrigger("Turn_Start"))
+                    {
+                        int convertedMoves = Mathf.Max(0, runContext.remainingMoveCount);
+                        runContext.remainingMoveCount = 0;
+                        runContext.itemInventory.Add(ItemType.ExtraMatch, convertedMoves);
+                        runContext.itemInventory.Add(ItemType.Eraser, convertedMoves);
+                        GameEventHub.RaiseItemInventoryChanged();
+                        return true;
+                    }
+                    break;
+                case "fanusemusicbox":
+                    if (normalizedTrigger == NormalizeTrigger("Use_Item"))
+                    {
+                        if (runContext.RollValue($"fantasy.musicbox.{runContext.itemUseCountThisBattle}", 0, 99) < 50)
+                            runContext.itemInventory.Add(runContext.lastUsedItemType, 1);
+                        return true;
+                    }
+                    break;
+                case "fanshopstampcoupon":
+                    if (normalizedTrigger == NormalizeTrigger("Shop_Purchase"))
+                    {
+                        if (runContext.lastShopPurchaseCost >= 999)
+                            runContext.passiveAttackCountBonus += 1;
+                        return true;
+                    }
+                    break;
+            }
+
+            return false;
+        }
+
+        private bool TryModifySpecialFantasyValue(FantasyData fantasy, RunContext runContext, string trigger, string[] targets, ref int value)
+        {
+            string id = NormalizeId(fantasy.id);
+            string normalizedTrigger = NormalizeTrigger(trigger);
+
+            switch (id)
+            {
+                case "fandamagelibra":
+                    if (TargetMatches("Base_Damage", targets) && runContext.currentBattle != null)
+                    {
+                        value = runContext.currentBattle.playerBaseDamage == 0 ? 200 : 0;
+                        return true;
+                    }
+                    break;
+                case "fandefendpaperboat":
+                    if (normalizedTrigger == NormalizeTrigger("Take_Damage") && TargetMatches("Damage_Taken", targets) && runContext.currentBattle != null)
+                    {
+                        if (runContext.currentBattle.monsterBaseDamage >= runContext.currentBattle.playerBaseDamage)
+                            value = Mathf.FloorToInt(value * 0.5f);
+                        return true;
+                    }
+                    break;
+                case "fandamagemirror":
+                    if (TargetMatches("Attack_Count", targets) && runContext.currentBattle != null && HasSameDigits(runContext.currentBattle.playerBaseDamage))
+                    {
+                        value += 1;
+                        return true;
+                    }
+                    break;
+            }
+
+            return false;
+        }
+
+        private void ApplyEffect(FantasyEffectData effect, RunContext runContext)
+        {
+            string target = NormalizeTarget(effect.target);
+            string calc = Normalize(effect.calc);
+            float value = EvaluateValue(effect.valueExpression, runContext);
+
+            switch (target)
+            {
+                case "hp":
+                    if (TriggerMatches(effect.trigger, "Deal_Damage") && calc == "add")
+                        value = runContext.lastDamageDealt * NormalizePercent(value);
+                    runContext.health = ApplyCalculation(runContext.health, calc, value);
+                    break;
+                case "item":
+                    int itemCount = Mathf.FloorToInt(value);
+                    if (TriggerMatches(effect.trigger, "Acquire_Item") && runContext.lastAcquiredItemCount > 0)
+                        runContext.itemInventory.Add(runContext.lastAcquiredItemType, itemCount * runContext.lastAcquiredItemCount);
+                    else
+                    {
+                        runContext.itemInventory.Add(ItemType.ExtraMatch, itemCount);
+                        runContext.itemInventory.Add(ItemType.Eraser, itemCount);
+                    }
+                    GameEventHub.RaiseItemInventoryChanged();
+                    break;
+                case "extramatch":
+                    runContext.itemInventory.Add(ItemType.ExtraMatch, Mathf.FloorToInt(value));
+                    GameEventHub.RaiseItemInventoryChanged();
+                    break;
+                case "eraser":
+                    runContext.itemInventory.Add(ItemType.Eraser, Mathf.FloorToInt(value));
+                    GameEventHub.RaiseItemInventoryChanged();
+                    break;
+                case "strength":
+                    runContext.strength = ApplyCalculation(runContext.strength, calc, value);
+                    break;
+                case "basedamage":
+                    if (runContext.currentBattle != null)
+                        runContext.currentBattle.playerBaseDamage = ApplyCalculation(runContext.currentBattle.playerBaseDamage, calc, value);
+                    break;
+                case "damage":
+                case "additionaldamage":
+                    runContext.pendingMonsterDamage = ApplyCalculation(runContext.pendingMonsterDamage, calc, value);
+                    break;
+                case "damagereflect":
+                    runContext.pendingMonsterDamage += CalculateReflectDamage(runContext, calc, value);
+                    break;
+            }
+        }
+
+        private void ApplyLegacyEffect(FantasyData fantasy, RunContext runContext)
+        {
+            switch (fantasy.target)
+            {
+                case FantasyTarget.Health:
+                    runContext.health += fantasy.value;
+                    break;
+                case FantasyTarget.Strength:
+                    runContext.strength += fantasy.value;
+                    break;
+            }
+        }
+
+        private static bool TriggerMatches(string effectTrigger, string requestedTrigger)
+        {
+            return NormalizeTrigger(effectTrigger) == NormalizeTrigger(requestedTrigger);
+        }
+
+        private static bool TargetMatches(string effectTarget, string[] requestedTargets)
+        {
+            if (requestedTargets == null || requestedTargets.Length == 0)
+                return false;
+
+            string normalizedEffectTarget = NormalizeTarget(effectTarget);
+            for (int i = 0; i < requestedTargets.Length; i++)
+            {
+                if (normalizedEffectTarget == NormalizeTarget(requestedTargets[i]))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static string Normalize(string value)
+        {
+            return (value ?? string.Empty).Trim().ToLowerInvariant();
+        }
+
+        private static string NormalizeId(string value)
+        {
+            return NormalizeTrigger(value);
+        }
+
+        private static string NormalizeTrigger(string value)
+        {
+            return Normalize(value).Replace("_", string.Empty).Replace("-", string.Empty).Replace(" ", string.Empty);
+        }
+
+        private static string NormalizeTarget(string value)
+        {
+            string normalized = NormalizeTrigger(value);
+            switch (normalized)
+            {
+                case "1":
+                    return "hp";
+                case "2":
+                    return "item";
+                case "3":
+                    return "damage";
+                case "4":
+                    return "attackcount";
+                case "5":
+                    return "strength";
+                case "6":
+                    return "fantasy";
+                case "7":
+                    return "restcount";
+                case "8":
+                    return "price";
+                default:
+                    return normalized;
+            }
+        }
+
+        private static int ApplyCalculation(int current, string calc, float value)
+        {
+            switch (calc)
+            {
+                case "set":
+                    return Mathf.FloorToInt(value);
+                case "multiply":
+                    return Mathf.FloorToInt(current * value);
+                case "add":
+                default:
+                    return current + Mathf.FloorToInt(value);
+            }
+        }
+
+        private static int CalculateReflectDamage(RunContext runContext, string calc, float value)
+        {
+            if (runContext == null)
+                return 0;
+
+            switch (calc)
+            {
+                case "multiply":
+                    return Mathf.FloorToInt(runContext.lastDamageTaken * NormalizePercent(value));
+                case "set":
+                    return Mathf.FloorToInt(value);
+                case "add":
+                default:
+                    return Mathf.FloorToInt(value);
+            }
+        }
+
+        private static float NormalizePercent(float value)
+        {
+            return value > 1f ? value * 0.01f : value;
+        }
+
+        private static float EvaluateValue(string expression, RunContext runContext)
+        {
+            string text = (expression ?? string.Empty).Trim();
+            if (string.IsNullOrEmpty(text))
+                return 0f;
+
+            if (float.TryParse(text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float numericValue))
+                return numericValue;
+
+            return EvaluateSimpleExpression(text, runContext);
+        }
+
+        private static float EvaluateSimpleExpression(string expression, RunContext runContext)
+        {
+            char[] operators = { '*', '/', '+', '-' };
+            foreach (char op in operators)
+            {
+                int index = expression.IndexOf(op);
+                if (index <= 0)
+                    continue;
+
+                float left = ResolveValueToken(expression.Substring(0, index), runContext);
+                float right = ResolveValueToken(expression.Substring(index + 1), runContext);
+                switch (op)
+                {
+                    case '*':
+                        return left * right;
+                    case '/':
+                        return Mathf.Approximately(right, 0f) ? 0f : left / right;
+                    case '+':
+                        return left + right;
+                    case '-':
+                        return left - right;
+                }
+            }
+
+            return ResolveValueToken(expression, runContext);
+        }
+
+        private static float ResolveValueToken(string token, RunContext runContext)
+        {
+            string value = (token ?? string.Empty).Trim();
+            if (float.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float numericValue))
+                return numericValue;
+
+            switch (Normalize(value))
+            {
+                case "hp":
+                case "playerhp":
+                    return runContext != null ? runContext.health : 0f;
+                case "damagedealt":
+                case "lastdamagedealt":
+                    return runContext != null ? runContext.lastDamageDealt : 0f;
+                case "totaldamagedealt":
+                    return runContext != null ? runContext.battleDamageDealt : 0f;
+                case "damagetaken":
+                case "lastdamagetaken":
+                    return runContext != null ? runContext.lastDamageTaken : 0f;
+                case "totaldamagetaken":
+                    return runContext != null ? runContext.battleDamageTaken : 0f;
+                default:
+                    return 0f;
+            }
+        }
+
+        private static int CountDigitInBattleNumbers(RunContext runContext, int digit)
+        {
+            if (runContext == null || runContext.currentBattle == null)
+                return 0;
+
+            return CountDigit(runContext.currentBattle.playerBaseDamage, digit)
+                + CountDigit(runContext.currentBattle.monsterBaseDamage, digit)
+                + CountDigit(runContext.currentBattle.monsterHitCount, digit);
+        }
+
+        private static int CountDigit(int value, int digit)
+        {
+            string text = Mathf.Max(0, value).ToString();
+            int count = 0;
+            char target = (char)('0' + digit);
+            for (int i = 0; i < text.Length; i++)
+            {
+                if (text[i] == target)
+                    count++;
+            }
+
+            return count;
+        }
+
+        private static bool HasSameDigits(int value)
+        {
+            string text = Mathf.Max(0, value).ToString();
+            if (text.Length <= 1)
+                return true;
+
+            char first = text[0];
+            for (int i = 1; i < text.Length; i++)
+            {
+                if (text[i] != first)
+                    return false;
+            }
+
+            return true;
+        }
+
+        private static int SetFirstDigit(int value, int digit)
+        {
+            string text = Mathf.Max(0, value).ToString();
+            if (string.IsNullOrEmpty(text))
+                return digit;
+
+            char[] chars = text.ToCharArray();
+            chars[0] = (char)('0' + Mathf.Clamp(digit, 0, 9));
+            if (int.TryParse(new string(chars), out int result))
+                return result;
+
+            return value;
+        }
+    }
+}

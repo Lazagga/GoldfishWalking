@@ -1,0 +1,1668 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c99236d3b93cf3d4f9a4636b910ce411, type: 3}
+  m_Name: FantasyDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Data.FantasyDatabase
+  fantasies:
+  - id: fan_rabbit_head
+    sourceId: 1
+    dataCode: fan_rabbit_head
+    devName: "\uD1A0\uB07C \uC778\uD615"
+    nameStringId: 
+    descStringId: "\uBA38\uB9AC \uC704\uC5D0 \uD1A0\uB07C\uB97C \uC5C5\uACE0 \uB2E4\uB2D0
+      \uC218 \uC788\uC74C"
+    grade: 0
+    triggerType: Passive
+    displayName: "\uD1A0\uB07C \uC778\uD615"
+    description: "\uBA38\uB9AC \uC704\uC5D0 \uD1A0\uB07C\uB97C \uC5C5\uACE0 \uB2E4\uB2D0
+      \uC218 \uC788\uC74C"
+    sprite: 
+    rawEffects: '[{"Trigger":"Passive","Target":"Cosmetic","Calc":"Add","Value":0,"Option":"Rabbit"}]'
+    effects:
+    - trigger: Passive
+      target: Cosmetic
+      calc: Add
+      valueExpression: 0
+      hasNumericValue: 1
+      numericValue: 0
+      option: Rabbit
+      rawJson: '{"Trigger":"Passive","Target":"Cosmetic","Calc":"Add","Value":0,"Option":"Rabbit"}'
+    trigger: 1
+    target: 9
+    value: 0
+    specialHandler: Rabbit
+  - id: fan_turtle_head
+    sourceId: 2
+    dataCode: fan_turtle_head
+    devName: "\uAC70\uBD81\uC774 \uC778\uD615"
+    nameStringId: 
+    descStringId: "\uBA38\uB9AC \uC704\uC5D0 \uAC70\uBD81\uC774\uB97C \uC5C5\uACE0
+      \uB2E4\uB2D0 \uC218 \uC788\uC74C"
+    grade: 0
+    triggerType: Passive
+    displayName: "\uAC70\uBD81\uC774 \uC778\uD615"
+    description: "\uBA38\uB9AC \uC704\uC5D0 \uAC70\uBD81\uC774\uB97C \uC5C5\uACE0
+      \uB2E4\uB2D0 \uC218 \uC788\uC74C"
+    sprite: 
+    rawEffects: '[{"Trigger":"Passive","Target":"Cosmetic","Calc":"Add","Value":0,"Option":"Turtle"}]'
+    effects:
+    - trigger: Passive
+      target: Cosmetic
+      calc: Add
+      valueExpression: 0
+      hasNumericValue: 1
+      numericValue: 0
+      option: Turtle
+      rawJson: '{"Trigger":"Passive","Target":"Cosmetic","Calc":"Add","Value":0,"Option":"Turtle"}'
+    trigger: 1
+    target: 9
+    value: 0
+    specialHandler: Turtle
+  - id: fan_cat_head
+    sourceId: 3
+    dataCode: fan_cat_head
+    devName: "\uACE0\uC591\uC774 \uC778\uD615"
+    nameStringId: 
+    descStringId: "\uBA38\uB9AC \uC704\uC5D0 \uACE0\uC591\uC774\uB97C \uC5C5\uACE0
+      \uB2E4\uB2D0 \uC218 \uC788\uC74C"
+    grade: 0
+    triggerType: Passive
+    displayName: "\uACE0\uC591\uC774 \uC778\uD615"
+    description: "\uBA38\uB9AC \uC704\uC5D0 \uACE0\uC591\uC774\uB97C \uC5C5\uACE0
+      \uB2E4\uB2D0 \uC218 \uC788\uC74C"
+    sprite: 
+    rawEffects: '[{"Trigger":"Passive","Target":"Cosmetic","Calc":"Add","Value":0,"Option":"Cat"}]'
+    effects:
+    - trigger: Passive
+      target: Cosmetic
+      calc: Add
+      valueExpression: 0
+      hasNumericValue: 1
+      numericValue: 0
+      option: Cat
+      rawJson: '{"Trigger":"Passive","Target":"Cosmetic","Calc":"Add","Value":0,"Option":"Cat"}'
+    trigger: 1
+    target: 9
+    value: 0
+    specialHandler: Cat
+  - id: fan_parrot_head
+    sourceId: 4
+    dataCode: fan_parrot_head
+    devName: "\uC575\uBB34\uC0C8 \uC778\uD615"
+    nameStringId: 
+    descStringId: "\uBA38\uB9AC \uC704\uC5D0 \uC575\uBB34\uC0C8\uB97C \uC5C5\uACE0
+      \uB2E4\uB2D0 \uC218 \uC788\uC74C"
+    grade: 0
+    triggerType: Passive
+    displayName: "\uC575\uBB34\uC0C8 \uC778\uD615"
+    description: "\uBA38\uB9AC \uC704\uC5D0 \uC575\uBB34\uC0C8\uB97C \uC5C5\uACE0
+      \uB2E4\uB2D0 \uC218 \uC788\uC74C"
+    sprite: 
+    rawEffects: '[{"Trigger":"Passive","Target":"Cosmetic","Calc":"Add","Value":0,"Option":"Parrot"}]'
+    effects:
+    - trigger: Passive
+      target: Cosmetic
+      calc: Add
+      valueExpression: 0
+      hasNumericValue: 1
+      numericValue: 0
+      option: Parrot
+      rawJson: '{"Trigger":"Passive","Target":"Cosmetic","Calc":"Add","Value":0,"Option":"Parrot"}'
+    trigger: 1
+    target: 9
+    value: 0
+    specialHandler: Parrot
+  - id: fan_shop_pen
+    sourceId: 5
+    dataCode: fan_shop_pen
+    devName: "\uC2F8\uC778\uD39C"
+    nameStringId: 
+    descStringId: "\uC0C1\uC810\uC5D0\uC11C \uC774\uB3D9 \uD69F\uC218 +1"
+    grade: 0
+    triggerType: Passive
+    displayName: "\uC2F8\uC778\uD39C"
+    description: "\uC0C1\uC810\uC5D0\uC11C \uC774\uB3D9 \uD69F\uC218 +1"
+    sprite: 
+    rawEffects: '[{"Trigger":"Passive","Target":"Shop_Movement","Calc":"Add","Value":1,"Option":""}]'
+    effects:
+    - trigger: Passive
+      target: Shop_Movement
+      calc: Add
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      rawJson: '{"Trigger":"Passive","Target":"Shop_Movement","Calc":"Add","Value":1,"Option":""}'
+    trigger: 1
+    target: 8
+    value: 1
+    specialHandler: 
+  - id: fan_shop_heal
+    sourceId: 6
+    dataCode: fan_shop_heal
+    devName: "\uCFE0\uD0A4"
+    nameStringId: 
+    descStringId: "\uC0C1\uC810\uC5D0 \uB4E4\uC5B4\uAC08 \uB54C\uB9C8\uB2E4, \uCCB4\uB825
+      +300"
+    grade: 0
+    triggerType: Shop_Enter
+    displayName: "\uCFE0\uD0A4"
+    description: "\uC0C1\uC810\uC5D0 \uB4E4\uC5B4\uAC08 \uB54C\uB9C8\uB2E4, \uCCB4\uB825
+      +300"
+    sprite: 
+    rawEffects: '[{"Trigger":"Shop_Enter","Target":"HP","Calc":"Add","Value":300.0,"Option":""}]'
+    effects:
+    - trigger: Shop_Enter
+      target: HP
+      calc: Add
+      valueExpression: 300
+      hasNumericValue: 1
+      numericValue: 300
+      option: 
+      rawJson: '{"Trigger":"Shop_Enter","Target":"HP","Calc":"Add","Value":300.0,"Option":""}'
+    trigger: 7
+    target: 1
+    value: 300
+    specialHandler: 
+  - id: fan_shop_discount
+    sourceId: 7
+    dataCode: fan_shop_discount
+    devName: "\uD560\uC778 \uCFE0\uD3F0"
+    nameStringId: 
+    descStringId: "\uC0C1\uC810 \uD488\uBAA9 \uAC00\uACA9 30% \uD560\uC778"
+    grade: 0
+    triggerType: Passive
+    displayName: "\uD560\uC778 \uCFE0\uD3F0"
+    description: "\uC0C1\uC810 \uD488\uBAA9 \uAC00\uACA9 30% \uD560\uC778"
+    sprite: 
+    rawEffects: '[{"Trigger":"Passive","Target":"Price","Calc":"Multiply","Value":0.85,"Option":""}]'
+    effects:
+    - trigger: Passive
+      target: Price
+      calc: Multiply
+      valueExpression: 0.85
+      hasNumericValue: 1
+      numericValue: 0.85
+      option: 
+      rawJson: '{"Trigger":"Passive","Target":"Price","Calc":"Multiply","Value":0.85,"Option":""}'
+    trigger: 1
+    target: 8
+    value: 1
+    specialHandler: 
+  - id: fan_shop_stencil
+    sourceId: 8
+    dataCode: fan_shop_stencil
+    devName: "\uC2A4\uD150\uC2E4"
+    nameStringId: 
+    descStringId: "\uC0C1\uC810\uC5D0\uC11C \uC2A4\uD150\uC2E4\uC744 \uC81C\uC678\uD55C,
+      \uBCF4\uC720\uC911\uC778 \uBC31\uC0C9 \uB4F1\uAE09 \uC544\uC774\uD15C\uC744
+      \uCD94\uAC00\uB85C \uD55C \uAC1C \uC5BB\uC744 \uC218 \uC788\uC74C(\uC0C1\uC810\uB2F9
+      1\uD68C, \uD658\uC0C1\uB2F9 \uD55C \uBC88\uC529\uB9CC, \uBE44\uC6A9 2\uC790\uB9AC)"
+    grade: 1
+    triggerType: Passive
+    displayName: "\uC2A4\uD150\uC2E4"
+    description: "\uC0C1\uC810\uC5D0\uC11C \uC2A4\uD150\uC2E4\uC744 \uC81C\uC678\uD55C,
+      \uBCF4\uC720\uC911\uC778 \uBC31\uC0C9 \uB4F1\uAE09 \uC544\uC774\uD15C\uC744
+      \uCD94\uAC00\uB85C \uD55C \uAC1C \uC5BB\uC744 \uC218 \uC788\uC74C(\uC0C1\uC810\uB2F9
+      1\uD68C, \uD658\uC0C1\uB2F9 \uD55C \uBC88\uC529\uB9CC, \uBE44\uC6A9 2\uC790\uB9AC)"
+    sprite: 
+    rawEffects: '[{"Trigger":"Passive","Target":"fan_shop_stencil","Calc":"Add","Value":1.0}]'
+    effects:
+    - trigger: Passive
+      target: fan_shop_stencil
+      calc: Add
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      rawJson: '{"Trigger":"Passive","Target":"fan_shop_stencil","Calc":"Add","Value":1.0}'
+    trigger: 1
+    target: 9
+    value: 1
+    specialHandler: 
+  - id: fan_start_match
+    sourceId: 9
+    dataCode: fan_start_match
+    devName: "\uC131\uB0E5\uAC11"
+    nameStringId: 
+    descStringId: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uC784\uC2DC \uC5EC\uBD84\uC131\uB0E5
+      +1"
+    grade: 0
+    triggerType: Battle_Start
+    displayName: "\uC131\uB0E5\uAC11"
+    description: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uC784\uC2DC \uC5EC\uBD84\uC131\uB0E5
+      +1"
+    sprite: 
+    rawEffects: '[{"Trigger":"Battle_Start","Target":"Extra_Match","Calc":"Add","Value":1.0,"Option":""}]'
+    effects:
+    - trigger: Battle_Start
+      target: Extra_Match
+      calc: Add
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      rawJson: '{"Trigger":"Battle_Start","Target":"Extra_Match","Calc":"Add","Value":1.0,"Option":""}'
+    trigger: 2
+    target: 2
+    value: 1
+    specialHandler: 
+  - id: fan_start_eraser
+    sourceId: 10
+    dataCode: fan_start_eraser
+    devName: "\uB5A1\uC9C0\uC6B0\uAC1C"
+    nameStringId: 
+    descStringId: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uC784\uC2DC \uC9C0\uC6B0\uAC1C
+      +1"
+    grade: 0
+    triggerType: Battle_Start
+    displayName: "\uB5A1\uC9C0\uC6B0\uAC1C"
+    description: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uC784\uC2DC \uC9C0\uC6B0\uAC1C
+      +1"
+    sprite: 
+    rawEffects: '[{"Trigger":"Battle_Start","Target":"Eraser","Calc":"Add","Value":1.0,"Option":""}]'
+    effects:
+    - trigger: Battle_Start
+      target: Eraser
+      calc: Add
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      rawJson: '{"Trigger":"Battle_Start","Target":"Eraser","Calc":"Add","Value":1.0,"Option":""}'
+    trigger: 2
+    target: 2
+    value: 1
+    specialHandler: 
+  - id: fan_reward_rabbitfoot
+    sourceId: 11
+    dataCode: fan_reward_rabbitfoot
+    devName: "\uD1A0\uB07C\uBC1C"
+    nameStringId: 
+    descStringId: "\uC804\uD22C \uC885\uB8CC \uC774\uD6C4 \uC544\uC774\uD15C\uC744
+      \uC5BB\uC744 \uD655\uB960 x2"
+    grade: 0
+    triggerType: Battle_Reward
+    displayName: "\uD1A0\uB07C\uBC1C"
+    description: "\uC804\uD22C \uC885\uB8CC \uC774\uD6C4 \uC544\uC774\uD15C\uC744
+      \uC5BB\uC744 \uD655\uB960 x2"
+    sprite: 
+    rawEffects: '[{"Trigger":"Battle_Reward","Target":"Item_Chance","Calc":"Multiply","Value":2.0,"Option":""}]'
+    effects:
+    - trigger: Battle_Reward
+      target: Item_Chance
+      calc: Multiply
+      valueExpression: 2
+      hasNumericValue: 1
+      numericValue: 2
+      option: 
+      rawJson: '{"Trigger":"Battle_Reward","Target":"Item_Chance","Calc":"Multiply","Value":2.0,"Option":""}'
+    trigger: 5
+    target: 9
+    value: 2
+    specialHandler: 
+  - id: fan_acquire_pencil
+    sourceId: 12
+    dataCode: fan_acquire_pencil
+    devName: "\uC5F0\uD544"
+    nameStringId: 
+    descStringId: "\uC18C\uBAA8\uD488\uC744 \uC5BB\uC744 \uB54C\uB9C8\uB2E4, \uD55C
+      \uAC1C\uC529 \uCD94\uAC00\uB85C \uC5BB\uC74C"
+    grade: 0
+    triggerType: Acquire_Item
+    displayName: "\uC5F0\uD544"
+    description: "\uC18C\uBAA8\uD488\uC744 \uC5BB\uC744 \uB54C\uB9C8\uB2E4, \uD55C
+      \uAC1C\uC529 \uCD94\uAC00\uB85C \uC5BB\uC74C"
+    sprite: 
+    rawEffects: '[{"Trigger":"Acquire_Item","Target":"Item","Calc":"Add","Value":1.0,"Option":""}]'
+    effects:
+    - trigger: Acquire_Item
+      target: Item
+      calc: Add
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      rawJson: '{"Trigger":"Acquire_Item","Target":"Item","Calc":"Add","Value":1.0,"Option":""}'
+    trigger: 8
+    target: 2
+    value: 1
+    specialHandler: 
+  - id: fan_end_8ball
+    sourceId: 13
+    dataCode: fan_end_8ball
+    devName: "8\uBC88 \uB2F9\uAD6C\uACF5"
+    nameStringId: 
+    descStringId: "\uB0B4 \uD134\uC774 \uB05D\uB0A0 \uB54C \uBAA8\uB4E0 \uC0C1\uC790
+      \uC18D 8\uC758 \uAC1C\uC218 x20\uC758 \uD53C\uD574\uB97C \uCD94\uAC00\uB85C
+      \uC785\uD798"
+    grade: 0
+    triggerType: Turn_End
+    displayName: "8\uBC88 \uB2F9\uAD6C\uACF5"
+    description: "\uB0B4 \uD134\uC774 \uB05D\uB0A0 \uB54C \uBAA8\uB4E0 \uC0C1\uC790
+      \uC18D 8\uC758 \uAC1C\uC218 x20\uC758 \uD53C\uD574\uB97C \uCD94\uAC00\uB85C
+      \uC785\uD798"
+    sprite: 
+    rawEffects: '[{"Trigger":"Turn_End","Target":"Damage","Calc":"Add","Value":20.0,"Option":""}]'
+    effects:
+    - trigger: Turn_End
+      target: Damage
+      calc: Add
+      valueExpression: 20
+      hasNumericValue: 1
+      numericValue: 20
+      option: 
+      rawJson: '{"Trigger":"Turn_End","Target":"Damage","Calc":"Add","Value":20.0,"Option":""}'
+    trigger: 3
+    target: 3
+    value: 20
+    specialHandler: 
+  - id: fan_eventurn_pipe
+    sourceId: 14
+    dataCode: fan_eventurn_pipe
+    devName: "\uD30C\uC774\uD504"
+    nameStringId: 
+    descStringId: "\uB9E4 \uC9DD\uC218 \uD134\uB9C8\uB2E4 \uD0C0\uC218 +1"
+    grade: 0
+    triggerType: Turn_Even
+    displayName: "\uD30C\uC774\uD504"
+    description: "\uB9E4 \uC9DD\uC218 \uD134\uB9C8\uB2E4 \uD0C0\uC218 +1"
+    sprite: 
+    rawEffects: '[{"Trigger":"Turn_Even","Target":"Attack_Count","Calc":"Add","Value":1.0,"Option":""}]'
+    effects:
+    - trigger: Turn_Even
+      target: Attack_Count
+      calc: Add
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      rawJson: '{"Trigger":"Turn_Even","Target":"Attack_Count","Calc":"Add","Value":1.0,"Option":""}'
+    trigger: 8
+    target: 4
+    value: 1
+    specialHandler: 
+  - id: fan_damage_anchor
+    sourceId: 15
+    dataCode: fan_damage_anchor
+    devName: "\uB2FB"
+    nameStringId: 
+    descStringId: "\uD53C\uD574\uB97C \uC785\uC744 \uB54C\uB9C8\uB2E4 \uD56D\uC0C1
+      20\uC529 \uC801\uAC8C \uBC1B\uC74C"
+    grade: 0
+    triggerType: Take_Damage
+    displayName: "\uB2FB"
+    description: "\uD53C\uD574\uB97C \uC785\uC744 \uB54C\uB9C8\uB2E4 \uD56D\uC0C1
+      20\uC529 \uC801\uAC8C \uBC1B\uC74C"
+    sprite: 
+    rawEffects: '[{"Trigger":"Take_Damage","Target":"Damage_Taken","Calc":"Add","Value":-20.0,"Option":""}]'
+    effects:
+    - trigger: Take_Damage
+      target: Damage_Taken
+      calc: Add
+      valueExpression: -20
+      hasNumericValue: 1
+      numericValue: -20
+      option: 
+      rawJson: '{"Trigger":"Take_Damage","Target":"Damage_Taken","Calc":"Add","Value":-20.0,"Option":""}'
+    trigger: 8
+    target: 9
+    value: -20
+    specialHandler: 
+  - id: fan_reflect_sail
+    sourceId: 16
+    dataCode: fan_reflect_sail
+    devName: "\uB3DB"
+    nameStringId: 
+    descStringId: "\uD53C\uD574\uB97C \uC785\uC744 \uB54C\uB9C8\uB2E4 \uBC1B\uC740
+      \uD53C\uD574\uB7C9\uC758 50%\uB97C \uBC18\uC0AC"
+    grade: 0
+    triggerType: Take_Damage
+    displayName: "\uB3DB"
+    description: "\uD53C\uD574\uB97C \uC785\uC744 \uB54C\uB9C8\uB2E4 \uBC1B\uC740
+      \uD53C\uD574\uB7C9\uC758 50%\uB97C \uBC18\uC0AC"
+    sprite: 
+    rawEffects: '[{"Trigger":"Take_Damage","Target":"Damage_Reflect","Calc":"Multiply","Value":50.0,"Option":""}]'
+    effects:
+    - trigger: Take_Damage
+      target: Damage_Reflect
+      calc: Multiply
+      valueExpression: 50
+      hasNumericValue: 1
+      numericValue: 50
+      option: 
+      rawJson: '{"Trigger":"Take_Damage","Target":"Damage_Reflect","Calc":"Multiply","Value":50.0,"Option":""}'
+    trigger: 8
+    target: 9
+    value: 50
+    specialHandler: 
+  - id: fan_turn_boots
+    sourceId: 17
+    dataCode: fan_turn_boots
+    devName: "\uC7A5\uD654"
+    nameStringId: 
+    descStringId: "\uB9E4 \uD134 \uC774\uB3D9 \uD69F\uC218 +2"
+    grade: 0
+    triggerType: Turn_Start
+    displayName: "\uC7A5\uD654"
+    description: "\uB9E4 \uD134 \uC774\uB3D9 \uD69F\uC218 +2"
+    sprite: 
+    rawEffects: '[{"Trigger":"Turn_Start","Target":"Movement","Calc":"Add","Value":2.0,"Option":""}]'
+    effects:
+    - trigger: Turn_Start
+      target: Movement
+      calc: Add
+      valueExpression: 2
+      hasNumericValue: 1
+      numericValue: 2
+      option: 
+      rawJson: '{"Trigger":"Turn_Start","Target":"Movement","Calc":"Add","Value":2.0,"Option":""}'
+    trigger: 8
+    target: 9
+    value: 2
+    specialHandler: 
+  - id: fan_end_trumpcard
+    sourceId: 18
+    dataCode: fan_end_trumpcard
+    devName: "\uD2B8\uB7FC\uD504 \uCE74\uB4DC"
+    nameStringId: 
+    descStringId: "\uB0B4 \uD134\uC774 \uB05D\uB0A0 \uB54C \uB0A8\uC544\uC788\uB294
+      \uC774\uB3D9 \uD69F\uC218\uAC00 \uC784\uC2DC \uC774\uB3D9\uD69F\uC218\uB85C
+      \uC804\uD658"
+    grade: 0
+    triggerType: Turn_End
+    displayName: "\uD2B8\uB7FC\uD504 \uCE74\uB4DC"
+    description: "\uB0B4 \uD134\uC774 \uB05D\uB0A0 \uB54C \uB0A8\uC544\uC788\uB294
+      \uC774\uB3D9 \uD69F\uC218\uAC00 \uC784\uC2DC \uC774\uB3D9\uD69F\uC218\uB85C
+      \uC804\uD658"
+    sprite: 
+    rawEffects: '[{"Trigger":"Turn_End","Target":"Movement","Calc":"Set","Value":1.0,"Option":""}]'
+    effects:
+    - trigger: Turn_End
+      target: Movement
+      calc: Set
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      rawJson: '{"Trigger":"Turn_End","Target":"Movement","Calc":"Set","Value":1.0,"Option":""}'
+    trigger: 3
+    target: 9
+    value: 1
+    specialHandler: 
+  - id: fan_damage_slingshot
+    sourceId: 19
+    dataCode: fan_damage_slingshot
+    devName: "\uC0C8\uCD1D"
+    nameStringId: 
+    descStringId: "\uD53C\uD574\uB97C \uC785\uD790 \uB54C \uB9C8\uB2E4 \uD56D\uC0C1
+      30\uC529 \uCD94\uAC00\uB85C \uC785\uD798"
+    grade: 0
+    triggerType: Deal_Damage
+    displayName: "\uC0C8\uCD1D"
+    description: "\uD53C\uD574\uB97C \uC785\uD790 \uB54C \uB9C8\uB2E4 \uD56D\uC0C1
+      30\uC529 \uCD94\uAC00\uB85C \uC785\uD798"
+    sprite: 
+    rawEffects: '[{"Trigger":"Deal_Damage","Target":"Additional_Damage","Calc":"Add","Value":30.0,"Option":""}]'
+    effects:
+    - trigger: Deal_Damage
+      target: Additional_Damage
+      calc: Add
+      valueExpression: 30
+      hasNumericValue: 1
+      numericValue: 30
+      option: 
+      rawJson: '{"Trigger":"Deal_Damage","Target":"Additional_Damage","Calc":"Add","Value":30.0,"Option":""}'
+    trigger: 4
+    target: 3
+    value: 30
+    specialHandler: 
+  - id: fan_end_hourglass
+    sourceId: 20
+    dataCode: fan_end_hourglass
+    devName: "\uBAA8\uB798\uC2DC\uACC4"
+    nameStringId: 
+    descStringId: "\uB0B4 \uD134\uC774 \uB05D\uB0A0 \uB54C \uC801\uC5D0\uAC8C 50\uC758
+      \uD53C\uD574"
+    grade: 0
+    triggerType: Turn_End
+    displayName: "\uBAA8\uB798\uC2DC\uACC4"
+    description: "\uB0B4 \uD134\uC774 \uB05D\uB0A0 \uB54C \uC801\uC5D0\uAC8C 50\uC758
+      \uD53C\uD574"
+    sprite: 
+    rawEffects: '[{"Trigger":"Turn_End","Target":"Damage","Calc":"Add","Value":50.0,"Option":""}]'
+    effects:
+    - trigger: Turn_End
+      target: Damage
+      calc: Add
+      valueExpression: 50
+      hasNumericValue: 1
+      numericValue: 50
+      option: 
+      rawJson: '{"Trigger":"Turn_End","Target":"Damage","Calc":"Add","Value":50.0,"Option":""}'
+    trigger: 3
+    target: 3
+    value: 50
+    specialHandler: 
+  - id: fan_start_papercrane
+    sourceId: 21
+    dataCode: fan_start_papercrane
+    devName: "\uC885\uC774\uD559"
+    nameStringId: 
+    descStringId: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uD798 +1"
+    grade: 0
+    triggerType: Battle_Start
+    displayName: "\uC885\uC774\uD559"
+    description: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uD798 +1"
+    sprite: 
+    rawEffects: '[{"Trigger":"Battle_Start","Target":"Strength","Calc":"Add","Value":1.0,"Option":""}]'
+    effects:
+    - trigger: Battle_Start
+      target: Strength
+      calc: Add
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      rawJson: '{"Trigger":"Battle_Start","Target":"Strength","Calc":"Add","Value":1.0,"Option":""}'
+    trigger: 2
+    target: 5
+    value: 1
+    specialHandler: 
+  - id: fan_start_paperfrog
+    sourceId: 22
+    dataCode: fan_start_paperfrog
+    devName: "\uC885\uC774\uAC1C\uAD6C\uB9AC"
+    nameStringId: 
+    descStringId: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uC801\uC758 \uD798 -1"
+    grade: 0
+    triggerType: Battle_Start
+    displayName: "\uC885\uC774\uAC1C\uAD6C\uB9AC"
+    description: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uC801\uC758 \uD798 -1"
+    sprite: 
+    rawEffects: '[{"Trigger":"Battle_Start","Target":"Enemy_Strength","Calc":"Add","Value":-1.0,"Option":""}]'
+    effects:
+    - trigger: Battle_Start
+      target: Enemy_Strength
+      calc: Add
+      valueExpression: -1
+      hasNumericValue: 1
+      numericValue: -1
+      option: 
+      rawJson: '{"Trigger":"Battle_Start","Target":"Enemy_Strength","Calc":"Add","Value":-1.0,"Option":""}'
+    trigger: 2
+    target: 5
+    value: -1
+    specialHandler: 
+  - id: fan_acquire_watermelon
+    sourceId: 23
+    dataCode: fan_acquire_watermelon
+    devName: "\uC218\uBC15"
+    nameStringId: 
+    descStringId: "\uD68D\uB4DD \uC2DC \uCCB4\uB825 +200"
+    grade: 0
+    triggerType: On_Acquire
+    displayName: "\uC218\uBC15"
+    description: "\uD68D\uB4DD \uC2DC \uCCB4\uB825 +200"
+    sprite: 
+    rawEffects: '[{"Trigger":"On_Acquire","Target":"HP","Calc":"Add","Value":200.0,"Option":""}]'
+    effects:
+    - trigger: On_Acquire
+      target: HP
+      calc: Add
+      valueExpression: 200
+      hasNumericValue: 1
+      numericValue: 200
+      option: 
+      rawJson: '{"Trigger":"On_Acquire","Target":"HP","Calc":"Add","Value":200.0,"Option":""}'
+    trigger: 8
+    target: 1
+    value: 200
+    specialHandler: 
+  - id: fan_end_strawberry
+    sourceId: 24
+    dataCode: fan_end_strawberry
+    devName: "\uB538\uAE30"
+    nameStringId: 
+    descStringId: "\uC804\uD22C \uC885\uB8CC \uD6C4 \uCCB4\uB825 +50"
+    grade: 0
+    triggerType: Battle_End
+    displayName: "\uB538\uAE30"
+    description: "\uC804\uD22C \uC885\uB8CC \uD6C4 \uCCB4\uB825 +50"
+    sprite: 
+    rawEffects: '[{"Trigger":"Battle_End","Target":"HP","Calc":"Add","Value":50.0,"Option":""}]'
+    effects:
+    - trigger: Battle_End
+      target: HP
+      calc: Add
+      valueExpression: 50
+      hasNumericValue: 1
+      numericValue: 50
+      option: 
+      rawJson: '{"Trigger":"Battle_End","Target":"HP","Calc":"Add","Value":50.0,"Option":""}'
+    trigger: 8
+    target: 1
+    value: 50
+    specialHandler: 
+  - id: fan_end_grape
+    sourceId: 25
+    dataCode: fan_end_grape
+    devName: "\uD3EC\uB3C4"
+    nameStringId: 
+    descStringId: "\uD134 \uC885\uB8CC \uC2DC \uB0A8\uC740 \uC774\uB3D9 \uD69F\uC218\uB9C8\uB2E4
+      \uCCB4\uB825 +50"
+    grade: 0
+    triggerType: Turn_End
+    displayName: "\uD3EC\uB3C4"
+    description: "\uD134 \uC885\uB8CC \uC2DC \uB0A8\uC740 \uC774\uB3D9 \uD69F\uC218\uB9C8\uB2E4
+      \uCCB4\uB825 +50"
+    sprite: 
+    rawEffects: '[{"Trigger":"Turn_End","Target":"HP","Calc":"Add","Value":50.0,"Option":""}]'
+    effects:
+    - trigger: Turn_End
+      target: HP
+      calc: Add
+      valueExpression: 50
+      hasNumericValue: 1
+      numericValue: 50
+      option: 
+      rawJson: '{"Trigger":"Turn_End","Target":"HP","Calc":"Add","Value":50.0,"Option":""}'
+    trigger: 3
+    target: 1
+    value: 50
+    specialHandler: 
+  - id: fan_start_stamp
+    sourceId: 26
+    dataCode: fan_start_stamp
+    devName: "\uB3C4\uC7A5"
+    nameStringId: 
+    descStringId: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uBCF4\uC720 \uC911\uC778 \uD658\uC0C1\uC758
+      \uC784\uC2DC \uBB34\uC791\uC704 \uBCF5\uC0AC\uBCF8 \uC0DD\uC131"
+    grade: 0
+    triggerType: Battle_Start
+    displayName: "\uB3C4\uC7A5"
+    description: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uBCF4\uC720 \uC911\uC778 \uD658\uC0C1\uC758
+      \uC784\uC2DC \uBB34\uC791\uC704 \uBCF5\uC0AC\uBCF8 \uC0DD\uC131"
+    sprite: 
+    rawEffects: '[{"Trigger":"Battle_Start","Target":"Fantasy","Calc":"Add","Value":1.0,"Option":""}]'
+    effects:
+    - trigger: Battle_Start
+      target: Fantasy
+      calc: Add
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      rawJson: '{"Trigger":"Battle_Start","Target":"Fantasy","Calc":"Add","Value":1.0,"Option":""}'
+    trigger: 2
+    target: 6
+    value: 1
+    specialHandler: 
+  - id: fan_end_dice
+    sourceId: 27
+    dataCode: fan_end_dice
+    devName: "\uC8FC\uC0AC\uC704"
+    nameStringId: 
+    descStringId: "\uC804\uD22C \uC885\uB8CC \uC2DC \uD658\uC0C1 1\uD68C \uC0C8\uB85C\uACE0\uCE68
+      \uAC00\uB2A5"
+    grade: 0
+    triggerType: Battle_End
+    displayName: "\uC8FC\uC0AC\uC704"
+    description: "\uC804\uD22C \uC885\uB8CC \uC2DC \uD658\uC0C1 1\uD68C \uC0C8\uB85C\uACE0\uCE68
+      \uAC00\uB2A5"
+    sprite: 
+    rawEffects: '[{"Trigger":"Battle_End","Target":"Fantasy_Reroll","Calc":"Add","Value":1.0,"Option":""}]'
+    effects:
+    - trigger: Battle_End
+      target: Fantasy_Reroll
+      calc: Add
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      rawJson: '{"Trigger":"Battle_End","Target":"Fantasy_Reroll","Calc":"Add","Value":1.0,"Option":""}'
+    trigger: 8
+    target: 6
+    value: 1
+    specialHandler: 
+  - id: fan_rest_coffee
+    sourceId: 28
+    dataCode: fan_rest_coffee
+    devName: "\uCEE4\uD53C"
+    nameStringId: 
+    descStringId: "\uD734\uC2DD \uC7A5\uC18C\uC5D0\uC11C \uD734\uC2DD\uD558\uB294
+      \uB300\uC2E0 \uBB34\uC791\uC704 \uBC31\uC0C9 \uD658\uC0C1 \uD68D\uB4DD \uAC00\uB2A5"
+    grade: 0
+    triggerType: Passive
+    displayName: "\uCEE4\uD53C"
+    description: "\uD734\uC2DD \uC7A5\uC18C\uC5D0\uC11C \uD734\uC2DD\uD558\uB294
+      \uB300\uC2E0 \uBB34\uC791\uC704 \uBC31\uC0C9 \uD658\uC0C1 \uD68D\uB4DD \uAC00\uB2A5"
+    sprite: 
+    rawEffects: '[{"Trigger":"Passive","Target":"Fantasy","Calc":"Add","Value":1.0,"Option":""}]'
+    effects:
+    - trigger: Passive
+      target: Fantasy
+      calc: Add
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      rawJson: '{"Trigger":"Passive","Target":"Fantasy","Calc":"Add","Value":1.0,"Option":""}'
+    trigger: 1
+    target: 6
+    value: 1
+    specialHandler: 
+  - id: fan_rest_mug
+    sourceId: 29
+    dataCode: fan_rest_mug
+    devName: "\uBA38\uADF8\uC794"
+    nameStringId: 
+    descStringId: "\uD734\uC2DD \uC7A5\uC18C\uC5D0\uC11C \uD734\uC2DD \uC0C1\uC790\uC758
+      \uD798 +1"
+    grade: 0
+    triggerType: Passive
+    displayName: "\uBA38\uADF8\uC794"
+    description: "\uD734\uC2DD \uC7A5\uC18C\uC5D0\uC11C \uD734\uC2DD \uC0C1\uC790\uC758
+      \uD798 +1"
+    sprite: 
+    rawEffects: '[{"Trigger":"Passive","Target":"Strength","Calc":"Add","Value":1.0,"Option":""}]'
+    effects:
+    - trigger: Passive
+      target: Strength
+      calc: Add
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      rawJson: '{"Trigger":"Passive","Target":"Strength","Calc":"Add","Value":1.0,"Option":""}'
+    trigger: 1
+    target: 5
+    value: 1
+    specialHandler: 
+  - id: fan_rest_pillow
+    sourceId: 30
+    dataCode: fan_rest_pillow
+    devName: "\uBCA0\uAC1C"
+    nameStringId: 
+    descStringId: "\uD734\uC2DD \uC7A5\uC18C\uC5D0\uC11C \uD734\uC2DD \uC2DC \uCCB4\uB825
+      +70"
+    grade: 0
+    triggerType: Passive
+    displayName: "\uBCA0\uAC1C"
+    description: "\uD734\uC2DD \uC7A5\uC18C\uC5D0\uC11C \uD734\uC2DD \uC2DC \uCCB4\uB825
+      +70"
+    sprite: 
+    rawEffects: '[{"Trigger":"Passive","Target":"HP","Calc":"Add","Value":70.0,"Option":""}]'
+    effects:
+    - trigger: Passive
+      target: HP
+      calc: Add
+      valueExpression: 70
+      hasNumericValue: 1
+      numericValue: 70
+      option: 
+      rawJson: '{"Trigger":"Passive","Target":"HP","Calc":"Add","Value":70.0,"Option":""}'
+    trigger: 1
+    target: 1
+    value: 70
+    specialHandler: 
+  - id: fan_damage_libra
+    sourceId: 31
+    dataCode: fan_damage_libra
+    devName: "\uCC9C\uCE6D\uC790\uB9AC"
+    nameStringId: 
+    descStringId: "\uB0B4 \uAE30\uBCF8 \uD53C\uD574\uB7C9 \uC0C1\uC790\uAC00 [00]\uC774\uB77C\uBA74
+      200\uC73C\uB85C \uCDE8\uAE09, [00]\uC774 \uC544\uB2C8\uB77C\uBA74 0\uC73C\uB85C
+      \uCDE8\uAE09"
+    grade: 2
+    triggerType: 
+    displayName: "\uCC9C\uCE6D\uC790\uB9AC"
+    description: "\uB0B4 \uAE30\uBCF8 \uD53C\uD574\uB7C9 \uC0C1\uC790\uAC00 [00]\uC774\uB77C\uBA74
+      200\uC73C\uB85C \uCDE8\uAE09, [00]\uC774 \uC544\uB2C8\uB77C\uBA74 0\uC73C\uB85C
+      \uCDE8\uAE09"
+    sprite: 
+    rawEffects: '[{"Trigger":"","Target":"Base_Damage","Calc":"Set","Value":200.0,"Option":""}]'
+    effects:
+    - trigger: 
+      target: Base_Damage
+      calc: Set
+      valueExpression: 200
+      hasNumericValue: 1
+      numericValue: 200
+      option: 
+      rawJson: '{"Trigger":"","Target":"Base_Damage","Calc":"Set","Value":200.0,"Option":""}'
+    trigger: 0
+    target: 3
+    value: 200
+    specialHandler: 
+  - id: fan_turn_pisces
+    sourceId: 32
+    dataCode: fan_turn_pisces
+    devName: "\uBB3C\uACE0\uAE30\uC790\uB9AC"
+    nameStringId: 
+    descStringId: "\uD134 \uC2DC\uC791 \uC2DC \uC774\uB3D9 \uD69F\uC218\uAC00 0\uC774
+      \uB418\uB294 \uB300\uC2E0, \uADF8\uB9CC\uD07C \uC784\uC2DC \uC5EC\uBD84\uC131\uB0E5\uACFC
+      \uC9C0\uC6B0\uAC1C \uD68D\uB4DD"
+    grade: 2
+    triggerType: Turn_Start
+    displayName: "\uBB3C\uACE0\uAE30\uC790\uB9AC"
+    description: "\uD134 \uC2DC\uC791 \uC2DC \uC774\uB3D9 \uD69F\uC218\uAC00 0\uC774
+      \uB418\uB294 \uB300\uC2E0, \uADF8\uB9CC\uD07C \uC784\uC2DC \uC5EC\uBD84\uC131\uB0E5\uACFC
+      \uC9C0\uC6B0\uAC1C \uD68D\uB4DD"
+    sprite: 
+    rawEffects: '[{"Trigger":"Turn_Start","Target":"Item","Calc":"Add","Value":1.0,"Option":""}]'
+    effects:
+    - trigger: Turn_Start
+      target: Item
+      calc: Add
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      rawJson: '{"Trigger":"Turn_Start","Target":"Item","Calc":"Add","Value":1.0,"Option":""}'
+    trigger: 8
+    target: 2
+    value: 1
+    specialHandler: 
+  - id: fan_upgrade_aquarius
+    sourceId: 33
+    dataCode: fan_upgrade_aquarius
+    devName: "\uBB3C\uBCD1\uC790\uB9AC"
+    nameStringId: 
+    descStringId: "\uC774\uB3D9 \uD69F\uC218 -1, \uC5F0\uC0B0 \uAE30\uD638 \uC0C1\uC790\uB97C
+      \uACE0\uAE09 \uC5F0\uC0B0 \uAE30\uD638 \uC0C1\uC790\uB85C \uBCC0\uACBD"
+    grade: 2
+    triggerType: Passive
+    displayName: "\uBB3C\uBCD1\uC790\uB9AC"
+    description: "\uC774\uB3D9 \uD69F\uC218 -1, \uC5F0\uC0B0 \uAE30\uD638 \uC0C1\uC790\uB97C
+      \uACE0\uAE09 \uC5F0\uC0B0 \uAE30\uD638 \uC0C1\uC790\uB85C \uBCC0\uACBD"
+    sprite: 
+    rawEffects: '[{"Trigger":"Passive","Target":"Movement","Calc":"Add","Value":-1.0,"Option":""},{"Trigger":"Passive","Target":"Operator_Box","Calc":"Set","Value":1.0,"Option":""}]'
+    effects:
+    - trigger: Passive
+      target: Movement
+      calc: Add
+      valueExpression: -1
+      hasNumericValue: 1
+      numericValue: -1
+      option: 
+      rawJson: '{"Trigger":"Passive","Target":"Movement","Calc":"Add","Value":-1.0,"Option":""}'
+    - trigger: Passive
+      target: Operator_Box
+      calc: Set
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      rawJson: '{"Trigger":"Passive","Target":"Operator_Box","Calc":"Set","Value":1.0,"Option":""}'
+    trigger: 1
+    target: 9
+    value: -1
+    specialHandler: 
+  - id: fan_attack_animalfriends
+    sourceId: 34
+    dataCode: fan_attack_animalfriends
+    devName: "\uB3D9\uBB3C\uCE5C\uAD6C\uB4E4"
+    nameStringId: 
+    descStringId: "\uBAA8\uB4E0 \uACF5\uACA9\uC774 4\uD68C \uCD94\uAC00\uB85C \uACF5\uACA9\uD568"
+    grade: 2
+    triggerType: Attack
+    displayName: "\uB3D9\uBB3C\uCE5C\uAD6C\uB4E4"
+    description: "\uBAA8\uB4E0 \uACF5\uACA9\uC774 4\uD68C \uCD94\uAC00\uB85C \uACF5\uACA9\uD568"
+    sprite: 
+    rawEffects: '[{"Trigger":"Attack","Target":"Additional_Damage","Calc":"Add","Value":4.0,"Option":""}]'
+    effects:
+    - trigger: Attack
+      target: Additional_Damage
+      calc: Add
+      valueExpression: 4
+      hasNumericValue: 1
+      numericValue: 4
+      option: 
+      rawJson: '{"Trigger":"Attack","Target":"Additional_Damage","Calc":"Add","Value":4.0,"Option":""}'
+    trigger: 4
+    target: 3
+    value: 4
+    specialHandler: 
+  - id: fan_start_capricorn
+    sourceId: 35
+    dataCode: fan_start_capricorn
+    devName: "\uC5FC\uC18C\uC790\uB9AC"
+    nameStringId: 
+    descStringId: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uC774\uB3D9\uD69F\uC218, \uD798,
+      \uC784\uC2DC \uC9C0\uC6B0\uAC1C, \uC784\uC2DC \uC5EC\uBD84\uC131\uB0E5 +1"
+    grade: 2
+    triggerType: Battle_Start
+    displayName: "\uC5FC\uC18C\uC790\uB9AC"
+    description: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uC774\uB3D9\uD69F\uC218, \uD798,
+      \uC784\uC2DC \uC9C0\uC6B0\uAC1C, \uC784\uC2DC \uC5EC\uBD84\uC131\uB0E5 +1"
+    sprite: 
+    rawEffects: '[{"Trigger":"Battle_Start","Target":"Movement","Calc":"Add","Value":1.0,"Option":""},{"Trigger":"Battle_Start","Target":"Strength","Calc":"Add","Value":1.0,"Option":""},{"Trigger":"Battle_Start","Target":"Eraser","Calc":"Add","Value":1.0,"Option":""},{"Trigger":"Battle_Start","Target":"Extra_Match","Calc":"Add","Value":1.0,"Option":""}]'
+    effects:
+    - trigger: Battle_Start
+      target: Movement
+      calc: Add
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      rawJson: '{"Trigger":"Battle_Start","Target":"Movement","Calc":"Add","Value":1.0,"Option":""}'
+    - trigger: Battle_Start
+      target: Strength
+      calc: Add
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      rawJson: '{"Trigger":"Battle_Start","Target":"Strength","Calc":"Add","Value":1.0,"Option":""}'
+    - trigger: Battle_Start
+      target: Eraser
+      calc: Add
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      rawJson: '{"Trigger":"Battle_Start","Target":"Eraser","Calc":"Add","Value":1.0,"Option":""}'
+    - trigger: Battle_Start
+      target: Extra_Match
+      calc: Add
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      rawJson: '{"Trigger":"Battle_Start","Target":"Extra_Match","Calc":"Add","Value":1.0,"Option":""}'
+    trigger: 2
+    target: 9
+    value: 1
+    specialHandler: 
+  - id: fan_erase_sagittarius
+    sourceId: 36
+    dataCode: fan_erase_sagittarius
+    devName: "\uC0AC\uC218\uC790\uB9AC"
+    nameStringId: 
+    descStringId: "\uBAA8\uB4E0 \uC0C1\uC790\uB97C \uBD84\uB9AC\uC2DC\uD0A4\uB294
+      \uB300\uC2E0, \uC804\uD22C\uB2F9 \uD55C \uBC88 \uC9C0\uC6B0\uAC1C\uB85C \uC0C1\uC790\uB97C
+      \uC9C0\uC6B8 \uC218 \uC788\uC74C"
+    grade: 2
+    triggerType: Passive
+    displayName: "\uC0AC\uC218\uC790\uB9AC"
+    description: "\uBAA8\uB4E0 \uC0C1\uC790\uB97C \uBD84\uB9AC\uC2DC\uD0A4\uB294
+      \uB300\uC2E0, \uC804\uD22C\uB2F9 \uD55C \uBC88 \uC9C0\uC6B0\uAC1C\uB85C \uC0C1\uC790\uB97C
+      \uC9C0\uC6B8 \uC218 \uC788\uC74C"
+    sprite: 
+    rawEffects: '[{"Trigger":"Passive","Target":"Eraser","Calc":"Add","Value":1.0,"Option":""}]'
+    effects:
+    - trigger: Passive
+      target: Eraser
+      calc: Add
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      rawJson: '{"Trigger":"Passive","Target":"Eraser","Calc":"Add","Value":1.0,"Option":""}'
+    trigger: 1
+    target: 2
+    value: 1
+    specialHandler: 
+  - id: fan_odd_gemini
+    sourceId: 37
+    dataCode: fan_odd_gemini
+    devName: "\uC30D\uB465\uC774\uC790\uB9AC"
+    nameStringId: 
+    descStringId: "\uB0B4 \uD640\uC218\uC758 \uC218\uCE58 x2, \uC9DD\uC218\uB294
+      0\uC73C\uB85C \uCDE8\uAE09"
+    grade: 2
+    triggerType: Passive
+    displayName: "\uC30D\uB465\uC774\uC790\uB9AC"
+    description: "\uB0B4 \uD640\uC218\uC758 \uC218\uCE58 x2, \uC9DD\uC218\uB294 0\uC73C\uB85C
+      \uCDE8\uAE09"
+    sprite: 
+    rawEffects: '[{"Trigger":"Passive","Target":"Value","Calc":"Multiply","Value":2.0,"Option":""}]'
+    effects:
+    - trigger: Passive
+      target: Value
+      calc: Multiply
+      valueExpression: 2
+      hasNumericValue: 1
+      numericValue: 2
+      option: 
+      rawJson: '{"Trigger":"Passive","Target":"Value","Calc":"Multiply","Value":2.0,"Option":""}'
+    trigger: 1
+    target: 9
+    value: 2
+    specialHandler: 
+  - id: fan_shop_stickyglove
+    sourceId: 38
+    dataCode: fan_shop_stickyglove
+    devName: "\uB048\uB048\uC774\uC7A5\uAC11"
+    nameStringId: 
+    descStringId: "\uC0C1\uC810\uC5D0\uC11C \uC18C\uBAA8\uD488\uC744 \uAC01\uAC01
+      1\uD68C \uBB34\uB8CC\uB85C \uAD6C\uB9E4 \uAC00\uB2A5"
+    grade: 1
+    triggerType: Passive
+    displayName: "\uB048\uB048\uC774\uC7A5\uAC11"
+    description: "\uC0C1\uC810\uC5D0\uC11C \uC18C\uBAA8\uD488\uC744 \uAC01\uAC01
+      1\uD68C \uBB34\uB8CC\uB85C \uAD6C\uB9E4 \uAC00\uB2A5"
+    sprite: 
+    rawEffects: '[{"Trigger":"Passive","Target":"Item_Cost","Calc":"Add","Value":-100.0,"Option":""}]'
+    effects:
+    - trigger: Passive
+      target: Item_Cost
+      calc: Add
+      valueExpression: -100
+      hasNumericValue: 1
+      numericValue: -100
+      option: 
+      rawJson: '{"Trigger":"Passive","Target":"Item_Cost","Calc":"Add","Value":-100.0,"Option":""}'
+    trigger: 1
+    target: 8
+    value: -100
+    specialHandler: 
+  - id: fan_shop_stampcoupon
+    sourceId: 39
+    dataCode: fan_shop_stampcoupon
+    devName: "\uC2A4\uD0EC\uD504\uCFE0\uD3F0"
+    nameStringId: 
+    descStringId: "\uC0C1\uC810\uC5D0\uC11C \uCCB4\uB825 999 \uC18C\uBAA8 \uC2DC
+      \uB9E4 \uD134 \uACF5\uACA9 \uD69F\uC218 +1\uC758 \uD658\uC0C1\uC73C\uB85C \uBCC0\uACBD"
+    grade: 1
+    triggerType: Shop_Purchase
+    displayName: "\uC2A4\uD0EC\uD504\uCFE0\uD3F0"
+    description: "\uC0C1\uC810\uC5D0\uC11C \uCCB4\uB825 999 \uC18C\uBAA8 \uC2DC \uB9E4
+      \uD134 \uACF5\uACA9 \uD69F\uC218 +1\uC758 \uD658\uC0C1\uC73C\uB85C \uBCC0\uACBD"
+    sprite: 
+    rawEffects: '[{"Trigger":"Shop_Purchase","Target":"HP","Calc":"Add","Value":-999.0,"Option":""}]'
+    effects:
+    - trigger: Shop_Purchase
+      target: HP
+      calc: Add
+      valueExpression: -999
+      hasNumericValue: 1
+      numericValue: -999
+      option: 
+      rawJson: '{"Trigger":"Shop_Purchase","Target":"HP","Calc":"Add","Value":-999.0,"Option":""}'
+    trigger: 7
+    target: 1
+    value: -999
+    specialHandler: 
+  - id: fan_turn_syringe
+    sourceId: 40
+    dataCode: fan_turn_syringe
+    devName: "\uC8FC\uC0AC\uAE30"
+    nameStringId: 
+    descStringId: "\uB9E4 \uD134 \uACF5\uACA9 \uD69F\uC218 +1"
+    grade: 1
+    triggerType: Passive
+    displayName: "\uC8FC\uC0AC\uAE30"
+    description: "\uB9E4 \uD134 \uACF5\uACA9 \uD69F\uC218 +1"
+    sprite: 
+    rawEffects: '[{"Trigger":"Passive","Target":"Attack_Count","Calc":"Add","Value":1.0,"Option":""}]'
+    effects:
+    - trigger: Passive
+      target: Attack_Count
+      calc: Add
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      rawJson: '{"Trigger":"Passive","Target":"Attack_Count","Calc":"Add","Value":1.0,"Option":""}'
+    trigger: 1
+    target: 4
+    value: 1
+    specialHandler: 
+  - id: fan_defend_paperboat
+    sourceId: 41
+    dataCode: fan_defend_paperboat
+    devName: "\uC885\uC774 \uBC30"
+    nameStringId: 
+    descStringId: "\uC801\uC758 \uAE30\uBCF8 \uD53C\uD574\uB7C9\uC774 \uB0B4 \uAE30\uBCF8
+      \uD53C\uD574\uB7C9 \uC774\uC0C1\uC778 \uACBD\uC6B0, \uBC1B\uB294 \uD53C\uD574
+      \uC808\uBC18"
+    grade: 1
+    triggerType: "=AI(\"\uD45C \uCEE8\uD14D\uC2A4\uD2B8\uB97C \uAE30\uBC18\uC73C\uB85C
+      \uC774 \uC140\uC5D0 \uC801\uC808\uD55C \uAC12\uC744 \uC785\uB825\uD574 \uC918\")"
+    displayName: "\uC885\uC774 \uBC30"
+    description: "\uC801\uC758 \uAE30\uBCF8 \uD53C\uD574\uB7C9\uC774 \uB0B4 \uAE30\uBCF8
+      \uD53C\uD574\uB7C9 \uC774\uC0C1\uC778 \uACBD\uC6B0, \uBC1B\uB294 \uD53C\uD574
+      \uC808\uBC18"
+    sprite: 
+    rawEffects: '[{"Trigger":"","Target":"Damage_Taken","Calc":"Multiply","Value":0.5,"Option":""}]'
+    effects:
+    - trigger: 
+      target: Damage_Taken
+      calc: Multiply
+      valueExpression: 0.5
+      hasNumericValue: 1
+      numericValue: 0.5
+      option: 
+      rawJson: '{"Trigger":"","Target":"Damage_Taken","Calc":"Multiply","Value":0.5,"Option":""}'
+    trigger: 8
+    target: 9
+    value: 0
+    specialHandler: 
+  - id: fan_turn1_doll
+    sourceId: 42
+    dataCode: fan_turn1_doll
+    devName: "\uB300\uC5ED \uC778\uD615"
+    nameStringId: 
+    descStringId: "\uCCAB \uD134\uC5D0 \uC801\uC758 \uD798 -2"
+    grade: 1
+    triggerType: Turn_1
+    displayName: "\uB300\uC5ED \uC778\uD615"
+    description: "\uCCAB \uD134\uC5D0 \uC801\uC758 \uD798 -2"
+    sprite: 
+    rawEffects: '[{"Trigger":"Turn_1","Target":"Enemy_Strength","Calc":"Add","Value":-2.0,"Option":""}]'
+    effects:
+    - trigger: Turn_1
+      target: Enemy_Strength
+      calc: Add
+      valueExpression: -2
+      hasNumericValue: 1
+      numericValue: -2
+      option: 
+      rawJson: '{"Trigger":"Turn_1","Target":"Enemy_Strength","Calc":"Add","Value":-2.0,"Option":""}'
+    trigger: 8
+    target: 5
+    value: -2
+    specialHandler: 
+  - id: fan_use_musicbox
+    sourceId: 43
+    dataCode: fan_use_musicbox
+    devName: "\uC624\uB974\uACE8"
+    nameStringId: 
+    descStringId: "\uC18C\uBAA8\uD488\uC744 \uC0AC\uC6A9\uD560 \uB54C\uB9C8\uB2E4,
+      50% \uD655\uB960\uB85C \uADF8 \uC18C\uBAA8\uD488\uC758 \uBCF5\uC0AC\uBCF8 \uC0DD\uC131"
+    grade: 1
+    triggerType: Use_Item
+    displayName: "\uC624\uB974\uACE8"
+    description: "\uC18C\uBAA8\uD488\uC744 \uC0AC\uC6A9\uD560 \uB54C\uB9C8\uB2E4,
+      50% \uD655\uB960\uB85C \uADF8 \uC18C\uBAA8\uD488\uC758 \uBCF5\uC0AC\uBCF8 \uC0DD\uC131"
+    sprite: 
+    rawEffects: '[{"Trigger":"Use_Item","Target":"Item","Calc":"Add","Value":1.0,"Option":""}]'
+    effects:
+    - trigger: Use_Item
+      target: Item
+      calc: Add
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      rawJson: '{"Trigger":"Use_Item","Target":"Item","Calc":"Add","Value":1.0,"Option":""}'
+    trigger: 8
+    target: 2
+    value: 1
+    specialHandler: 
+  - id: fan_damage_scythe
+    sourceId: 44
+    dataCode: fan_damage_scythe
+    devName: "\uB0AB"
+    nameStringId: 
+    descStringId: "\uC801\uC5D0\uAC8C \uC785\uD78C \uD53C\uD574\uC758 10%\uB9CC\uD07C
+      \uCCB4\uB825 \uC99D\uAC00"
+    grade: 1
+    triggerType: Deal_Damage
+    displayName: "\uB0AB"
+    description: "\uC801\uC5D0\uAC8C \uC785\uD78C \uD53C\uD574\uC758 10%\uB9CC\uD07C
+      \uCCB4\uB825 \uC99D\uAC00"
+    sprite: 
+    rawEffects: '[{"Trigger":"Deal_Damage","Target":"HP","Calc":"Add","Value":10.0,"Option":""}]'
+    effects:
+    - trigger: Deal_Damage
+      target: HP
+      calc: Add
+      valueExpression: 10
+      hasNumericValue: 1
+      numericValue: 10
+      option: 
+      rawJson: '{"Trigger":"Deal_Damage","Target":"HP","Calc":"Add","Value":10.0,"Option":""}'
+    trigger: 4
+    target: 1
+    value: 10
+    specialHandler: 
+  - id: fan_end_fan
+    sourceId: 45
+    dataCode: fan_end_fan
+    devName: "\uBD80\uCC44"
+    nameStringId: 
+    descStringId: "\uD134 \uC885\uB8CC \uC2DC \uB0B4 \uD604\uC7AC \uCCB4\uB825\uC758
+      20%\uB9CC\uD07C \uC801\uC5D0\uAC8C \uB370\uBBF8\uC9C0"
+    grade: 1
+    triggerType: Turn_End
+    displayName: "\uBD80\uCC44"
+    description: "\uD134 \uC885\uB8CC \uC2DC \uB0B4 \uD604\uC7AC \uCCB4\uB825\uC758
+      20%\uB9CC\uD07C \uC801\uC5D0\uAC8C \uB370\uBBF8\uC9C0"
+    sprite: 
+    rawEffects: '[{"Trigger":"Turn_End","Target":"Damage","Calc":"Add","Value":20.0,"Option":""}]'
+    effects:
+    - trigger: Turn_End
+      target: Damage
+      calc: Add
+      valueExpression: 20
+      hasNumericValue: 1
+      numericValue: 20
+      option: 
+      rawJson: '{"Trigger":"Turn_End","Target":"Damage","Calc":"Add","Value":20.0,"Option":""}'
+    trigger: 3
+    target: 3
+    value: 20
+    specialHandler: 
+  - id: fan_end_firecracker
+    sourceId: 46
+    dataCode: fan_end_firecracker
+    devName: "\uD3ED\uC8FD"
+    nameStringId: 
+    descStringId: "\uD134 \uC885\uB8CC\uC2DC \uC774\uBC88 \uC804\uD22C\uC5D0\uC11C
+      \uC18C\uBAA8\uD488\uC744 \uC0AC\uC6A9\uD55C \uD69F\uC218\uB9CC\uD07C 30\uC758
+      \uD53C\uD574"
+    grade: 1
+    triggerType: Turn_End
+    displayName: "\uD3ED\uC8FD"
+    description: "\uD134 \uC885\uB8CC\uC2DC \uC774\uBC88 \uC804\uD22C\uC5D0\uC11C
+      \uC18C\uBAA8\uD488\uC744 \uC0AC\uC6A9\uD55C \uD69F\uC218\uB9CC\uD07C 30\uC758
+      \uD53C\uD574"
+    sprite: 
+    rawEffects: '[{"Trigger":"Turn_End","Target":"Damage","Calc":"Add","Value":30.0,"Option":""}]'
+    effects:
+    - trigger: Turn_End
+      target: Damage
+      calc: Add
+      valueExpression: 30
+      hasNumericValue: 1
+      numericValue: 30
+      option: 
+      rawJson: '{"Trigger":"Turn_End","Target":"Damage","Calc":"Add","Value":30.0,"Option":""}'
+    trigger: 3
+    target: 3
+    value: 30
+    specialHandler: 
+  - id: fan_end_paperplane
+    sourceId: 47
+    dataCode: fan_end_paperplane
+    devName: "\uC885\uC774 \uBE44\uD589\uAE30"
+    nameStringId: 
+    descStringId: "\uD134 \uC885\uB8CC\uC2DC \uC801\uACFC \uB098\uC758 \uAE30\uBCF8
+      \uD53C\uD574\uB7C9\uC774 \uAC19\uC744 \uACBD\uC6B0, \uAC00\uD558\uB294 \uD53C\uD574\uB7C9
+      \uB450 \uBC30"
+    grade: 1
+    triggerType: Turn_End
+    displayName: "\uC885\uC774 \uBE44\uD589\uAE30"
+    description: "\uD134 \uC885\uB8CC\uC2DC \uC801\uACFC \uB098\uC758 \uAE30\uBCF8
+      \uD53C\uD574\uB7C9\uC774 \uAC19\uC744 \uACBD\uC6B0, \uAC00\uD558\uB294 \uD53C\uD574\uB7C9
+      \uB450 \uBC30"
+    sprite: 
+    rawEffects: '[{"Trigger":"Turn_End","Target":"Additional_Damage","Calc":"Multiply","Value":2.0,"Option":""}]'
+    effects:
+    - trigger: Turn_End
+      target: Additional_Damage
+      calc: Multiply
+      valueExpression: 2
+      hasNumericValue: 1
+      numericValue: 2
+      option: 
+      rawJson: '{"Trigger":"Turn_End","Target":"Additional_Damage","Calc":"Multiply","Value":2.0,"Option":""}'
+    trigger: 3
+    target: 3
+    value: 2
+    specialHandler: 
+  - id: fan_start_cuestick
+    sourceId: 48
+    dataCode: fan_start_cuestick
+    devName: "\uD050\uB300"
+    nameStringId: 
+    descStringId: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uB0B4 \uAE30\uBCF8 \uD53C\uD574\uB7C9\uACFC
+      \uD798 \uD53C\uD574\uB7C9 \uCCAB\uC9F8 \uC790\uB9AC \uC22B\uC790 8\uB85C \uACE0\uC815"
+    grade: 1
+    triggerType: Battle_Start
+    displayName: "\uD050\uB300"
+    description: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uB0B4 \uAE30\uBCF8 \uD53C\uD574\uB7C9\uACFC
+      \uD798 \uD53C\uD574\uB7C9 \uCCAB\uC9F8 \uC790\uB9AC \uC22B\uC790 8\uB85C \uACE0\uC815"
+    sprite: 
+    rawEffects: '[{"Trigger":"Battle_Start","Target":"Base_Damage","Calc":"Set","Value":8.0,"Option":""},{"Trigger":"Battle_Start","Target":"Strength_Damage","Calc":"Set","Value":8.0,"Option":""}]'
+    effects:
+    - trigger: Battle_Start
+      target: Base_Damage
+      calc: Set
+      valueExpression: 8
+      hasNumericValue: 1
+      numericValue: 8
+      option: 
+      rawJson: '{"Trigger":"Battle_Start","Target":"Base_Damage","Calc":"Set","Value":8.0,"Option":""}'
+    - trigger: Battle_Start
+      target: Strength_Damage
+      calc: Set
+      valueExpression: 8
+      hasNumericValue: 1
+      numericValue: 8
+      option: 
+      rawJson: '{"Trigger":"Battle_Start","Target":"Strength_Damage","Calc":"Set","Value":8.0,"Option":""}'
+    trigger: 2
+    target: 3
+    value: 8
+    specialHandler: 
+  - id: fan_turn4_clockwork
+    sourceId: 49
+    dataCode: fan_turn4_clockwork
+    devName: "\uC2DC\uACC4\uD0DC\uC5FD"
+    nameStringId: 
+    descStringId: "\uC804\uD22C \uAC1C\uC2DC 3\uD134 \uB4A4 \uD798 +2"
+    grade: 1
+    triggerType: Turn_4
+    displayName: "\uC2DC\uACC4\uD0DC\uC5FD"
+    description: "\uC804\uD22C \uAC1C\uC2DC 3\uD134 \uB4A4 \uD798 +2"
+    sprite: 
+    rawEffects: '[{"Trigger":"Turn_4","Target":"Strength","Calc":"Add","Value":2.0,"Option":""}]'
+    effects:
+    - trigger: Turn_4
+      target: Strength
+      calc: Add
+      valueExpression: 2
+      hasNumericValue: 1
+      numericValue: 2
+      option: 
+      rawJson: '{"Trigger":"Turn_4","Target":"Strength","Calc":"Add","Value":2.0,"Option":""}'
+    trigger: 8
+    target: 5
+    value: 2
+    specialHandler: 
+  - id: fan_acquire_blueprint
+    sourceId: 50
+    dataCode: fan_acquire_blueprint
+    devName: "\uCCAD\uC0AC\uC9C4"
+    nameStringId: 
+    descStringId: "\uD68D\uB4DD\uC2DC \uBCF4\uC720\uD558\uACE0 \uC788\uB294 \uD658\uC0C1
+      \uC911 \uD558\uB098\uB85C \uC120\uD0DD\uD558\uC5EC \uADF8 \uBCF5\uC0AC\uBCF8\uC73C\uB85C
+      \uC601\uAD6C\uD788 \uBCC0\uACBD\uB428"
+    grade: 1
+    triggerType: On_Acquire
+    displayName: "\uCCAD\uC0AC\uC9C4"
+    description: "\uD68D\uB4DD\uC2DC \uBCF4\uC720\uD558\uACE0 \uC788\uB294 \uD658\uC0C1
+      \uC911 \uD558\uB098\uB85C \uC120\uD0DD\uD558\uC5EC \uADF8 \uBCF5\uC0AC\uBCF8\uC73C\uB85C
+      \uC601\uAD6C\uD788 \uBCC0\uACBD\uB428"
+    sprite: 
+    rawEffects: '[{"Trigger":"On_Acquire","Target":"Change_Fantasy","Calc":"Execute","Value":1.0,"Option":""}]'
+    effects:
+    - trigger: On_Acquire
+      target: Change_Fantasy
+      calc: Execute
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      rawJson: '{"Trigger":"On_Acquire","Target":"Change_Fantasy","Calc":"Execute","Value":1.0,"Option":""}'
+    trigger: 8
+    target: 6
+    value: 1
+    specialHandler: 
+  - id: fan_rest_sleepmask
+    sourceId: 51
+    dataCode: fan_rest_sleepmask
+    devName: "\uC218\uBA74\uC548\uB300"
+    nameStringId: 
+    descStringId: "\uD734\uC2DD\uC73C\uB85C \uC5BB\uB294 \uCCB4\uB825 x2"
+    grade: 1
+    triggerType: Rest
+    displayName: "\uC218\uBA74\uC548\uB300"
+    description: "\uD734\uC2DD\uC73C\uB85C \uC5BB\uB294 \uCCB4\uB825 x2"
+    sprite: 
+    rawEffects: '[{"Trigger":"Rest","Target":"HP","Calc":"Multiply","Value":2.0,"Option":""}]'
+    effects:
+    - trigger: Rest
+      target: HP
+      calc: Multiply
+      valueExpression: 2
+      hasNumericValue: 1
+      numericValue: 2
+      option: 
+      rawJson: '{"Trigger":"Rest","Target":"HP","Calc":"Multiply","Value":2.0,"Option":""}'
+    trigger: 6
+    target: 1
+    value: 2
+    specialHandler: 
+  - id: fan_rest_marshmallow
+    sourceId: 52
+    dataCode: fan_rest_marshmallow
+    devName: "\uB9C8\uC2DC\uBA5C\uB85C"
+    nameStringId: 
+    descStringId: "\uD734\uC2DD \uBC84\uD2BC\uC744 \uD55C \uBC88 \uB354 \uB204\uB97C
+      \uC218 \uC788\uC74C"
+    grade: 1
+    triggerType: Passive
+    displayName: "\uB9C8\uC2DC\uBA5C\uB85C"
+    description: "\uD734\uC2DD \uBC84\uD2BC\uC744 \uD55C \uBC88 \uB354 \uB204\uB97C
+      \uC218 \uC788\uC74C"
+    sprite: 
+    rawEffects: '[{"Trigger":"Passive","Target":"Rest_Count","Calc":"Add","Value":1.0,"Option":""}]'
+    effects:
+    - trigger: Passive
+      target: Rest_Count
+      calc: Add
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      rawJson: '{"Trigger":"Passive","Target":"Rest_Count","Calc":"Add","Value":1.0,"Option":""}'
+    trigger: 1
+    target: 7
+    value: 1
+    specialHandler: 
+  - id: fan_damage_grapeshot
+    sourceId: 53
+    dataCode: fan_damage_grapeshot
+    devName: "\uD3EC\uB3C4\uD0C4"
+    nameStringId: 
+    descStringId: "\uD53C\uD574\uB97C \uC785\uD790 \uB54C \uB9C8\uB2E4 \uD56D\uC0C1
+      60\uC529 \uCD94\uAC00\uB85C \uC785\uD798"
+    grade: 1
+    triggerType: Deal_Damage
+    displayName: "\uD3EC\uB3C4\uD0C4"
+    description: "\uD53C\uD574\uB97C \uC785\uD790 \uB54C \uB9C8\uB2E4 \uD56D\uC0C1
+      60\uC529 \uCD94\uAC00\uB85C \uC785\uD798"
+    sprite: 
+    rawEffects: '[{"Trigger":"Deal_Damage","Target":"Additional_Damage","Calc":"Add","Value":60.0,"Option":""}]'
+    effects:
+    - trigger: Deal_Damage
+      target: Additional_Damage
+      calc: Add
+      valueExpression: 60
+      hasNumericValue: 1
+      numericValue: 60
+      option: 
+      rawJson: '{"Trigger":"Deal_Damage","Target":"Additional_Damage","Calc":"Add","Value":60.0,"Option":""}'
+    trigger: 4
+    target: 3
+    value: 60
+    specialHandler: 
+  - id: fan_damage_Bottle
+    sourceId: 54
+    dataCode: fan_damage_Bottle
+    devName: "\uBCD1 \uC18D\uC758 \uBC30"
+    nameStringId: 
+    descStringId: "\uD53C\uD574\uB97C \uBC1B\uC744 \uB54C \uB9C8\uB2E4 \uC801\uC5D0\uAC8C
+      150 \uD53C\uD574\uB97C \uC785\uD798"
+    grade: 1
+    triggerType: Take_Damage
+    displayName: "\uBCD1 \uC18D\uC758 \uBC30"
+    description: "\uD53C\uD574\uB97C \uBC1B\uC744 \uB54C \uB9C8\uB2E4 \uC801\uC5D0\uAC8C
+      150 \uD53C\uD574\uB97C \uC785\uD798"
+    sprite: 
+    rawEffects: '[{"Trigger":"Take_Damage","Target":"Damage_Reflect","Calc":"Add","Value":150.0,"Option":""}]'
+    effects:
+    - trigger: Take_Damage
+      target: Damage_Reflect
+      calc: Add
+      valueExpression: 150
+      hasNumericValue: 1
+      numericValue: 150
+      option: 
+      rawJson: '{"Trigger":"Take_Damage","Target":"Damage_Reflect","Calc":"Add","Value":150.0,"Option":""}'
+    trigger: 8
+    target: 9
+    value: 150
+    specialHandler: 
+  - id: fan_number_domino
+    sourceId: 55
+    dataCode: fan_number_domino
+    devName: "\uB3C4\uBBF8\uB178"
+    nameStringId: 
+    descStringId: "\uB0B4 5\uBCF4\uB2E4 \uC791\uC740 \uC22B\uC790\uAC00 \uBAA8\uB450
+      5\uB85C \uCDE8\uAE09\uB428"
+    grade: 1
+    triggerType: Passive
+    displayName: "\uB3C4\uBBF8\uB178"
+    description: "\uB0B4 5\uBCF4\uB2E4 \uC791\uC740 \uC22B\uC790\uAC00 \uBAA8\uB450
+      5\uB85C \uCDE8\uAE09\uB428"
+    sprite: 
+    rawEffects: '[{"Trigger":"Passive","Target":"Value","Calc":"Set","Value":5.0,"Option":""}]'
+    effects:
+    - trigger: Passive
+      target: Value
+      calc: Set
+      valueExpression: 5
+      hasNumericValue: 1
+      numericValue: 5
+      option: 
+      rawJson: '{"Trigger":"Passive","Target":"Value","Calc":"Set","Value":5.0,"Option":""}'
+    trigger: 1
+    target: 9
+    value: 5
+    specialHandler: 
+  - id: fan_number_applepie
+    sourceId: 56
+    dataCode: fan_number_applepie
+    devName: "\uC0AC\uACFC\uD30C\uC774"
+    nameStringId: 
+    descStringId: "\uC801\uC758 5\uBCF4\uB2E4 \uD070 \uC22B\uC790\uAC00 \uBAA8\uB450
+      5\uB85C \uCDE8\uAE09\uB428"
+    grade: 1
+    triggerType: Passive
+    displayName: "\uC0AC\uACFC\uD30C\uC774"
+    description: "\uC801\uC758 5\uBCF4\uB2E4 \uD070 \uC22B\uC790\uAC00 \uBAA8\uB450
+      5\uB85C \uCDE8\uAE09\uB428"
+    sprite: 
+    rawEffects: '[{"Trigger":"Passive","Target":"Value","Calc":"Set","Value":5.0,"Option":""}]'
+    effects:
+    - trigger: Passive
+      target: Value
+      calc: Set
+      valueExpression: 5
+      hasNumericValue: 1
+      numericValue: 5
+      option: 
+      rawJson: '{"Trigger":"Passive","Target":"Value","Calc":"Set","Value":5.0,"Option":""}'
+    trigger: 1
+    target: 9
+    value: 5
+    specialHandler: 
+  - id: fan_damage_mirror
+    sourceId: 57
+    dataCode: fan_damage_mirror
+    devName: "\uC190\uAC70\uC6B8"
+    nameStringId: 
+    descStringId: "\uB0B4 \uAE30\uBCF8 \uD53C\uD574\uB7C9\uC774 \uAC19\uC740 \uC22B\uC790\uB85C\uB9CC
+      \uC774\uB8E8\uC5B4\uC838 \uC788\uC744 \uACBD\uC6B0, \uD0C0\uC218 1\uD68C \uCD94\uAC00"
+    grade: 1
+    triggerType: Turn_End
+    displayName: "\uC190\uAC70\uC6B8"
+    description: "\uB0B4 \uAE30\uBCF8 \uD53C\uD574\uB7C9\uC774 \uAC19\uC740 \uC22B\uC790\uB85C\uB9CC
+      \uC774\uB8E8\uC5B4\uC838 \uC788\uC744 \uACBD\uC6B0, \uD0C0\uC218 1\uD68C \uCD94\uAC00"
+    sprite: 
+    rawEffects: '[{"Trigger":"Turn_End","Target":"Attack_Count","Calc":"Add","Value":1.0,"Option":""}]'
+    effects:
+    - trigger: Turn_End
+      target: Attack_Count
+      calc: Add
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      rawJson: '{"Trigger":"Turn_End","Target":"Attack_Count","Calc":"Add","Value":1.0,"Option":""}'
+    trigger: 3
+    target: 4
+    value: 1
+    specialHandler: 
+  - id: fan_acquire_Candy
+    sourceId: 58
+    dataCode: fan_acquire_Candy
+    devName: "\uCE94\uB514"
+    nameStringId: 
+    descStringId: "\uD68D\uB4DD \uC2DC \uD604\uC7AC \uCCB4\uB825 +10%"
+    grade: 0
+    triggerType: Acquire
+    displayName: "\uCE94\uB514"
+    description: "\uD68D\uB4DD \uC2DC \uD604\uC7AC \uCCB4\uB825 +10%"
+    sprite: 
+    rawEffects: '[{"Trigger":"Acquire", "Target": "HP","Calc":"Add", "Value":"HP*0.1"}]'
+    effects:
+    - trigger: Acquire
+      target: HP
+      calc: Add
+      valueExpression: HP*0.1
+      hasNumericValue: 0
+      numericValue: 0
+      option: 
+      rawJson: '{"Trigger":"Acquire","Target":"HP","Calc":"Add","Value":"HP*0.1"}'
+    trigger: 8
+    target: 1
+    value: 0
+    specialHandler: 
+  - id: fan_damage_abacus
+    sourceId: 59
+    dataCode: fan_damage_abacus
+    devName: "\uC8FC\uD310"
+    nameStringId: 
+    descStringId: "\uB9E4 \uD134 \uC774\uB3D9 \uD69F\uC218 +3"
+    grade: 1
+    triggerType: Passive
+    displayName: "\uC8FC\uD310"
+    description: "\uB9E4 \uD134 \uC774\uB3D9 \uD69F\uC218 +3"
+    sprite: 
+    rawEffects: '[{"Trigger":"Turn_Start","Target":"Movement","Calc":"Add","Value":3.0,"Option":""}]'
+    effects:
+    - trigger: Turn_Start
+      target: Movement
+      calc: Add
+      valueExpression: 3
+      hasNumericValue: 1
+      numericValue: 3
+      option: 
+      rawJson: '{"Trigger":"Turn_Start","Target":"Movement","Calc":"Add","Value":3.0,"Option":""}'
+    trigger: 8
+    target: 9
+    value: 3
+    specialHandler: 
+  - id: fan_damage_poinsettia
+    sourceId: 60
+    dataCode: fan_damage_poinsettia
+    devName: "\uD3EC\uC778\uC138\uD2F0\uC544"
+    nameStringId: 
+    descStringId: "\uD53C\uD574\uB97C \uC785\uC744 \uB54C \uB9C8\uB2E4 \uD56D\uC0C1
+      30\uC529 \uC801\uAC8C \uBC1B\uC74C"
+    grade: 1
+    triggerType: Take_Damage
+    displayName: "\uD3EC\uC778\uC138\uD2F0\uC544"
+    description: "\uD53C\uD574\uB97C \uC785\uC744 \uB54C \uB9C8\uB2E4 \uD56D\uC0C1
+      30\uC529 \uC801\uAC8C \uBC1B\uC74C"
+    sprite: 
+    rawEffects: '[{"Trigger":"Take_Damage","Target":"Damage_Taken","Calc":"Add","Value":-30.0,"Option":""}]'
+    effects:
+    - trigger: Take_Damage
+      target: Damage_Taken
+      calc: Add
+      valueExpression: -30
+      hasNumericValue: 1
+      numericValue: -30
+      option: 
+      rawJson: '{"Trigger":"Take_Damage","Target":"Damage_Taken","Calc":"Add","Value":-30.0,"Option":""}'
+    trigger: 8
+    target: 9
+    value: -30
+    specialHandler: 

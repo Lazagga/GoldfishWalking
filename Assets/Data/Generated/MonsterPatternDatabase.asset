@@ -1,0 +1,927 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0387fe9233d90a4fa77daf0c86f3165, type: 3}
+  m_Name: MonsterPatternDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Data.MonsterPatternDatabase
+  patterns:
+  - id: SlimeSingle
+    sourceId: 0
+    dataCode: SlimeSingle
+    devName: SlimeSep
+    nameStringId: 
+    displayName: SlimeSep
+    description: 
+    patternType: 1
+    value: 0
+    hitCount: 1
+    attackKey: 2_Single
+    damageDigitCount: 2
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Attack": "2_Single","Effects": [{"Timing": "NextTurn","Target":
+      "Self","Action": "Split","Duration": 1}]}'
+    effects:
+    - timing: NextTurn
+      target: Self
+      action: Split
+      type: 
+      valueExpression: 
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 1
+      lockDamage: 0
+      rawJson: '{"Timing":"NextTurn","Target":"Self","Action":"Split","Duration":1}'
+    sprite: 
+    specialHandler: 
+  - id: MushroomLock
+    sourceId: 0
+    dataCode: MushroomLock
+    devName: 
+    nameStringId: 
+    displayName: MushroomLock
+    description: 
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Attack": null,"Effects": [{"Timing": "NextTurn","Target": "Player","Action":
+      "Lock"}]}'
+    effects:
+    - timing: NextTurn
+      target: Player
+      action: Lock
+      type: 
+      valueExpression: 
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Timing":"NextTurn","Target":"Player","Action":"Lock"}'
+    sprite: 
+    specialHandler: 
+  - id: Skip
+    sourceId: 0
+    dataCode: Skip
+    devName: 
+    nameStringId: 
+    displayName: Skip
+    description: 
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Attack": null,"Effect": null}'
+    effects: []
+    sprite: 
+    specialHandler: 
+  - id: LittleWitchSkill
+    sourceId: 0
+    dataCode: LittleWitchSkill
+    devName: 
+    nameStringId: 
+    displayName: LittleWitchSkill
+    description: 
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Effects": [{"Target": "Player", "Action": "AddBuff", "Type": "MinusBox",
+      "Value": 1]}'
+    effects: []
+    sprite: 
+    specialHandler: 
+  - id: HunterSingle
+    sourceId: 0
+    dataCode: HunterSingle
+    devName: 
+    nameStringId: 
+    displayName: HunterSingle
+    description: 
+    patternType: 1
+    value: 0
+    hitCount: 1
+    attackKey: 2_Single
+    damageDigitCount: 2
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Player", "Action":
+      "Split"}, {"Target": "Player", "Action": "AddBuff", "Type": "BoxLock", "Value":
+      1}]}'
+    effects:
+    - timing: 
+      target: Player
+      action: Split
+      type: 
+      valueExpression: 
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Player","Action":"Split"}'
+    - timing: 
+      target: Player
+      action: AddBuff
+      type: BoxLock
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Player","Action":"AddBuff","Type":"BoxLock","Value":1}'
+    sprite: 
+    specialHandler: 
+  - id: GhostSingle
+    sourceId: 0
+    dataCode: GhostSingle
+    devName: 
+    nameStringId: 
+    displayName: GhostSingle
+    description: 
+    patternType: 1
+    value: 0
+    hitCount: 1
+    attackKey: 2_Single
+    damageDigitCount: 2
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Attack": "2_Single", "Effects": [{"Timing": "NextTurn", "Target":
+      "Player", "Action": "Split", "Duration": 1}]}'
+    effects:
+    - timing: NextTurn
+      target: Player
+      action: Split
+      type: 
+      valueExpression: 
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 1
+      lockDamage: 0
+      rawJson: '{"Timing":"NextTurn","Target":"Player","Action":"Split","Duration":1}'
+    sprite: 
+    specialHandler: 
+  - id: GhostMulti
+    sourceId: 0
+    dataCode: GhostMulti
+    devName: 
+    nameStringId: 
+    displayName: GhostMulti
+    description: 
+    patternType: 2
+    value: 0
+    hitCount: 1
+    attackKey: 2_Multi_1
+    damageDigitCount: 2
+    hitDigitCount: 1
+    strengthDelta: 0
+    rawEffects: '{"Attack": "2_Multi_1", "Effects": [{"Timing": "NextTurn", "Target":
+      "Self", "Action": "Split","Duration":1}]}'
+    effects:
+    - timing: NextTurn
+      target: Self
+      action: Split
+      type: 
+      valueExpression: 
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 1
+      lockDamage: 0
+      rawJson: '{"Timing":"NextTurn","Target":"Self","Action":"Split","Duration":1}'
+    sprite: 
+    specialHandler: 
+  - id: AutomatonSingle
+    sourceId: 0
+    dataCode: AutomatonSingle
+    devName: 
+    nameStringId: 
+    displayName: AutomatonSingle
+    description: 
+    patternType: 1
+    value: 0
+    hitCount: 1
+    attackKey: 2_Single
+    damageDigitCount: 2
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Self", "Action":
+      "AddBuff", "Type": "Strength", "Value": 1}]}'
+    effects:
+    - timing: 
+      target: Self
+      action: AddBuff
+      type: Strength
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Self","Action":"AddBuff","Type":"Strength","Value":1}'
+    sprite: 
+    specialHandler: 
+  - id: AutomatonSingleStun
+    sourceId: 0
+    dataCode: AutomatonSingleStun
+    devName: 
+    nameStringId: 
+    displayName: AutomatonSingleStun
+    description: 
+    patternType: 1
+    value: 0
+    hitCount: 1
+    attackKey: 2_Single
+    damageDigitCount: 2
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Self", "Action":
+      "AddBuff", "Type": "Stun", "Duration": 1}, {"Target": "Self", "Action": "SetBuff",
+      "Type": "Strength", "Value": 0}]}'
+    effects:
+    - timing: 
+      target: Self
+      action: AddBuff
+      type: Stun
+      valueExpression: 
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 1
+      lockDamage: 0
+      rawJson: '{"Target":"Self","Action":"AddBuff","Type":"Stun","Duration":1}'
+    - timing: 
+      target: Self
+      action: SetBuff
+      type: Strength
+      valueExpression: 0
+      hasNumericValue: 1
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Self","Action":"SetBuff","Type":"Strength","Value":0}'
+    sprite: 
+    specialHandler: 
+  - id: GiantRatSkill
+    sourceId: 0
+    dataCode: GiantRatSkill
+    devName: 
+    nameStringId: 
+    displayName: GiantRatSkill
+    description: 
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Effects": [{"Target": "Self", "Action": "Heal", "Value": 3}, {"Target":
+      "Self", "Action": "AddBuff", "Type": "Strength", "Value": 1}]}'
+    effects:
+    - timing: 
+      target: Self
+      action: Heal
+      type: 
+      valueExpression: 3
+      hasNumericValue: 1
+      numericValue: 3
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Self","Action":"Heal","Value":3}'
+    - timing: 
+      target: Self
+      action: AddBuff
+      type: Strength
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Self","Action":"AddBuff","Type":"Strength","Value":1}'
+    sprite: 
+    specialHandler: 
+  - id: FortuneTellerSkill
+    sourceId: 0
+    dataCode: FortuneTellerSkill
+    devName: 
+    nameStringId: 
+    displayName: FortuneTellerSkill
+    description: 
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Effects": [{"Target": "Self", "Action": "AddBuff", "Type": "FortuneStack",
+      "Value": "DamageDealt"}]}'
+    effects:
+    - timing: 
+      target: Self
+      action: AddBuff
+      type: FortuneStack
+      valueExpression: DamageDealt
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Self","Action":"AddBuff","Type":"FortuneStack","Value":"DamageDealt"}'
+    sprite: 
+    specialHandler: 
+  - id: FortuneTellerExplode
+    sourceId: 0
+    dataCode: FortuneTellerExplode
+    devName: 
+    nameStringId: 
+    displayName: FortuneTellerExplode
+    description: 
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Effects": [{"Target": "Player", "Action": "Damage", "Value": "FortuneStack"}]}'
+    effects:
+    - timing: 
+      target: Player
+      action: Damage
+      type: 
+      valueExpression: FortuneStack
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Player","Action":"Damage","Value":"FortuneStack"}'
+    sprite: 
+    specialHandler: 
+  - id: AlchemistSingle
+    sourceId: 0
+    dataCode: AlchemistSingle
+    devName: 
+    nameStringId: 
+    displayName: AlchemistSingle
+    description: 
+    patternType: 1
+    value: 0
+    hitCount: 1
+    attackKey: 2_Single
+    damageDigitCount: 2
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Attack": "2_Single", "Effects": [{"Action": "AddBuff", "Type":
+      "Bleed", "Value": "DamageDealt"}]}'
+    effects:
+    - timing: 
+      target: 
+      action: AddBuff
+      type: Bleed
+      valueExpression: DamageDealt
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Action":"AddBuff","Type":"Bleed","Value":"DamageDealt"}'
+    sprite: 
+    specialHandler: 
+  - id: AlchemistSkill
+    sourceId: 0
+    dataCode: AlchemistSkill
+    devName: 
+    nameStringId: 
+    displayName: AlchemistSkill
+    description: 
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Effects": [{"Target": "Player", "Action": "MultiplyBuff", "Type":
+      "Bleed", "Value": 3}]}'
+    effects:
+    - timing: 
+      target: Player
+      action: MultiplyBuff
+      type: Bleed
+      valueExpression: 3
+      hasNumericValue: 1
+      numericValue: 3
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Player","Action":"MultiplyBuff","Type":"Bleed","Value":3}'
+    sprite: 
+    specialHandler: 
+  - id: PlagueDoctorSkill
+    sourceId: 0
+    dataCode: PlagueDoctorSkill
+    devName: 
+    nameStringId: 
+    displayName: PlagueDoctorSkill
+    description: 
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Effects": [{"Target": "Player", "Action": "MultiplyBuff", "Type":
+      "Poison", "Value": 2}]}'
+    effects:
+    - timing: 
+      target: Player
+      action: MultiplyBuff
+      type: Poison
+      valueExpression: 2
+      hasNumericValue: 1
+      numericValue: 2
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Player","Action":"MultiplyBuff","Type":"Poison","Value":2}'
+    sprite: 
+    specialHandler: 
+  - id: ProphetSingle
+    sourceId: 0
+    dataCode: ProphetSingle
+    devName: 
+    nameStringId: 
+    displayName: ProphetSingle
+    description: 
+    patternType: 1
+    value: 0
+    hitCount: 1
+    attackKey: 2_Single
+    damageDigitCount: 2
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Self", "Action":
+      "AddStack", "Value": "DamageDealt"}]}'
+    effects:
+    - timing: 
+      target: Self
+      action: AddStack
+      type: 
+      valueExpression: DamageDealt
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Self","Action":"AddStack","Value":"DamageDealt"}'
+    sprite: 
+    specialHandler: 
+  - id: ProphetMulti
+    sourceId: 0
+    dataCode: ProphetMulti
+    devName: 
+    nameStringId: 
+    displayName: ProphetMulti
+    description: 
+    patternType: 6
+    value: 0
+    hitCount: 1
+    attackKey: 2_Multi
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Attack": "2_Multi", "Effects": [{"Target": "ProphecyBox", "Action":
+      "AddStack", "Value": "DamageDealt"}]}'
+    effects:
+    - timing: 
+      target: ProphecyBox
+      action: AddStack
+      type: 
+      valueExpression: DamageDealt
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"ProphecyBox","Action":"AddStack","Value":"DamageDealt"}'
+    sprite: 
+    specialHandler: 2_Multi
+  - id: ProphetExplode
+    sourceId: 0
+    dataCode: ProphetExplode
+    devName: 
+    nameStringId: 
+    displayName: ProphetExplode
+    description: 
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Effects": [{"Target": "Player", "Action": "Damage", "Value": "ProphecyStack",
+      "Lock": true}, {"Target": "ProphecyBox", "Action": "SetValue", "Value": 0}]}'
+    effects:
+    - timing: 
+      target: Player
+      action: Damage
+      type: 
+      valueExpression: ProphecyStack
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 1
+      rawJson: '{"Target":"Player","Action":"Damage","Value":"ProphecyStack","Lock":true}'
+    - timing: 
+      target: ProphecyBox
+      action: SetValue
+      type: 
+      valueExpression: 0
+      hasNumericValue: 1
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"ProphecyBox","Action":"SetValue","Value":0}'
+    sprite: 
+    specialHandler: 
+  - id: JellyfishSingle
+    sourceId: 0
+    dataCode: JellyfishSingle
+    devName: 
+    nameStringId: 
+    displayName: JellyfishSingle
+    description: 
+    patternType: 1
+    value: 0
+    hitCount: 1
+    attackKey: 2_Single
+    damageDigitCount: 2
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Attack": "2_Single", "Effects": [{"Action": "AddBuff", "Type":
+      "Bleed", "Value": "DamageDealt*0.5"}, {"Action": "AddBuff", "Type": "Poison",
+      "Value": "DamageDealt*0.5"}]}'
+    effects:
+    - timing: 
+      target: 
+      action: AddBuff
+      type: Bleed
+      valueExpression: DamageDealt*0.5
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Action":"AddBuff","Type":"Bleed","Value":"DamageDealt*0.5"}'
+    - timing: 
+      target: 
+      action: AddBuff
+      type: Poison
+      valueExpression: DamageDealt*0.5
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Action":"AddBuff","Type":"Poison","Value":"DamageDealt*0.5"}'
+    sprite: 
+    specialHandler: 
+  - id: JellyfishSkill
+    sourceId: 0
+    dataCode: JellyfishSkill
+    devName: 
+    nameStringId: 
+    displayName: JellyfishSkill
+    description: 
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Effects": [{"Target": "Self", "Action": "Heal", "Value": "PlayerBleed"}],
+      [{"Target": "Self", "Action": "Heal", "Value": "PlayerPoision"}]}'
+    effects: []
+    sprite: 
+    specialHandler: 
+  - id: OrbSkill
+    sourceId: 0
+    dataCode: OrbSkill
+    devName: 
+    nameStringId: 
+    displayName: OrbSkill
+    description: 
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Effects": [{"Target": "Player", "Action": "Damage", "Value": "PlayerHP*0.3",
+      "Lock": true}]}'
+    effects:
+    - timing: 
+      target: Player
+      action: Damage
+      type: 
+      valueExpression: PlayerHP*0.3
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 1
+      rawJson: '{"Target":"Player","Action":"Damage","Value":"PlayerHP*0.3","Lock":true}'
+    sprite: 
+    specialHandler: 
+  - id: VampireSkill
+    sourceId: 0
+    dataCode: VampireSkill
+    devName: 
+    nameStringId: 
+    displayName: VampireSkill
+    description: 
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Effects": [{"Target": "Player", "Action": "Damage", "Value": "PlayerHP_Multi_2"}]}'
+    effects:
+    - timing: 
+      target: Player
+      action: Damage
+      type: 
+      valueExpression: PlayerHP_Multi_2
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Player","Action":"Damage","Value":"PlayerHP_Multi_2"}'
+    sprite: 
+    specialHandler: 
+  - id: KnightSkill
+    sourceId: 0
+    dataCode: KnightSkill
+    devName: 
+    nameStringId: 
+    displayName: KnightSkill
+    description: 
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Condition": "DamageTaken>=400", "Effects": [{"Condition":  "Action":
+      "RemoveBuff", "Type": "Shield"}, {"Target": "Self", "Action": "AddBuff", "Type":
+      "Strength", "Value": 3}]}'
+    effects: []
+    sprite: 
+    specialHandler: 
+  - id: StargazerSingle
+    sourceId: 0
+    dataCode: StargazerSingle
+    devName: 
+    nameStringId: 
+    displayName: StargazerSingle
+    description: 
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: 
+    effects: []
+    sprite: 
+    specialHandler: 
+  - id: StargazerSkill
+    sourceId: 0
+    dataCode: StargazerSkill
+    devName: 
+    nameStringId: 
+    displayName: StargazerSkill
+    description: 
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Effects": [{"Target": "Player", "Action": "Damage", "Value": "Stargazing_Multi_3"}]}'
+    effects:
+    - timing: 
+      target: Player
+      action: Damage
+      type: 
+      valueExpression: Stargazing_Multi_3
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Player","Action":"Damage","Value":"Stargazing_Multi_3"}'
+    sprite: 
+    specialHandler: 
+  - id: BanditSingle
+    sourceId: 0
+    dataCode: BanditSingle
+    devName: 
+    nameStringId: 
+    displayName: BanditSingle
+    description: 
+    patternType: 1
+    value: 0
+    hitCount: 1
+    attackKey: 2_Single
+    damageDigitCount: 2
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Player", "Action":
+      "AddBuff", "Type": "Bleed", "Value": "DamageDealt"}]}'
+    effects:
+    - timing: 
+      target: Player
+      action: AddBuff
+      type: Bleed
+      valueExpression: DamageDealt
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Player","Action":"AddBuff","Type":"Bleed","Value":"DamageDealt"}'
+    sprite: 
+    specialHandler: 
+  - id: RobberSingle
+    sourceId: 0
+    dataCode: RobberSingle
+    devName: 
+    nameStringId: 
+    displayName: RobberSingle
+    description: 
+    patternType: 1
+    value: 0
+    hitCount: 1
+    attackKey: 2_Single
+    damageDigitCount: 2
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Player", "Action":
+      "AddBuff", "Type": "Poison", "Value": "DamageDealt*0.5"}]}'
+    effects:
+    - timing: 
+      target: Player
+      action: AddBuff
+      type: Poison
+      valueExpression: DamageDealt*0.5
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Player","Action":"AddBuff","Type":"Poison","Value":"DamageDealt*0.5"}'
+    sprite: 
+    specialHandler: 
+  - id: PlagueDoctorSingle
+    sourceId: 0
+    dataCode: PlagueDoctorSingle
+    devName: 
+    nameStringId: 
+    displayName: PlagueDoctorSingle
+    description: 
+    patternType: 1
+    value: 0
+    hitCount: 1
+    attackKey: 2_Single
+    damageDigitCount: 2
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Player", "Action":
+      "AddBuff", "Type": "Poison", "Value": "DamageDealt"}]}'
+    effects:
+    - timing: 
+      target: Player
+      action: AddBuff
+      type: Poison
+      valueExpression: DamageDealt
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Player","Action":"AddBuff","Type":"Poison","Value":"DamageDealt"}'
+    sprite: 
+    specialHandler: 
+  - id: CosmictreeSingle
+    sourceId: 0
+    dataCode: CosmictreeSingle
+    devName: 
+    nameStringId: 
+    displayName: CosmictreeSingle
+    description: 
+    patternType: 1
+    value: 0
+    hitCount: 1
+    attackKey: 3_Single
+    damageDigitCount: 3
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Attack": "3_Single", "Effects": [{"Target": "Self", "Action":
+      "AddBuff", "Type": "Strength", "Value": 1}]}'
+    effects:
+    - timing: 
+      target: Self
+      action: AddBuff
+      type: Strength
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Self","Action":"AddBuff","Type":"Strength","Value":1}'
+    sprite: 
+    specialHandler: 
+  - id: CosmictreeHeal
+    sourceId: 0
+    dataCode: CosmictreeHeal
+    devName: 
+    nameStringId: 
+    displayName: CosmictreeHeal
+    description: 
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: '{"Effects": [{"Target": "Self", "Action": "Heal", "Value": "Strength+2_Single"'
+    effects: []
+    sprite: 
+    specialHandler: 
+  - id: WhaleSingle
+    sourceId: 0
+    dataCode: WhaleSingle
+    devName: 
+    nameStringId: 
+    displayName: WhaleSingle
+    description: 
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: 
+    effects: []
+    sprite: 
+    specialHandler: 
+  - id: WhaleMulti
+    sourceId: 0
+    dataCode: WhaleMulti
+    devName: 
+    nameStringId: 
+    displayName: WhaleMulti
+    description: 
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: 
+    effects: []
+    sprite: 
+    specialHandler: 
+  - id: WhaleStr
+    sourceId: 0
+    dataCode: WhaleStr
+    devName: 
+    nameStringId: 
+    displayName: WhaleStr
+    description: 
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    rawEffects: 
+    effects: []
+    sprite: 
+    specialHandler: 

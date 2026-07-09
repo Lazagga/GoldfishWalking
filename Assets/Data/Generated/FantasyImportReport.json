@@ -1,0 +1,18 @@
+{
+  "sourcePath": "Assets/Data/Raw/Fantasies.tsv",
+  "databasePath": "Assets/Data/Generated/FantasyDatabase.asset",
+  "generatedAt": "2026-07-08 05:20:57",
+  "importedCount": 60,
+  "warnings": [],
+  "errors": [],
+  "skippedRows": [
+    "Row 62: missing DataCode and Effects.",
+    "Row 63: missing DataCode and Effects.",
+    "Row 64: missing DataCode and Effects.",
+    "Row 65: missing DataCode and Effects.",
+    "Row 66: missing DataCode and Effects.",
+    "Row 67: missing DataCode and Effects.",
+    "Row 68: missing DataCode and Effects.",
+    "Row 69: missing DataCode and Effects."
+  ]
+}
