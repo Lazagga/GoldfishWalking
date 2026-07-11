@@ -25,6 +25,7 @@ namespace GoldfishWalking.Core
             GameEventHub.MapNodeSelected += OnMapNodeSelected;
             GameEventHub.BattleWon += OnBattleWon;
             GameEventHub.BattleLost += OnBattleLost;
+            GameEventHub.BattleEscaped += OnBattleEscaped;
             GameEventHub.RewardCompleted += OnRewardCompleted;
             GameEventHub.RestCompleted += OnRestCompleted;
             GameEventHub.ShopClosed += OnShopClosed;
@@ -35,6 +36,7 @@ namespace GoldfishWalking.Core
             GameEventHub.MapNodeSelected -= OnMapNodeSelected;
             GameEventHub.BattleWon -= OnBattleWon;
             GameEventHub.BattleLost -= OnBattleLost;
+            GameEventHub.BattleEscaped -= OnBattleEscaped;
             GameEventHub.RewardCompleted -= OnRewardCompleted;
             GameEventHub.RestCompleted -= OnRestCompleted;
             GameEventHub.ShopClosed -= OnShopClosed;
@@ -84,6 +86,11 @@ namespace GoldfishWalking.Core
         private void OnBattleLost()
         {
             StateMachine.ChangeState(GameState.GameOver);
+        }
+
+        private void OnBattleEscaped()
+        {
+            StateMachine.ChangeState(GameState.Map);
         }
 
         private void OnRewardCompleted()

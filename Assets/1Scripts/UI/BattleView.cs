@@ -3,6 +3,7 @@ using GoldfishWalking.Core;
 using GoldfishWalking.Data;
 using GoldfishWalking.Fantasy;
 using GoldfishWalking.Match;
+using System.Globalization;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -287,7 +288,7 @@ namespace GoldfishWalking.UI
             debugFantasyInput = inputRoot.gameObject.AddComponent<InputField>();
             Text inputText = CreateText("Text", inputRoot, string.Empty, 18, textColor, TextAnchor.MiddleLeft);
             SetRect(inputText.rectTransform, Vector2.zero, Vector2.one, new Vector2(8f, 0f), new Vector2(-16f, -4f));
-            Text placeholder = CreateText("Placeholder", inputRoot, "ADD match / ADD fantasy_id / SPAWN monster_id", 15, new Color(0.65f, 0.68f, 0.76f, 1f), TextAnchor.MiddleLeft);
+            Text placeholder = CreateText("Placeholder", inputRoot, "ADD id / SPAWN id / DAMAGE n / KILL", 15, new Color(0.65f, 0.68f, 0.76f, 1f), TextAnchor.MiddleLeft);
             SetRect(placeholder.rectTransform, Vector2.zero, Vector2.one, new Vector2(8f, 0f), new Vector2(-16f, -4f));
             debugFantasyInput.textComponent = inputText;
             debugFantasyInput.placeholder = placeholder;
@@ -619,6 +620,18 @@ namespace GoldfishWalking.UI
                 return;
             }
 
+            if (verb == "DAMAGE")
+            {
+                ExecuteDamageCommand(argument);
+                return;
+            }
+
+            if (verb == "KILL")
+            {
+                ExecuteKillCommand();
+                return;
+            }
+
             Debug.LogWarning($"[BattleView] Unknown debug command: {command}");
         }
 
@@ -627,12 +640,12 @@ namespace GoldfishWalking.UI
             if (string.IsNullOrWhiteSpace(argument))
                 return;
 
-            if (TryGetDebugItem(argument, out ItemType itemType))
+            if (TryGetDebugItem(argument, out ItemType itemType, out int itemCount))
             {
-                fantasyEffectRunner.AddItemWithAcquireEffects(bootstrap.RunContext, itemType, 1);
+                fantasyEffectRunner.AddItemWithAcquireEffects(bootstrap.RunContext, itemType, itemCount);
                 debugFantasyInput.text = string.Empty;
                 Refresh();
-                Debug.Log($"[BattleView] Added debug item: {itemType}");
+                Debug.Log($"[BattleView] Added debug item: {itemType} x{itemCount}");
                 return;
             }
 
@@ -643,15 +656,11 @@ namespace GoldfishWalking.UI
                 return;
             }
 
-            bool alreadyOwned = bootstrap.RunContext.fantasyInventory.Contains(fantasy.id);
-            bootstrap.RunContext.fantasyInventory.Add(fantasy);
-            if (!alreadyOwned)
-            {
-                fantasyEffectRunner.Apply(fantasy, bootstrap.RunContext, "On_Acquire");
-                fantasyEffectRunner.Apply(fantasy, bootstrap.RunContext, "Acquire");
-                FantasyDatabase database = fantasyDatabase != null ? fantasyDatabase : FindFirstFantasyDatabase();
-                FantasyCollectionRules.ApplyPostAcquireTransforms(bootstrap.RunContext.fantasyInventory, database);
-            }
+            bootstrap.RunContext.fantasyInventory.AddDuplicate(fantasy);
+            fantasyEffectRunner.Apply(fantasy, bootstrap.RunContext, "On_Acquire");
+            fantasyEffectRunner.Apply(fantasy, bootstrap.RunContext, "Acquire");
+            FantasyDatabase database = fantasyDatabase != null ? fantasyDatabase : FindFirstFantasyDatabase();
+            FantasyCollectionRules.ApplyPostAcquireTransforms(bootstrap.RunContext.fantasyInventory, database);
 
             debugFantasyInput.text = string.Empty;
             Refresh();
@@ -672,9 +681,50 @@ namespace GoldfishWalking.UI
                 Debug.LogWarning($"[BattleView] Monster not found: {argument}");
         }
 
-        private static bool TryGetDebugItem(string value, out ItemType itemType)
+        private void ExecuteDamageCommand(string argument)
         {
-            string lookup = (value ?? string.Empty).Trim().Replace("_", string.Empty).Replace("-", string.Empty).ToLowerInvariant();
+            if (string.IsNullOrWhiteSpace(argument) || battleController == null)
+                return;
+
+            if (!int.TryParse(argument, NumberStyles.Integer, CultureInfo.InvariantCulture, out int damage) || damage <= 0)
+            {
+                Debug.LogWarning($"[BattleView] Invalid debug damage: {argument}");
+                return;
+            }
+
+            bool applied = battleController.DebugDamageMonster(damage);
+            debugFantasyInput.text = string.Empty;
+            Refresh();
+            if (applied)
+                Debug.Log($"[BattleView] Applied debug damage: {damage}");
+            else
+                Debug.LogWarning("[BattleView] Debug damage failed.");
+        }
+
+        private void ExecuteKillCommand()
+        {
+            if (battleController == null)
+                return;
+
+            bool killed = battleController.DebugKillMonster();
+            debugFantasyInput.text = string.Empty;
+            Refresh();
+            if (killed)
+                Debug.Log("[BattleView] Killed debug monster.");
+            else
+                Debug.LogWarning("[BattleView] Debug kill failed.");
+        }
+
+        private static bool TryGetDebugItem(string value, out ItemType itemType, out int count)
+        {
+            count = 1;
+            string text = (value ?? string.Empty).Trim();
+            string[] parts = text.Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
+            string itemCode = parts.Length > 0 ? parts[0] : string.Empty;
+            if (parts.Length > 1 && (!int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out count) || count <= 0))
+                count = 1;
+
+            string lookup = itemCode.Replace("_", string.Empty).Replace("-", string.Empty).ToLowerInvariant();
             switch (lookup)
             {
                 case "match":

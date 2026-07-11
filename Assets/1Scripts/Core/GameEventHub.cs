@@ -9,6 +9,7 @@ namespace GoldfishWalking.Core
         public static event Action<MapNode> MapNodeSelected;
         public static event Action BattleWon;
         public static event Action BattleLost;
+        public static event Action BattleEscaped;
         public static event Action RewardCompleted;
         public static event Action RestCompleted;
         public static event Action ShopClosed;
@@ -32,6 +33,11 @@ namespace GoldfishWalking.Core
         public static void RaiseBattleLost()
         {
             BattleLost?.Invoke();
+        }
+
+        public static void RaiseBattleEscaped()
+        {
+            BattleEscaped?.Invoke();
         }
 
         public static void RaiseRewardCompleted()

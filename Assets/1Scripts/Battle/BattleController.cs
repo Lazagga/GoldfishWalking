@@ -201,10 +201,6 @@ namespace GoldfishWalking.Battle
             if (CompleteBattleResolution())
                 return;
 
-            ApplyPlayerEndTurnStatusDamage();
-            if (CompleteBattleResolution())
-                return;
-
             if (monsterPatternRunner.IsAttackPattern(context.monsterPattern) && monsterPatternRunner.CanMonsterAct(context.monster))
             {
                 int monsterDamageDealt = ApplyFormulaToPlayer(monsterResult);
@@ -219,8 +215,33 @@ namespace GoldfishWalking.Battle
             }
             else
             {
+                if (monsterPatternRunner.CanMonsterAct(context.monster))
+                {
+                    monsterPatternRunner.ApplyImmediateNonAttack(context.monster, context.monsterPattern);
+                    monsterPatternRunner.ApplyPatternEffects(
+                        context.monster,
+                        context.run,
+                        context.monsterPattern,
+                        context.playerFormula,
+                        context.monsterFormula,
+                        "Immediate",
+                        0);
+                }
+
                 monsterPatternRunner.AdvanceTurnDurations(context.monster);
             }
+
+            ProcessMonsterSelfDestruct();
+            if (CompleteBattleResolution())
+                return;
+
+            if (ProcessMonsterEscapeCountdown())
+                return;
+
+            ApplyPlayerEndTurnStatusDamage();
+            ActivatePendingPlayerStatuses();
+            if (CompleteBattleResolution())
+                return;
 
             if (!CompleteBattleResolution())
             {
@@ -247,6 +268,32 @@ namespace GoldfishWalking.Battle
             bootstrap.RunContext.debugForcedMonsterId = lookup;
             StartBattle();
             return context != null && context.monster != null && context.monster.Data != null;
+        }
+
+        public bool DebugDamageMonster(int damage)
+        {
+            if (context == null || context.monster == null || damage <= 0)
+                return false;
+
+            context.monster.ApplyDamage(damage);
+            if (context.run != null)
+            {
+                context.run.AddBattleDamageDebug("Debug", damage);
+                context.run.lastDamageDealt = damage;
+                context.run.battleDamageDealt += damage;
+            }
+
+            CompleteBattleResolution();
+            return true;
+        }
+
+        public bool DebugKillMonster()
+        {
+            if (context == null || context.monster == null)
+                return false;
+
+            int damage = Mathf.Max(1, context.monster.CurrentHealth);
+            return DebugDamageMonster(damage);
         }
 
         private bool HasMonster(string monsterId)
@@ -525,15 +572,6 @@ namespace GoldfishWalking.Battle
 
             if (!monsterPatternRunner.IsAttackPattern(pattern))
             {
-                monsterPatternRunner.ApplyImmediateNonAttack(context.monster, pattern);
-                monsterPatternRunner.ApplyPatternEffects(
-                    context.monster,
-                    context.run,
-                    pattern,
-                    context.playerFormula,
-                    context.monsterFormula,
-                    "Immediate",
-                    0);
                 numbers.monsterBaseDamage = 0;
                 numbers.monsterHitCount = 1;
                 numbers.monsterBaseDamageSegmentState = string.Empty;
@@ -731,8 +769,63 @@ namespace GoldfishWalking.Battle
                 ? context.run.RollValue($"monster.identity_box.{dataName}.{context.run.battleTurnNumber}", min, max)
                 : min;
 
+            if (IsWhiteRabbit(context.monster.Data))
+                value = 3;
+
             context.monster.SetSpecialBox(value, 1, label);
             SyncSpecialBoxToNumbers(numbers);
+        }
+
+        private bool ProcessMonsterEscapeCountdown()
+        {
+            if (context == null || context.monster == null || !IsWhiteRabbit(context.monster.Data) || !context.monster.HasSpecialBox)
+                return false;
+
+            context.monster.SetSpecialBoxValue(context.monster.SpecialBoxValue - 1);
+            SyncSpecialBoxToNumbers(context.run?.currentBattle);
+            if (context.monster.SpecialBoxValue > 0)
+                return false;
+
+            CleanupBattleTemporaryState();
+            context.state = BattleState.Won;
+            GameEventHub.RaiseBattleEscaped();
+            return true;
+        }
+
+        private static bool IsWhiteRabbit(MonsterData data)
+        {
+            if (data == null)
+                return false;
+
+            string dataName = data.dataName ?? string.Empty;
+            string devName = data.devName ?? string.Empty;
+            return dataName.Contains("WhiteRabbit") || devName.Contains("화이트 래빗");
+        }
+
+        private void ProcessMonsterSelfDestruct()
+        {
+            if (context == null || context.monster == null || context.monsterPattern == null)
+                return;
+            if (context.monster.IsDead || !IsSelfDestructPattern(context.monsterPattern))
+                return;
+
+            int damage = Mathf.Max(1, context.monster.CurrentHealth);
+            context.monster.ApplyDamage(damage);
+            if (context.run != null)
+                context.run.AddBattleDamageDebug("Self Destruct", damage);
+        }
+
+        private static bool IsSelfDestructPattern(MonsterPatternData pattern)
+        {
+            if (pattern == null)
+                return false;
+
+            string id = pattern.id ?? string.Empty;
+            string dataCode = pattern.dataCode ?? string.Empty;
+            string handler = pattern.specialHandler ?? string.Empty;
+            return id.IndexOf("OrbSkill", System.StringComparison.OrdinalIgnoreCase) >= 0
+                || dataCode.IndexOf("OrbSkill", System.StringComparison.OrdinalIgnoreCase) >= 0
+                || handler.IndexOf("OrbSkill", System.StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         private void ApplyTurnEndFantasyEffects()
@@ -838,10 +931,30 @@ namespace GoldfishWalking.Battle
             context.run.playerPoison = 0;
             context.run.timedPlayerStrengthModifiers.Clear();
             context.run.pendingEnemyStrengthModifiers.Clear();
+            context.run.pendingPlayerBleed = 0;
+            context.run.pendingPlayerPoison = 0;
             context.run.ClearCommittedBattleEditItems();
             context.run.itemInventory.ClearTemporary();
             context.run.fantasyInventory?.RemoveTemporary();
             GameEventHub.RaiseItemInventoryChanged();
+        }
+
+        private void ActivatePendingPlayerStatuses()
+        {
+            if (context == null || context.run == null)
+                return;
+
+            if (context.run.pendingPlayerBleed > 0)
+            {
+                context.run.playerBleed = Mathf.Max(0, context.run.playerBleed + context.run.pendingPlayerBleed);
+                context.run.pendingPlayerBleed = 0;
+            }
+
+            if (context.run.pendingPlayerPoison > 0)
+            {
+                context.run.playerPoison = Mathf.Max(0, context.run.playerPoison + context.run.pendingPlayerPoison);
+                context.run.pendingPlayerPoison = 0;
+            }
         }
     }
 }

@@ -346,11 +346,11 @@ namespace GoldfishWalking.Battle
                     break;
                 case "bleed":
                     if (runContext != null)
-                        runContext.playerBleed = Mathf.Max(0, runContext.playerBleed + value);
+                        runContext.pendingPlayerBleed = Mathf.Max(0, runContext.pendingPlayerBleed + value);
                     break;
                 case "poison":
                     if (runContext != null)
-                        runContext.playerPoison = Mathf.Max(0, runContext.playerPoison + value);
+                        runContext.pendingPlayerPoison = Mathf.Max(0, runContext.pendingPlayerPoison + value);
                     break;
                 case "minusbox":
                     if (runContext != null)
@@ -386,11 +386,11 @@ namespace GoldfishWalking.Battle
                     break;
                 case "bleed":
                     if (runContext != null)
-                        runContext.playerBleed = Mathf.Max(0, value);
+                        runContext.pendingPlayerBleed = Mathf.Max(0, value);
                     break;
                 case "poison":
                     if (runContext != null)
-                        runContext.playerPoison = Mathf.Max(0, value);
+                        runContext.pendingPlayerPoison = Mathf.Max(0, value);
                     break;
                 case "phase":
                 case "phase2":

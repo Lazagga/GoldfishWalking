@@ -30,6 +30,8 @@ namespace GoldfishWalking.Core
         public List<string> battleDamageDebugLines = new List<string>();
         public int playerBleed;
         public int playerPoison;
+        public int pendingPlayerBleed;
+        public int pendingPlayerPoison;
         public int prophecyStack;
         public int battleTurnNumber;
         public int remainingMoveCount;
@@ -103,6 +105,8 @@ namespace GoldfishWalking.Core
             battleDamageDebugLines.Clear();
             playerBleed = 0;
             playerPoison = 0;
+            pendingPlayerBleed = 0;
+            pendingPlayerPoison = 0;
             prophecyStack = 0;
             battleTurnNumber = 0;
             remainingMoveCount = 0;

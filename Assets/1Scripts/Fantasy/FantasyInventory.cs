@@ -86,32 +86,9 @@ namespace GoldfishWalking.Fantasy
                     return;
             }
 
-            RemoveAllCosmetics(inventory);
-
             FantasyData animalFriends = FindFantasy(database, AnimalFriendsId);
             if (animalFriends != null)
                 inventory.Add(animalFriends);
-        }
-
-        private static void RemoveAllCosmetics(FantasyInventory inventory)
-        {
-            for (int i = inventory.ownedFantasies.Count - 1; i >= 0; i--)
-            {
-                FantasyData fantasy = inventory.ownedFantasies[i];
-                if (fantasy != null && IsAnimalFriendCosmetic(fantasy.id))
-                    inventory.ownedFantasies.RemoveAt(i);
-            }
-        }
-
-        private static bool IsAnimalFriendCosmetic(string fantasyId)
-        {
-            for (int i = 0; i < CosmeticAnimalFriendIds.Length; i++)
-            {
-                if (CosmeticAnimalFriendIds[i] == fantasyId)
-                    return true;
-            }
-
-            return false;
         }
 
         private static FantasyData FindFantasy(FantasyDatabase database, string fantasyId)
