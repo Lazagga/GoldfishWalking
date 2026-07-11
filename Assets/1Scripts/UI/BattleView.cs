@@ -40,6 +40,8 @@ namespace GoldfishWalking.UI
         private Text monsterHealthText;
         private Text monsterBuffText;
         private Text playerBuffText;
+        private RectTransform monsterSpecialBoxPanel;
+        private Text monsterSpecialBoxLabel;
         private Text moveCountText;
         private Text damageDebugText;
         private InputField debugFantasyInput;
@@ -50,9 +52,11 @@ namespace GoldfishWalking.UI
         private EditableSevenSegmentBox playerDamageBox;
         private EditableSevenSegmentBox monsterDamageBox;
         private EditableSevenSegmentBox monsterHitCountBox;
+        private EditableSevenSegmentBox monsterSpecialBox;
         private int playerDamageDifference;
         private int monsterDamageDifference;
         private int monsterHitDifference;
+        private int monsterSpecialBoxDifference;
 
         private void Awake()
         {
@@ -219,6 +223,7 @@ namespace GoldfishWalking.UI
         {
             CreatePlayerFormula();
             CreateMonsterFormula();
+            CreateMonsterSpecialBox();
 
             Text arrow = CreateText("Arrow", layoutRoot, "←", 106, textColor, TextAnchor.MiddleCenter);
             SetRect(arrow.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(220f, 112f), new Vector2(168f, 92f));
@@ -256,6 +261,15 @@ namespace GoldfishWalking.UI
 
             monsterBuffText = CreateText("MonsterBuffs", panel, "-", 18, cyanColor, TextAnchor.MiddleCenter);
             SetRect(monsterBuffText.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, -58f), new Vector2(-22f, 38f));
+        }
+
+        private void CreateMonsterSpecialBox()
+        {
+            monsterSpecialBoxPanel = CreatePanel("MonsterSpecialBoxPanel", layoutRoot, new Color(0.07f, 0.20f, 0.15f, 0.95f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-514f, -36f), new Vector2(226f, 86f));
+            monsterSpecialBoxLabel = CreateText("Label", monsterSpecialBoxPanel, "SPECIAL", 15, cyanColor, TextAnchor.MiddleCenter);
+            SetRect(monsterSpecialBoxLabel.rectTransform, new Vector2(0f, 0f), new Vector2(0.36f, 1f), new Vector2(2f, 0f), new Vector2(-10f, -8f));
+            monsterSpecialBox = CreateFormulaNumberBox(monsterSpecialBoxPanel, "MonsterSpecialBox", 0, new Vector2(42f, 0f), new Vector2(132f, 72f), healthColor, OnMonsterSpecialBoxDifferenceChanged, OnMonsterSpecialBoxEdited, false, 1);
+            monsterSpecialBoxPanel.gameObject.SetActive(false);
         }
 
         private void CreateDamageDebugPanel()
@@ -462,6 +476,35 @@ namespace GoldfishWalking.UI
                 monsterDamageBox.Configure(GetMonsterBaseDamage(), 0, healthColor, OnMonsterDamageEdited, false, OnMonsterDamageDifferenceChanged, battleController != null ? battleController.MonsterBaseDamageSegmentState : string.Empty);
             if (monsterHitCountBox != null)
                 monsterHitCountBox.Configure(GetMonsterHitCount(), 0, healthColor, OnMonsterHitCountEdited, false, OnMonsterHitDifferenceChanged, battleController != null ? battleController.MonsterHitCountSegmentState : string.Empty);
+            RefreshMonsterSpecialBox();
+        }
+
+        private void RefreshMonsterSpecialBox()
+        {
+            bool visible = battleController != null && battleController.MonsterSpecialBoxVisible;
+            if (monsterSpecialBoxPanel != null)
+                monsterSpecialBoxPanel.gameObject.SetActive(visible);
+
+            if (!visible)
+            {
+                monsterSpecialBoxDifference = 0;
+                return;
+            }
+
+            if (monsterSpecialBoxLabel != null)
+                monsterSpecialBoxLabel.text = string.IsNullOrWhiteSpace(battleController.MonsterSpecialBoxLabel)
+                    ? "SPECIAL"
+                    : battleController.MonsterSpecialBoxLabel;
+
+            if (monsterSpecialBox != null)
+                monsterSpecialBox.Configure(
+                    battleController.MonsterSpecialBoxValue,
+                    battleController.MonsterSpecialBoxDigitCount,
+                    healthColor,
+                    OnMonsterSpecialBoxEdited,
+                    false,
+                    OnMonsterSpecialBoxDifferenceChanged,
+                    battleController.MonsterSpecialBoxSegmentState);
         }
 
         private void RefreshMoveCounter()
@@ -469,7 +512,7 @@ namespace GoldfishWalking.UI
             if (moveCountText == null)
                 return;
 
-            int totalDifference = playerDamageDifference + monsterDamageDifference + monsterHitDifference;
+            int totalDifference = playerDamageDifference + monsterDamageDifference + monsterHitDifference + monsterSpecialBoxDifference;
             int limit = battleController != null ? battleController.CurrentMoveLimit : 2;
             moveCountText.text = $"{totalDifference} / {limit}";
         }
@@ -512,6 +555,12 @@ namespace GoldfishWalking.UI
                 battleController.SetMonsterHitCount(value, monsterHitCountBox != null ? monsterHitCountBox.SegmentState : string.Empty);
         }
 
+        private void OnMonsterSpecialBoxEdited(int value)
+        {
+            if (battleController != null)
+                battleController.SetMonsterSpecialBoxValue(value, monsterSpecialBox != null ? monsterSpecialBox.SegmentState : string.Empty);
+        }
+
         private void OnPlayerDamageDifferenceChanged(int difference)
         {
             playerDamageDifference = difference;
@@ -525,6 +574,11 @@ namespace GoldfishWalking.UI
         private void OnMonsterHitDifferenceChanged(int difference)
         {
             monsterHitDifference = difference;
+        }
+
+        private void OnMonsterSpecialBoxDifferenceChanged(int difference)
+        {
+            monsterSpecialBoxDifference = difference;
         }
 
         private Color GradeColor(FantasyGrade grade)
@@ -558,6 +612,8 @@ namespace GoldfishWalking.UI
             {
                 fantasyEffectRunner.Apply(fantasy, bootstrap.RunContext, "On_Acquire");
                 fantasyEffectRunner.Apply(fantasy, bootstrap.RunContext, "Acquire");
+                FantasyDatabase database = fantasyDatabase != null ? fantasyDatabase : FindFirstFantasyDatabase();
+                FantasyCollectionRules.ApplyPostAcquireTransforms(bootstrap.RunContext.fantasyInventory, database);
             }
 
             debugFantasyInput.text = string.Empty;
@@ -654,7 +710,7 @@ namespace GoldfishWalking.UI
         {
             if (battleController != null)
             {
-                battleController.SetUsedMoveCount(playerDamageDifference + monsterDamageDifference + monsterHitDifference);
+                battleController.SetUsedMoveCount(playerDamageDifference + monsterDamageDifference + monsterHitDifference + monsterSpecialBoxDifference);
                 battleController.ResolveBattle();
             }
 

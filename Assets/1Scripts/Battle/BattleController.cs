@@ -49,6 +49,24 @@ namespace GoldfishWalking.Battle
             ? bootstrap.RunContext.currentBattle.monsterHitCountSegmentState
             : string.Empty;
 
+        public bool MonsterSpecialBoxVisible => context != null && context.monster != null && context.monster.HasSpecialBox;
+
+        public int MonsterSpecialBoxValue => context != null && context.monster != null && context.monster.HasSpecialBox
+            ? context.monster.SpecialBoxValue
+            : 0;
+
+        public int MonsterSpecialBoxDigitCount => context != null && context.monster != null && context.monster.HasSpecialBox
+            ? Mathf.Max(1, context.monster.SpecialBoxDigitCount)
+            : 1;
+
+        public string MonsterSpecialBoxLabel => context != null && context.monster != null && context.monster.HasSpecialBox
+            ? context.monster.SpecialBoxLabel
+            : string.Empty;
+
+        public string MonsterSpecialBoxSegmentState => bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.currentBattle != null
+            ? bootstrap.RunContext.currentBattle.monsterSpecialBoxSegmentState
+            : string.Empty;
+
         public string MonsterDisplayName
         {
             get
@@ -206,6 +224,7 @@ namespace GoldfishWalking.Battle
 
             if (!CompleteBattleResolution())
             {
+                AdvanceFantasyEffectDurations();
                 context.state = BattleState.Editing;
                 PrepareTurn(context.run.battleTurnNumber + 1, true);
             }
@@ -250,7 +269,7 @@ namespace GoldfishWalking.Battle
             numbers.monsterId = selectedMonster != null ? selectedMonster.id : string.Empty;
             if (!numbers.battleStartFantasyApplied)
             {
-                fantasyEffectRunner.ApplyTrigger(bootstrap.RunContext, "Battle_Start");
+                ApplyFantasyTrigger("Battle_Start");
                 EnsurePlayerBaseDamageDigitCount(numbers);
                 numbers.playerBaseDamage = fantasyEffectRunner.ModifyValue(bootstrap.RunContext, numbers.playerBaseDamage, string.Empty, "Base_Damage");
                 numbers.battleStartFantasyApplied = true;
@@ -290,7 +309,7 @@ namespace GoldfishWalking.Battle
             numbers.monsterBaseDamage = Mathf.Max(0, value);
             numbers.monsterBaseDamageSegmentState = segmentState;
             if (context != null)
-                context.monsterFormula = formulaBuilder.BuildMonsterFormula(numbers.monsterBaseDamage, numbers.monsterHitCount, true);
+                context.monsterFormula = formulaBuilder.BuildMonsterFormula(numbers.monsterBaseDamage, numbers.monsterHitCount, true, context.run);
         }
 
         private void PrepareTurn(int turnNumber, bool applyTurnStartEffects)
@@ -301,10 +320,10 @@ namespace GoldfishWalking.Battle
             context.run.battleTurnNumber = Mathf.Max(1, turnNumber);
             if (applyTurnStartEffects)
             {
-                fantasyEffectRunner.ApplyTrigger(context.run, "Turn_Start");
-                fantasyEffectRunner.ApplyTrigger(context.run, $"Turn_{context.run.battleTurnNumber}");
+                ApplyFantasyTrigger("Turn_Start");
+                ApplyFantasyTrigger($"Turn_{context.run.battleTurnNumber}");
                 if (context.run.battleTurnNumber % 2 == 0)
-                    fantasyEffectRunner.ApplyTrigger(context.run, "Turn_Even");
+                    ApplyFantasyTrigger("Turn_Even");
             }
 
             BattleNumberState numbers = context.run.EnsureBattleNumbers(MonsterHitCount);
@@ -313,9 +332,66 @@ namespace GoldfishWalking.Battle
             context.playerFormula = formulaBuilder.BuildPlayerFormula(context.run, numbers.playerBaseDamage);
             PrepareMonsterPatternFormula(numbers);
             monsterPatternRunner.ApplyScheduledEffects(context.monster, context.run, context.playerFormula, context.monsterFormula);
+            SyncSpecialBoxToNumbers(numbers);
             numbers.CaptureEditSnapshot(context.run.battleTurnNumber);
             context.run.ClearCommittedBattleEditItems();
             context.run.remainingMoveCount = CurrentMoveLimit;
+        }
+
+        private void ApplyFantasyTrigger(string trigger)
+        {
+            if (context == null || context.run == null)
+                return;
+
+            fantasyEffectRunner.ApplyTrigger(context.run, trigger);
+            ApplyPendingEnemyStrengthModifiers();
+        }
+
+        private void ApplyPendingEnemyStrengthModifiers()
+        {
+            if (context == null || context.run == null || context.monster == null || context.run.pendingEnemyStrengthModifiers == null)
+                return;
+
+            for (int i = 0; i < context.run.pendingEnemyStrengthModifiers.Count; i++)
+            {
+                TimedStrengthModifier modifier = context.run.pendingEnemyStrengthModifiers[i];
+                if (modifier == null || modifier.amount == 0)
+                    continue;
+
+                context.monster.ChangeStrength(modifier.amount);
+                if (modifier.remainingTurns > 0)
+                    context.monster.AddTimedStrengthModifier(modifier.amount, modifier.remainingTurns);
+            }
+
+            context.run.pendingEnemyStrengthModifiers.Clear();
+        }
+
+        private void AdvanceFantasyEffectDurations()
+        {
+            if (context == null || context.run == null)
+                return;
+
+            if (context.run.timedPlayerStrengthModifiers != null)
+            {
+                for (int i = context.run.timedPlayerStrengthModifiers.Count - 1; i >= 0; i--)
+                {
+                    TimedStrengthModifier modifier = context.run.timedPlayerStrengthModifiers[i];
+                    if (modifier == null)
+                    {
+                        context.run.timedPlayerStrengthModifiers.RemoveAt(i);
+                        continue;
+                    }
+
+                    modifier.remainingTurns--;
+                    if (modifier.remainingTurns > 0)
+                        continue;
+
+                    context.run.strength -= modifier.amount;
+                    context.run.timedPlayerStrengthModifiers.RemoveAt(i);
+                }
+            }
+
+            context.monster?.AdvanceStrengthModifierDurations();
         }
 
         private void ResetCurrentBattleEdit()
@@ -325,13 +401,14 @@ namespace GoldfishWalking.Battle
 
             BattleNumberState numbers = context.run.currentBattle;
             numbers.RestoreEditSnapshot();
+            RestoreSpecialBoxFromNumbers(numbers);
             context.run.RefundCommittedBattleEditItems();
             context.run.temporaryMoveBonus = 0;
             context.run.remainingMoveCount = CurrentMoveLimit;
 
             context.playerFormula = formulaBuilder.BuildPlayerFormula(context.run, numbers.playerBaseDamage);
             bool hitCountEditable = context.monsterPattern != null && context.monsterPattern.patternType == MonsterPatternType.MultiHit;
-            context.monsterFormula = formulaBuilder.BuildMonsterFormula(numbers.monsterBaseDamage, numbers.monsterHitCount, hitCountEditable);
+            context.monsterFormula = formulaBuilder.BuildMonsterFormula(numbers.monsterBaseDamage, numbers.monsterHitCount, hitCountEditable, context.run);
             context.state = BattleState.Editing;
         }
 
@@ -401,7 +478,7 @@ namespace GoldfishWalking.Battle
                 numbers.monsterHitCount = 1;
                 numbers.monsterBaseDamageSegmentState = string.Empty;
                 numbers.monsterHitCountSegmentState = string.Empty;
-                context.monsterFormula = formulaBuilder.BuildMonsterFormula(0, 1, false);
+                context.monsterFormula = formulaBuilder.BuildMonsterFormula(0, 1, false, context.run);
                 return;
             }
 
@@ -420,16 +497,24 @@ namespace GoldfishWalking.Battle
                 numbers.monsterHitCount = 1;
                 numbers.monsterBaseDamageSegmentState = string.Empty;
                 numbers.monsterHitCountSegmentState = string.Empty;
-                context.monsterFormula = formulaBuilder.BuildMonsterFormula(0, 1, false);
+                context.monsterFormula = formulaBuilder.BuildMonsterFormula(0, 1, false, context.run);
                 return;
             }
 
-            int monsterStrength = context.monster != null ? context.monster.Strength : 0;
-            int damageDigits = Mathf.Max(1, pattern.damageDigitCount + monsterStrength);
-            int damageMin = MonsterPatternKeyUtility.MinForDigits(damageDigits);
-            int damageMax = MonsterPatternKeyUtility.MaxForDigits(damageDigits);
-            int baseDamage = numbers.EnsureMonsterPatternDamage(turnKey, () =>
-                context.run.RollValue($"battle.monster.base_damage.{patternId}.{context.run.battleTurnNumber}", damageMin, damageMax));
+            int baseDamage;
+            if (pattern.hasDynamicDamageValue)
+            {
+                baseDamage = Mathf.Max(0, monsterPatternRunner.EvaluateValueExpression(pattern.damageValueExpression, context.monster, context.run));
+            }
+            else
+            {
+                int monsterStrength = context.monster != null ? context.monster.Strength : 0;
+                int damageDigits = Mathf.Max(1, pattern.damageDigitCount + monsterStrength);
+                int damageMin = MonsterPatternKeyUtility.MinForDigits(damageDigits);
+                int damageMax = MonsterPatternKeyUtility.MaxForDigits(damageDigits);
+                baseDamage = numbers.EnsureMonsterPatternDamage(turnKey, () =>
+                    context.run.RollValue($"battle.monster.base_damage.{patternId}.{context.run.battleTurnNumber}", damageMin, damageMax));
+            }
 
             int hitCount = 1;
             bool hitCountEditable = pattern.patternType == MonsterPatternType.MultiHit;
@@ -444,7 +529,7 @@ namespace GoldfishWalking.Battle
 
             numbers.monsterBaseDamage = Mathf.Max(0, baseDamage);
             numbers.monsterHitCount = Mathf.Max(0, hitCount);
-            context.monsterFormula = formulaBuilder.BuildMonsterFormula(numbers.monsterBaseDamage, numbers.monsterHitCount, hitCountEditable);
+            context.monsterFormula = formulaBuilder.BuildMonsterFormula(numbers.monsterBaseDamage, numbers.monsterHitCount, hitCountEditable, context.run);
         }
 
         public void SetMonsterHitCount(int value)
@@ -461,7 +546,57 @@ namespace GoldfishWalking.Battle
             numbers.monsterHitCount = Mathf.Max(0, value);
             numbers.monsterHitCountSegmentState = segmentState;
             if (context != null)
-                context.monsterFormula = formulaBuilder.BuildMonsterFormula(numbers.monsterBaseDamage, numbers.monsterHitCount, true);
+                context.monsterFormula = formulaBuilder.BuildMonsterFormula(numbers.monsterBaseDamage, numbers.monsterHitCount, true, context.run);
+        }
+
+        public void SetMonsterSpecialBoxValue(int value, string segmentState)
+        {
+            if (context == null || context.monster == null || bootstrap == null || bootstrap.RunContext == null)
+                return;
+
+            context.monster.SetSpecialBoxValue(value);
+            BattleNumberState numbers = bootstrap.RunContext.EnsureBattleNumbers(monsterHitCount: MonsterHitCount);
+            numbers.monsterSpecialBoxVisible = context.monster.HasSpecialBox;
+            numbers.monsterSpecialBoxValue = context.monster.SpecialBoxValue;
+            numbers.monsterSpecialBoxDigitCount = Mathf.Max(1, context.monster.SpecialBoxDigitCount);
+            numbers.monsterSpecialBoxLabel = context.monster.SpecialBoxLabel;
+            numbers.monsterSpecialBoxSegmentState = segmentState;
+        }
+
+        private void SyncSpecialBoxToNumbers(BattleNumberState numbers)
+        {
+            if (numbers == null || context == null || context.monster == null)
+                return;
+
+            bool changedSpecialBox =
+                numbers.monsterSpecialBoxVisible != context.monster.HasSpecialBox
+                || numbers.monsterSpecialBoxValue != context.monster.SpecialBoxValue
+                || numbers.monsterSpecialBoxDigitCount != (context.monster.HasSpecialBox ? Mathf.Max(1, context.monster.SpecialBoxDigitCount) : 0)
+                || numbers.monsterSpecialBoxLabel != context.monster.SpecialBoxLabel;
+
+            numbers.monsterSpecialBoxVisible = context.monster.HasSpecialBox;
+            numbers.monsterSpecialBoxValue = context.monster.SpecialBoxValue;
+            numbers.monsterSpecialBoxDigitCount = context.monster.HasSpecialBox ? Mathf.Max(1, context.monster.SpecialBoxDigitCount) : 0;
+            numbers.monsterSpecialBoxLabel = context.monster.SpecialBoxLabel;
+            if (!context.monster.HasSpecialBox || changedSpecialBox)
+                numbers.monsterSpecialBoxSegmentState = string.Empty;
+        }
+
+        private void RestoreSpecialBoxFromNumbers(BattleNumberState numbers)
+        {
+            if (numbers == null || context == null || context.monster == null)
+                return;
+
+            if (!numbers.monsterSpecialBoxVisible)
+            {
+                context.monster.ClearSpecialBox();
+                return;
+            }
+
+            context.monster.SetSpecialBox(
+                numbers.monsterSpecialBoxValue,
+                Mathf.Max(1, numbers.monsterSpecialBoxDigitCount),
+                numbers.monsterSpecialBoxLabel);
         }
 
         private void ApplyFormulaToMonster(BattleFormulaResult result)
@@ -622,8 +757,11 @@ namespace GoldfishWalking.Battle
             context.run.strength = 0;
             context.run.playerBleed = 0;
             context.run.playerPoison = 0;
+            context.run.timedPlayerStrengthModifiers.Clear();
+            context.run.pendingEnemyStrengthModifiers.Clear();
             context.run.ClearCommittedBattleEditItems();
             context.run.itemInventory.ClearTemporary();
+            context.run.fantasyInventory?.RemoveTemporary();
             GameEventHub.RaiseItemInventoryChanged();
         }
     }

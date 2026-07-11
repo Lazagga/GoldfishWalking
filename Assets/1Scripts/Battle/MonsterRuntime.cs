@@ -1,4 +1,5 @@
 using GoldfishWalking.Data;
+using GoldfishWalking.Core;
 using System.Collections.Generic;
 
 namespace GoldfishWalking.Battle
@@ -12,7 +13,13 @@ namespace GoldfishWalking.Battle
         public int Shield { get; private set; }
         public int FortuneStack { get; private set; }
         public int ProphecyStack { get; private set; }
+        public int Phase { get; private set; } = 1;
+        public bool HasSpecialBox { get; private set; }
+        public int SpecialBoxValue { get; private set; }
+        public int SpecialBoxDigitCount { get; private set; }
+        public string SpecialBoxLabel { get; private set; } = string.Empty;
         public List<ScheduledMonsterPatternEffect> ScheduledEffects { get; } = new List<ScheduledMonsterPatternEffect>();
+        public List<TimedStrengthModifier> TimedStrengthModifiers { get; } = new List<TimedStrengthModifier>();
 
         public bool IsDead => CurrentHealth <= 0;
         public bool IsStunned => StunTurns > 0;
@@ -44,6 +51,38 @@ namespace GoldfishWalking.Battle
         public void ChangeStrength(int amount)
         {
             Strength += amount;
+        }
+
+        public void AddTimedStrengthModifier(int amount, int duration)
+        {
+            if (amount == 0 || duration <= 0)
+                return;
+
+            TimedStrengthModifiers.Add(new TimedStrengthModifier
+            {
+                amount = amount,
+                remainingTurns = duration
+            });
+        }
+
+        public void AdvanceStrengthModifierDurations()
+        {
+            for (int i = TimedStrengthModifiers.Count - 1; i >= 0; i--)
+            {
+                TimedStrengthModifier modifier = TimedStrengthModifiers[i];
+                if (modifier == null)
+                {
+                    TimedStrengthModifiers.RemoveAt(i);
+                    continue;
+                }
+
+                modifier.remainingTurns--;
+                if (modifier.remainingTurns > 0)
+                    continue;
+
+                Strength -= modifier.amount;
+                TimedStrengthModifiers.RemoveAt(i);
+            }
         }
 
         public void SetStrength(int value)
@@ -89,6 +128,35 @@ namespace GoldfishWalking.Battle
         public void SetProphecyStack(int value)
         {
             ProphecyStack = System.Math.Max(0, value);
+        }
+
+        public void SetPhase(int value)
+        {
+            Phase = System.Math.Max(1, value);
+        }
+
+        public void SetSpecialBox(int value, int digitCount, string label)
+        {
+            HasSpecialBox = true;
+            SpecialBoxValue = System.Math.Max(0, value);
+            SpecialBoxDigitCount = System.Math.Max(1, digitCount);
+            SpecialBoxLabel = label ?? string.Empty;
+        }
+
+        public void SetSpecialBoxValue(int value)
+        {
+            if (!HasSpecialBox)
+                SetSpecialBox(value, 1, "SPECIAL");
+
+            SpecialBoxValue = System.Math.Max(0, value);
+        }
+
+        public void ClearSpecialBox()
+        {
+            HasSpecialBox = false;
+            SpecialBoxValue = 0;
+            SpecialBoxDigitCount = 0;
+            SpecialBoxLabel = string.Empty;
         }
 
         public void AdvanceTurnDurations()

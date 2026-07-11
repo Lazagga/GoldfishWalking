@@ -77,7 +77,7 @@ namespace GoldfishWalking.Editor.DataImport
                     devName = Get(row, "DevName"),
                     nameStringId = Get(row, "NameStringID"),
                     displayName = !string.IsNullOrWhiteSpace(Get(row, "DevName")) ? Get(row, "DevName") : dataCode,
-                    description = Get(row, "?ㅻ챸"),
+                    description = Get(row, "설명"),
                     rawEffects = rawEffects,
                     sprite = Get(row, "SpriteRes")
                 };

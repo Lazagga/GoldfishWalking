@@ -129,6 +129,7 @@ namespace GoldfishWalking.Editor.DataImport
                         calc = ReadString(obj, "Calc"),
                         valueExpression = ReadValueExpression(obj["Value"]),
                         option = ReadString(obj, "Option"),
+                        duration = ParseInt(ReadValueExpression(obj["Duration"]), 0),
                         rawJson = obj.ToString(Formatting.None)
                     };
 

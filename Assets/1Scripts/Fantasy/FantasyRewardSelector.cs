@@ -27,6 +27,8 @@ namespace GoldfishWalking.Fantasy
             {
                 if (fantasy == null)
                     continue;
+                if (!FantasyCollectionRules.CanAppearInRewardOrShop(fantasy))
+                    continue;
 
                 if (inventory != null && inventory.Contains(fantasy.id))
                     continue;

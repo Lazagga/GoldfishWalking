@@ -106,7 +106,9 @@ namespace GoldfishWalking.Shop
             if (bootstrap.RunContext.currentShop.fantasyIds.TryGetValue(slotId, out string existingId))
                 return FindFantasy(existingId);
 
-            FantasyData selected = SelectFantasyForShop(slotId, grade);
+            FantasyData selected = slotId == "ShopItemPlaceholder"
+                ? SelectStencilFantasy(slotId)
+                : SelectFantasyForShop(slotId, grade);
             if (selected != null)
                 bootstrap.RunContext.currentShop.fantasyIds[slotId] = selected.id;
 
@@ -124,21 +126,47 @@ namespace GoldfishWalking.Shop
 
         public bool TryBuyFantasy(FantasyData fantasy, int price)
         {
+            return TryBuyFantasy(null, fantasy, price);
+        }
+
+        public bool TryBuyFantasy(string slotId, FantasyData fantasy, int price)
+        {
             if (fantasy == null || bootstrap == null || bootstrap.RunContext == null)
                 return false;
 
-            if (IsFantasyPurchased(fantasy) || !TrySpendHealth(price))
+            bool isStencilSlot = slotId == "ShopItemPlaceholder";
+            string purchaseKey = isStencilSlot ? $"{slotId}:{fantasy.id}" : fantasy.id;
+            bool alreadyPurchased = bootstrap.RunContext.currentShop != null && bootstrap.RunContext.currentShop.purchasedFantasyIds.Contains(purchaseKey);
+            bool alreadyOwned = bootstrap.RunContext.fantasyInventory.Contains(fantasy.id);
+
+            if (alreadyPurchased || (!isStencilSlot && alreadyOwned) || !TrySpendHealth(price))
                 return false;
 
-            bootstrap.RunContext.fantasyInventory.Add(fantasy);
+            if (isStencilSlot)
+                bootstrap.RunContext.fantasyInventory.AddDuplicate(fantasy);
+            else
+                bootstrap.RunContext.fantasyInventory.Add(fantasy);
+
             if (bootstrap.RunContext.currentShop == null)
                 bootstrap.RunContext.currentShop = new ShopNumberState();
-            if (!bootstrap.RunContext.currentShop.purchasedFantasyIds.Contains(fantasy.id))
-                bootstrap.RunContext.currentShop.purchasedFantasyIds.Add(fantasy.id);
+            if (!bootstrap.RunContext.currentShop.purchasedFantasyIds.Contains(purchaseKey))
+                bootstrap.RunContext.currentShop.purchasedFantasyIds.Add(purchaseKey);
 
             fantasyEffectRunner.Apply(fantasy, bootstrap.RunContext, "On_Acquire");
             fantasyEffectRunner.Apply(fantasy, bootstrap.RunContext, "Acquire");
+            FantasyCollectionRules.ApplyPostAcquireTransforms(bootstrap.RunContext.fantasyInventory, fantasyDatabase);
             return true;
+        }
+
+        public bool IsShopSlotFantasyPurchased(string slotId, FantasyData fantasy)
+        {
+            if (fantasy == null || bootstrap == null || bootstrap.RunContext == null || bootstrap.RunContext.currentShop == null)
+                return false;
+
+            if (slotId == "ShopItemPlaceholder")
+                return bootstrap.RunContext.currentShop.purchasedFantasyIds.Contains($"{slotId}:{fantasy.id}");
+
+            return IsFantasyPurchased(fantasy);
         }
 
         private void OnStateChanged(GameState previous, GameState next)
@@ -166,6 +194,8 @@ namespace GoldfishWalking.Shop
                 FantasyData fantasy = fantasyDatabase.fantasies[i];
                 if (fantasy == null || fantasy.grade != grade)
                     continue;
+                if (!FantasyCollectionRules.CanAppearInRewardOrShop(fantasy))
+                    continue;
                 if (bootstrap.RunContext.fantasyInventory.Contains(fantasy.id))
                     continue;
                 if (IsFantasyAlreadyOffered(fantasy.id))
@@ -181,12 +211,50 @@ namespace GoldfishWalking.Shop
             return fallback;
         }
 
+        private FantasyData SelectStencilFantasy(string slotId)
+        {
+            if (!HasStencil())
+                return null;
+
+            FantasyData selected = null;
+            HashSet<string> seenIds = new HashSet<string>();
+            int seen = 0;
+            IReadOnlyList<FantasyData> owned = bootstrap.RunContext.fantasyInventory.ownedFantasies;
+            for (int i = 0; i < owned.Count; i++)
+            {
+                FantasyData fantasy = owned[i];
+                if (fantasy == null || fantasy.isTemporary || fantasy.grade != FantasyGrade.White)
+                    continue;
+                if (fantasy.id == FantasyCollectionRules.StencilId)
+                    continue;
+                if (!FantasyCollectionRules.CanAppearInRewardOrShop(fantasy))
+                    continue;
+                if (!seenIds.Add(fantasy.id))
+                    continue;
+
+                seen++;
+                int pick = bootstrap.RunContext.RollValue($"shop.stencil.{slotId}.{seen}", 0, seen - 1);
+                if (pick == 0)
+                    selected = fantasy;
+            }
+
+            return selected;
+        }
+
         private bool HasStickyGlove()
         {
             if (bootstrap == null || bootstrap.RunContext == null || bootstrap.RunContext.fantasyInventory == null)
                 return false;
 
             return bootstrap.RunContext.fantasyInventory.Contains("fan_shop_stickyglove");
+        }
+
+        private bool HasStencil()
+        {
+            if (bootstrap == null || bootstrap.RunContext == null || bootstrap.RunContext.fantasyInventory == null)
+                return false;
+
+            return bootstrap.RunContext.fantasyInventory.Contains(FantasyCollectionRules.StencilId);
         }
 
         private bool IsFantasyAlreadyOffered(string fantasyId)

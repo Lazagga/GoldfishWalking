@@ -47,6 +47,7 @@ namespace GoldfishWalking.Data
         public bool hasNumericValue;
         public float numericValue;
         public string option;
+        public int duration;
         [TextArea] public string rawJson;
     }
 
@@ -66,6 +67,7 @@ namespace GoldfishWalking.Data
         public string sprite;
         [TextArea] public string rawEffects;
         public FantasyEffectData[] effects = Array.Empty<FantasyEffectData>();
+        public bool isTemporary;
 
         // Legacy compatibility fields until fantasy effect execution is expanded.
         public FantasyTrigger trigger;

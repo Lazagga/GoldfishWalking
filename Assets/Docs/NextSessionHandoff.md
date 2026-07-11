@@ -1,6 +1,64 @@
 ﻿# Next Session Handoff
 
-Last updated: 2026-07-08
+Last updated: 2026-07-11
+
+## Latest 2026-07-11 Handoff
+
+The current gameplay source of truth is still `Assets/1Scripts`.
+
+Recent work focused on making monster patterns and fantasy acquisition rules
+data-driven enough for end-to-end content testing:
+
+- Monster and pattern TSV import currently reports `0` warnings and `0` errors.
+- Imported monster count: `39`.
+- Imported pattern count: `33`.
+- Fantasy TSV import currently reports `0` warnings and `0` errors.
+- Imported fantasy count: `60`.
+- Fantasy skipped rows: `12` incomplete rows with missing `DataCode` and
+  missing `Effects`.
+- Monster pattern selection is sequential through each monster's
+  `PatternArray`; do not treat monster patterns as random unless the runtime is
+  explicitly changed later.
+- Act 1 early encounter rule is implemented: floor 1 is fixed to the fairy
+  monster, and floors 2-3 use Easy monsters.
+- Monster custom pattern runtime now handles conditions, phases, simple dynamic
+  attack expressions, timed strength modifiers, player bleed/poison,
+  fortune/prophecy-style stacks, whale/stargazer-style additional editable
+  monster boxes, and dynamic explode values.
+- `FortuneTeller` and `Prophet` now stack dealt damage as monster buffs instead
+  of using a separate visible accumulation box. Their explode patterns use that
+  buff value as the base damage expression.
+- Shop/reward/rest/debug-console fantasy acquisition now runs common
+  post-acquire rules.
+- `fan_attack_animalfriends` is not a shop/reward candidate. It is obtained by
+  owning all four animal cosmetic fantasies, which are then replaced by
+  `fan_attack_animalfriends`.
+- `fan_shop_stencil` now opens the sixth shop slot. That slot offers one owned
+  White fantasy except stencil itself, uses a 2-digit price, and can be bought
+  once per shop.
+- `fan_rest_coffee` now lets the player skip resting and claim a deterministic
+  random unowned White fantasy. It disables itself when no candidate exists.
+- `fan_upgrade_aquarius` should remain ignored beyond the existing movement
+  penalty until the design change is finalized.
+- Cosmetic sprite work is intentionally deferred.
+
+Latest validation:
+
+- `dotnet build Assembly-CSharp.csproj -v:q` passes with `0` errors.
+- Existing Unity/MCP reference warnings remain:
+  - `System.Net.Http` version conflict
+  - `System.IO.Compression` version conflict
+- Unity refresh/compile succeeds.
+- Unity console error/warning query reports `0` entries.
+
+Recommended next work is cleanup and QA rather than more feature expansion:
+
+1. Run through the accumulated bug report as regression QA.
+2. Verify shop/reward/rest fantasy candidate pools in play mode.
+3. Verify monster pattern sequences and special boxes against current
+   `Pattern.tsv`.
+4. Start moving runtime-created UI toward prebuilt Canvas/prefab UI only after
+   the gameplay loop is stable enough.
 
 ## Project
 
@@ -180,7 +238,7 @@ Fantasy TSV import is implemented:
 - Output report: `Assets/Data/Generated/FantasyImportReport.json`
 - Imported fantasies: 60
 - Current report errors/warnings: 0
-- Skipped rows: 8 incomplete rows with missing `DataCode` and missing `Effects`
+- Skipped rows: 12 incomplete rows with missing `DataCode` and missing `Effects`
 
 `FantasyData` now stores parsed `effects[]` through `FantasyEffectData`, while
 keeping legacy `trigger`, `target`, `value`, and `specialHandler` fields for
@@ -220,6 +278,7 @@ Monster and pattern TSV import is implemented:
   - `Skip`
 - Current runtime uses exact current data. Do not add typo-normalization or
   legacy exception handling unless the source data requires it again.
+- Current monster import result: 39 monsters, 33 patterns, 0 warnings, 0 errors.
 
 ## Work Completed In This Session
 
@@ -433,10 +492,18 @@ Boss battles still grant rewards. After the reward flow completes:
   - `Str_n`: gain strength only, no attack.
 - Referenced custom patterns are looked up in `MonsterPatternDatabase`. Their
   top-level `Attack` key drives the attack formula when present.
-- Simple immediate self effects are partially handled for heal and strength.
-- Full pattern effects are still not implemented: `Condition`, `Duration`,
-  `Split`, `Lock`, `Stun`, `Bleed`, `Poison`, `Shield`, stack mechanics, lock
-  damage, and dynamic value evaluation remain future work.
+- Pattern runtime now handles the current data set's required condition checks,
+  phase changes, simple self/player effects, timed strength modifiers, dynamic
+  damage value expressions, player bleed/poison, and stack mechanics used by
+  fortune/prophecy-style monsters.
+- Editable monster special boxes exist for patterns that add a visible extra
+  monster box, such as stargazer/whale-style mechanics.
+- `FortuneTeller` and `Prophet` no longer use a visible extra accumulation
+  box. They stack dealt damage into self buffs and their explode patterns use
+  that stack as the base damage value.
+- Still incomplete or placeholder-level: split boxes, locked segments/boxes,
+  shield presentation, lock damage presentation, stun turn-skip polish, and
+  final animation/timing for status damage.
 
 ### Reward Implementation State
 
@@ -512,6 +579,7 @@ Implemented or currently testable fantasy effects:
   - `fan_rest_marshmallow`
   - `fan_acquire_Candy`
   - `fan_acquire_watermelon`
+  - `fan_shop_stencil`
 - Battle movement/item/strength:
   - `fan_start_match`
   - `fan_start_eraser`
@@ -552,35 +620,28 @@ Current caveats:
   `pendingMonsterDamage`. This is functionally testable, but final presentation
   should later flash the matching fantasy and apply extra damage packets at the
   intended timing.
-- Temporary item grants currently use the same `ItemInventory` as normal items.
-  If temporary battle-only items need cleanup, split temporary and owned item
-  inventories later.
+- Temporary item grants use temporary item counters and are cleaned when the
+  relevant temporary lifetime ends.
 - `fan_upgrade_aquarius` only applies the movement penalty. Advanced operator
-  boxes are not implemented.
-- `fan_turn1_doll` trigger dispatch exists, but enemy strength has no combat
-  effect until monster strength/pattern runtime is expanded.
+  boxes are intentionally deferred because the effect is expected to change.
 
-Unimplemented fantasies and reasons:
+Unimplemented or intentionally deferred fantasies and reasons:
 
 - `fan_rabbit_head`, `fan_turtle_head`, `fan_cat_head`, `fan_parrot_head`:
-  cosmetic visuals need player/avatar attachment UI.
-- `fan_shop_stencil`: needs an extra dynamic shop fantasy slot and once-per-shop
-  purchase state.
-- `fan_start_paperfrog`: needs monster strength runtime and formula/pattern
-  recalculation.
+  cosmetic visuals need player/avatar attachment UI. They can still participate
+  in the animalfriends transform rule.
 - `fan_start_stamp`: needs temporary fantasy copy instances and battle cleanup.
-- `fan_end_dice`: needs reward/fantasy reroll UI and state handling.
-- `fan_upgrade_aquarius`: advanced operator box part needs operator-box
-  infrastructure.
+- `fan_end_dice`: reward fantasy reroll state exists, but final UX/polish
+  should still be reviewed.
+- `fan_upgrade_aquarius`: advanced operator box part is intentionally deferred
+  until the effect redesign is finalized.
 - `fan_erase_sagittarius`: needs split boxes and whole-box erase behavior.
-- `fan_odd_gemini`: needs parse-time digit/value transform hooks.
-- `fan_turn1_doll`: needs monster strength runtime before it changes battle
-  behavior.
-- `fan_acquire_blueprint`: needs owned-fantasy choice UI and permanent fantasy
-  transform logic.
-- `fan_number_domino`, `fan_number_applepie`: need formula digit replacement
-  rules before evaluation.
-- Source rows `61` through `66`: skipped because the source data has no
+- `fan_acquire_blueprint`: current implementation copies a random owned
+  fantasy on acquire; a future explicit choice UI would be better if design
+  requires player agency.
+- Cosmetic sprite work and `fan_upgrade_aquarius` redesign are the main
+  intentionally deferred fantasy tasks.
+- Source rows `62` through `73`: skipped because the source data has no
   `DataCode` and no `Effects`.
 
 ### New Architecture Skeleton
@@ -773,21 +834,22 @@ Unity MCP tools are now exposed and working.
 
 1. Keep tests deferred for now per user direction unless the user asks for test
    coverage.
-2. Convert runtime-created screen UI into pre-placed Canvas/prefab UI with
+2. Finish regression QA against the accumulated bug report before adding more
+   content.
+3. Convert runtime-created screen UI into pre-placed Canvas/prefab UI with
    serialized field bindings. Start with Battle, then apply the same pattern to
    Rest, Shop, Reward, and the 7-segment popup.
-3. Continue replacing placeholder visuals with real data binding before final
+4. Continue replacing placeholder visuals with real data binding before final
    art.
-4. Fantasy inventory and the first fantasy effect trigger pass are connected
+5. Fantasy inventory and the first fantasy effect trigger pass are connected
    across Battle, Shop, Reward, Rest, item acquisition, and item use.
-5. Recommended next gameplay target: choose one of the remaining missing
+6. Recommended next gameplay target: choose one of the remaining missing
    support systems before implementing more fantasies:
-   - monster strength/pattern runtime
    - split/advanced operator/value-transform formula infrastructure
    - fantasy copy/reroll/transform UI
    - cosmetic attachment visuals
-6. Deeper battle content work should still wait until monster data and monster
-   pattern data runtime are expanded.
+7. Deeper battle content work should now be driven by QA findings from the
+   current imported data rather than by hardcoded special cases.
 
 ## Git Note
 

@@ -267,7 +267,7 @@ namespace GoldfishWalking.UI
             bool boughtFantasy = false;
             if (TryGetShopFantasy(item, out FantasyData fantasy))
             {
-                if (!shopController.TryBuyFantasy(fantasy, price))
+                if (!shopController.TryBuyFantasy(item.id, fantasy, price))
                     return;
                 boughtFantasy = true;
             }
@@ -548,7 +548,7 @@ namespace GoldfishWalking.UI
                     continue;
 
                 if (TryGetShopFantasy(item, out FantasyData fantasy))
-                    button.interactable = !shopController.IsFantasyPurchased(fantasy);
+                    button.interactable = !shopController.IsShopSlotFantasyPurchased(item.id, fantasy);
                 else
                     button.interactable = true;
             }

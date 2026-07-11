@@ -1,6 +1,7 @@
 using GoldfishWalking.Core;
 using GoldfishWalking.Data;
 using GoldfishWalking.Item;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace GoldfishWalking.Fantasy
@@ -35,7 +36,8 @@ namespace GoldfishWalking.Fantasy
             if (runContext == null || runContext.fantasyInventory == null || string.IsNullOrWhiteSpace(trigger))
                 return;
 
-            foreach (FantasyData fantasy in runContext.fantasyInventory.ownedFantasies)
+            List<FantasyData> snapshot = new List<FantasyData>(runContext.fantasyInventory.ownedFantasies);
+            foreach (FantasyData fantasy in snapshot)
                 Apply(fantasy, runContext, trigger);
         }
 
@@ -194,6 +196,34 @@ namespace GoldfishWalking.Fantasy
                         return true;
                     }
                     break;
+                case "fanstartstamp":
+                    if (normalizedTrigger == NormalizeTrigger("Battle_Start"))
+                    {
+                        FantasyData copied = SelectOwnedFantasyCopy(runContext, fantasy);
+                        if (copied != null)
+                            runContext.fantasyInventory.AddDuplicate(copied);
+                        return true;
+                    }
+                    break;
+                case "fanenddice":
+                    if (normalizedTrigger == NormalizeTrigger("Battle_End"))
+                    {
+                        runContext.rewardRerolls += Mathf.FloorToInt(GetEffectValue(fantasy, "Battle_End", "Fantasy_Reroll", 1f, runContext));
+                        return true;
+                    }
+                    break;
+                case "fanacquireblueprint":
+                    if (normalizedTrigger == NormalizeTrigger("On_Acquire"))
+                    {
+                        FantasyData copied = SelectOwnedFantasyCopy(runContext, fantasy, temporary: false);
+                        if (copied != null)
+                        {
+                            runContext.fantasyInventory.Remove(fantasy);
+                            runContext.fantasyInventory.AddDuplicate(copied);
+                        }
+                        return true;
+                    }
+                    break;
             }
 
             return false;
@@ -273,7 +303,14 @@ namespace GoldfishWalking.Fantasy
                     GameEventHub.RaiseItemInventoryChanged();
                     break;
                 case "strength":
+                    int strengthBefore = runContext.strength;
                     runContext.strength = ApplyCalculation(runContext.strength, calc, value);
+                    if (effect.duration > 0)
+                        runContext.AddTimedPlayerStrength(runContext.strength - strengthBefore, effect.duration);
+                    break;
+                case "enemystrength":
+                    int enemyStrengthDelta = CalculateDelta(0, calc, value);
+                    runContext.QueueEnemyStrengthModifier(enemyStrengthDelta, effect.duration);
                     break;
                 case "basedamage":
                     if (runContext.currentBattle != null)
@@ -288,7 +325,26 @@ namespace GoldfishWalking.Fantasy
                     runContext.pendingMonsterDamage += CalculateReflectDamage(runContext, calc, value);
                     LogPendingDamageDelta(fantasy, runContext, pendingBefore);
                     break;
+                case "fantasyreroll":
+                    runContext.rewardRerolls += Mathf.FloorToInt(value);
+                    break;
             }
+        }
+
+        public static int TransformBattleNumber(RunContext runContext, int value, bool isPlayerNumber)
+        {
+            if (runContext == null || runContext.fantasyInventory == null)
+                return value;
+
+            int transformed = value;
+            if (isPlayerNumber && runContext.fantasyInventory.Contains("fan_number_domino") && transformed < 5)
+                transformed = 5;
+            if (!isPlayerNumber && runContext.fantasyInventory.Contains("fan_number_applepie") && transformed > 5)
+                transformed = 5;
+            if (isPlayerNumber && runContext.fantasyInventory.Contains("fan_odd_gemini"))
+                transformed = transformed % 2 != 0 ? transformed * 2 : 0;
+
+            return Mathf.Max(0, transformed);
         }
 
         private void ApplyLegacyEffect(FantasyData fantasy, RunContext runContext)
@@ -393,6 +449,62 @@ namespace GoldfishWalking.Fantasy
                 default:
                     return current + Mathf.FloorToInt(value);
             }
+        }
+
+        private static int CalculateDelta(int current, string calc, float value)
+        {
+            return ApplyCalculation(current, calc, value) - current;
+        }
+
+        private static FantasyData SelectOwnedFantasyCopy(RunContext runContext, FantasyData source, bool temporary = true)
+        {
+            if (runContext == null || runContext.fantasyInventory == null || runContext.fantasyInventory.ownedFantasies == null)
+                return null;
+
+            FantasyData selected = null;
+            int seen = 0;
+            for (int i = 0; i < runContext.fantasyInventory.ownedFantasies.Count; i++)
+            {
+                FantasyData candidate = runContext.fantasyInventory.ownedFantasies[i];
+                if (candidate == null || candidate == source || candidate.isTemporary)
+                    continue;
+                if (NormalizeId(candidate.id) == NormalizeId(source.id))
+                    continue;
+
+                seen++;
+                if (runContext.RollValue($"fantasy.copy.{NormalizeId(source.id)}.{seen}", 0, seen - 1) == 0)
+                    selected = candidate;
+            }
+
+            return CloneFantasy(selected, temporary);
+        }
+
+        private static FantasyData CloneFantasy(FantasyData source, bool temporary)
+        {
+            if (source == null)
+                return null;
+
+            return new FantasyData
+            {
+                id = source.id,
+                sourceId = source.sourceId,
+                dataCode = source.dataCode,
+                devName = source.devName,
+                nameStringId = source.nameStringId,
+                descStringId = source.descStringId,
+                grade = source.grade,
+                triggerType = source.triggerType,
+                displayName = source.displayName,
+                description = source.description,
+                sprite = source.sprite,
+                rawEffects = source.rawEffects,
+                effects = source.effects,
+                isTemporary = temporary,
+                trigger = source.trigger,
+                target = source.target,
+                value = source.value,
+                specialHandler = source.specialHandler
+            };
         }
 
         private static int CalculateReflectDamage(RunContext runContext, string calc, float value)

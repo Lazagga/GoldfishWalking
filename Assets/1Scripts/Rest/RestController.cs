@@ -46,7 +46,10 @@ namespace GoldfishWalking.Rest
         public IReadOnlyList<FantasyData> OwnedFantasies => bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.fantasyInventory != null
             ? bootstrap.RunContext.fantasyInventory.ownedFantasies
             : null;
-        public bool CanClaimCoffeeFantasy => bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.fantasyInventory.Contains("fan_rest_coffee");
+        public bool CanClaimCoffeeFantasy => bootstrap != null
+            && bootstrap.RunContext != null
+            && bootstrap.RunContext.fantasyInventory.Contains(FantasyCollectionRules.CoffeeId)
+            && HasCoffeeFantasyCandidate();
 
         public void SetHealAmount(int amount)
         {
@@ -68,6 +71,8 @@ namespace GoldfishWalking.Rest
                 FantasyData fantasy = fantasyDatabase.fantasies[i];
                 if (fantasy == null || fantasy.grade != FantasyGrade.White)
                     continue;
+                if (!FantasyCollectionRules.CanAppearInRewardOrShop(fantasy))
+                    continue;
                 if (bootstrap.RunContext.fantasyInventory.Contains(fantasy.id))
                     continue;
 
@@ -82,7 +87,27 @@ namespace GoldfishWalking.Rest
             bootstrap.RunContext.fantasyInventory.Add(selected);
             fantasyEffectRunner.Apply(selected, bootstrap.RunContext, "On_Acquire");
             fantasyEffectRunner.Apply(selected, bootstrap.RunContext, "Acquire");
+            FantasyCollectionRules.ApplyPostAcquireTransforms(bootstrap.RunContext.fantasyInventory, fantasyDatabase);
             return true;
+        }
+
+        private bool HasCoffeeFantasyCandidate()
+        {
+            if (bootstrap == null || bootstrap.RunContext == null || fantasyDatabase == null || fantasyDatabase.fantasies == null)
+                return false;
+
+            for (int i = 0; i < fantasyDatabase.fantasies.Count; i++)
+            {
+                FantasyData fantasy = fantasyDatabase.fantasies[i];
+                if (fantasy == null || fantasy.grade != FantasyGrade.White)
+                    continue;
+                if (!FantasyCollectionRules.CanAppearInRewardOrShop(fantasy))
+                    continue;
+                if (!bootstrap.RunContext.fantasyInventory.Contains(fantasy.id))
+                    return true;
+            }
+
+            return false;
         }
 
         private void OnStateChanged(GameState previous, GameState next)
@@ -91,7 +116,27 @@ namespace GoldfishWalking.Rest
                 return;
 
             if (bootstrap != null && bootstrap.RunContext != null)
-                bootstrap.RunContext.EnsureRestNumbers();
+                PrepareRestNumbers();
+        }
+
+        private void PrepareRestNumbers()
+        {
+            if (bootstrap == null || bootstrap.RunContext == null)
+                return;
+
+            RestNumberState numbers = bootstrap.RunContext.EnsureRestNumbers();
+            int strength = Mathf.Max(0, fantasyEffectRunner.ModifyValue(bootstrap.RunContext, 0, "Passive", "Strength"));
+            int digitCount = Mathf.Max(2, 2 + strength);
+            if (numbers.healDigitCount == digitCount)
+                return;
+
+            int min = 1;
+            for (int i = 1; i < digitCount; i++)
+                min *= 10;
+            int max = min * 10 - 1;
+
+            numbers.healAmount = bootstrap.RunContext.RollValue($"rest.heal_amount.{digitCount}digits", min, max);
+            numbers.healDigitCount = digitCount;
         }
 
         private int GetModifiedHealAmount(int amount)

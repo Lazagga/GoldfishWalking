@@ -16,17 +16,21 @@ MonoBehaviour:
   - id: SlimeSingle
     sourceId: 0
     dataCode: SlimeSingle
-    devName: SlimeSep
+    devName: 
     nameStringId: 
-    displayName: SlimeSep
-    description: 
+    displayName: SlimeSingle
+    description: "\uB2E8\uD0C0 \uB9DE \uB2E4\uC74C \uD134 \uC790\uAE30 \uC0C1\uC790
+      \uBD84\uB9AC (\uD574\uB2F9 \uD134\uC5D0\uB9CC \uC801\uC6A9)"
     patternType: 1
     value: 0
     hitCount: 1
     attackKey: 2_Single
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 2
     hitDigitCount: 0
     strengthDelta: 0
+    condition: 
     rawEffects: '{"Attack": "2_Single","Effects": [{"Timing": "NextTurn","Target":
       "Self","Action": "Split","Duration": 1}]}'
     effects:
@@ -34,6 +38,7 @@ MonoBehaviour:
       target: Self
       action: Split
       type: 
+      condition: 
       valueExpression: 
       hasNumericValue: 0
       numericValue: 0
@@ -48,14 +53,17 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: MushroomLock
-    description: 
+    description: "\uD50C\uB808\uC774\uC5B4 \uC0C1\uC790 \uC7A0\uAE08"
     patternType: 0
     value: 0
     hitCount: 1
     attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 0
     hitDigitCount: 0
     strengthDelta: 0
+    condition: 
     rawEffects: '{"Attack": null,"Effects": [{"Timing": "NextTurn","Target": "Player","Action":
       "Lock"}]}'
     effects:
@@ -63,6 +71,7 @@ MonoBehaviour:
       target: Player
       action: Lock
       type: 
+      condition: 
       valueExpression: 
       hasNumericValue: 0
       numericValue: 0
@@ -77,15 +86,18 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: Skip
-    description: 
+    description: "\uC544\uBB34\uAC83\uB3C4 \uC548 \uD568"
     patternType: 0
     value: 0
     hitCount: 1
     attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 0
     hitDigitCount: 0
     strengthDelta: 0
-    rawEffects: '{"Attack": null,"Effect": null}'
+    condition: 
+    rawEffects: '{"Attack": null, "Effect": null}'
     effects: []
     sprite: 
     specialHandler: 
@@ -95,17 +107,31 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: LittleWitchSkill
-    description: 
+    description: "\uD50C\uB808\uC774\uC5B4 \uD798 1 \uAC10\uC18C"
     patternType: 0
     value: 0
     hitCount: 1
     attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 0
     hitDigitCount: 0
     strengthDelta: 0
+    condition: 
     rawEffects: '{"Effects": [{"Target": "Player", "Action": "AddBuff", "Type": "MinusBox",
-      "Value": 1]}'
-    effects: []
+      "Value": 1}]}'
+    effects:
+    - timing: 
+      target: Player
+      action: AddBuff
+      type: MinusBox
+      condition: 
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Player","Action":"AddBuff","Type":"MinusBox","Value":1}'
     sprite: 
     specialHandler: 
   - id: HunterSingle
@@ -114,14 +140,18 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: HunterSingle
-    description: 
+    description: "\uD50C\uB808\uC774\uC5B4 \uAE30\uBCF8 \uD53C\uD574\uB7C9 \uC0C1\uC790\uB97C
+      \uBD84\uB9AC\uC2DC\uD0A8 \uB4A4 \uD558\uB098\uB97C \uC7A0\uAE08"
     patternType: 1
     value: 0
     hitCount: 1
     attackKey: 2_Single
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 2
     hitDigitCount: 0
     strengthDelta: 0
+    condition: 
     rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Player", "Action":
       "Split"}, {"Target": "Player", "Action": "AddBuff", "Type": "BoxLock", "Value":
       1}]}'
@@ -130,6 +160,7 @@ MonoBehaviour:
       target: Player
       action: Split
       type: 
+      condition: 
       valueExpression: 
       hasNumericValue: 0
       numericValue: 0
@@ -140,6 +171,7 @@ MonoBehaviour:
       target: Player
       action: AddBuff
       type: BoxLock
+      condition: 
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -154,14 +186,17 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: GhostSingle
-    description: 
+    description: "\uB2E8\uD0C0 + \uB2E4\uC74C \uD134 \uB0B4 \uC0C1\uC790 \uBD84\uB9AC"
     patternType: 1
     value: 0
     hitCount: 1
     attackKey: 2_Single
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 2
     hitDigitCount: 0
     strengthDelta: 0
+    condition: 
     rawEffects: '{"Attack": "2_Single", "Effects": [{"Timing": "NextTurn", "Target":
       "Player", "Action": "Split", "Duration": 1}]}'
     effects:
@@ -169,6 +204,7 @@ MonoBehaviour:
       target: Player
       action: Split
       type: 
+      condition: 
       valueExpression: 
       hasNumericValue: 0
       numericValue: 0
@@ -183,14 +219,17 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: GhostMulti
-    description: 
+    description: "\uC5F0\uD0C01 + \uB2E4\uC74C \uD134 \uC790\uAE30 \uC0C1\uC790 \uBD84\uB9AC"
     patternType: 2
     value: 0
     hitCount: 1
     attackKey: 2_Multi_1
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 2
     hitDigitCount: 1
     strengthDelta: 0
+    condition: 
     rawEffects: '{"Attack": "2_Multi_1", "Effects": [{"Timing": "NextTurn", "Target":
       "Self", "Action": "Split","Duration":1}]}'
     effects:
@@ -198,6 +237,7 @@ MonoBehaviour:
       target: Self
       action: Split
       type: 
+      condition: 
       valueExpression: 
       hasNumericValue: 0
       numericValue: 0
@@ -212,14 +252,17 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: AutomatonSingle
-    description: 
+    description: "\uB2E8\uD0C0 + \uD798 \uC99D\uAC00"
     patternType: 1
     value: 0
     hitCount: 1
     attackKey: 2_Single
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 2
     hitDigitCount: 0
     strengthDelta: 0
+    condition: 
     rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Self", "Action":
       "AddBuff", "Type": "Strength", "Value": 1}]}'
     effects:
@@ -227,6 +270,7 @@ MonoBehaviour:
       target: Self
       action: AddBuff
       type: Strength
+      condition: 
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -241,14 +285,18 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: AutomatonSingleStun
-    description: 
+    description: "\uB2E8\uD0C0 + \uC790\uCCB4 \uC2A4\uD134, \uC774\uD6C4 \uC99D\uAC00\uD55C
+      \uD798 \uCD08\uAE30\uD654"
     patternType: 1
     value: 0
     hitCount: 1
     attackKey: 2_Single
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 2
     hitDigitCount: 0
     strengthDelta: 0
+    condition: 
     rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Self", "Action":
       "AddBuff", "Type": "Stun", "Duration": 1}, {"Target": "Self", "Action": "SetBuff",
       "Type": "Strength", "Value": 0}]}'
@@ -257,6 +305,7 @@ MonoBehaviour:
       target: Self
       action: AddBuff
       type: Stun
+      condition: 
       valueExpression: 
       hasNumericValue: 0
       numericValue: 0
@@ -267,6 +316,7 @@ MonoBehaviour:
       target: Self
       action: SetBuff
       type: Strength
+      condition: 
       valueExpression: 0
       hasNumericValue: 1
       numericValue: 0
@@ -281,14 +331,18 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: GiantRatSkill
-    description: 
+    description: "3\uC790\uB9BF\uC218\uC758 \uCCB4\uB825 \uD68C\uBCF5(\uD68C\uBCF5
+      \uC0C1\uC790 \uC870\uC791 \uAC00\uB2A5) \uBC0F \uD7981 \uC99D\uAC00"
     patternType: 0
     value: 0
     hitCount: 1
     attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 0
     hitDigitCount: 0
     strengthDelta: 0
+    condition: 
     rawEffects: '{"Effects": [{"Target": "Self", "Action": "Heal", "Value": 3}, {"Target":
       "Self", "Action": "AddBuff", "Type": "Strength", "Value": 1}]}'
     effects:
@@ -296,6 +350,7 @@ MonoBehaviour:
       target: Self
       action: Heal
       type: 
+      condition: 
       valueExpression: 3
       hasNumericValue: 1
       numericValue: 3
@@ -306,6 +361,7 @@ MonoBehaviour:
       target: Self
       action: AddBuff
       type: Strength
+      condition: 
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -320,14 +376,19 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: FortuneTellerSkill
-    description: 
+    description: "\uB54C\uB9B4 \uB54C\uB9C8\uB2E4 \uC810\uC220\uC0AC\uAC00 \uC790\uC2E0\uC774
+      \uAC00\uD558\uB294 \uD53C\uD574\uB7C9\uB9CC\uD07C \uC2A4\uD0DD \uBC84\uD504
+      \uB204\uC801"
     patternType: 0
     value: 0
     hitCount: 1
     attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 0
     hitDigitCount: 0
     strengthDelta: 0
+    condition: 
     rawEffects: '{"Effects": [{"Target": "Self", "Action": "AddBuff", "Type": "FortuneStack",
       "Value": "DamageDealt"}]}'
     effects:
@@ -335,6 +396,7 @@ MonoBehaviour:
       target: Self
       action: AddBuff
       type: FortuneStack
+      condition: 
       valueExpression: DamageDealt
       hasNumericValue: 0
       numericValue: 0
@@ -349,26 +411,32 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: FortuneTellerExplode
-    description: 
-    patternType: 0
+    description: "\uC313\uC778 \uC2A4\uD0DD\uC744 \uAE30\uBCF8 \uB370\uBBF8\uC9C0\uB85C
+      \uC0AC\uC6A9\uD558\uACE0 \uBC84\uD504 \uC81C\uAC70"
+    patternType: 1
     value: 0
     hitCount: 1
-    attackKey: 
-    damageDigitCount: 0
+    attackKey: FortuneStack_Single
+    hasDynamicDamageValue: 1
+    damageValueExpression: FortuneStack
+    damageDigitCount: 1
     hitDigitCount: 0
     strengthDelta: 0
-    rawEffects: '{"Effects": [{"Target": "Player", "Action": "Damage", "Value": "FortuneStack"}]}'
+    condition: HPRate<=0.2
+    rawEffects: '{"Condition": "HPRate<=0.2", "Attack": "FortuneStack_Single", "Effects":
+      [{"Target": "Self", "Action": "SetBuff", "Type": "FortuneStack", "Value": 0}]}'
     effects:
     - timing: 
-      target: Player
-      action: Damage
-      type: 
-      valueExpression: FortuneStack
-      hasNumericValue: 0
+      target: Self
+      action: SetBuff
+      type: FortuneStack
+      condition: 
+      valueExpression: 0
+      hasNumericValue: 1
       numericValue: 0
       duration: 0
       lockDamage: 0
-      rawJson: '{"Target":"Player","Action":"Damage","Value":"FortuneStack"}'
+      rawJson: '{"Target":"Self","Action":"SetBuff","Type":"FortuneStack","Value":0}'
     sprite: 
     specialHandler: 
   - id: AlchemistSingle
@@ -377,14 +445,18 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: AlchemistSingle
-    description: 
+    description: "\uACF5\uACA9 \uC2DC \uC785\uD78C \uD53C\uD574\uB7C9 50%\uB9CC\uD07C
+      \uCD9C\uD608 \uC801\uC6A9"
     patternType: 1
     value: 0
     hitCount: 1
     attackKey: 2_Single
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 2
     hitDigitCount: 0
     strengthDelta: 0
+    condition: 
     rawEffects: '{"Attack": "2_Single", "Effects": [{"Action": "AddBuff", "Type":
       "Bleed", "Value": "DamageDealt"}]}'
     effects:
@@ -392,6 +464,7 @@ MonoBehaviour:
       target: 
       action: AddBuff
       type: Bleed
+      condition: 
       valueExpression: DamageDealt
       hasNumericValue: 0
       numericValue: 0
@@ -406,14 +479,18 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: AlchemistSkill
-    description: 
+    description: "[\uCD9C\uD608 \uC544\uC774\uCF58] [x] [1\uC790\uB9BF\uC218] ->
+      \uCD9C\uD608 \uC218\uCE58 n\uBC30"
     patternType: 0
     value: 0
     hitCount: 1
     attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 0
     hitDigitCount: 0
     strengthDelta: 0
+    condition: 
     rawEffects: '{"Effects": [{"Target": "Player", "Action": "MultiplyBuff", "Type":
       "Bleed", "Value": 3}]}'
     effects:
@@ -421,6 +498,7 @@ MonoBehaviour:
       target: Player
       action: MultiplyBuff
       type: Bleed
+      condition: 
       valueExpression: 3
       hasNumericValue: 1
       numericValue: 3
@@ -435,14 +513,18 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: PlagueDoctorSkill
-    description: 
+    description: "[\uC911\uB3C5 \uC544\uC774\uCF58] [x] [1\uC790\uB9BF\uC218] ->
+      \uC911\uB3C5 \uC218\uCE58 n\uBC30"
     patternType: 0
     value: 0
     hitCount: 1
     attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 0
     hitDigitCount: 0
     strengthDelta: 0
+    condition: 
     rawEffects: '{"Effects": [{"Target": "Player", "Action": "MultiplyBuff", "Type":
       "Poison", "Value": 2}]}'
     effects:
@@ -450,6 +532,7 @@ MonoBehaviour:
       target: Player
       action: MultiplyBuff
       type: Poison
+      condition: 
       valueExpression: 2
       hasNumericValue: 1
       numericValue: 2
@@ -464,27 +547,33 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: ProphetSingle
-    description: 
+    description: "\uC608\uC5B8\uC790\uAC00 \uACF5\uACA9 \uC2DC \uC790\uC2E0\uC774
+      \uAC00\uD558\uB294 \uD53C\uD574\uB7C9\uB9CC\uD07C \uC2A4\uD0DD \uC0C1\uC790\uC5D0
+      \uC218\uCE58 \uB204\uC801"
     patternType: 1
     value: 0
     hitCount: 1
     attackKey: 2_Single
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 2
     hitDigitCount: 0
     strengthDelta: 0
+    condition: 
     rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Self", "Action":
-      "AddStack", "Value": "DamageDealt"}]}'
+      "Addbuff", "Type": "ProphetStack", "Value": "DamageDealt"}]}'
     effects:
     - timing: 
       target: Self
-      action: AddStack
-      type: 
+      action: Addbuff
+      type: ProphetStack
+      condition: 
       valueExpression: DamageDealt
       hasNumericValue: 0
       numericValue: 0
       duration: 0
       lockDamage: 0
-      rawJson: '{"Target":"Self","Action":"AddStack","Value":"DamageDealt"}'
+      rawJson: '{"Target":"Self","Action":"Addbuff","Type":"ProphetStack","Value":"DamageDealt"}'
     sprite: 
     specialHandler: 
   - id: ProphetMulti
@@ -493,66 +582,67 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: ProphetMulti
-    description: 
-    patternType: 6
+    description: "\uC608\uC5B8\uC790\uAC00 \uACF5\uACA9 \uC2DC \uC608\uC5B8\uC790\uAC00
+      \uC790\uC2E0\uC774 \uAC00\uD558\uB294 \uD53C\uD574\uB7C9\uB9CC\uD07C \uC2A4\uD0DD
+      \uBC84\uD504 \uB204\uC801"
+    patternType: 2
     value: 0
     hitCount: 1
     attackKey: 2_Multi
-    damageDigitCount: 0
-    hitDigitCount: 0
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 2
+    hitDigitCount: 1
     strengthDelta: 0
-    rawEffects: '{"Attack": "2_Multi", "Effects": [{"Target": "ProphecyBox", "Action":
-      "AddStack", "Value": "DamageDealt"}]}'
+    condition: 
+    rawEffects: '{"Attack": "2_Multi", "Effects": [{"Target": "Self", "Action": "Addbuff",
+      "Type": "ProphetStack", "Value": "DamageDealt"}]}'
     effects:
     - timing: 
-      target: ProphecyBox
-      action: AddStack
-      type: 
+      target: Self
+      action: Addbuff
+      type: ProphetStack
+      condition: 
       valueExpression: DamageDealt
       hasNumericValue: 0
       numericValue: 0
       duration: 0
       lockDamage: 0
-      rawJson: '{"Target":"ProphecyBox","Action":"AddStack","Value":"DamageDealt"}'
+      rawJson: '{"Target":"Self","Action":"Addbuff","Type":"ProphetStack","Value":"DamageDealt"}'
     sprite: 
-    specialHandler: 2_Multi
+    specialHandler: 
   - id: ProphetExplode
     sourceId: 0
     dataCode: ProphetExplode
     devName: 
     nameStringId: 
     displayName: ProphetExplode
-    description: 
-    patternType: 0
+    description: "\uC313\uC778 \uC2A4\uD0DD\uC744 \uAE30\uBCF8 \uB370\uBBF8\uC9C0\uB85C
+      \uC0AC\uC6A9\uD558\uACE0 \uBC84\uD504 \uC81C\uAC70"
+    patternType: 1
     value: 0
     hitCount: 1
-    attackKey: 
-    damageDigitCount: 0
+    attackKey: ProphetStack_Single
+    hasDynamicDamageValue: 1
+    damageValueExpression: ProphetStack
+    damageDigitCount: 1
     hitDigitCount: 0
     strengthDelta: 0
-    rawEffects: '{"Effects": [{"Target": "Player", "Action": "Damage", "Value": "ProphecyStack",
-      "Lock": true}, {"Target": "ProphecyBox", "Action": "SetValue", "Value": 0}]}'
+    condition: 
+    rawEffects: '{"Attack": "ProphetStack_Single", "Effects": [{"Target": "Self",
+      "Action": "SetBuff", "Type": "ProphetStack", "Value": 0}]}'
     effects:
     - timing: 
-      target: Player
-      action: Damage
-      type: 
-      valueExpression: ProphecyStack
-      hasNumericValue: 0
-      numericValue: 0
-      duration: 0
-      lockDamage: 1
-      rawJson: '{"Target":"Player","Action":"Damage","Value":"ProphecyStack","Lock":true}'
-    - timing: 
-      target: ProphecyBox
-      action: SetValue
-      type: 
+      target: Self
+      action: SetBuff
+      type: ProphetStack
+      condition: 
       valueExpression: 0
       hasNumericValue: 1
       numericValue: 0
       duration: 0
       lockDamage: 0
-      rawJson: '{"Target":"ProphecyBox","Action":"SetValue","Value":0}'
+      rawJson: '{"Target":"Self","Action":"SetBuff","Type":"ProphetStack","Value":0}'
     sprite: 
     specialHandler: 
   - id: JellyfishSingle
@@ -561,38 +651,44 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: JellyfishSingle
-    description: 
+    description: "\uD574\uD30C\uB9AC\uAC00 \uAC00\uD558\uB294 \uD53C\uD574\uC758
+      50%\uAC00 \uAC01\uAC01 \uCD9C\uD608/\uC911\uB3C5 \uC801\uC6A9"
     patternType: 1
     value: 0
     hitCount: 1
     attackKey: 2_Single
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 2
     hitDigitCount: 0
     strengthDelta: 0
-    rawEffects: '{"Attack": "2_Single", "Effects": [{"Action": "AddBuff", "Type":
-      "Bleed", "Value": "DamageDealt*0.5"}, {"Action": "AddBuff", "Type": "Poison",
-      "Value": "DamageDealt*0.5"}]}'
+    condition: 
+    rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Player", "Action":
+      "AddBuff", "Type": "Bleed", "Value": "DamageDealt*0.5"}, {"Target": "Player",
+      "Action": "AddBuff", "Type": "Poison", "Value": "DamageDealt*0.5"}]}'
     effects:
     - timing: 
-      target: 
+      target: Player
       action: AddBuff
       type: Bleed
+      condition: 
       valueExpression: DamageDealt*0.5
       hasNumericValue: 0
       numericValue: 0
       duration: 0
       lockDamage: 0
-      rawJson: '{"Action":"AddBuff","Type":"Bleed","Value":"DamageDealt*0.5"}'
+      rawJson: '{"Target":"Player","Action":"AddBuff","Type":"Bleed","Value":"DamageDealt*0.5"}'
     - timing: 
-      target: 
+      target: Player
       action: AddBuff
       type: Poison
+      condition: 
       valueExpression: DamageDealt*0.5
       hasNumericValue: 0
       numericValue: 0
       duration: 0
       lockDamage: 0
-      rawJson: '{"Action":"AddBuff","Type":"Poison","Value":"DamageDealt*0.5"}'
+      rawJson: '{"Target":"Player","Action":"AddBuff","Type":"Poison","Value":"DamageDealt*0.5"}'
     sprite: 
     specialHandler: 
   - id: JellyfishSkill
@@ -601,17 +697,43 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: JellyfishSkill
-    description: 
+    description: "\uD50C\uB808\uC774\uC5B4\uC758 \uCD9C\uD608/\uC911\uB3C5 \uC218\uCE58\uB9CC\uD07C
+      \uD68C\uBCF5"
     patternType: 0
     value: 0
     hitCount: 1
     attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 0
     hitDigitCount: 0
     strengthDelta: 0
-    rawEffects: '{"Effects": [{"Target": "Self", "Action": "Heal", "Value": "PlayerBleed"}],
-      [{"Target": "Self", "Action": "Heal", "Value": "PlayerPoision"}]}'
-    effects: []
+    condition: 
+    rawEffects: '{"Effects": [{"Target": "Self", "Action": "Heal", "Value": "PlayerBleed"},
+      {"Target": "Self", "Action": "Heal", "Value": "PlayerPoison"}]}'
+    effects:
+    - timing: 
+      target: Self
+      action: Heal
+      type: 
+      condition: 
+      valueExpression: PlayerBleed
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Self","Action":"Heal","Value":"PlayerBleed"}'
+    - timing: 
+      target: Self
+      action: Heal
+      type: 
+      condition: 
+      valueExpression: PlayerPoison
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Self","Action":"Heal","Value":"PlayerPoison"}'
     sprite: 
     specialHandler: 
   - id: OrbSkill
@@ -620,14 +742,18 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: OrbSkill
-    description: 
+    description: "4\uBC88\uC9F8 \uD134 \uC885\uB8CC \uC2DC \uC790\uD3ED, \uD50C\uB808\uC774\uC5B4
+      \uCCB4\uB825 30% \uC7A0\uAE08 \uD53C\uD574"
     patternType: 0
     value: 0
     hitCount: 1
     attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 0
     hitDigitCount: 0
     strengthDelta: 0
+    condition: 
     rawEffects: '{"Effects": [{"Target": "Player", "Action": "Damage", "Value": "PlayerHP*0.3",
       "Lock": true}]}'
     effects:
@@ -635,6 +761,7 @@ MonoBehaviour:
       target: Player
       action: Damage
       type: 
+      condition: 
       valueExpression: PlayerHP*0.3
       hasNumericValue: 0
       numericValue: 0
@@ -649,20 +776,25 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: VampireSkill
-    description: 
+    description: "[\uCCB4\uB825 \uC544\uC774\uCF58] [X] [2\uC790\uB9BF\uC218] [%]
+      \uB370\uBBF8\uC9C0 \uD328\uD134"
     patternType: 0
     value: 0
     hitCount: 1
     attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 0
     hitDigitCount: 0
     strengthDelta: 0
+    condition: 
     rawEffects: '{"Effects": [{"Target": "Player", "Action": "Damage", "Value": "PlayerHP_Multi_2"}]}'
     effects:
     - timing: 
       target: Player
       action: Damage
       type: 
+      condition: 
       valueExpression: PlayerHP_Multi_2
       hasNumericValue: 0
       numericValue: 0
@@ -677,18 +809,44 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: KnightSkill
-    description: 
+    description: "\uD53C\uD574\uB97C 400 \uBC1B\uC73C\uBA74 \uD574\uB2F9 \uBC84\uD504\uB97C
+      \uC5C6\uC560\uACE0, \uD798\uC744 3 \uC5BB\uC74C"
     patternType: 0
     value: 0
     hitCount: 1
     attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 0
     hitDigitCount: 0
     strengthDelta: 0
-    rawEffects: '{"Condition": "DamageTaken>=400", "Effects": [{"Condition":  "Action":
-      "RemoveBuff", "Type": "Shield"}, {"Target": "Self", "Action": "AddBuff", "Type":
-      "Strength", "Value": 3}]}'
-    effects: []
+    condition: DamageTaken>=400
+    rawEffects: '{"Condition": "DamageTaken>=400", "Effects": [{"Action": "RemoveBuff",
+      "Type": "Shield"}, {"Target": "Self", "Action": "AddBuff", "Type": "Strength",
+      "Value": 3}]}'
+    effects:
+    - timing: 
+      target: 
+      action: RemoveBuff
+      type: Shield
+      condition: 
+      valueExpression: 
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Action":"RemoveBuff","Type":"Shield"}'
+    - timing: 
+      target: Self
+      action: AddBuff
+      type: Strength
+      condition: 
+      valueExpression: 3
+      hasNumericValue: 1
+      numericValue: 3
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Self","Action":"AddBuff","Type":"Strength","Value":3}'
     sprite: 
     specialHandler: 
   - id: StargazerSingle
@@ -697,16 +855,32 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: StargazerSingle
-    description: 
-    patternType: 0
+    description: "3\uC790\uB9BF\uC218 \uB2E8\uD0C0 + \uBCC4 \uC0C1\uC790\uC5D0 \uBB34\uC791\uC704
+      0~9\uAE4C\uC9C0 \uC22B\uC790 \uB123\uAE30"
+    patternType: 1
     value: 0
     hitCount: 1
-    attackKey: 
-    damageDigitCount: 0
+    attackKey: 3_Single
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 3
     hitDigitCount: 0
     strengthDelta: 0
-    rawEffects: 
-    effects: []
+    condition: 
+    rawEffects: '{"Attack": "3_Single", "Effects": [{"Target": "Self", "Action":
+      "AddBox", "Value": "Random"}]}'
+    effects:
+    - timing: 
+      target: Self
+      action: AddBox
+      type: 
+      condition: 
+      valueExpression: Random
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Self","Action":"AddBox","Value":"Random"}'
     sprite: 
     specialHandler: 
   - id: StargazerSkill
@@ -715,20 +889,25 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: StargazerSkill
-    description: 
+    description: "\uC9C0\uC815\uC22B\uC790 3\uAC1C\uB97C \uC774\uC5B4\uB193\uC740
+      \uC7A0\uAE08\uD0C0\uC218\uB9CC\uD07C\uC758 \uC5F0\uD0C03 \uD328\uD134 \"\uC720\uC131\uC6B0\""
     patternType: 0
     value: 0
     hitCount: 1
     attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 0
     hitDigitCount: 0
     strengthDelta: 0
+    condition: 
     rawEffects: '{"Effects": [{"Target": "Player", "Action": "Damage", "Value": "Stargazing_Multi_3"}]}'
     effects:
     - timing: 
       target: Player
       action: Damage
       type: 
+      condition: 
       valueExpression: Stargazing_Multi_3
       hasNumericValue: 0
       numericValue: 0
@@ -743,14 +922,18 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: BanditSingle
-    description: 
+    description: "\uACF5\uACA9 \uC2DC \uC785\uD78C \uD53C\uD574\uB7C9\uB9CC\uD07C
+      \uCD9C\uD608 \uC801\uC6A9"
     patternType: 1
     value: 0
     hitCount: 1
     attackKey: 2_Single
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 2
     hitDigitCount: 0
     strengthDelta: 0
+    condition: 
     rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Player", "Action":
       "AddBuff", "Type": "Bleed", "Value": "DamageDealt"}]}'
     effects:
@@ -758,6 +941,7 @@ MonoBehaviour:
       target: Player
       action: AddBuff
       type: Bleed
+      condition: 
       valueExpression: DamageDealt
       hasNumericValue: 0
       numericValue: 0
@@ -772,14 +956,18 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: RobberSingle
-    description: 
+    description: "\uACF5\uACA9 \uC2DC \uC785\uD78C \uD53C\uD574\uB7C9 50%\uB9CC\uD07C
+      \uC911\uB3C5 \uC801\uC6A9"
     patternType: 1
     value: 0
     hitCount: 1
     attackKey: 2_Single
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 2
     hitDigitCount: 0
     strengthDelta: 0
+    condition: 
     rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Player", "Action":
       "AddBuff", "Type": "Poison", "Value": "DamageDealt*0.5"}]}'
     effects:
@@ -787,6 +975,7 @@ MonoBehaviour:
       target: Player
       action: AddBuff
       type: Poison
+      condition: 
       valueExpression: DamageDealt*0.5
       hasNumericValue: 0
       numericValue: 0
@@ -801,14 +990,18 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: PlagueDoctorSingle
-    description: 
+    description: "\uACF5\uACA9 \uC2DC \uC785\uD78C \uD53C\uD574\uB7C9\uB9CC\uD07C
+      \uC911\uB3C5 \uC801\uC6A9"
     patternType: 1
     value: 0
     hitCount: 1
     attackKey: 2_Single
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 2
     hitDigitCount: 0
     strengthDelta: 0
+    condition: 
     rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Player", "Action":
       "AddBuff", "Type": "Poison", "Value": "DamageDealt"}]}'
     effects:
@@ -816,6 +1009,7 @@ MonoBehaviour:
       target: Player
       action: AddBuff
       type: Poison
+      condition: 
       valueExpression: DamageDealt
       hasNumericValue: 0
       numericValue: 0
@@ -830,21 +1024,25 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: CosmictreeSingle
-    description: 
+    description: "\uACF5\uACA9\uACFC \uD568\uAED8 \uD798 \uC99D\uAC00"
     patternType: 1
     value: 0
     hitCount: 1
-    attackKey: 3_Single
-    damageDigitCount: 3
+    attackKey: 2_Single
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 2
     hitDigitCount: 0
     strengthDelta: 0
-    rawEffects: '{"Attack": "3_Single", "Effects": [{"Target": "Self", "Action":
+    condition: 
+    rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Self", "Action":
       "AddBuff", "Type": "Strength", "Value": 1}]}'
     effects:
     - timing: 
       target: Self
       action: AddBuff
       type: Strength
+      condition: 
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -859,16 +1057,30 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: CosmictreeHeal
-    description: 
+    description: "\uD798 \uC218\uCE58 \uC790\uB9BF\uC218\uB9CC\uD07C \uD790"
     patternType: 0
     value: 0
     hitCount: 1
     attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 0
     hitDigitCount: 0
     strengthDelta: 0
-    rawEffects: '{"Effects": [{"Target": "Self", "Action": "Heal", "Value": "Strength+2_Single"'
-    effects: []
+    condition: 
+    rawEffects: '{"Effects": [{"Target": "Self", "Action": "Heal", "Value": "CosmictreeHeal"}]}'
+    effects:
+    - timing: 
+      target: Self
+      action: Heal
+      type: 
+      condition: 
+      valueExpression: CosmictreeHeal
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Self","Action":"Heal","Value":"CosmictreeHeal"}'
     sprite: 
     specialHandler: 
   - id: WhaleSingle
@@ -877,16 +1089,32 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: WhaleSingle
-    description: 
-    patternType: 0
+    description: "3\uC790\uB9BF\uC218 \uB2E8\uD0C0 + \uB2E4\uC74C\uD134 \uACE0\uB798
+      \uC804\uC6A9\uC0C1\uC790\uC5D0 \uBB34\uC791\uC704 \uC22B\uC790 2\uAC1C \uC124\uC815"
+    patternType: 1
     value: 0
     hitCount: 1
-    attackKey: 
-    damageDigitCount: 0
+    attackKey: 3_Single
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 3
     hitDigitCount: 0
     strengthDelta: 0
-    rawEffects: 
-    effects: []
+    condition: 
+    rawEffects: '{"Attack": "3_Single", "Effects": [{"Timing": "NextTurn", "Target":
+      "WhaleBox", "Action": "AddBox", "Value": "Random", "Count": 2}]}'
+    effects:
+    - timing: NextTurn
+      target: WhaleBox
+      action: AddBox
+      type: 
+      condition: 
+      valueExpression: Random
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Timing":"NextTurn","Target":"WhaleBox","Action":"AddBox","Value":"Random","Count":2}'
     sprite: 
     specialHandler: 
   - id: WhaleMulti
@@ -895,33 +1123,79 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: WhaleMulti
-    description: 
-    patternType: 0
+    description: "2x3 \uC5F0\uD0C0 + \uB2E4\uC74C\uD134 \uACE0\uB798 \uC804\uC6A9\uC0C1\uC790\uC5D0
+      \uBB34\uC791\uC704 \uC22B\uC790 2\uAC1C \uC124\uC815"
+    patternType: 2
     value: 0
     hitCount: 1
-    attackKey: 
-    damageDigitCount: 0
-    hitDigitCount: 0
+    attackKey: 2_Multi_3
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 2
+    hitDigitCount: 3
     strengthDelta: 0
-    rawEffects: 
-    effects: []
+    condition: 
+    rawEffects: '{"Attack": "2_Multi_3", "Effects": [{"Timing": "NextTurn", "Target":
+      "WhaleBox", "Action": "AddBox", "Value": "Random", "Count": 2}]}'
+    effects:
+    - timing: NextTurn
+      target: WhaleBox
+      action: AddBox
+      type: 
+      condition: 
+      valueExpression: Random
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Timing":"NextTurn","Target":"WhaleBox","Action":"AddBox","Value":"Random","Count":2}'
     sprite: 
     specialHandler: 
-  - id: WhaleStr
+  - id: WhalePhase2
     sourceId: 0
-    dataCode: WhaleStr
+    dataCode: WhalePhase2
     devName: 
     nameStringId: 
-    displayName: WhaleStr
-    description: 
+    displayName: WhalePhase2
+    description: "\uACE0\uB798 \uC804\uC6A9\uBC84\uD504 \uCD08\uAE30\uD654 \uC774\uD6C4
+      \"2\uD398\uC774\uC988\" \uBC84\uD504 \uC124\uC815, \uC870\uAC74\uC740 \uAE30\uCD08\uCCB4\uB825
+      50% \uC774\uD558\uB85C \uB0B4\uB824\uAC14\uC744 \uB54C \uBC0F Phase \uBC84\uD504\uAC12\uC774
+      1\uC778 \uACBD\uC6B0"
     patternType: 0
     value: 0
     hitCount: 1
     attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
     damageDigitCount: 0
     hitDigitCount: 0
     strengthDelta: 0
-    rawEffects: 
-    effects: []
+    condition: HPRate<=0.5 && Phase==1
+    rawEffects: '{"Condition": "HPRate<=0.5 && Phase==1", "Effects": [{"Target":
+      "Self", "Action": "RemoveBuff", "Type": "WhaleBuff"}, {"Target": "Self", "Action":
+      "AddBuff", "Type": "Phase2"}]}'
+    effects:
+    - timing: 
+      target: Self
+      action: RemoveBuff
+      type: WhaleBuff
+      condition: 
+      valueExpression: 
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Self","Action":"RemoveBuff","Type":"WhaleBuff"}'
+    - timing: 
+      target: Self
+      action: AddBuff
+      type: Phase2
+      condition: 
+      valueExpression: 
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Self","Action":"AddBuff","Type":"Phase2"}'
     sprite: 
     specialHandler: 

@@ -38,6 +38,7 @@ namespace GoldfishWalking.UI
         private Text fantasyTooltipDescription;
         private Text fantasyTooltipEffect;
         private Button nextButton;
+        private Button rerollButton;
         private bool hasFantasyReward;
         private bool hasExtraMatchReward;
         private bool hasEraserReward;
@@ -201,6 +202,7 @@ namespace GoldfishWalking.UI
         private void CreateRerollButton()
         {
             RectTransform panel = CreatePanel("RerollButton", layoutRoot, panelColor, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(160f, 96f), new Vector2(112f, 112f));
+            rerollButton = panel.gameObject.AddComponent<Button>();
             Text icon = CreateText("Icon", panel, "↻", 48, textColor, TextAnchor.MiddleCenter);
             SetRect(icon.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
         }
@@ -344,6 +346,8 @@ namespace GoldfishWalking.UI
 
             for (int i = 0; i < RewardCount; i++)
                 CreateRewardCard(currentRewards[i], positions[i]);
+
+            Refresh();
         }
 
         private void CreateRewardCard(FantasyData fantasy, Vector2 position)
@@ -375,6 +379,7 @@ namespace GoldfishWalking.UI
             bootstrap.RunContext.fantasyInventory.Add(fantasy);
             fantasyEffectRunner.Apply(fantasy, bootstrap.RunContext, "On_Acquire");
             fantasyEffectRunner.Apply(fantasy, bootstrap.RunContext, "Acquire");
+            FantasyCollectionRules.ApplyPostAcquireTransforms(bootstrap.RunContext.fantasyInventory, fantasyDatabase);
             hasFantasyReward = false;
             CloseFantasyChoices();
             RefreshFantasySlots();
@@ -458,12 +463,16 @@ namespace GoldfishWalking.UI
         {
             if (nextButton != null)
                 nextButton.onClick.AddListener(CompleteReward);
+            if (rerollButton != null)
+                rerollButton.onClick.AddListener(RerollFantasyChoices);
         }
 
         private void UnbindButtons()
         {
             if (nextButton != null)
                 nextButton.onClick.RemoveListener(CompleteReward);
+            if (rerollButton != null)
+                rerollButton.onClick.RemoveListener(RerollFantasyChoices);
         }
 
         private void Refresh()
@@ -472,6 +481,20 @@ namespace GoldfishWalking.UI
                 healthText.text = bootstrap != null && bootstrap.RunContext != null ? bootstrap.RunContext.health.ToString() : "0";
             RefreshFantasySlots();
             RefreshConsumables();
+            if (rerollButton != null)
+                rerollButton.interactable = bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.rewardRerolls > 0 && rewardCardRoot != null && rewardCardRoot.gameObject.activeSelf;
+        }
+
+        private void RerollFantasyChoices()
+        {
+            if (bootstrap == null || bootstrap.RunContext == null || bootstrap.RunContext.rewardRerolls <= 0)
+                return;
+            if (rewardCardRoot == null || !rewardCardRoot.gameObject.activeSelf)
+                return;
+
+            bootstrap.RunContext.rewardRerolls--;
+            PrepareFantasyChoices();
+            Refresh();
         }
 
         private void RefreshFantasySlots()

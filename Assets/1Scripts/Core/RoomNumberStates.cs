@@ -11,9 +11,14 @@ namespace GoldfishWalking.Core
         public int playerBaseDamageTurn;
         public int monsterBaseDamage;
         public int monsterHitCount = 1;
+        public bool monsterSpecialBoxVisible;
+        public int monsterSpecialBoxValue;
+        public int monsterSpecialBoxDigitCount;
+        public string monsterSpecialBoxLabel;
         public string playerBaseDamageSegmentState;
         public string monsterBaseDamageSegmentState;
         public string monsterHitCountSegmentState;
+        public string monsterSpecialBoxSegmentState;
         public string monsterId;
         public string activeMonsterPatternId;
         public int activeMonsterPatternTurn;
@@ -21,9 +26,14 @@ namespace GoldfishWalking.Core
         public int editSnapshotPlayerBaseDamage;
         public int editSnapshotMonsterBaseDamage;
         public int editSnapshotMonsterHitCount;
+        public bool editSnapshotMonsterSpecialBoxVisible;
+        public int editSnapshotMonsterSpecialBoxValue;
+        public int editSnapshotMonsterSpecialBoxDigitCount;
+        public string editSnapshotMonsterSpecialBoxLabel;
         public string editSnapshotPlayerBaseDamageSegmentState;
         public string editSnapshotMonsterBaseDamageSegmentState;
         public string editSnapshotMonsterHitCountSegmentState;
+        public string editSnapshotMonsterSpecialBoxSegmentState;
         public Dictionary<string, int> playerTurnDamageValues = new Dictionary<string, int>();
         public Dictionary<string, int> monsterPatternDamageValues = new Dictionary<string, int>();
         public Dictionary<string, int> monsterPatternHitCountValues = new Dictionary<string, int>();
@@ -65,9 +75,14 @@ namespace GoldfishWalking.Core
             editSnapshotPlayerBaseDamage = playerBaseDamage;
             editSnapshotMonsterBaseDamage = monsterBaseDamage;
             editSnapshotMonsterHitCount = monsterHitCount;
+            editSnapshotMonsterSpecialBoxVisible = monsterSpecialBoxVisible;
+            editSnapshotMonsterSpecialBoxValue = monsterSpecialBoxValue;
+            editSnapshotMonsterSpecialBoxDigitCount = monsterSpecialBoxDigitCount;
+            editSnapshotMonsterSpecialBoxLabel = monsterSpecialBoxLabel;
             editSnapshotPlayerBaseDamageSegmentState = playerBaseDamageSegmentState;
             editSnapshotMonsterBaseDamageSegmentState = monsterBaseDamageSegmentState;
             editSnapshotMonsterHitCountSegmentState = monsterHitCountSegmentState;
+            editSnapshotMonsterSpecialBoxSegmentState = monsterSpecialBoxSegmentState;
         }
 
         public void RestoreEditSnapshot()
@@ -75,9 +90,14 @@ namespace GoldfishWalking.Core
             playerBaseDamage = editSnapshotPlayerBaseDamage;
             monsterBaseDamage = editSnapshotMonsterBaseDamage;
             monsterHitCount = editSnapshotMonsterHitCount;
+            monsterSpecialBoxVisible = editSnapshotMonsterSpecialBoxVisible;
+            monsterSpecialBoxValue = editSnapshotMonsterSpecialBoxValue;
+            monsterSpecialBoxDigitCount = editSnapshotMonsterSpecialBoxDigitCount;
+            monsterSpecialBoxLabel = editSnapshotMonsterSpecialBoxLabel;
             playerBaseDamageSegmentState = editSnapshotPlayerBaseDamageSegmentState;
             monsterBaseDamageSegmentState = editSnapshotMonsterBaseDamageSegmentState;
             monsterHitCountSegmentState = editSnapshotMonsterHitCountSegmentState;
+            monsterSpecialBoxSegmentState = editSnapshotMonsterSpecialBoxSegmentState;
         }
     }
 
@@ -85,6 +105,7 @@ namespace GoldfishWalking.Core
     public sealed class RestNumberState
     {
         public int healAmount;
+        public int healDigitCount = 2;
     }
 
     [Serializable]

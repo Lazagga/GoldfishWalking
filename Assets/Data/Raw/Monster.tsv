@@ -4,38 +4,38 @@ ID	Act	Difficulty	DevName	DataName	NameStringID	DescStringID	Type	BaseHP	BaseStr
 10102	1	Easy	들개	Mob_10102_WildDog			Normal	120	0	2_Single, 2_Single, Str_1	Static	
 10103	1	Easy	슬라임	Mob_10103_Slime			Normal	160	0	SlimeSingle, 2_Single	Random	
 10104	1	Normal	버섯인간	Mob_10104_MushroomMan			Normal	220	0	MushroomLock, 2_Single, Str_1, 2_Multi_1	Random	
-10105	1	Normal	개구리	Mob_10105_Frog			Normal	450	0	Skip, Skip, Skip, 3_Single	Static	
-10106	1	Normal	거대 새	Mob_10106_GiantBird			Normal	550	0	2_Multi_1, Str_1, 2_Single	Static	
-10107	1	Normal	노상강도	Mob_10107_Bandit			Normal	420	0	BanditSingle	Static	
-10201	1	Normal	화이트 래빗	Mob_10201_WhiteRabbit			Elite	650	0	1_Multi_1, 2_Single, 1_Multi_1, 2_Single, Str_2	Random	
-10202	1	Normal	작은 마녀	Mob_10202_LittleWitch			Elite	550	0	LittleWitchSkill, 2_Single, 2_Single	Static	
-10203	1	Normal	사냥꾼	Mob_10203_Hunter			Elite	600	0	HunterSingle, HunterSingle, 2_Single, 2_Single, Str_1	Static	
-10301	1	Normal	하트 여왕	Mob_10301_HeartQueen			Boss	800	0	2_Single, 2_Multi_1, Str_1	Static	
-10302	1	Normal	마녀	Mob_10302_Witch			Boss	1000	0	2_Single, 2_Multi_1, Str_1	Static	
-10303	1	Normal	엘프	Mob_10303_Elf			Boss	750	0	2_Single, 2_Multi_2	Random	
-20101	2	Easy	눈사람	Mob_20101_Snowman			Normal	700	0	2_Multi_1, 2_Multi_2, 3_Single	Static	
-20102	2	Easy	강도	Mob_20102_Robber			Normal	650	0	RobberSingle	Random	
-20103	2	Easy	유령	Mob_20103_Ghost			Normal	800	0	GhostSingle, GhostMulti	Random	
-20104	2	Normal	마술사	Mob_20104_Magician			Normal	850	0	2_Multi_1, 2_Multi_2, 2_Single	Random	
-20105	2	Normal	자동인형	Mob_20105_Automaton			Normal	900	0	AutomatonSingle, AutomatonSingle, AutomatonSingle, AutomatonSingleStun	Static	
-20106	2	Normal	쥐	Mob_20106_GiantRat			Normal	700	0	2_Single, 2_Multi_1, GiantRatSkill	Static	
-20107	2	Normal	경비병	Mob_20107_Guard			Normal	360	0	2_Single	Static	
-20201	2	Normal	점술사	Mob_20201_FortuneTeller			Elite	1000	0	2_Single, 2_Multi_1, FortuneTellerSkill, FortuneTellerExplode	Random	
-20202	2	Normal	연금술사	Mob_20202_Alchemist			Elite	1200	0	AlchemistSingle, AlchemistSkill	Static	
-20203	2	Normal	지휘자	Mob_20203_Conductor			Elite	900	0	2_Single, 2_Multi_2	Random	
-20301	2	Normal	피리부는사나이	Mob_20301_PiedPiper			Boss	1400	0	Str_1, 2_Single, 2_Multi_2	Static	
-20302	2	Normal	역병 의사	Mob_20302_PlagueDoctor			Boss	1500	0	PlagueDoctorSingle, PlagueDoctorSkill	Static	
-20303	2	Normal	예언자	Mob_20303_Prophet			Boss	1650	0	ProphetSingle, ProphetMulti, ProphetExplode	Random	
-30101	3	Easy	강철 허수아비	Mob_30101_SteelScarecrow			Normal	950	0	Str_1, 2_Multi_1, 2_Multi_2	Static	
-30102	3	Easy	해파리	Mob_30102_Jellyfish			Normal	900	0	JellyfishSingle, JellyfishSingle, JellyfishSkill	Static	
-30103	3	Easy	구체	Mob_30103_Orb			Normal	1000	0	2_Multi_1, 2_Multi_2, 2_Multi_3, OrbSkill	Static	
-30104	3	Normal	사서	Mob_30104_Librarian			Normal	1100	0	LibrarianSingle, LibrarianMulti	Random	
-30105	3	Normal	골렘	Mob_30105_Golem			Normal	1300	0	2_Single	Static	
+10105	1	Normal	개구리	Mob_10105_Frog			Normal	250	0	Skip, Skip, Skip, 3_Single	Static	
+10106	1	Normal	거대 새	Mob_10106_GiantBird			Normal	225	0	2_Multi_1, Str_1, 2_Single	Static	
+10107	1	Normal	노상강도	Mob_10107_Bandit			Normal	250	0	BanditSingle	Static	
+10201	1	Normal	화이트 래빗	Mob_10201_WhiteRabbit			Elite	400	0	2_Multi_1, 2_Single, 2_Multi_1, 2_Single, Str_2	Random	
+10202	1	Normal	작은 마녀	Mob_10202_LittleWitch			Elite	425	0	LittleWitchSkill, 2_Single, 2_Single	Static	
+10203	1	Normal	사냥꾼	Mob_10203_Hunter			Elite	450	0	HunterSingle, HunterSingle, 2_Single, 2_Single, Str_1	Static	
+10301	1	Normal	하트 여왕	Mob_10301_HeartQueen			Boss	600	0	2_Single, 2_Multi_1, Str_1	Static	
+10302	1	Normal	마녀	Mob_10302_Witch			Boss	750	0	2_Single, 2_Multi_1, Str_1	Static	
+10303	1	Normal	엘프	Mob_10303_Elf			Boss	500	0	2_Single, 2_Multi_2	Random	
+20101	2	Easy	눈사람	Mob_20101_Snowman			Normal	560	0	2_Multi_1, 2_Multi_2, 3_Single	Static	
+20102	2	Easy	강도	Mob_20102_Robber			Normal	520	0	RobberSingle	Random	
+20103	2	Easy	유령	Mob_20103_Ghost			Normal	640	0	GhostSingle, GhostMulti	Random	
+20104	2	Normal	마술사	Mob_20104_Magician			Normal	680	0	2_Multi_1, 2_Multi_2, 2_Single	Random	
+20105	2	Normal	자동인형	Mob_20105_Automaton			Normal	720	0	AutomatonSingle, AutomatonSingle, AutomatonSingle, AutomatonSingleStun	Static	
+20106	2	Normal	쥐	Mob_20106_GiantRat			Normal	560	0	2_Single, 2_Multi_1, GiantRatSkill	Static	
+20107	2	Normal	경비병	Mob_20107_Guard			Normal	297	0	2_Single	Static	
+20201	2	Normal	점술사	Mob_20201_FortuneTeller			Elite	800	0	2_Single, 2_Multi_1, FortuneTellerSkill, FortuneTellerExplode	Random	
+20202	2	Normal	연금술사	Mob_20202_Alchemist			Elite	960	0	AlchemistSingle, AlchemistSkill	Static	
+20203	2	Normal	지휘자	Mob_20203_Conductor			Elite	720	0	2_Single, 2_Multi_2	Random	
+20301	2	Normal	피리부는사나이	Mob_20301_PiedPiper			Boss	1120	0	Str_1, 2_Single, 2_Multi_2	Static	
+20302	2	Normal	역병 의사	Mob_20302_PlagueDoctor			Boss	1200	0	PlagueDoctorSingle, PlagueDoctorSkill	Static	
+20303	2	Normal	예언자	Mob_20303_Prophet			Boss	1320	0	ProphetSingle, ProphetMulti, ProphetExplode	Random	
+30101	3	Easy	강철 허수아비	Mob_30101_SteelScarecrow			Normal	900	0	Str_1, 2_Multi_1, 2_Multi_2	Static	
+30102	3	Easy	해파리	Mob_30102_Jellyfish			Normal	800	0	JellyfishSingle, JellyfishSingle, JellyfishSkill	Static	
+30103	3	Easy	구체	Mob_30103_Orb			Normal	850	0	2_Multi_1, 2_Multi_2, 2_Multi_3, OrbSkill	Static	
+30104	3	Normal	사서	Mob_30104_Librarian			Normal	900	0	LibrarianSingle, LibrarianMulti	Random	
+30105	3	Normal	골렘	Mob_30105_Golem			Normal	1000	0	2_Single	Static	
 30106	3	Normal	초롱아귀	Mob_30106_Anglerfish			Normal	1500	0	2_Single, 2_Multi_3	Random	
 30107	3	Normal	그림자	Mob_30107_Shadow			Normal	1200	0	3_Single, 3_Single, 3_Multi_1	Static	
 30201	3	Normal	뱀파이어	Mob_30201_Vampire			Elite	2000	0	2_Single, 2_Single, 2_Multi_3, VampireSkill	Random	
-30202	3	Normal	기사	Mob_30202_Knight			Elite	1200	0	2_Single, 2_Single, 2_Multi_3, KnightSkill	Random	
+30202	3	Normal	기사	Mob_30202_Knight			Elite	900	0	2_Single, 2_Single, 2_Multi_3, KnightSkill	Random	
 30203	3	Normal	천체투영기	Mob_30203_Planetarium			Elite	1900	0	2_Multi_2, 3_Single, 2_Multi_3, 3_Single	Static	
 30301	3	Normal	별관찰자	Mob_30301_Stargazer			Boss	3000	0	StargazerSingle, StargazerSingle, StargazerSingle, StargazerSkill	Static	
 30302	3	Normal	세계수	Mob_30302_CosmicTree			Boss	3000	0	CosmictreeSingle, CosmictreeSingle, CosmictreeHeal	Static	
-30303	3	Normal	고래	Mob_30303_Whale			Boss	3000	0	WhaleSingle, WhaleStr, WhaleMulti	Random	
+30303	3	Normal	고래	Mob_30303_Whale			Boss	3000	0	WhaleSingle, WhalePhase2, WhaleMulti	Random	

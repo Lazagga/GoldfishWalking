@@ -95,6 +95,11 @@ namespace GoldfishWalking.Battle
             }
         }
 
+        public int EvaluateValueExpression(string expression, MonsterRuntime monster, RunContext runContext)
+        {
+            return Mathf.FloorToInt(EvaluateValue(expression, monster, runContext, 0));
+        }
+
         public void ApplyImmediateNonAttack(MonsterRuntime monster, MonsterPatternData pattern)
         {
             if (monster == null || pattern == null)
@@ -213,6 +218,8 @@ namespace GoldfishWalking.Battle
             int value = Mathf.FloorToInt(EvaluateValue(effect.valueExpression, monster, runContext, damageDealt));
             if (string.IsNullOrWhiteSpace(effect.valueExpression) && effect.duration > 0)
                 value = effect.duration;
+            if (action == "addbox")
+                value = BuildSpecialBoxValue(effect.valueExpression, effect.rawJson, runContext);
 
             if (action == "split")
             {
@@ -280,6 +287,13 @@ namespace GoldfishWalking.Battle
                 return;
             }
 
+            if (action == "addbox")
+            {
+                int count = ExtractCount(effect.rawJson);
+                monster.SetSpecialBox(value, count, SpecialBoxLabel(target));
+                return;
+            }
+
             if (action == "removebuff")
             {
                 SetBuff(monster, runContext, type, 0);
@@ -325,6 +339,7 @@ namespace GoldfishWalking.Battle
                     monster.ChangeFortuneStack(value);
                     break;
                 case "prophecystack":
+                case "prophetstack":
                     monster.ChangeProphecyStack(value);
                     if (runContext != null)
                         runContext.prophecyStack = monster.ProphecyStack;
@@ -336,6 +351,13 @@ namespace GoldfishWalking.Battle
                 case "poison":
                     if (runContext != null)
                         runContext.playerPoison = Mathf.Max(0, runContext.playerPoison + value);
+                    break;
+                case "minusbox":
+                    if (runContext != null)
+                        runContext.strength -= Mathf.Max(0, value);
+                    break;
+                case "phase2":
+                    monster.SetPhase(2);
                     break;
             }
         }
@@ -357,6 +379,7 @@ namespace GoldfishWalking.Battle
                     monster.SetFortuneStack(value);
                     break;
                 case "prophecystack":
+                case "prophetstack":
                     monster.SetProphecyStack(value);
                     if (runContext != null)
                         runContext.prophecyStack = monster.ProphecyStack;
@@ -368,6 +391,13 @@ namespace GoldfishWalking.Battle
                 case "poison":
                     if (runContext != null)
                         runContext.playerPoison = Mathf.Max(0, value);
+                    break;
+                case "phase":
+                case "phase2":
+                    monster.SetPhase(Mathf.Max(1, value));
+                    break;
+                case "whalebuff":
+                    monster.ClearSpecialBox();
                     break;
             }
         }
@@ -387,6 +417,7 @@ namespace GoldfishWalking.Battle
                     monster.SetFortuneStack(monster.FortuneStack * multiplier);
                     break;
                 case "prophecystack":
+                case "prophetstack":
                     monster.SetProphecyStack(monster.ProphecyStack * multiplier);
                     if (runContext != null)
                         runContext.prophecyStack = monster.ProphecyStack;
@@ -404,7 +435,16 @@ namespace GoldfishWalking.Battle
 
         private static void ApplyStack(MonsterRuntime monster, RunContext runContext, string target, int value, bool set)
         {
-            if (target == "prophecybox")
+            if (target == "fortunebox")
+            {
+                if (set)
+                    monster.SetFortuneStack(value);
+                else
+                    monster.ChangeFortuneStack(value);
+                return;
+            }
+
+            if (target == "prophecybox" || target == "self" || string.IsNullOrWhiteSpace(target))
             {
                 if (set)
                     monster.SetProphecyStack(value);
@@ -416,9 +456,11 @@ namespace GoldfishWalking.Battle
             }
 
             if (set)
-                monster.SetFortuneStack(value);
+                monster.SetProphecyStack(value);
             else
-                monster.ChangeFortuneStack(value);
+                monster.ChangeProphecyStack(value);
+            if (runContext != null)
+                runContext.prophecyStack = monster.ProphecyStack;
         }
 
         private static void ApplyBoxFlag(string target, BattleFormulaState playerFormula, BattleFormulaState monsterFormula, bool split, bool locked)
@@ -454,6 +496,18 @@ namespace GoldfishWalking.Battle
             string text = (expression ?? string.Empty).Trim();
             if (string.IsNullOrWhiteSpace(text))
                 return true;
+
+            string[] andParts = text.Split(new[] { "&&" }, StringSplitOptions.None);
+            if (andParts.Length > 1)
+            {
+                for (int i = 0; i < andParts.Length; i++)
+                {
+                    if (!EvaluateCondition(andParts[i], monster, runContext))
+                        return false;
+                }
+
+                return true;
+            }
 
             string[] operators = { ">=", "<=", "==", "!=", ">", "<" };
             for (int i = 0; i < operators.Length; i++)
@@ -511,6 +565,7 @@ namespace GoldfishWalking.Battle
                 case "fortunestack":
                     return monster != null ? monster.FortuneStack : 0f;
                 case "prophecystack":
+                case "prophetstack":
                     return monster != null ? monster.ProphecyStack : (runContext != null ? runContext.prophecyStack : 0f);
                 case "playerbleed":
                     return runContext != null ? runContext.playerBleed : 0f;
@@ -520,11 +575,43 @@ namespace GoldfishWalking.Battle
                 case "playerhp":
                 case "hp":
                     return runContext != null ? runContext.health : 0f;
+                case "playerhpmulti2":
+                    return runContext != null ? Mathf.Floor(runContext.health * 0.2f) : 0f;
+                case "stargazingmulti3":
+                    if (monster != null && monster.HasSpecialBox)
+                        return monster.SpecialBoxValue;
+                    return runContext != null ? runContext.RollValue("monster.stargazing.multi3", 100, 999) : 333f;
                 case "strength":
                     return monster != null ? monster.Strength : 0f;
+                case "cosmictreeheal":
+                    return monster != null ? DigitCount(monster.Strength) : 0f;
+                case "hprate":
+                    return monster != null && monster.Data != null && monster.Data.baseHealth > 0
+                        ? (float)monster.CurrentHealth / monster.Data.baseHealth
+                        : 1f;
+                case "phase":
+                    return monster != null ? monster.Phase : 1f;
+                case "random":
+                    return runContext != null ? runContext.RollValue("monster.pattern.random_digit", 0, 9) : 0f;
             }
 
             return 0f;
+        }
+
+        private static int DigitCount(int value)
+        {
+            int absolute = Mathf.Abs(value);
+            if (absolute == 0)
+                return 1;
+
+            int digits = 0;
+            while (absolute > 0)
+            {
+                digits++;
+                absolute /= 10;
+            }
+
+            return digits;
         }
 
         private static int FindArithmeticOperator(string text)
@@ -542,6 +629,54 @@ namespace GoldfishWalking.Battle
         private static float NormalizePercent(float value)
         {
             return value > 1f ? value / 100f : value;
+        }
+
+        private static int BuildSpecialBoxValue(string valueExpression, string rawJson, RunContext runContext)
+        {
+            int count = ExtractCount(rawJson);
+            int result = 0;
+            for (int i = 0; i < Mathf.Max(1, count); i++)
+            {
+                int digit = NormalizeLookup(valueExpression) == "random" && runContext != null
+                    ? runContext.RollValue($"monster.special_box.{runContext.battleTurnNumber}.{i}", 0, 9)
+                    : Mathf.FloorToInt(EvaluateValue(valueExpression, null, runContext, 0));
+                result = result * 10 + Mathf.Clamp(digit, 0, 9);
+            }
+
+            return result;
+        }
+
+        private static int ExtractCount(string rawJson)
+        {
+            if (string.IsNullOrWhiteSpace(rawJson))
+                return 1;
+
+            const string key = "\"Count\":";
+            int index = rawJson.IndexOf(key, StringComparison.OrdinalIgnoreCase);
+            if (index < 0)
+                return 1;
+
+            int start = index + key.Length;
+            while (start < rawJson.Length && char.IsWhiteSpace(rawJson[start]))
+                start++;
+
+            int end = start;
+            while (end < rawJson.Length && char.IsDigit(rawJson[end]))
+                end++;
+
+            return int.TryParse(rawJson.Substring(start, end - start), NumberStyles.Integer, CultureInfo.InvariantCulture, out int count)
+                ? Mathf.Max(1, count)
+                : 1;
+        }
+
+        private static string SpecialBoxLabel(string target)
+        {
+            string normalized = NormalizeLookup(target);
+            if (normalized == "whalebox")
+                return "WHALE";
+            if (normalized == "stargazerbox" || normalized == "starbox" || normalized == "self")
+                return "STAR";
+            return "SPECIAL";
         }
 
         private static string NormalizeTiming(string value)

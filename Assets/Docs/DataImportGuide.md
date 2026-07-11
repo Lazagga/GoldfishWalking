@@ -22,6 +22,7 @@ Assets/Data/Generated
   MonsterPatternDatabase.asset
   FantasyDatabase.asset
   FantasyImportReport.json
+  MonsterImportReport.json
 ```
 
 Preferred flow:
@@ -157,12 +158,12 @@ Current behavior:
 - Malformed `Effects` JSON keeps the fantasy row with `rawEffects` preserved,
   empty `effects`, and an error in the import report.
 
-Current import result after repairing `fan_acquire_Candy`:
+Current import result:
 
 - Imported fantasies: 60.
 - Errors: 0.
 - Warnings: 0.
-- Skipped rows: 8 rows with missing `DataCode` and missing `Effects`.
+- Skipped rows: 12 rows with missing `DataCode` and missing `Effects`.
 
 `fan_acquire_Candy` was repaired by adding the missing closing `}` / `]` /
 backtick to its `Effects` cell:
@@ -233,6 +234,16 @@ MonsterPatternDefinition
 
 Current runtime `MonsterPatternData` is simpler than this target model. Expand
 it before importing the full monster/pattern TSV set.
+
+Current import/runtime note:
+
+- Current Monster TSV import result: 39 monsters, 33 patterns, 0 warnings, 0
+  errors.
+- Current pattern selection behavior is sequential cycling through each
+  monster's `PatternArray`.
+- `AIType` is parsed, but runtime random pattern selection is not active.
+- Do not add code-side typo correction for pattern keys unless the source data
+  intentionally changes again.
 
 ## Pattern Effects JSON
 
@@ -412,21 +423,17 @@ Monster data distribution:
 - 21 normal monsters, 9 elite monsters, and 9 boss monsters.
 - 23 static-AI monsters and 16 random-AI monsters.
 
-Current pattern JSON status from the xlsx inspection:
+Current pattern JSON status:
 
-- 29 pattern rows.
-- 25 valid JSON rows.
-- 4 malformed rows noted during inspection:
-  - `LittleWitchSkill`
-  - `JellyfishSkill`
-  - `KnightSkill`
-  - `CosmictreeHeal`
+- 33 pattern rows imported.
+- 0 pattern import warnings.
+- 0 pattern import errors.
 
 Current fantasy TSV status:
 
 - 68 source rows.
 - 60 imported fantasy rows.
-- 8 skipped incomplete rows with missing `DataCode` and missing `Effects`.
+- 12 skipped incomplete rows with missing `DataCode` and missing `Effects`.
 - `fan_acquire_Candy` fixed and imports without JSON errors.
 
 List fields such as `PatternArray` can use comma, semicolon, or pipe separators:

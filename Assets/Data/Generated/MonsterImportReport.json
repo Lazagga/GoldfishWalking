@@ -3,23 +3,11 @@
   "patternSourcePath": "Assets/Data/Raw/Pattern.tsv",
   "monsterDatabasePath": "Assets/Data/Generated/MonsterDatabase.asset",
   "patternDatabasePath": "Assets/Data/Generated/MonsterPatternDatabase.asset",
-  "generatedAt": "2026-07-08 18:13:21",
+  "generatedAt": "2026-07-11 15:16:31",
   "importedMonsterCount": 39,
   "importedPatternCount": 33,
-  "warnings": [
-    "Pattern row 25 (StargazerSingle): Effects is empty.",
-    "Pattern row 33 (WhaleSingle): Effects is empty.",
-    "Pattern row 34 (WhaleMulti): Effects is empty.",
-    "Pattern row 35 (WhaleStr): Effects is empty."
-  ],
-  "errors": [
-    "Pattern row 5 (LittleWitchSkill): Effects JSON parse failed: JsonToken EndArray is not valid for closing JsonType Object. Path 'Effects[0]', line 1, position 86.",
-    "Pattern row 21 (JellyfishSkill): Effects JSON parse failed: Invalid property identifier character: [. Path 'Effects', line 1, position 76.",
-    "Pattern row 24 (KnightSkill): Effects JSON parse failed: After parsing a value an unexpected character was encountered: :. Path 'Effects[0].Condition', line 1, position 69.",
-    "Pattern row 32 (CosmictreeHeal): Effects JSON parse failed: Unexpected end of content while loading JObject. Path 'Effects[0].Value', line 1, position 78."
-  ],
+  "warnings": [],
+  "errors": [],
   "skippedMonsterRows": [],
-  "skippedPatternRows": [
-    "Row 26: missing DataCode and Effects."
-  ]
+  "skippedPatternRows": []
 }

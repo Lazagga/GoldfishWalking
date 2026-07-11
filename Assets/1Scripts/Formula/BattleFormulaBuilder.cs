@@ -1,4 +1,5 @@
 using GoldfishWalking.Core;
+using GoldfishWalking.Fantasy;
 
 namespace GoldfishWalking.Formula
 {
@@ -21,17 +22,17 @@ namespace GoldfishWalking.Formula
             BattleFormulaState formula = new BattleFormulaState();
             int strength = runContext != null && runContext.strength > 0 ? runContext.strength : 0;
 
-            BuildPlayerDamageExpression(formula.damageExpression, strength, baseDamage);
-            BuildPlayerHitCountExpression(formula.hitCountExpression);
+            BuildPlayerDamageExpression(formula.damageExpression, strength, FantasyEffectRunner.TransformBattleNumber(runContext, baseDamage, true), ShouldSplitPlayerBoxes(runContext));
+            BuildPlayerHitCountExpression(formula.hitCountExpression, ShouldSplitPlayerBoxes(runContext));
 
             return formula;
         }
 
-        public BattleFormulaState BuildMonsterFormula(int damage, int hitCount = BaseMultiplier, bool hitCountEditable = false)
+        public BattleFormulaState BuildMonsterFormula(int damage, int hitCount = BaseMultiplier, bool hitCountEditable = false, RunContext runContext = null)
         {
             BattleFormulaState formula = new BattleFormulaState();
-            int monsterDamage = damage > 0 ? damage : 0;
-            int monsterHitCount = hitCount > 0 ? hitCount : 0;
+            int monsterDamage = damage > 0 ? FantasyEffectRunner.TransformBattleNumber(runContext, damage, false) : 0;
+            int monsterHitCount = hitCount > 0 ? FantasyEffectRunner.TransformBattleNumber(runContext, hitCount, false) : 0;
 
             formula.damageExpression.Clear();
             formula.damageExpression.boxes.Add(FormulaBox.Number("monster_damage", monsterDamage));
@@ -42,17 +43,28 @@ namespace GoldfishWalking.Formula
             return formula;
         }
 
-        private static void BuildPlayerDamageExpression(FormulaState expression, int strength, int baseDamage)
+        private static void BuildPlayerDamageExpression(FormulaState expression, int strength, int baseDamage, bool split)
         {
             expression.Clear();
             int digitCount = BaseDamageDigitCount + strength;
-            expression.boxes.Add(FormulaBox.Number("damage_base", baseDamage, digitCount: digitCount));
+            FormulaBox box = FormulaBox.Number("damage_base", baseDamage, digitCount: digitCount);
+            box.split = split;
+            expression.boxes.Add(box);
         }
 
-        private static void BuildPlayerHitCountExpression(FormulaState expression)
+        private static void BuildPlayerHitCountExpression(FormulaState expression, bool split)
         {
             expression.Clear();
-            expression.boxes.Add(FormulaBox.Number("hit_multiplier", BaseMultiplier, locked: true));
+            FormulaBox box = FormulaBox.Number("hit_multiplier", BaseMultiplier, locked: true);
+            box.split = split;
+            expression.boxes.Add(box);
+        }
+
+        private static bool ShouldSplitPlayerBoxes(RunContext runContext)
+        {
+            return runContext != null
+                && runContext.fantasyInventory != null
+                && runContext.fantasyInventory.Contains("fan_erase_sagittarius");
         }
     }
 }

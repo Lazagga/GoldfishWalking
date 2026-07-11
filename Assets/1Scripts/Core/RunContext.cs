@@ -44,6 +44,9 @@ namespace GoldfishWalking.Core
         public int lastAcquiredItemCount;
         public ItemType lastUsedItemType;
         public int lastShopPurchaseCost;
+        public int rewardRerolls;
+        public List<TimedStrengthModifier> timedPlayerStrengthModifiers = new List<TimedStrengthModifier>();
+        public List<TimedStrengthModifier> pendingEnemyStrengthModifiers = new List<TimedStrengthModifier>();
 
         public void StartNewRun(int newSeed, int startingHealth)
         {
@@ -109,7 +112,34 @@ namespace GoldfishWalking.Core
             committedBattleEditTemporaryErasers = 0;
             lastAcquiredItemCount = 0;
             lastShopPurchaseCost = 0;
+            rewardRerolls = 0;
+            timedPlayerStrengthModifiers.Clear();
+            pendingEnemyStrengthModifiers.Clear();
             itemInventory.ClearTemporary();
+        }
+
+        public void AddTimedPlayerStrength(int amount, int duration)
+        {
+            if (amount == 0 || duration <= 0)
+                return;
+
+            timedPlayerStrengthModifiers.Add(new TimedStrengthModifier
+            {
+                amount = amount,
+                remainingTurns = duration
+            });
+        }
+
+        public void QueueEnemyStrengthModifier(int amount, int duration)
+        {
+            if (amount == 0)
+                return;
+
+            pendingEnemyStrengthModifiers.Add(new TimedStrengthModifier
+            {
+                amount = amount,
+                remainingTurns = Math.Max(0, duration)
+            });
         }
 
         public void AddBattleDamageDebug(string source, int amount)
@@ -227,5 +257,12 @@ namespace GoldfishWalking.Core
         {
             return RollValue(purposeKey, minInclusive, maxInclusive);
         }
+    }
+
+    [Serializable]
+    public sealed class TimedStrengthModifier
+    {
+        public int amount;
+        public int remainingTurns;
     }
 }

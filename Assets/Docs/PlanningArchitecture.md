@@ -5,6 +5,8 @@ It is intended as the implementation baseline before large code changes.
 
 ## Current Project Shape
 
+Last status refresh: 2026-07-11.
+
 The old prototype ran mostly inside `Assets/Scenes/Game.unity`. During the
 rebuild, the user decided that scene was outdated and not Canvas-based enough.
 New full-game scene work should continue in:
@@ -400,18 +402,24 @@ Implemented fantasy effect groups:
 Known unimplemented fantasy/system gaps:
 
 - Cosmetic head fantasies require a player cosmetic/avatar attachment system.
-- Stencil requires a dynamic extra shop fantasy slot with once-per-shop state.
-- Enemy strength effects require real monster strength runtime and pattern
-  recalculation.
-- Stamp and blueprint require temporary/permanent fantasy copy or transform
-  logic plus selection UI.
-- Dice requires reward/fantasy reroll UI and state handling.
-- Aquarius requires advanced operator boxes. Only its movement penalty works.
+- Stamp requires temporary fantasy copy instances and battle cleanup.
+- Blueprint currently copies a random owned fantasy on acquire; add explicit
+  selection UI later if design requires player agency.
+- Dice reward reroll state exists, but reward/reroll UX still needs polish.
+- Aquarius is intentionally deferred because the effect is expected to change.
 - Sagittarius requires split boxes and whole-box erase behavior.
-- Gemini, domino, and apple pie require parse-time digit/value transformation
-  before formula evaluation.
-- Skipped Red source rows `61` through `66` require filled `DataCode` and
+- Skipped source rows `62` through `73` require filled `DataCode` and
   `Effects` source data before import/runtime implementation.
+
+Currently implemented special fantasy acquisition rules:
+
+- `fan_shop_stencil` opens the sixth shop slot. It offers one owned White
+  fantasy excluding stencil itself, uses a 2-digit price, and is buyable once
+  per shop.
+- `fan_rest_coffee` lets the player skip resting and claim a deterministic
+  random unowned White fantasy.
+- `fan_attack_animalfriends` is excluded from reward/shop pools and is obtained
+  by replacing the four animal cosmetic fantasies once all four are owned.
 
 ## Monster System
 
@@ -512,10 +520,13 @@ Current runtime behavior:
   `Attack` key is used to derive the attack formula when present.
 - Monster strength increases the damage digit count for later attack patterns.
 - Strength effects with no duration last until the battle ends.
-- Full JSON effect processing is still partial. Simple self heal/strength can
-  be applied, but `Condition`, `Duration`, `Split`, `Lock`, `Stun`, `Bleed`,
-  `Poison`, `Shield`, stack mechanics, lock damage, and dynamic formula values
-  still need dedicated runtime systems.
+- Current JSON effect processing covers the current imported data set's
+  conditions, phases, simple heal/strength, timed strength, dynamic damage
+  expressions, player bleed/poison, stack mechanics, and special editable
+  monster boxes.
+- Still future/polish work: split boxes, locked segments/boxes, shield
+  presentation, lock damage presentation, stun polish, and final timing/visuals
+  for status and fantasy damage.
 
 Pattern effects should support JSON-like authoring with:
 
@@ -873,15 +884,14 @@ source keys and does not intentionally maintain old typo-normalization paths.
 
 ## Immediate Next Step
 
-Battle now has imported monster/pattern data connected at a basic runtime
-level, but full monster effect resolution and several formula-box systems are
-still incomplete. The main non-battle state placeholders exist in
+Battle now has imported monster/pattern/fantasy data connected at a practical
+content-testing level. The main non-battle state placeholders exist in
 `Assets/Scenes/GumBwing_Er.unity`.
 
 Recommended next target:
 
-1. Expand monster pattern effect runtime for `Condition`, `Duration`, `Split`,
-   `Lock`, statuses, stacks, lock damage, and dynamic values.
+1. Run regression QA against the accumulated bug report and current imported
+   data.
 2. Add the missing formula infrastructure used by monster/fantasy effects:
    split boxes, locked segments/boxes, advanced operators, and digit/value
    transforms.

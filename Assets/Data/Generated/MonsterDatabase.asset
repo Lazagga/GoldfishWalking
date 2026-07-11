@@ -103,7 +103,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uAC1C\uAD6C\uB9AC"
     description: 
-    baseHealth: 450
+    baseHealth: 250
     baseStrength: 0
     aiType: 0
     patternIds:
@@ -124,7 +124,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uAC70\uB300 \uC0C8"
     description: 
-    baseHealth: 550
+    baseHealth: 225
     baseStrength: 0
     aiType: 0
     patternIds:
@@ -144,7 +144,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uB178\uC0C1\uAC15\uB3C4"
     description: 
-    baseHealth: 420
+    baseHealth: 250
     baseStrength: 0
     aiType: 0
     patternIds:
@@ -162,16 +162,16 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uD654\uC774\uD2B8 \uB798\uBE57"
     description: 
-    baseHealth: 650
+    baseHealth: 400
     baseStrength: 0
     aiType: 1
     patternIds:
-    - 1_Multi_1
+    - 2_Multi_1
     - 2_Single
-    - 1_Multi_1
+    - 2_Multi_1
     - 2_Single
     - Str_2
-    rawPatternArray: 1_Multi_1, 2_Single, 1_Multi_1, 2_Single, Str_2
+    rawPatternArray: 2_Multi_1, 2_Single, 2_Multi_1, 2_Single, Str_2
     sprite: 
   - id: Mob_10202_LittleWitch
     sourceId: 10202
@@ -184,7 +184,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uC791\uC740 \uB9C8\uB140"
     description: 
-    baseHealth: 550
+    baseHealth: 425
     baseStrength: 0
     aiType: 0
     patternIds:
@@ -204,7 +204,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uC0AC\uB0E5\uAFBC"
     description: 
-    baseHealth: 600
+    baseHealth: 450
     baseStrength: 0
     aiType: 0
     patternIds:
@@ -226,7 +226,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uD558\uD2B8 \uC5EC\uC655"
     description: 
-    baseHealth: 800
+    baseHealth: 600
     baseStrength: 0
     aiType: 0
     patternIds:
@@ -246,7 +246,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uB9C8\uB140"
     description: 
-    baseHealth: 1000
+    baseHealth: 750
     baseStrength: 0
     aiType: 0
     patternIds:
@@ -266,7 +266,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uC5D8\uD504"
     description: 
-    baseHealth: 750
+    baseHealth: 500
     baseStrength: 0
     aiType: 1
     patternIds:
@@ -285,7 +285,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uB208\uC0AC\uB78C"
     description: 
-    baseHealth: 700
+    baseHealth: 560
     baseStrength: 0
     aiType: 0
     patternIds:
@@ -305,7 +305,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uAC15\uB3C4"
     description: 
-    baseHealth: 650
+    baseHealth: 520
     baseStrength: 0
     aiType: 1
     patternIds:
@@ -323,7 +323,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uC720\uB839"
     description: 
-    baseHealth: 800
+    baseHealth: 640
     baseStrength: 0
     aiType: 1
     patternIds:
@@ -342,7 +342,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uB9C8\uC220\uC0AC"
     description: 
-    baseHealth: 850
+    baseHealth: 680
     baseStrength: 0
     aiType: 1
     patternIds:
@@ -362,7 +362,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uC790\uB3D9\uC778\uD615"
     description: 
-    baseHealth: 900
+    baseHealth: 720
     baseStrength: 0
     aiType: 0
     patternIds:
@@ -383,7 +383,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uC950"
     description: 
-    baseHealth: 700
+    baseHealth: 560
     baseStrength: 0
     aiType: 0
     patternIds:
@@ -403,7 +403,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uACBD\uBE44\uBCD1"
     description: 
-    baseHealth: 360
+    baseHealth: 297
     baseStrength: 0
     aiType: 0
     patternIds:
@@ -421,7 +421,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uC810\uC220\uC0AC"
     description: 
-    baseHealth: 1000
+    baseHealth: 800
     baseStrength: 0
     aiType: 1
     patternIds:
@@ -442,7 +442,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uC5F0\uAE08\uC220\uC0AC"
     description: 
-    baseHealth: 1200
+    baseHealth: 960
     baseStrength: 0
     aiType: 0
     patternIds:
@@ -461,7 +461,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uC9C0\uD718\uC790"
     description: 
-    baseHealth: 900
+    baseHealth: 720
     baseStrength: 0
     aiType: 1
     patternIds:
@@ -480,7 +480,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uD53C\uB9AC\uBD80\uB294\uC0AC\uB098\uC774"
     description: 
-    baseHealth: 1400
+    baseHealth: 1120
     baseStrength: 0
     aiType: 0
     patternIds:
@@ -500,7 +500,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uC5ED\uBCD1 \uC758\uC0AC"
     description: 
-    baseHealth: 1500
+    baseHealth: 1200
     baseStrength: 0
     aiType: 0
     patternIds:
@@ -519,7 +519,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uC608\uC5B8\uC790"
     description: 
-    baseHealth: 1650
+    baseHealth: 1320
     baseStrength: 0
     aiType: 1
     patternIds:
@@ -539,7 +539,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uAC15\uCCA0 \uD5C8\uC218\uC544\uBE44"
     description: 
-    baseHealth: 950
+    baseHealth: 900
     baseStrength: 0
     aiType: 0
     patternIds:
@@ -559,7 +559,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uD574\uD30C\uB9AC"
     description: 
-    baseHealth: 900
+    baseHealth: 800
     baseStrength: 0
     aiType: 0
     patternIds:
@@ -579,7 +579,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uAD6C\uCCB4"
     description: 
-    baseHealth: 1000
+    baseHealth: 850
     baseStrength: 0
     aiType: 0
     patternIds:
@@ -600,7 +600,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uC0AC\uC11C"
     description: 
-    baseHealth: 1100
+    baseHealth: 900
     baseStrength: 0
     aiType: 1
     patternIds:
@@ -619,7 +619,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uACE8\uB818"
     description: 
-    baseHealth: 1300
+    baseHealth: 1000
     baseStrength: 0
     aiType: 0
     patternIds:
@@ -697,7 +697,7 @@ MonoBehaviour:
     descStringId: 
     displayName: "\uAE30\uC0AC"
     description: 
-    baseHealth: 1200
+    baseHealth: 900
     baseStrength: 0
     aiType: 1
     patternIds:
@@ -785,7 +785,7 @@ MonoBehaviour:
     aiType: 1
     patternIds:
     - WhaleSingle
-    - WhaleStr
+    - WhalePhase2
     - WhaleMulti
-    rawPatternArray: WhaleSingle, WhaleStr, WhaleMulti
+    rawPatternArray: WhaleSingle, WhalePhase2, WhaleMulti
     sprite: 

@@ -29,6 +29,8 @@ namespace GoldfishWalking.Data
         public int value;
         public int hitCount = 1;
         public string attackKey;
+        public bool hasDynamicDamageValue;
+        public string damageValueExpression;
         public int damageDigitCount;
         public int hitDigitCount;
         public int strengthDelta;
@@ -59,6 +61,7 @@ namespace GoldfishWalking.Data
     {
         private static readonly Regex SingleRegex = new Regex(@"^(\d+)_single$", RegexOptions.IgnoreCase);
         private static readonly Regex MultiRegex = new Regex(@"^(\d+)_multi(?:_(\d+))?$", RegexOptions.IgnoreCase);
+        private static readonly Regex DynamicSingleRegex = new Regex(@"^([A-Za-z][A-Za-z0-9_]*)_single$", RegexOptions.IgnoreCase);
         private static readonly Regex StrengthRegex = new Regex(@"^str_(\-?\d+)$", RegexOptions.IgnoreCase);
 
         public static string NormalizePatternKey(string value)
@@ -83,6 +86,8 @@ namespace GoldfishWalking.Data
             pattern.value = 0;
             pattern.hitCount = 1;
             pattern.strengthDelta = 0;
+            pattern.hasDynamicDamageValue = false;
+            pattern.damageValueExpression = string.Empty;
 
             if (string.IsNullOrWhiteSpace(normalized) || normalized.Equals("Skip", StringComparison.OrdinalIgnoreCase))
                 return;
@@ -103,6 +108,18 @@ namespace GoldfishWalking.Data
                 pattern.patternType = MonsterPatternType.MultiHit;
                 pattern.damageDigitCount = ParsePositive(multi.Groups[1].Value, 2);
                 pattern.hitDigitCount = multi.Groups[2].Success ? ParsePositive(multi.Groups[2].Value, 1) : 1;
+                return;
+            }
+
+            System.Text.RegularExpressions.Match dynamicSingle = DynamicSingleRegex.Match(normalized);
+            if (dynamicSingle.Success)
+            {
+                pattern.patternType = MonsterPatternType.SingleHit;
+                pattern.damageDigitCount = 1;
+                pattern.hitDigitCount = 0;
+                pattern.hitCount = 1;
+                pattern.hasDynamicDamageValue = true;
+                pattern.damageValueExpression = dynamicSingle.Groups[1].Value;
                 return;
             }
 
