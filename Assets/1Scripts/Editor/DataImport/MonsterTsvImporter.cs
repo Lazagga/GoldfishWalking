@@ -161,6 +161,7 @@ namespace GoldfishWalking.Editor.DataImport
             {
                 JObject root = JObject.Parse(pattern.rawEffects);
                 ApplyAttackKey(pattern, ReadString(root, "Attack"));
+                pattern.condition = ReadString(root, "Condition");
 
                 JToken effectsToken = root["Effects"] ?? root["Effect"];
                 if (effectsToken == null || effectsToken.Type == JTokenType.Null)
@@ -185,6 +186,7 @@ namespace GoldfishWalking.Editor.DataImport
                         target = ReadString(obj, "Target"),
                         action = ReadString(obj, "Action"),
                         type = ReadString(obj, "Type"),
+                        condition = ReadString(obj, "Condition"),
                         valueExpression = ReadValueExpression(obj["Value"]),
                         duration = ParseInt(ReadValueExpression(obj["Duration"]), 0),
                         lockDamage = ParseBool(ReadValueExpression(obj["Lock"])),

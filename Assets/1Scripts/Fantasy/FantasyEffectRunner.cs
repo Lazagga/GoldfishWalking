@@ -49,8 +49,12 @@ namespace GoldfishWalking.Fantasy
             if (fantasy == null || runContext == null)
                 return;
 
+            int pendingBeforeSpecial = runContext.pendingMonsterDamage;
             if (ApplySpecialFantasy(fantasy, runContext, trigger))
+            {
+                LogPendingDamageDelta(fantasy, runContext, pendingBeforeSpecial);
                 return;
+            }
 
             if (fantasy.effects == null || fantasy.effects.Length == 0)
             {
@@ -66,7 +70,7 @@ namespace GoldfishWalking.Fantasy
                 if (!string.IsNullOrWhiteSpace(trigger) && !TriggerMatches(effect.trigger, trigger))
                     continue;
 
-                ApplyEffect(effect, runContext);
+                ApplyEffect(fantasy, effect, runContext);
             }
         }
 
@@ -161,8 +165,8 @@ namespace GoldfishWalking.Fantasy
                     {
                         int convertedMoves = Mathf.Max(0, runContext.remainingMoveCount);
                         runContext.remainingMoveCount = 0;
-                        runContext.itemInventory.Add(ItemType.ExtraMatch, convertedMoves);
-                        runContext.itemInventory.Add(ItemType.Eraser, convertedMoves);
+                        runContext.itemInventory.AddTemporary(ItemType.ExtraMatch, convertedMoves);
+                        runContext.itemInventory.AddTemporary(ItemType.Eraser, convertedMoves);
                         GameEventHub.RaiseItemInventoryChanged();
                         return true;
                     }
@@ -222,11 +226,12 @@ namespace GoldfishWalking.Fantasy
             return false;
         }
 
-        private void ApplyEffect(FantasyEffectData effect, RunContext runContext)
+        private void ApplyEffect(FantasyData fantasy, FantasyEffectData effect, RunContext runContext)
         {
             string target = NormalizeTarget(effect.target);
             string calc = Normalize(effect.calc);
             float value = EvaluateValue(effect.valueExpression, runContext);
+            int pendingBefore = runContext.pendingMonsterDamage;
 
             switch (target)
             {
@@ -239,6 +244,11 @@ namespace GoldfishWalking.Fantasy
                     int itemCount = Mathf.FloorToInt(value);
                     if (TriggerMatches(effect.trigger, "Acquire_Item") && runContext.lastAcquiredItemCount > 0)
                         runContext.itemInventory.Add(runContext.lastAcquiredItemType, itemCount * runContext.lastAcquiredItemCount);
+                    else if (IsTemporaryItemGrant(effect.trigger))
+                    {
+                        runContext.itemInventory.AddTemporary(ItemType.ExtraMatch, itemCount);
+                        runContext.itemInventory.AddTemporary(ItemType.Eraser, itemCount);
+                    }
                     else
                     {
                         runContext.itemInventory.Add(ItemType.ExtraMatch, itemCount);
@@ -247,11 +257,11 @@ namespace GoldfishWalking.Fantasy
                     GameEventHub.RaiseItemInventoryChanged();
                     break;
                 case "extramatch":
-                    runContext.itemInventory.Add(ItemType.ExtraMatch, Mathf.FloorToInt(value));
+                    AddItemByLifetime(runContext, ItemType.ExtraMatch, Mathf.FloorToInt(value), effect.trigger);
                     GameEventHub.RaiseItemInventoryChanged();
                     break;
                 case "eraser":
-                    runContext.itemInventory.Add(ItemType.Eraser, Mathf.FloorToInt(value));
+                    AddItemByLifetime(runContext, ItemType.Eraser, Mathf.FloorToInt(value), effect.trigger);
                     GameEventHub.RaiseItemInventoryChanged();
                     break;
                 case "strength":
@@ -264,9 +274,11 @@ namespace GoldfishWalking.Fantasy
                 case "damage":
                 case "additionaldamage":
                     runContext.pendingMonsterDamage = ApplyCalculation(runContext.pendingMonsterDamage, calc, value);
+                    LogPendingDamageDelta(fantasy, runContext, pendingBefore);
                     break;
                 case "damagereflect":
                     runContext.pendingMonsterDamage += CalculateReflectDamage(runContext, calc, value);
+                    LogPendingDamageDelta(fantasy, runContext, pendingBefore);
                     break;
             }
         }
@@ -302,6 +314,22 @@ namespace GoldfishWalking.Fantasy
             }
 
             return false;
+        }
+
+        private static void AddItemByLifetime(RunContext runContext, ItemType itemType, int count, string trigger)
+        {
+            if (IsTemporaryItemGrant(trigger))
+                runContext.itemInventory.AddTemporary(itemType, count);
+            else
+                runContext.itemInventory.Add(itemType, count);
+        }
+
+        private static bool IsTemporaryItemGrant(string trigger)
+        {
+            string normalized = NormalizeTrigger(trigger);
+            return normalized == NormalizeTrigger("Battle_Start")
+                || normalized == NormalizeTrigger("Turn_Start")
+                || normalized.StartsWith("turn");
         }
 
         private static string Normalize(string value)
@@ -374,6 +402,27 @@ namespace GoldfishWalking.Fantasy
                 default:
                     return Mathf.FloorToInt(value);
             }
+        }
+
+        private static void LogPendingDamageDelta(FantasyData fantasy, RunContext runContext, int pendingBefore)
+        {
+            if (fantasy == null || runContext == null)
+                return;
+
+            int delta = runContext.pendingMonsterDamage - pendingBefore;
+            if (delta <= 0)
+                return;
+
+            runContext.AddBattleDamageDebug($"Fantasy {DisplayName(fantasy)}", delta);
+        }
+
+        private static string DisplayName(FantasyData fantasy)
+        {
+            if (!string.IsNullOrWhiteSpace(fantasy.displayName))
+                return fantasy.displayName;
+            if (!string.IsNullOrWhiteSpace(fantasy.devName))
+                return fantasy.devName;
+            return !string.IsNullOrWhiteSpace(fantasy.id) ? fantasy.id : "Unknown";
         }
 
         private static float NormalizePercent(float value)

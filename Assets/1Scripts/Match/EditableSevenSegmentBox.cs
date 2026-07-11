@@ -413,6 +413,8 @@ namespace GoldfishWalking.Match
         private Text eraserCountText;
         private int spentExtraMatches;
         private int spentErasers;
+        private int spentTemporaryExtraMatches;
+        private int spentTemporaryErasers;
 
         public static void Open(EditableSevenSegmentBox owner)
         {
@@ -647,8 +649,11 @@ namespace GoldfishWalking.Match
             }
 
             owner.SetValueFromPopup(editingBox.numberValue, session.slots, CurrentDigitCount());
+            RegisterCommittedItemSpend(spentExtraMatches, spentTemporaryExtraMatches, spentErasers, spentTemporaryErasers);
             spentExtraMatches = 0;
             spentErasers = 0;
+            spentTemporaryExtraMatches = 0;
+            spentTemporaryErasers = 0;
             GameEventHub.RaiseItemInventoryChanged();
             ClosePopup();
         }
@@ -698,7 +703,7 @@ namespace GoldfishWalking.Match
                 return;
             }
 
-            if (!inventory.TryConsume(ItemType.ExtraMatch))
+            if (!inventory.TryConsume(ItemType.ExtraMatch, out bool consumedTemporary))
             {
                 ShowMessage("No extra matches left.");
                 return;
@@ -718,7 +723,7 @@ namespace GoldfishWalking.Match
                 return;
             }
 
-            spentExtraMatches++;
+            TrackSpentExtraMatch(consumedTemporary);
             RegisterBattleItemUse();
             ApplyItemUseEffects(ItemType.ExtraMatch);
             itemMode = ItemEditMode.None;
@@ -757,7 +762,7 @@ namespace GoldfishWalking.Match
                 return;
             }
 
-            if (!inventory.TryConsume(ItemType.ExtraMatch))
+            if (!inventory.TryConsume(ItemType.ExtraMatch, out bool consumedTemporary))
             {
                 ShowMessage("No extra matches left.");
                 return;
@@ -787,7 +792,7 @@ namespace GoldfishWalking.Match
                 return;
             }
 
-            spentExtraMatches++;
+            TrackSpentExtraMatch(consumedTemporary);
             RegisterBattleItemUse();
             ApplyItemUseEffects(ItemType.ExtraMatch);
             itemMode = ItemEditMode.None;
@@ -848,7 +853,7 @@ namespace GoldfishWalking.Match
             }
 
             bool erasingAddedMatch = slot.piece.IsAdded;
-            if (!inventory.TryConsume(ItemType.Eraser))
+            if (!inventory.TryConsume(ItemType.Eraser, out bool consumedTemporary))
             {
                 ShowMessage("No erasers left.");
                 return;
@@ -863,15 +868,25 @@ namespace GoldfishWalking.Match
                 return;
             }
 
-            spentErasers++;
+            TrackSpentEraser(consumedTemporary);
             RegisterBattleItemUse();
             ApplyItemUseEffects(ItemType.Eraser);
             if (erasingAddedMatch)
             {
-                if (spentExtraMatches > 0)
+                if (spentTemporaryExtraMatches > 0)
+                {
+                    spentTemporaryExtraMatches--;
+                    inventory.AddTemporary(ItemType.ExtraMatch, 1);
+                }
+                else if (spentExtraMatches > 0)
+                {
                     spentExtraMatches--;
-                else
                     inventory.Add(ItemType.ExtraMatch, 1);
+                }
+                else
+                {
+                    inventory.Add(ItemType.ExtraMatch, 1);
+                }
             }
 
             itemMode = ItemEditMode.None;
@@ -889,9 +904,15 @@ namespace GoldfishWalking.Match
                 inventory.Add(ItemType.ExtraMatch, spentExtraMatches);
             if (spentErasers > 0)
                 inventory.Add(ItemType.Eraser, spentErasers);
+            if (spentTemporaryExtraMatches > 0)
+                inventory.AddTemporary(ItemType.ExtraMatch, spentTemporaryExtraMatches);
+            if (spentTemporaryErasers > 0)
+                inventory.AddTemporary(ItemType.Eraser, spentTemporaryErasers);
 
             spentExtraMatches = 0;
             spentErasers = 0;
+            spentTemporaryExtraMatches = 0;
+            spentTemporaryErasers = 0;
             GameEventHub.RaiseItemInventoryChanged();
         }
 
@@ -909,9 +930,31 @@ namespace GoldfishWalking.Match
                 return;
 
             if (spentExtraMatches > 0)
+            {
                 spentExtraMatches--;
+                inventory.Add(ItemType.ExtraMatch, 1);
+            }
+            else if (spentTemporaryExtraMatches > 0)
+            {
+                spentTemporaryExtraMatches--;
+                inventory.AddTemporary(ItemType.ExtraMatch, 1);
+            }
+        }
 
-            inventory.Add(ItemType.ExtraMatch, 1);
+        private void TrackSpentExtraMatch(bool consumedTemporary)
+        {
+            if (consumedTemporary)
+                spentTemporaryExtraMatches++;
+            else
+                spentExtraMatches++;
+        }
+
+        private void TrackSpentEraser(bool consumedTemporary)
+        {
+            if (consumedTemporary)
+                spentTemporaryErasers++;
+            else
+                spentErasers++;
         }
 
         private static void RegisterBattleItemUse()
@@ -926,6 +969,16 @@ namespace GoldfishWalking.Match
             GameBootstrap bootstrap = FindFirstObjectByType<GameBootstrap>(FindObjectsInactive.Include);
             if (bootstrap != null && bootstrap.RunContext != null)
                 new FantasyEffectRunner().ApplyItemUsedEffects(bootstrap.RunContext, itemType);
+        }
+
+        private static void RegisterCommittedItemSpend(int extraMatches, int temporaryExtraMatches, int erasers, int temporaryErasers)
+        {
+            GameBootstrap bootstrap = FindFirstObjectByType<GameBootstrap>(FindObjectsInactive.Include);
+            if (bootstrap == null || bootstrap.RunContext == null)
+                return;
+
+            bootstrap.RunContext.RegisterBattleEditItemSpend(ItemType.ExtraMatch, extraMatches, temporaryExtraMatches);
+            bootstrap.RunContext.RegisterBattleEditItemSpend(ItemType.Eraser, erasers, temporaryErasers);
         }
 
         private void ShowHeldPreview()

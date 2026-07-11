@@ -14,6 +14,34 @@ namespace GoldfishWalking.Battle
 
             MonsterGrade grade = ToMonsterGrade(nodeType);
             int act = runContext != null ? runContext.act : 1;
+            if (act == 1 && grade == MonsterGrade.Normal && runContext != null)
+            {
+                if (runContext.roomIndex == 0)
+                {
+                    MonsterData fairy = database.monsters.Find(monster =>
+                        monster != null
+                        && monster.act == 1
+                        && monster.grade == MonsterGrade.Normal
+                        && (monster.dataName == "Mob_10101_Fairy" || monster.devName == "요정"));
+                    if (fairy != null)
+                        return fairy;
+                }
+
+                if (runContext.roomIndex == 1 || runContext.roomIndex == 2)
+                {
+                    List<MonsterData> easyCandidates = database.monsters.FindAll(monster =>
+                        monster != null
+                        && monster.act == 1
+                        && monster.grade == MonsterGrade.Normal
+                        && monster.difficulty == MonsterDifficulty.Easy);
+                    if (easyCandidates.Count > 0)
+                    {
+                        int easyIndex = runContext.RollValue($"monster.select.act1.easy.floor.{runContext.roomIndex}", 0, easyCandidates.Count - 1);
+                        return easyCandidates[easyIndex];
+                    }
+                }
+            }
+
             List<MonsterData> candidates = database.monsters.FindAll(monster =>
                 monster != null && monster.act == act && monster.grade == grade);
 

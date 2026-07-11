@@ -32,6 +32,7 @@ namespace GoldfishWalking.Data
         public int damageDigitCount;
         public int hitDigitCount;
         public int strengthDelta;
+        public string condition;
         public string rawEffects;
         public MonsterPatternEffectData[] effects = Array.Empty<MonsterPatternEffectData>();
         public string sprite;
@@ -45,6 +46,7 @@ namespace GoldfishWalking.Data
         public string target;
         public string action;
         public string type;
+        public string condition;
         public string valueExpression;
         public bool hasNumericValue;
         public float numericValue;
@@ -56,7 +58,7 @@ namespace GoldfishWalking.Data
     public static class MonsterPatternKeyUtility
     {
         private static readonly Regex SingleRegex = new Regex(@"^(\d+)_single$", RegexOptions.IgnoreCase);
-        private static readonly Regex MultiRegex = new Regex(@"^(\d+)_multi_(\d+)$", RegexOptions.IgnoreCase);
+        private static readonly Regex MultiRegex = new Regex(@"^(\d+)_multi(?:_(\d+))?$", RegexOptions.IgnoreCase);
         private static readonly Regex StrengthRegex = new Regex(@"^str_(\-?\d+)$", RegexOptions.IgnoreCase);
 
         public static string NormalizePatternKey(string value)
@@ -100,7 +102,7 @@ namespace GoldfishWalking.Data
             {
                 pattern.patternType = MonsterPatternType.MultiHit;
                 pattern.damageDigitCount = ParsePositive(multi.Groups[1].Value, 2);
-                pattern.hitDigitCount = ParsePositive(multi.Groups[2].Value, 1);
+                pattern.hitDigitCount = multi.Groups[2].Success ? ParsePositive(multi.Groups[2].Value, 1) : 1;
                 return;
             }
 

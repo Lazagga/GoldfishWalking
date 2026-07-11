@@ -1,4 +1,5 @@
 using GoldfishWalking.Data;
+using System.Collections.Generic;
 
 namespace GoldfishWalking.Battle
 {
@@ -7,8 +8,14 @@ namespace GoldfishWalking.Battle
         public MonsterData Data { get; }
         public int CurrentHealth { get; private set; }
         public int Strength { get; private set; }
+        public int StunTurns { get; private set; }
+        public int Shield { get; private set; }
+        public int FortuneStack { get; private set; }
+        public int ProphecyStack { get; private set; }
+        public List<ScheduledMonsterPatternEffect> ScheduledEffects { get; } = new List<ScheduledMonsterPatternEffect>();
 
         public bool IsDead => CurrentHealth <= 0;
+        public bool IsStunned => StunTurns > 0;
 
         public MonsterRuntime(MonsterData data)
         {
@@ -19,6 +26,13 @@ namespace GoldfishWalking.Battle
 
         public void ApplyDamage(int amount)
         {
+            if (amount > 0 && Shield > 0)
+            {
+                int blocked = amount < Shield ? amount : Shield;
+                Shield -= blocked;
+                amount -= blocked;
+            }
+
             CurrentHealth -= amount;
         }
 
@@ -36,5 +50,57 @@ namespace GoldfishWalking.Battle
         {
             Strength = value;
         }
+
+        public void ChangeStun(int amount)
+        {
+            StunTurns = System.Math.Max(0, StunTurns + amount);
+        }
+
+        public void SetStun(int value)
+        {
+            StunTurns = System.Math.Max(0, value);
+        }
+
+        public void ChangeShield(int amount)
+        {
+            Shield = System.Math.Max(0, Shield + amount);
+        }
+
+        public void SetShield(int value)
+        {
+            Shield = System.Math.Max(0, value);
+        }
+
+        public void ChangeFortuneStack(int amount)
+        {
+            FortuneStack = System.Math.Max(0, FortuneStack + amount);
+        }
+
+        public void SetFortuneStack(int value)
+        {
+            FortuneStack = System.Math.Max(0, value);
+        }
+
+        public void ChangeProphecyStack(int amount)
+        {
+            ProphecyStack = System.Math.Max(0, ProphecyStack + amount);
+        }
+
+        public void SetProphecyStack(int value)
+        {
+            ProphecyStack = System.Math.Max(0, value);
+        }
+
+        public void AdvanceTurnDurations()
+        {
+            if (StunTurns > 0)
+                StunTurns--;
+        }
+    }
+
+    public sealed class ScheduledMonsterPatternEffect
+    {
+        public MonsterPatternEffectData effect;
+        public int triggerTurn;
     }
 }

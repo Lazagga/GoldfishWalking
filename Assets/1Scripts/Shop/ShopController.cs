@@ -32,7 +32,7 @@ namespace GoldfishWalking.Shop
             if (bootstrap == null || bootstrap.RunContext == null)
                 return false;
 
-            if (amount <= 0 || bootstrap.RunContext.health <= amount)
+            if (amount < 0 || bootstrap.RunContext.health <= amount)
                 return false;
 
             bootstrap.RunContext.health -= amount;

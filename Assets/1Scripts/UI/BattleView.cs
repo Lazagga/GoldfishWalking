@@ -1,10 +1,16 @@
 using GoldfishWalking.Battle;
 using GoldfishWalking.Core;
 using GoldfishWalking.Data;
+using GoldfishWalking.Fantasy;
 using GoldfishWalking.Match;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace GoldfishWalking.UI
 {
@@ -12,6 +18,7 @@ namespace GoldfishWalking.UI
     {
         [SerializeField] private BattleController battleController;
         [SerializeField] private GameBootstrap bootstrap;
+        [SerializeField] private FantasyDatabase fantasyDatabase;
         [FormerlySerializedAs("endTurnButton")]
         [SerializeField] private Button resolveBattleButton;
         [SerializeField] private Button resetButton;
@@ -23,6 +30,7 @@ namespace GoldfishWalking.UI
         private readonly Color healthColor = new Color(1f, 0.32f, 0.32f, 1f);
         private readonly Color greenColor = new Color(0.13f, 0.86f, 0.43f, 1f);
         private readonly Color cyanColor = new Color(0.24f, 0.74f, 0.90f, 1f);
+        private readonly FantasyEffectRunner fantasyEffectRunner = new FantasyEffectRunner();
 
         private RectTransform layoutRoot;
         private RectTransform fantasyContent;
@@ -30,7 +38,14 @@ namespace GoldfishWalking.UI
         private Text healthText;
         private Text monsterNameText;
         private Text monsterHealthText;
+        private Text monsterBuffText;
         private Text moveCountText;
+        private Text damageDebugText;
+        private InputField debugFantasyInput;
+        private RectTransform fantasyTooltipRoot;
+        private Text fantasyTooltipName;
+        private Text fantasyTooltipDescription;
+        private Text fantasyTooltipEffect;
         private EditableSevenSegmentBox playerDamageBox;
         private EditableSevenSegmentBox monsterDamageBox;
         private EditableSevenSegmentBox monsterHitCountBox;
@@ -72,6 +87,8 @@ namespace GoldfishWalking.UI
                 battleController = FindFirstObjectByType<BattleController>(FindObjectsInactive.Include);
             if (bootstrap == null)
                 bootstrap = FindFirstObjectByType<GameBootstrap>(FindObjectsInactive.Include);
+            if (fantasyDatabase == null)
+                fantasyDatabase = FindFirstFantasyDatabase();
         }
 
         private void HideScenePlaceholders()
@@ -124,6 +141,9 @@ namespace GoldfishWalking.UI
             CreateMonsterStatusPanel();
             CreateCombatArea();
             CreateBottomInventory();
+            CreateDamageDebugPanel();
+            CreateDebugFantasyConsole();
+            CreateFantasyTooltip();
             CreateResetButton();
             CreateResolveButton();
         }
@@ -230,6 +250,52 @@ namespace GoldfishWalking.UI
             monsterDamageBox = CreateFormulaNumberBox(formulaContent, "MonsterDamage", GetMonsterBaseDamage(), new Vector2(-330f, 0f), new Vector2(188f, 98f), healthColor, OnMonsterDamageDifferenceChanged, OnMonsterDamageEdited, true);
             CreateFormulaOperator(formulaContent, "x", new Vector2(-192f, 0f), new Vector2(92f, 98f), healthColor, true);
             monsterHitCountBox = CreateFormulaNumberBox(formulaContent, "MonsterHitCount", GetMonsterHitCount(), new Vector2(-54f, 0f), new Vector2(172f, 98f), healthColor, OnMonsterHitDifferenceChanged, OnMonsterHitCountEdited, true);
+
+            monsterBuffText = CreateText("MonsterBuffs", panel, "-", 18, cyanColor, TextAnchor.MiddleCenter);
+            SetRect(monsterBuffText.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, -58f), new Vector2(-22f, 38f));
+        }
+
+        private void CreateDamageDebugPanel()
+        {
+            RectTransform panel = CreatePanel("DamageDebugPanel", layoutRoot, new Color(0.10f, 0.11f, 0.15f, 0.88f), new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-300f, 250f), new Vector2(430f, 150f));
+            damageDebugText = CreateText("DamageDebugText", panel, "Damage log -", 16, textColor, TextAnchor.UpperLeft);
+            SetRect(damageDebugText.rectTransform, Vector2.zero, Vector2.one, new Vector2(0f, -8f), new Vector2(-24f, -18f));
+        }
+
+        private void CreateDebugFantasyConsole()
+        {
+            RectTransform panel = CreatePanel("DebugFantasyConsole", layoutRoot, new Color(0.10f, 0.11f, 0.15f, 0.88f), new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(300f, 250f), new Vector2(484f, 120f));
+
+            RectTransform inputRoot = CreatePanel("Input", panel, slotColor, new Vector2(0f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-64f, 10f), new Vector2(-156f, 44f));
+            debugFantasyInput = inputRoot.gameObject.AddComponent<InputField>();
+            Text inputText = CreateText("Text", inputRoot, string.Empty, 18, textColor, TextAnchor.MiddleLeft);
+            SetRect(inputText.rectTransform, Vector2.zero, Vector2.one, new Vector2(8f, 0f), new Vector2(-16f, -4f));
+            Text placeholder = CreateText("Placeholder", inputRoot, "fantasy id", 18, new Color(0.65f, 0.68f, 0.76f, 1f), TextAnchor.MiddleLeft);
+            SetRect(placeholder.rectTransform, Vector2.zero, Vector2.one, new Vector2(8f, 0f), new Vector2(-16f, -4f));
+            debugFantasyInput.textComponent = inputText;
+            debugFantasyInput.placeholder = placeholder;
+            debugFantasyInput.onEndEdit.AddListener(value =>
+            {
+                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+                    AddDebugFantasy();
+            });
+
+            Button addButton = CreatePanel("AddButton", panel, panelColor, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-54f, 10f), new Vector2(92f, 46f)).gameObject.AddComponent<Button>();
+            Text addText = CreateText("Label", addButton.transform, "ADD", 18, greenColor, TextAnchor.MiddleCenter);
+            SetRect(addText.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            addButton.onClick.AddListener(AddDebugFantasy);
+        }
+
+        private void CreateFantasyTooltip()
+        {
+            fantasyTooltipRoot = CreatePanel("FantasyTooltip", layoutRoot, new Color(0.08f, 0.09f, 0.12f, 0.98f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-560f, -38f), new Vector2(380f, 250f));
+            fantasyTooltipName = CreateText("Name", fantasyTooltipRoot, string.Empty, 20, textColor, TextAnchor.UpperCenter);
+            SetRect(fantasyTooltipName.rectTransform, new Vector2(0f, 0.72f), Vector2.one, new Vector2(0f, -14f), new Vector2(-24f, -12f));
+            fantasyTooltipDescription = CreateText("Description", fantasyTooltipRoot, string.Empty, 16, textColor, TextAnchor.UpperLeft);
+            SetRect(fantasyTooltipDescription.rectTransform, new Vector2(0f, 0.32f), new Vector2(1f, 0.76f), new Vector2(0f, -8f), new Vector2(-28f, -8f));
+            fantasyTooltipEffect = CreateText("Effect", fantasyTooltipRoot, string.Empty, 14, cyanColor, TextAnchor.UpperLeft);
+            SetRect(fantasyTooltipEffect.rectTransform, Vector2.zero, new Vector2(1f, 0.33f), new Vector2(0f, 8f), new Vector2(-28f, -8f));
+            fantasyTooltipRoot.gameObject.SetActive(false);
         }
 
         private EditableSevenSegmentBox CreateFormulaNumberBox(RectTransform parent, string name, int value, Vector2 position, Vector2 size, Color color, UnityEngine.Events.UnityAction<int> onDifferenceChanged, UnityEngine.Events.UnityAction<int> onValueChanged, bool rightAnchor = false, int minimumDigits = 0)
@@ -314,6 +380,7 @@ namespace GoldfishWalking.UI
             RefreshFormulaValues();
             RefreshFantasySlots();
             RefreshConsumables();
+            RefreshDamageDebug();
             RefreshMoveCounter();
         }
 
@@ -325,6 +392,8 @@ namespace GoldfishWalking.UI
                 monsterHealthText.text = battleController != null
                     ? $"{battleController.MonsterCurrentHealth} / {battleController.MonsterMaxHealth}"
                     : "0 / 1";
+            if (monsterBuffText != null)
+                monsterBuffText.text = battleController != null ? battleController.MonsterStatusSummary : "-";
         }
 
         private void RefreshFantasySlots()
@@ -351,7 +420,15 @@ namespace GoldfishWalking.UI
 
                 Text icon = CreateText("FantasyIcon", slot, "★", 29, GradeColor(fantasy.grade), TextAnchor.MiddleCenter);
                 SetRect(icon.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+                FantasyTooltipTrigger trigger = slot.gameObject.AddComponent<FantasyTooltipTrigger>();
+                trigger.Initialize(this, fantasy);
             }
+        }
+
+        private void RefreshDamageDebug()
+        {
+            if (damageDebugText != null)
+                damageDebugText.text = battleController != null ? battleController.DamageDebugSummary : "Damage log -";
         }
 
         private void RefreshConsumables()
@@ -458,6 +535,116 @@ namespace GoldfishWalking.UI
             }
         }
 
+        private void AddDebugFantasy()
+        {
+            if (bootstrap == null || bootstrap.RunContext == null || debugFantasyInput == null)
+                return;
+
+            FantasyData fantasy = FindFantasy(debugFantasyInput.text);
+            if (fantasy == null)
+            {
+                Debug.LogWarning($"[BattleView] Fantasy not found: {debugFantasyInput.text}");
+                return;
+            }
+
+            bool alreadyOwned = bootstrap.RunContext.fantasyInventory.Contains(fantasy.id);
+            bootstrap.RunContext.fantasyInventory.Add(fantasy);
+            if (!alreadyOwned)
+            {
+                fantasyEffectRunner.Apply(fantasy, bootstrap.RunContext, "On_Acquire");
+                fantasyEffectRunner.Apply(fantasy, bootstrap.RunContext, "Acquire");
+            }
+
+            debugFantasyInput.text = string.Empty;
+            Refresh();
+            Debug.Log($"[BattleView] Added debug fantasy: {fantasy.id}");
+        }
+
+        private FantasyData FindFantasy(string id)
+        {
+            string lookup = (id ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(lookup))
+                return null;
+
+            FantasyDatabase database = fantasyDatabase != null ? fantasyDatabase : FindFirstFantasyDatabase();
+            if (database == null || database.fantasies == null)
+                return null;
+
+            for (int i = 0; i < database.fantasies.Count; i++)
+            {
+                FantasyData fantasy = database.fantasies[i];
+                if (fantasy == null)
+                    continue;
+                if (fantasy.id == lookup || fantasy.dataCode == lookup || fantasy.devName == lookup || fantasy.displayName == lookup)
+                    return fantasy;
+            }
+
+            return null;
+        }
+
+        private static FantasyDatabase FindFirstFantasyDatabase()
+        {
+            FantasyDatabase[] databases = Resources.FindObjectsOfTypeAll<FantasyDatabase>();
+            if (databases != null && databases.Length > 0)
+                return databases[0];
+
+#if UNITY_EDITOR
+            return AssetDatabase.LoadAssetAtPath<FantasyDatabase>("Assets/Data/Generated/FantasyDatabase.asset");
+#else
+            return null;
+#endif
+        }
+
+        private void ShowFantasyTooltip(FantasyData fantasy)
+        {
+            if (fantasyTooltipRoot == null || fantasy == null)
+                return;
+
+            fantasyTooltipName.text = DisplayName(fantasy);
+            fantasyTooltipDescription.text = DescriptionText(fantasy);
+            fantasyTooltipEffect.text = EffectSummary(fantasy);
+            fantasyTooltipRoot.gameObject.SetActive(true);
+        }
+
+        private void HideFantasyTooltip()
+        {
+            if (fantasyTooltipRoot != null)
+                fantasyTooltipRoot.gameObject.SetActive(false);
+        }
+
+        private static string DisplayName(FantasyData fantasy)
+        {
+            if (fantasy == null)
+                return string.Empty;
+            if (!string.IsNullOrWhiteSpace(fantasy.displayName))
+                return fantasy.displayName;
+            if (!string.IsNullOrWhiteSpace(fantasy.devName))
+                return fantasy.devName;
+            return fantasy.id;
+        }
+
+        private static string DescriptionText(FantasyData fantasy)
+        {
+            if (fantasy == null)
+                return string.Empty;
+            if (!string.IsNullOrWhiteSpace(fantasy.description))
+                return fantasy.description;
+            return fantasy.descStringId;
+        }
+
+        private static string EffectSummary(FantasyData fantasy)
+        {
+            if (fantasy == null || fantasy.effects == null || fantasy.effects.Length == 0)
+                return string.Empty;
+
+            FantasyEffectData effect = fantasy.effects[0];
+            string trigger = !string.IsNullOrWhiteSpace(effect.trigger) ? effect.trigger : fantasy.triggerType;
+            string target = !string.IsNullOrWhiteSpace(effect.target) ? effect.target : "Effect";
+            string calc = !string.IsNullOrWhiteSpace(effect.calc) ? effect.calc : "Apply";
+            string value = !string.IsNullOrWhiteSpace(effect.valueExpression) ? effect.valueExpression : "0";
+            return $"{trigger} / {target} / {calc} {value}";
+        }
+
         private void OnResolveBattleClicked()
         {
             if (battleController != null)
@@ -540,6 +727,28 @@ namespace GoldfishWalking.UI
 
             for (int i = root.childCount - 1; i >= 0; i--)
                 Destroy(root.GetChild(i).gameObject);
+        }
+
+        private sealed class FantasyTooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+        {
+            private BattleView owner;
+            private FantasyData fantasy;
+
+            public void Initialize(BattleView tooltipOwner, FantasyData tooltipFantasy)
+            {
+                owner = tooltipOwner;
+                fantasy = tooltipFantasy;
+            }
+
+            public void OnPointerEnter(PointerEventData eventData)
+            {
+                owner?.ShowFantasyTooltip(fantasy);
+            }
+
+            public void OnPointerExit(PointerEventData eventData)
+            {
+                owner?.HideFantasyTooltip();
+            }
         }
     }
 }

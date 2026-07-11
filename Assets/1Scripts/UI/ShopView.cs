@@ -40,6 +40,7 @@ namespace GoldfishWalking.UI
         private Coroutine spendFloatRoutine;
         private readonly Dictionary<string, EditableSevenSegmentBox> priceBoxes = new Dictionary<string, EditableSevenSegmentBox>();
         private readonly Dictionary<string, Button> itemButtons = new Dictionary<string, Button>();
+        private readonly Dictionary<string, RectTransform> itemRoots = new Dictionary<string, RectTransform>();
 
         private void Awake()
         {
@@ -185,6 +186,7 @@ namespace GoldfishWalking.UI
             RectTransform itemRoot = CreateRect(item.id, layoutRoot, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
             itemRoot.anchoredPosition = centerPosition;
             itemRoot.sizeDelta = new Vector2(260f, 330f);
+            itemRoots[item.id] = itemRoot;
 
             RectTransform iconPanel = CreatePanel("IconPanel", itemRoot, panelColor, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -92f), new Vector2(216f, 216f));
             Text icon = CreateText("Icon", iconPanel, item.icon, 92, item.iconColor, TextAnchor.MiddleCenter);
@@ -240,10 +242,12 @@ namespace GoldfishWalking.UI
             if (shopController == null)
                 return;
 
+            bool boughtFantasy = false;
             if (TryGetShopFantasy(item, out FantasyData fantasy))
             {
                 if (!shopController.TryBuyFantasy(fantasy, price))
                     return;
+                boughtFantasy = true;
             }
             else if (TryGetPurchasedItemType(item.id, out ItemType itemType))
             {
@@ -259,7 +263,8 @@ namespace GoldfishWalking.UI
                 return;
             }
 
-            button.interactable = false;
+            if (boughtFantasy)
+                button.interactable = false;
             Refresh();
             PlaySpendFloat(price);
         }
@@ -347,7 +352,7 @@ namespace GoldfishWalking.UI
             if (box == null)
                 box = root.gameObject.AddComponent<EditableSevenSegmentBox>();
 
-            box.Configure(value, 0, priceMatchColor, newValue => OnPriceEdited(itemId, newValue));
+            box.Configure(value, GetMinDigits(itemId), priceMatchColor, newValue => OnPriceEdited(itemId, newValue));
             return box;
         }
 
@@ -359,7 +364,7 @@ namespace GoldfishWalking.UI
                 if (!priceBoxes.TryGetValue(item.id, out EditableSevenSegmentBox box) || box == null)
                     continue;
 
-                box.Configure(GetCurrentPrice(item), 0, priceMatchColor, newValue => OnPriceEdited(item.id, newValue));
+                box.Configure(GetCurrentPrice(item), GetMinDigits(item.id), priceMatchColor, newValue => OnPriceEdited(item.id, newValue));
             }
         }
 
@@ -412,6 +417,7 @@ namespace GoldfishWalking.UI
             switch (itemId)
             {
                 case "ShopFantasyWhite":
+                case "ShopItemPlaceholder":
                     grade = FantasyGrade.White;
                     return true;
                 case "ShopFantasyBlue":
@@ -450,8 +456,16 @@ namespace GoldfishWalking.UI
                 if (!itemButtons.TryGetValue(item.id, out Button button) || button == null)
                     continue;
 
+                if (itemRoots.TryGetValue(item.id, out RectTransform root) && root != null)
+                    root.gameObject.SetActive(ShouldShowItem(item.id));
+
+                if (!ShouldShowItem(item.id))
+                    continue;
+
                 if (TryGetShopFantasy(item, out FantasyData fantasy))
                     button.interactable = !shopController.IsFantasyPurchased(fantasy);
+                else
+                    button.interactable = true;
             }
         }
 
@@ -484,12 +498,46 @@ namespace GoldfishWalking.UI
 
         private static int GetMinPrice(ShopItem item)
         {
+            if (item.id == "ShopFantasyRed")
+                return 1000;
             return item.price < 100 ? 10 : 100;
         }
 
         private static int GetMaxPrice(ShopItem item)
         {
+            if (item.id == "ShopFantasyRed")
+                return 9999;
             return item.price < 100 ? 99 : 999;
+        }
+
+        private static int GetMinDigits(string itemId)
+        {
+            return itemId == "ShopFantasyRed" ? 4 : 0;
+        }
+
+        private bool ShouldShowItem(string itemId)
+        {
+            if (itemId != "ShopItemPlaceholder")
+                return true;
+
+            return shopController != null
+                && shopController.OwnedFantasies != null
+                && ContainsFantasy(shopController.OwnedFantasies, "fan_shop_stencil");
+        }
+
+        private static bool ContainsFantasy(IReadOnlyList<FantasyData> fantasies, string fantasyId)
+        {
+            if (fantasies == null)
+                return false;
+
+            for (int i = 0; i < fantasies.Count; i++)
+            {
+                FantasyData fantasy = fantasies[i];
+                if (fantasy != null && fantasy.id == fantasyId)
+                    return true;
+            }
+
+            return false;
         }
 
         private void DrawDigit(RectTransform digitRoot, int digit, float scale)

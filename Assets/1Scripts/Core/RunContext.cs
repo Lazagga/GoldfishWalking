@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using GoldfishWalking.Data;
 using GoldfishWalking.Fantasy;
 using GoldfishWalking.Item;
@@ -26,11 +27,19 @@ namespace GoldfishWalking.Core
         public int battleDamageDealt;
         public int battleDamageTaken;
         public int pendingMonsterDamage;
+        public List<string> battleDamageDebugLines = new List<string>();
+        public int playerBleed;
+        public int playerPoison;
+        public int prophecyStack;
         public int battleTurnNumber;
         public int remainingMoveCount;
         public int temporaryMoveBonus;
         public int passiveAttackCountBonus;
         public int itemUseCountThisBattle;
+        public int committedBattleEditExtraMatches;
+        public int committedBattleEditErasers;
+        public int committedBattleEditTemporaryExtraMatches;
+        public int committedBattleEditTemporaryErasers;
         public ItemType lastAcquiredItemType;
         public int lastAcquiredItemCount;
         public ItemType lastUsedItemType;
@@ -86,12 +95,70 @@ namespace GoldfishWalking.Core
             battleDamageDealt = 0;
             battleDamageTaken = 0;
             pendingMonsterDamage = 0;
+            battleDamageDebugLines.Clear();
+            playerBleed = 0;
+            playerPoison = 0;
+            prophecyStack = 0;
             battleTurnNumber = 0;
             remainingMoveCount = 0;
             temporaryMoveBonus = 0;
             itemUseCountThisBattle = 0;
+            committedBattleEditExtraMatches = 0;
+            committedBattleEditErasers = 0;
+            committedBattleEditTemporaryExtraMatches = 0;
+            committedBattleEditTemporaryErasers = 0;
             lastAcquiredItemCount = 0;
             lastShopPurchaseCost = 0;
+            itemInventory.ClearTemporary();
+        }
+
+        public void AddBattleDamageDebug(string source, int amount)
+        {
+            if (amount == 0)
+                return;
+
+            battleDamageDebugLines.Add($"{source}: {amount}");
+            if (battleDamageDebugLines.Count > 8)
+                battleDamageDebugLines.RemoveAt(0);
+        }
+
+        public void RegisterBattleEditItemSpend(ItemType itemType, int permanentCount, int temporaryCount)
+        {
+            if (itemType == ItemType.ExtraMatch)
+            {
+                committedBattleEditExtraMatches += Math.Max(0, permanentCount);
+                committedBattleEditTemporaryExtraMatches += Math.Max(0, temporaryCount);
+            }
+            else if (itemType == ItemType.Eraser)
+            {
+                committedBattleEditErasers += Math.Max(0, permanentCount);
+                committedBattleEditTemporaryErasers += Math.Max(0, temporaryCount);
+            }
+        }
+
+        public void RefundCommittedBattleEditItems()
+        {
+            if (committedBattleEditExtraMatches > 0)
+                itemInventory.Add(ItemType.ExtraMatch, committedBattleEditExtraMatches);
+            if (committedBattleEditErasers > 0)
+                itemInventory.Add(ItemType.Eraser, committedBattleEditErasers);
+            if (committedBattleEditTemporaryExtraMatches > 0)
+                itemInventory.AddTemporary(ItemType.ExtraMatch, committedBattleEditTemporaryExtraMatches);
+            if (committedBattleEditTemporaryErasers > 0)
+                itemInventory.AddTemporary(ItemType.Eraser, committedBattleEditTemporaryErasers);
+
+            committedBattleEditExtraMatches = 0;
+            committedBattleEditErasers = 0;
+            committedBattleEditTemporaryExtraMatches = 0;
+            committedBattleEditTemporaryErasers = 0;
+        }
+
+        public void ClearCommittedBattleEditItems()
+        {
+            committedBattleEditExtraMatches = 0;
+            committedBattleEditErasers = 0;
+            committedBattleEditTemporaryExtraMatches = 0;
+            committedBattleEditTemporaryErasers = 0;
         }
 
         public BattleNumberState EnsureBattleNumbers(int monsterHitCount)

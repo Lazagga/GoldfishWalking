@@ -17,6 +17,13 @@ namespace GoldfishWalking.Core
         public string monsterId;
         public string activeMonsterPatternId;
         public int activeMonsterPatternTurn;
+        public int editSnapshotTurn;
+        public int editSnapshotPlayerBaseDamage;
+        public int editSnapshotMonsterBaseDamage;
+        public int editSnapshotMonsterHitCount;
+        public string editSnapshotPlayerBaseDamageSegmentState;
+        public string editSnapshotMonsterBaseDamageSegmentState;
+        public string editSnapshotMonsterHitCountSegmentState;
         public Dictionary<string, int> playerTurnDamageValues = new Dictionary<string, int>();
         public Dictionary<string, int> monsterPatternDamageValues = new Dictionary<string, int>();
         public Dictionary<string, int> monsterPatternHitCountValues = new Dictionary<string, int>();
@@ -50,6 +57,27 @@ namespace GoldfishWalking.Core
             value = roll != null ? roll() : monsterHitCount;
             monsterPatternHitCountValues[key] = Math.Max(1, value);
             return monsterPatternHitCountValues[key];
+        }
+
+        public void CaptureEditSnapshot(int turnNumber)
+        {
+            editSnapshotTurn = Math.Max(1, turnNumber);
+            editSnapshotPlayerBaseDamage = playerBaseDamage;
+            editSnapshotMonsterBaseDamage = monsterBaseDamage;
+            editSnapshotMonsterHitCount = monsterHitCount;
+            editSnapshotPlayerBaseDamageSegmentState = playerBaseDamageSegmentState;
+            editSnapshotMonsterBaseDamageSegmentState = monsterBaseDamageSegmentState;
+            editSnapshotMonsterHitCountSegmentState = monsterHitCountSegmentState;
+        }
+
+        public void RestoreEditSnapshot()
+        {
+            playerBaseDamage = editSnapshotPlayerBaseDamage;
+            monsterBaseDamage = editSnapshotMonsterBaseDamage;
+            monsterHitCount = editSnapshotMonsterHitCount;
+            playerBaseDamageSegmentState = editSnapshotPlayerBaseDamageSegmentState;
+            monsterBaseDamageSegmentState = editSnapshotMonsterBaseDamageSegmentState;
+            monsterHitCountSegmentState = editSnapshotMonsterHitCountSegmentState;
         }
     }
 

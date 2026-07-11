@@ -30,6 +30,7 @@ namespace GoldfishWalking.UI
         private RectTransform rewardCardRoot;
         private RectTransform fantasySlotsRoot;
         private RectTransform consumablePanel;
+        private Image overlayImage;
         private Text healthText;
         private Button nextButton;
         private bool hasFantasyReward;
@@ -51,6 +52,7 @@ namespace GoldfishWalking.UI
             HideScenePlaceholders();
             EnsureLayout();
             PrepareRewardList();
+            SetRewardChromeVisible(true);
             CloseFantasyChoices();
             RebuildRewardList();
             Refresh();
@@ -111,8 +113,8 @@ namespace GoldfishWalking.UI
 
         private void CreateBackground()
         {
-            Image background = CreateImage("Overlay", layoutRoot, overlayColor);
-            RectTransform rect = background.rectTransform;
+            overlayImage = CreateImage("Overlay", layoutRoot, overlayColor);
+            RectTransform rect = overlayImage.rectTransform;
             rect.anchorMin = Vector2.zero;
             rect.anchorMax = Vector2.one;
             rect.offsetMin = Vector2.zero;
@@ -220,6 +222,7 @@ namespace GoldfishWalking.UI
             if (rewardListRoot == null)
                 return;
 
+            SetRewardChromeVisible(true);
             ClearChildren(rewardListRoot);
             rewardListRoot.gameObject.SetActive(true);
 
@@ -401,6 +404,27 @@ namespace GoldfishWalking.UI
             CloseFantasyChoices();
             if (rewardListRoot != null)
                 rewardListRoot.gameObject.SetActive(false);
+            SetRewardChromeVisible(false);
+        }
+
+        private void SetRewardChromeVisible(bool visible)
+        {
+            if (overlayImage != null)
+            {
+                overlayImage.raycastTarget = visible;
+                Color color = overlayImage.color;
+                color.a = visible ? overlayColor.a : 0f;
+                overlayImage.color = color;
+            }
+
+            SetActiveIfExists(fantasySlotsRoot, visible);
+            SetActiveIfExists(consumablePanel, visible);
+        }
+
+        private static void SetActiveIfExists(Component component, bool active)
+        {
+            if (component != null)
+                component.gameObject.SetActive(active);
         }
 
         private bool HasPendingRewards()

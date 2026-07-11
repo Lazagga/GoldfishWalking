@@ -3,6 +3,7 @@ using GoldfishWalking.Data;
 using GoldfishWalking.Fantasy;
 using GoldfishWalking.Formula;
 using GoldfishWalking.Map;
+using System.Text;
 using UnityEngine;
 
 namespace GoldfishWalking.Battle
@@ -73,6 +74,40 @@ namespace GoldfishWalking.Battle
             ? Mathf.Max(1, context.monster.Data.baseHealth)
             : 1;
 
+        public string MonsterStatusSummary
+        {
+            get
+            {
+                if (context == null || context.monster == null)
+                    return "-";
+
+                StringBuilder builder = new StringBuilder();
+                AppendStatus(builder, "STR", context.monster.Strength);
+                AppendStatus(builder, "STUN", context.monster.StunTurns);
+                AppendStatus(builder, "SHIELD", context.monster.Shield);
+                AppendStatus(builder, "FORTUNE", context.monster.FortuneStack);
+                AppendStatus(builder, "PROPHECY", context.monster.ProphecyStack);
+                if (context.run != null)
+                {
+                    AppendStatus(builder, "BLEED", context.run.playerBleed);
+                    AppendStatus(builder, "POISON", context.run.playerPoison);
+                }
+
+                return builder.Length > 0 ? builder.ToString() : "-";
+            }
+        }
+
+        public string DamageDebugSummary
+        {
+            get
+            {
+                if (context == null || context.run == null || context.run.battleDamageDebugLines == null || context.run.battleDamageDebugLines.Count == 0)
+                    return "Damage log -";
+
+                return string.Join("\n", context.run.battleDamageDebugLines);
+            }
+        }
+
         public int CurrentMoveLimit => bootstrap != null && bootstrap.RunContext != null
             ? GetCurrentMoveLimit()
             : 2;
@@ -112,6 +147,7 @@ namespace GoldfishWalking.Battle
                 return;
 
             context.state = BattleState.Resolving;
+            context.run.battleDamageDebugLines.Clear();
             BattleFormulaResult playerResult = formulaEvaluator.EvaluateBattleFormula(context.playerFormula);
 
             if (!playerResult.isValid)
@@ -129,13 +165,29 @@ namespace GoldfishWalking.Battle
                 return;
             }
 
+            context.run.ClearCommittedBattleEditItems();
             ApplyFormulaToMonster(playerResult);
             ApplyTurnEndFantasyEffects();
             if (CompleteBattleResolution())
                 return;
 
-            if (monsterPatternRunner.IsAttackPattern(context.monsterPattern))
-                ApplyFormulaToPlayer(monsterResult);
+            if (monsterPatternRunner.IsAttackPattern(context.monsterPattern) && monsterPatternRunner.CanMonsterAct(context.monster))
+            {
+                int monsterDamageDealt = ApplyFormulaToPlayer(monsterResult);
+                monsterPatternRunner.ApplyPatternEffects(
+                    context.monster,
+                    context.run,
+                    context.monsterPattern,
+                    context.playerFormula,
+                    context.monsterFormula,
+                    "Immediate",
+                    monsterDamageDealt);
+            }
+            else
+            {
+                monsterPatternRunner.AdvanceTurnDurations(context.monster);
+            }
+
             if (!CompleteBattleResolution())
             {
                 context.state = BattleState.Editing;
@@ -145,7 +197,7 @@ namespace GoldfishWalking.Battle
 
         public void ResetBattle()
         {
-            StartBattle();
+            ResetCurrentBattleEdit();
         }
 
         private void OnStateChanged(GameState previous, GameState next)
@@ -244,7 +296,27 @@ namespace GoldfishWalking.Battle
             EnsurePlayerTurnDamage(numbers);
             context.playerFormula = formulaBuilder.BuildPlayerFormula(context.run, numbers.playerBaseDamage);
             PrepareMonsterPatternFormula(numbers);
+            monsterPatternRunner.ApplyScheduledEffects(context.monster, context.run, context.playerFormula, context.monsterFormula);
+            numbers.CaptureEditSnapshot(context.run.battleTurnNumber);
+            context.run.ClearCommittedBattleEditItems();
             context.run.remainingMoveCount = CurrentMoveLimit;
+        }
+
+        private void ResetCurrentBattleEdit()
+        {
+            if (context == null || context.run == null || context.run.currentBattle == null)
+                return;
+
+            BattleNumberState numbers = context.run.currentBattle;
+            numbers.RestoreEditSnapshot();
+            context.run.RefundCommittedBattleEditItems();
+            context.run.temporaryMoveBonus = 0;
+            context.run.remainingMoveCount = CurrentMoveLimit;
+
+            context.playerFormula = formulaBuilder.BuildPlayerFormula(context.run, numbers.playerBaseDamage);
+            bool hitCountEditable = context.monsterPattern != null && context.monsterPattern.patternType == MonsterPatternType.MultiHit;
+            context.monsterFormula = formulaBuilder.BuildMonsterFormula(numbers.monsterBaseDamage, numbers.monsterHitCount, hitCountEditable);
+            context.state = BattleState.Editing;
         }
 
         private void EnsurePlayerBaseDamageDigitCount(BattleNumberState numbers)
@@ -307,9 +379,27 @@ namespace GoldfishWalking.Battle
                 numbers.monsterHitCountSegmentState = string.Empty;
             }
 
+            if (context.monster != null && context.monster.IsStunned)
+            {
+                numbers.monsterBaseDamage = 0;
+                numbers.monsterHitCount = 1;
+                numbers.monsterBaseDamageSegmentState = string.Empty;
+                numbers.monsterHitCountSegmentState = string.Empty;
+                context.monsterFormula = formulaBuilder.BuildMonsterFormula(0, 1, false);
+                return;
+            }
+
             if (!monsterPatternRunner.IsAttackPattern(pattern))
             {
                 monsterPatternRunner.ApplyImmediateNonAttack(context.monster, pattern);
+                monsterPatternRunner.ApplyPatternEffects(
+                    context.monster,
+                    context.run,
+                    pattern,
+                    context.playerFormula,
+                    context.monsterFormula,
+                    "Immediate",
+                    0);
                 numbers.monsterBaseDamage = 0;
                 numbers.monsterHitCount = 1;
                 numbers.monsterBaseDamageSegmentState = string.Empty;
@@ -371,6 +461,7 @@ namespace GoldfishWalking.Battle
                 if (result.countsAsHit)
                 {
                     int dealt = Mathf.Max(0, result.damagePerHit);
+                    context.run.AddBattleDamageDebug("Direct", dealt);
                     context.run.lastDamageDealt = dealt;
                     context.run.battleDamageDealt += dealt;
                     fantasyEffectRunner.ApplyTrigger(context.run, "Attack");
@@ -399,10 +490,10 @@ namespace GoldfishWalking.Battle
             return Mathf.Max(0, hitCount);
         }
 
-        private void ApplyFormulaToPlayer(BattleFormulaResult result)
+        private int ApplyFormulaToPlayer(BattleFormulaResult result)
         {
             if (context == null || context.run == null || result.hitCount <= 0)
-                return;
+                return 0;
 
             int incomingDamage = Mathf.Max(0, result.totalDamage);
             incomingDamage = Mathf.Max(0, fantasyEffectRunner.ModifyValue(context.run, incomingDamage, "Take_Damage", "Damage_Taken"));
@@ -411,11 +502,14 @@ namespace GoldfishWalking.Battle
             context.run.battleDamageTaken += incomingDamage;
             fantasyEffectRunner.ApplyTrigger(context.run, "Take_Damage");
             ApplyPendingMonsterDamage();
+            return incomingDamage;
         }
 
         private void ApplyTurnEndFantasyEffects()
         {
             if (context == null || context.run == null)
+                return;
+            if (context.run.health <= 0)
                 return;
 
             fantasyEffectRunner.ApplyTrigger(context.run, "Turn_End");
@@ -435,9 +529,23 @@ namespace GoldfishWalking.Battle
             context.monster.ApplyDamage(damage);
             if (damage > 0)
             {
+                if (context.run.battleDamageDebugLines.Count == 0)
+                    context.run.AddBattleDamageDebug("Pending", damage);
                 context.run.lastDamageDealt = damage;
                 context.run.battleDamageDealt += damage;
             }
+        }
+
+        private static void AppendStatus(StringBuilder builder, string label, int value)
+        {
+            if (value == 0)
+                return;
+
+            if (builder.Length > 0)
+                builder.Append("  ");
+            builder.Append(label);
+            builder.Append(' ');
+            builder.Append(value);
         }
 
         private bool CompleteBattleResolution()
@@ -445,24 +553,37 @@ namespace GoldfishWalking.Battle
             if (context == null)
                 return true;
 
-            if (context.monster != null && context.monster.IsDead)
-            {
-                if (context.run != null)
-                    fantasyEffectRunner.ApplyTrigger(context.run, "Battle_End");
-                context.state = BattleState.Won;
-                GameEventHub.RaiseBattleWon();
-                return true;
-            }
-
             if (context.run != null && context.run.health <= 0)
             {
+                CleanupBattleTemporaryState();
                 context.state = BattleState.Lost;
                 GameEventHub.RaiseBattleLost();
                 return true;
             }
 
+            if (context.monster != null && context.monster.IsDead)
+            {
+                if (context.run != null)
+                    fantasyEffectRunner.ApplyTrigger(context.run, "Battle_End");
+                CleanupBattleTemporaryState();
+                context.state = BattleState.Won;
+                GameEventHub.RaiseBattleWon();
+                return true;
+            }
+
             context.state = BattleState.Editing;
             return false;
+        }
+
+        private void CleanupBattleTemporaryState()
+        {
+            if (context == null || context.run == null)
+                return;
+
+            context.run.strength = 0;
+            context.run.ClearCommittedBattleEditItems();
+            context.run.itemInventory.ClearTemporary();
+            GameEventHub.RaiseItemInventoryChanged();
         }
     }
 }
