@@ -297,6 +297,8 @@ namespace GoldfishWalking.Battle
             if (action == "removebuff")
             {
                 SetBuff(monster, runContext, type, 0);
+                if (type == "shield")
+                    monster.ClearDamageCap();
                 return;
             }
 

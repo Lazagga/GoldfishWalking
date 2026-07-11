@@ -11,6 +11,7 @@ namespace GoldfishWalking.Battle
         public int Strength { get; private set; }
         public int StunTurns { get; private set; }
         public int Shield { get; private set; }
+        public int DamageCapPerHit { get; private set; }
         public int FortuneStack { get; private set; }
         public int ProphecyStack { get; private set; }
         public int Phase { get; private set; } = 1;
@@ -29,10 +30,14 @@ namespace GoldfishWalking.Battle
             Data = data;
             CurrentHealth = data != null ? data.baseHealth : 1;
             Strength = data != null ? data.baseStrength : 0;
+            DamageCapPerHit = InitialDamageCap(data);
         }
 
-        public void ApplyDamage(int amount)
+        public int ApplyDamage(int amount)
         {
+            if (amount > 0 && DamageCapPerHit > 0)
+                amount = System.Math.Min(amount, DamageCapPerHit);
+
             if (amount > 0 && Shield > 0)
             {
                 int blocked = amount < Shield ? amount : Shield;
@@ -41,6 +46,12 @@ namespace GoldfishWalking.Battle
             }
 
             CurrentHealth -= amount;
+            return amount > 0 ? amount : 0;
+        }
+
+        public void Kill()
+        {
+            CurrentHealth = 0;
         }
 
         public void Heal(int amount)
@@ -110,6 +121,11 @@ namespace GoldfishWalking.Battle
             Shield = System.Math.Max(0, value);
         }
 
+        public void ClearDamageCap()
+        {
+            DamageCapPerHit = 0;
+        }
+
         public void ChangeFortuneStack(int amount)
         {
             FortuneStack = System.Math.Max(0, FortuneStack + amount);
@@ -163,6 +179,20 @@ namespace GoldfishWalking.Battle
         {
             if (StunTurns > 0)
                 StunTurns--;
+        }
+
+        private static int InitialDamageCap(MonsterData data)
+        {
+            if (data == null)
+                return 0;
+
+            string dataName = data.dataName ?? string.Empty;
+            string devName = data.devName ?? string.Empty;
+            if (dataName.Contains("Guard") || devName.Contains("경비병"))
+                return 45;
+            if (dataName.Contains("Knight") || devName.Contains("기사"))
+                return 20;
+            return 0;
         }
     }
 

@@ -103,6 +103,7 @@ namespace GoldfishWalking.Battle
                 AppendStatus(builder, "STR", context.monster.Strength);
                 AppendStatus(builder, "STUN", context.monster.StunTurns);
                 AppendStatus(builder, "SHIELD", context.monster.Shield);
+                AppendStatus(builder, "CAP", context.monster.DamageCapPerHit);
                 AppendStatus(builder, "FORTUNE", context.monster.FortuneStack);
                 AppendStatus(builder, "PROPHECY", context.monster.ProphecyStack);
 
@@ -238,6 +239,9 @@ namespace GoldfishWalking.Battle
             if (ProcessMonsterEscapeCountdown())
                 return;
 
+            if (ProcessHeartQueenDoomCountdown())
+                return;
+
             ApplyPlayerEndTurnStatusDamage();
             ActivatePendingPlayerStatuses();
             if (CompleteBattleResolution())
@@ -275,12 +279,12 @@ namespace GoldfishWalking.Battle
             if (context == null || context.monster == null || damage <= 0)
                 return false;
 
-            context.monster.ApplyDamage(damage);
+            int actualDamage = context.monster.ApplyDamage(damage);
             if (context.run != null)
             {
-                context.run.AddBattleDamageDebug("Debug", damage);
-                context.run.lastDamageDealt = damage;
-                context.run.battleDamageDealt += damage;
+                context.run.AddBattleDamageDebug("Debug", actualDamage);
+                context.run.lastDamageDealt = actualDamage;
+                context.run.battleDamageDealt += actualDamage;
             }
 
             CompleteBattleResolution();
@@ -293,7 +297,16 @@ namespace GoldfishWalking.Battle
                 return false;
 
             int damage = Mathf.Max(1, context.monster.CurrentHealth);
-            return DebugDamageMonster(damage);
+            context.monster.Kill();
+            if (context.run != null)
+            {
+                context.run.AddBattleDamageDebug("Debug Kill", damage);
+                context.run.lastDamageDealt = damage;
+                context.run.battleDamageDealt += damage;
+            }
+
+            CompleteBattleResolution();
+            return true;
         }
 
         private bool HasMonster(string monsterId)
@@ -688,11 +701,9 @@ namespace GoldfishWalking.Battle
             int hitCount = GetModifiedPlayerHitCount(result.hitCount);
             for (int hitIndex = 0; hitIndex < hitCount; hitIndex++)
             {
-                context.monster.ApplyDamage(result.damagePerHit);
-
                 if (result.countsAsHit)
                 {
-                    int dealt = Mathf.Max(0, result.damagePerHit);
+                    int dealt = context.monster.ApplyDamage(result.damagePerHit);
                     context.run.AddBattleDamageDebug("Direct", dealt);
                     context.run.lastDamageDealt = dealt;
                     context.run.battleDamageDealt += dealt;
@@ -700,6 +711,10 @@ namespace GoldfishWalking.Battle
                     fantasyEffectRunner.ApplyTrigger(context.run, "Deal_Damage");
                     fantasyEffectRunner.ApplyTrigger(context.run, "On_Hit");
                     ApplyPendingMonsterDamage();
+                }
+                else
+                {
+                    context.monster.ApplyDamage(result.damagePerHit);
                 }
             }
         }
@@ -771,6 +786,8 @@ namespace GoldfishWalking.Battle
 
             if (IsWhiteRabbit(context.monster.Data))
                 value = 3;
+            else if (IsHeartQueen(context.monster.Data))
+                value = 5;
 
             context.monster.SetSpecialBox(value, 1, label);
             SyncSpecialBoxToNumbers(numbers);
@@ -792,6 +809,25 @@ namespace GoldfishWalking.Battle
             return true;
         }
 
+        private bool ProcessHeartQueenDoomCountdown()
+        {
+            if (context == null || context.monster == null || !IsHeartQueen(context.monster.Data) || !context.monster.HasSpecialBox)
+                return false;
+
+            context.monster.SetSpecialBoxValue(context.monster.SpecialBoxValue - 1);
+            SyncSpecialBoxToNumbers(context.run?.currentBattle);
+            if (context.monster.SpecialBoxValue > 0)
+                return false;
+
+            if (context.run != null)
+                context.run.health = 0;
+
+            CleanupBattleTemporaryState();
+            context.state = BattleState.Lost;
+            GameEventHub.RaiseBattleLost();
+            return true;
+        }
+
         private static bool IsWhiteRabbit(MonsterData data)
         {
             if (data == null)
@@ -802,6 +838,16 @@ namespace GoldfishWalking.Battle
             return dataName.Contains("WhiteRabbit") || devName.Contains("화이트 래빗");
         }
 
+        private static bool IsHeartQueen(MonsterData data)
+        {
+            if (data == null)
+                return false;
+
+            string dataName = data.dataName ?? string.Empty;
+            string devName = data.devName ?? string.Empty;
+            return dataName.Contains("HeartQueen") || devName.Contains("하트 여왕");
+        }
+
         private void ProcessMonsterSelfDestruct()
         {
             if (context == null || context.monster == null || context.monsterPattern == null)
@@ -810,7 +856,7 @@ namespace GoldfishWalking.Battle
                 return;
 
             int damage = Mathf.Max(1, context.monster.CurrentHealth);
-            context.monster.ApplyDamage(damage);
+            context.monster.Kill();
             if (context.run != null)
                 context.run.AddBattleDamageDebug("Self Destruct", damage);
         }
@@ -872,13 +918,13 @@ namespace GoldfishWalking.Battle
                 return;
 
             context.run.pendingMonsterDamage = 0;
-            context.monster.ApplyDamage(damage);
+            int actualDamage = context.monster.ApplyDamage(damage);
             if (damage > 0)
             {
                 if (context.run.battleDamageDebugLines.Count == 0)
-                    context.run.AddBattleDamageDebug("Pending", damage);
-                context.run.lastDamageDealt = damage;
-                context.run.battleDamageDealt += damage;
+                    context.run.AddBattleDamageDebug("Pending", actualDamage);
+                context.run.lastDamageDealt = actualDamage;
+                context.run.battleDamageDealt += actualDamage;
             }
         }
 
