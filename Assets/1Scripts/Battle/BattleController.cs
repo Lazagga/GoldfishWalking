@@ -235,6 +235,46 @@ namespace GoldfishWalking.Battle
             ResetCurrentBattleEdit();
         }
 
+        public bool ForceSpawnMonster(string monsterId)
+        {
+            if (bootstrap == null || bootstrap.RunContext == null || string.IsNullOrWhiteSpace(monsterId))
+                return false;
+
+            string lookup = monsterId.Trim();
+            if (!HasMonster(lookup))
+                return false;
+
+            bootstrap.RunContext.debugForcedMonsterId = lookup;
+            StartBattle();
+            return context != null && context.monster != null && context.monster.Data != null;
+        }
+
+        private bool HasMonster(string monsterId)
+        {
+            if (monsterDatabase == null || monsterDatabase.monsters == null)
+                return false;
+
+            for (int i = 0; i < monsterDatabase.monsters.Count; i++)
+            {
+                MonsterData monster = monsterDatabase.monsters[i];
+                if (monster == null)
+                    continue;
+                if (MatchesDebugId(monster.id, monsterId)
+                    || MatchesDebugId(monster.dataName, monsterId)
+                    || MatchesDebugId(monster.devName, monsterId)
+                    || MatchesDebugId(monster.displayName, monsterId))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static bool MatchesDebugId(string value, string lookup)
+        {
+            return !string.IsNullOrWhiteSpace(value)
+                && string.Equals(value.Trim(), lookup, System.StringComparison.OrdinalIgnoreCase);
+        }
+
         private void OnStateChanged(GameState previous, GameState next)
         {
             if (next == GameState.Battle)
@@ -479,6 +519,7 @@ namespace GoldfishWalking.Battle
                 numbers.monsterBaseDamageSegmentState = string.Empty;
                 numbers.monsterHitCountSegmentState = string.Empty;
                 context.monsterFormula = formulaBuilder.BuildMonsterFormula(0, 1, false, context.run);
+                EnsureMonsterIdentitySpecialBox(numbers);
                 return;
             }
 
@@ -498,6 +539,7 @@ namespace GoldfishWalking.Battle
                 numbers.monsterBaseDamageSegmentState = string.Empty;
                 numbers.monsterHitCountSegmentState = string.Empty;
                 context.monsterFormula = formulaBuilder.BuildMonsterFormula(0, 1, false, context.run);
+                EnsureMonsterIdentitySpecialBox(numbers);
                 return;
             }
 
@@ -530,6 +572,7 @@ namespace GoldfishWalking.Battle
             numbers.monsterBaseDamage = Mathf.Max(0, baseDamage);
             numbers.monsterHitCount = Mathf.Max(0, hitCount);
             context.monsterFormula = formulaBuilder.BuildMonsterFormula(numbers.monsterBaseDamage, numbers.monsterHitCount, hitCountEditable, context.run);
+            EnsureMonsterIdentitySpecialBox(numbers);
         }
 
         public void SetMonsterHitCount(int value)
@@ -646,14 +689,50 @@ namespace GoldfishWalking.Battle
             if (context == null || context.run == null || result.hitCount <= 0)
                 return 0;
 
-            int incomingDamage = Mathf.Max(0, result.totalDamage);
-            incomingDamage = Mathf.Max(0, fantasyEffectRunner.ModifyValue(context.run, incomingDamage, "Take_Damage", "Damage_Taken"));
+            int incomingDamage = 0;
+            int damagePerHit = Mathf.Max(0, result.damagePerHit);
+            int hitCount = Mathf.Max(0, result.hitCount);
+            for (int hitIndex = 0; hitIndex < hitCount; hitIndex++)
+                incomingDamage += Mathf.Max(0, fantasyEffectRunner.ModifyValue(context.run, damagePerHit, "Take_Damage", "Damage_Taken"));
+
             context.run.lastDamageTaken = incomingDamage;
             context.run.health -= incomingDamage;
             context.run.battleDamageTaken += incomingDamage;
             fantasyEffectRunner.ApplyTrigger(context.run, "Take_Damage");
             ApplyPendingMonsterDamage();
             return incomingDamage;
+        }
+
+        private void EnsureMonsterIdentitySpecialBox(BattleNumberState numbers)
+        {
+            if (context == null || context.monster == null || context.monster.Data == null || context.monster.HasSpecialBox || numbers == null)
+                return;
+
+            string dataName = context.monster.Data.dataName ?? string.Empty;
+            string devName = context.monster.Data.devName ?? string.Empty;
+            string label = string.Empty;
+            int min = 0;
+            int max = 9;
+
+            if (dataName.Contains("WhiteRabbit") || devName.Contains("화이트 래빗"))
+                label = "RABBIT";
+            else if (dataName.Contains("HeartQueen") || devName.Contains("하트 여왕"))
+                label = "HEART";
+            else if ((dataName.Contains("Witch") && !dataName.Contains("LittleWitch")) || devName == "마녀")
+            {
+                label = "/";
+                min = 1;
+            }
+
+            if (string.IsNullOrWhiteSpace(label))
+                return;
+
+            int value = context.run != null
+                ? context.run.RollValue($"monster.identity_box.{dataName}.{context.run.battleTurnNumber}", min, max)
+                : min;
+
+            context.monster.SetSpecialBox(value, 1, label);
+            SyncSpecialBoxToNumbers(numbers);
         }
 
         private void ApplyTurnEndFantasyEffects()

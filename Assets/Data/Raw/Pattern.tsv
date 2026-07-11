@@ -9,14 +9,15 @@ ID	DevName	DataCode	NameStringID	Effects	SpriteRes	설명
 		AutomatonSingle		{"Attack": "2_Single", "Effects": [{"Target": "Self", "Action": "AddBuff", "Type": "Strength", "Value": 1}]}		단타 + 힘 증가
 		AutomatonSingleStun		{"Attack": "2_Single", "Effects": [{"Target": "Self", "Action": "AddBuff", "Type": "Stun", "Duration": 1}, {"Target": "Self", "Action": "SetBuff", "Type": "Strength", "Value": 0}]}		단타 + 자체 스턴, 이후 증가한 힘 초기화
 		GiantRatSkill		{"Effects": [{"Target": "Self", "Action": "Heal", "Value": 3}, {"Target": "Self", "Action": "AddBuff", "Type": "Strength", "Value": 1}]}		3자릿수의 체력 회복(회복 상자 조작 가능) 및 힘1 증가
-		FortuneTellerSkill		{"Effects": [{"Target": "Self", "Action": "AddBuff", "Type": "FortuneStack", "Value": "DamageDealt"}]}		때릴 때마다 점술사가 자신이 가하는 피해량만큼 스택 버프 누적
-		FortuneTellerExplode		{"Condition": "HPRate<=0.2", "Attack": "FortuneStack_Single", "Effects": [{"Target": "Self", "Action": "SetBuff", "Type": "FortuneStack", "Value": 0}]}		쌓인 스택을 기본 데미지로 사용하고 버프 제거
+		FortuneTellerSingle		{"Attack": "2_Single", "Effects": [{"Target": "Self", "Action": "Addbuff", "Type": "FortuneStack", "Value": "DamageDealt"}]}		때릴 때마다 점술사가 자신이 가하는 피해량만큼 스택 버프 누적
+		FortuneTellerMulti		{"Attack": "2_Multi_1", "Effects": [{"Target": "Self", "Action": "Addbuff", "Type": "FortuneStack", "Value": "DamageDealt"}]}		
+		FortuneTellerExplode		{"Condition": "HPRate<=0.2", "Attack": "FortuneStack_Single", "Effects": [{"Target": "Self", "Action": "SetBuff", "Type": "FortuneStack", "Value": 0}]}		쌓인 스택만큼 데미지
 		AlchemistSingle		{"Attack": "2_Single", "Effects": [{"Action": "AddBuff", "Type": "Bleed", "Value": "DamageDealt"}]}		공격 시 입힌 피해량 50%만큼 출혈 적용
-		AlchemistSkill		{"Effects": [{"Target": "Player", "Action": "MultiplyBuff", "Type": "Bleed", "Value": 3}]}		[출혈 아이콘] [x] [1자릿수] -> 출혈 수치 n배
+		AlchemistSkill		{"Effects": [{"Timing": "NextTurn", "Target": "Player", "Action": "MultiplyBuff", "Type": "Bleed", "Value": 3}]}		[출혈 아이콘] [x] [1자릿수] -> 출혈 수치 n배
 		PlagueDoctorSkill		{"Effects": [{"Target": "Player", "Action": "MultiplyBuff", "Type": "Poison", "Value": 2}]}		[중독 아이콘] [x] [1자릿수] -> 중독 수치 n배
 		ProphetSingle		{"Attack": "2_Single", "Effects": [{"Target": "Self", "Action": "Addbuff", "Type": "ProphetStack", "Value": "DamageDealt"}]}		예언자가 공격 시 자신이 가하는 피해량만큼 스택 상자에 수치 누적
 		ProphetMulti		{"Attack": "2_Multi", "Effects": [{"Target": "Self", "Action": "Addbuff", "Type": "ProphetStack", "Value": "DamageDealt"}]}		예언자가 공격 시 예언자가 자신이 가하는 피해량만큼 스택 버프 누적
-		ProphetExplode		{"Attack": "ProphetStack_Single", "Effects": [{"Target": "Self", "Action": "SetBuff", "Type": "ProphetStack", "Value": 0}]}		쌓인 스택을 기본 데미지로 사용하고 버프 제거
+		ProphetExplode		{"Attack": "ProphetStack_Single", "Effects": [{"Target": "Self", "Action": "SetBuff", "Type": "ProphetStack", "Value": 0}]}		버프 수치만큼 데미지 주고 지금까지 쌓인 스택을 제거
 		JellyfishSingle		{"Attack": "2_Single", "Effects": [{"Target": "Player", "Action": "AddBuff", "Type": "Bleed", "Value": "DamageDealt*0.5"}, {"Target": "Player", "Action": "AddBuff", "Type": "Poison", "Value": "DamageDealt*0.5"}]}		해파리가 가하는 피해의 50%가 각각 출혈/중독 적용
 		JellyfishSkill		{"Effects": [{"Target": "Self", "Action": "Heal", "Value": "PlayerBleed"}, {"Target": "Self", "Action": "Heal", "Value": "PlayerPoison"}]}		플레이어의 출혈/중독 수치만큼 회복
 		OrbSkill		{"Effects": [{"Target": "Player", "Action": "Damage", "Value": "PlayerHP*0.3", "Lock": true}]}		4번째 턴 종료 시 자폭, 플레이어 체력 30% 잠금 피해

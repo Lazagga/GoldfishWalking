@@ -287,20 +287,20 @@ namespace GoldfishWalking.UI
             debugFantasyInput = inputRoot.gameObject.AddComponent<InputField>();
             Text inputText = CreateText("Text", inputRoot, string.Empty, 18, textColor, TextAnchor.MiddleLeft);
             SetRect(inputText.rectTransform, Vector2.zero, Vector2.one, new Vector2(8f, 0f), new Vector2(-16f, -4f));
-            Text placeholder = CreateText("Placeholder", inputRoot, "fantasy id", 18, new Color(0.65f, 0.68f, 0.76f, 1f), TextAnchor.MiddleLeft);
+            Text placeholder = CreateText("Placeholder", inputRoot, "ADD match / ADD fantasy_id / SPAWN monster_id", 15, new Color(0.65f, 0.68f, 0.76f, 1f), TextAnchor.MiddleLeft);
             SetRect(placeholder.rectTransform, Vector2.zero, Vector2.one, new Vector2(8f, 0f), new Vector2(-16f, -4f));
             debugFantasyInput.textComponent = inputText;
             debugFantasyInput.placeholder = placeholder;
             debugFantasyInput.onEndEdit.AddListener(value =>
             {
                 if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
-                    AddDebugFantasy();
+                    ExecuteDebugCommand();
             });
 
             Button addButton = CreatePanel("AddButton", panel, panelColor, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-54f, 10f), new Vector2(92f, 46f)).gameObject.AddComponent<Button>();
-            Text addText = CreateText("Label", addButton.transform, "ADD", 18, greenColor, TextAnchor.MiddleCenter);
+            Text addText = CreateText("Label", addButton.transform, "RUN", 18, greenColor, TextAnchor.MiddleCenter);
             SetRect(addText.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-            addButton.onClick.AddListener(AddDebugFantasy);
+            addButton.onClick.AddListener(ExecuteDebugCommand);
         }
 
         private void CreateFantasyTooltip()
@@ -594,15 +594,52 @@ namespace GoldfishWalking.UI
             }
         }
 
-        private void AddDebugFantasy()
+        private void ExecuteDebugCommand()
         {
             if (bootstrap == null || bootstrap.RunContext == null || debugFantasyInput == null)
                 return;
 
-            FantasyData fantasy = FindFantasy(debugFantasyInput.text);
+            string command = (debugFantasyInput.text ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(command))
+                return;
+
+            string[] parts = command.Split(new[] { ' ' }, 2, System.StringSplitOptions.RemoveEmptyEntries);
+            string verb = parts.Length > 0 ? parts[0].Trim().ToUpperInvariant() : string.Empty;
+            string argument = parts.Length > 1 ? parts[1].Trim() : string.Empty;
+
+            if (verb == "ADD")
+            {
+                ExecuteAddCommand(argument);
+                return;
+            }
+
+            if (verb == "SPAWN")
+            {
+                ExecuteSpawnCommand(argument);
+                return;
+            }
+
+            Debug.LogWarning($"[BattleView] Unknown debug command: {command}");
+        }
+
+        private void ExecuteAddCommand(string argument)
+        {
+            if (string.IsNullOrWhiteSpace(argument))
+                return;
+
+            if (TryGetDebugItem(argument, out ItemType itemType))
+            {
+                fantasyEffectRunner.AddItemWithAcquireEffects(bootstrap.RunContext, itemType, 1);
+                debugFantasyInput.text = string.Empty;
+                Refresh();
+                Debug.Log($"[BattleView] Added debug item: {itemType}");
+                return;
+            }
+
+            FantasyData fantasy = FindFantasy(argument);
             if (fantasy == null)
             {
-                Debug.LogWarning($"[BattleView] Fantasy not found: {debugFantasyInput.text}");
+                Debug.LogWarning($"[BattleView] Debug ADD target not found: {argument}");
                 return;
             }
 
@@ -619,6 +656,39 @@ namespace GoldfishWalking.UI
             debugFantasyInput.text = string.Empty;
             Refresh();
             Debug.Log($"[BattleView] Added debug fantasy: {fantasy.id}");
+        }
+
+        private void ExecuteSpawnCommand(string argument)
+        {
+            if (string.IsNullOrWhiteSpace(argument) || battleController == null)
+                return;
+
+            bool spawned = battleController.ForceSpawnMonster(argument);
+            debugFantasyInput.text = string.Empty;
+            Refresh();
+            if (spawned)
+                Debug.Log($"[BattleView] Spawned debug monster: {argument}");
+            else
+                Debug.LogWarning($"[BattleView] Monster not found: {argument}");
+        }
+
+        private static bool TryGetDebugItem(string value, out ItemType itemType)
+        {
+            string lookup = (value ?? string.Empty).Trim().Replace("_", string.Empty).Replace("-", string.Empty).ToLowerInvariant();
+            switch (lookup)
+            {
+                case "match":
+                case "extramatch":
+                case "addmatch":
+                    itemType = ItemType.ExtraMatch;
+                    return true;
+                case "eraser":
+                    itemType = ItemType.Eraser;
+                    return true;
+                default:
+                    itemType = ItemType.ExtraMatch;
+                    return false;
+            }
         }
 
         private FantasyData FindFantasy(string id)

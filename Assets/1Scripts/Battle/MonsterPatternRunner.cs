@@ -53,8 +53,8 @@ namespace GoldfishWalking.Battle
 
             if (!string.IsNullOrWhiteSpace(found.attackKey))
                 MonsterPatternKeyUtility.ApplyPatternKey(found, found.attackKey);
-            else if (found.patternType == MonsterPatternType.Special)
-                MonsterPatternKeyUtility.ApplyPatternKey(found, FallbackPatternKey);
+            else
+                MonsterPatternKeyUtility.ApplyPatternKey(found, string.Empty);
 
             return found;
         }

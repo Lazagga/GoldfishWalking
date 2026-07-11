@@ -45,6 +45,7 @@ namespace GoldfishWalking.Core
         public ItemType lastUsedItemType;
         public int lastShopPurchaseCost;
         public int rewardRerolls;
+        public string debugForcedMonsterId;
         public List<TimedStrengthModifier> timedPlayerStrengthModifiers = new List<TimedStrengthModifier>();
         public List<TimedStrengthModifier> pendingEnemyStrengthModifiers = new List<TimedStrengthModifier>();
 
@@ -63,6 +64,7 @@ namespace GoldfishWalking.Core
             itemInventory.Clear();
             fantasyInventory.Clear();
             passiveAttackCountBonus = 0;
+            debugForcedMonsterId = string.Empty;
             ClearBattleRuntimeValues();
         }
 

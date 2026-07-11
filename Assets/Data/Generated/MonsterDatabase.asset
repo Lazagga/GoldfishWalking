@@ -425,11 +425,10 @@ MonoBehaviour:
     baseStrength: 0
     aiType: 1
     patternIds:
-    - 2_Single
-    - 2_Multi_1
-    - FortuneTellerSkill
+    - FortuneTellerSingle
+    - FortuneTellerMulti
     - FortuneTellerExplode
-    rawPatternArray: 2_Single, 2_Multi_1, FortuneTellerSkill, FortuneTellerExplode
+    rawPatternArray: FortuneTellerSingle, FortuneTellerMulti, FortuneTellerExplode
     sprite: 
   - id: Mob_20202_Alchemist
     sourceId: 20202
@@ -521,12 +520,13 @@ MonoBehaviour:
     description: 
     baseHealth: 1320
     baseStrength: 0
-    aiType: 1
+    aiType: 0
     patternIds:
     - ProphetSingle
     - ProphetMulti
+    - ProphetSingle
     - ProphetExplode
-    rawPatternArray: ProphetSingle, ProphetMulti, ProphetExplode
+    rawPatternArray: ProphetSingle, ProphetMulti, ProphetSingle, ProphetExplode
     sprite: 
   - id: Mob_30101_SteelScarecrow
     sourceId: 30101

@@ -1007,15 +1007,15 @@ MonoBehaviour:
     dataCode: fan_start_capricorn
     devName: "\uC5FC\uC18C\uC790\uB9AC"
     nameStringId: 
-    descStringId: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uC774\uB3D9\uD69F\uC218, \uD798,
-      \uC784\uC2DC \uC9C0\uC6B0\uAC1C, \uC784\uC2DC \uC5EC\uBD84\uC131\uB0E5 +1"
+    descStringId: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uC774\uB3D9\uD69F\uC218, \uC784\uC2DC
+      \uC9C0\uC6B0\uAC1C, \uC784\uC2DC \uC5EC\uBD84\uC131\uB0E5 +1"
     grade: 2
     triggerType: Battle_Start
     displayName: "\uC5FC\uC18C\uC790\uB9AC"
-    description: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uC774\uB3D9\uD69F\uC218, \uD798,
-      \uC784\uC2DC \uC9C0\uC6B0\uAC1C, \uC784\uC2DC \uC5EC\uBD84\uC131\uB0E5 +1"
+    description: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uC774\uB3D9\uD69F\uC218, \uC784\uC2DC
+      \uC9C0\uC6B0\uAC1C, \uC784\uC2DC \uC5EC\uBD84\uC131\uB0E5 +1"
     sprite: 
-    rawEffects: '[{"Trigger":"Battle_Start","Target":"Movement","Calc":"Add","Value":1.0,"Option":""},{"Trigger":"Battle_Start","Target":"Strength","Calc":"Add","Value":1.0,"Option":""},{"Trigger":"Battle_Start","Target":"Eraser","Calc":"Add","Value":1.0,"Option":""},{"Trigger":"Battle_Start","Target":"Extra_Match","Calc":"Add","Value":1.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"Battle_Start","Target":"Movement","Calc":"Add","Value":1.0,"Option":""},{"Trigger":"Battle_Start","Target":"Eraser","Calc":"Add","Value":1.0,"Option":""},{"Trigger":"Battle_Start","Target":"Extra_Match","Calc":"Add","Value":1.0,"Option":""}]'
     effects:
     - trigger: Battle_Start
       target: Movement
@@ -1026,15 +1026,6 @@ MonoBehaviour:
       option: 
       duration: 0
       rawJson: '{"Trigger":"Battle_Start","Target":"Movement","Calc":"Add","Value":1.0,"Option":""}'
-    - trigger: Battle_Start
-      target: Strength
-      calc: Add
-      valueExpression: 1
-      hasNumericValue: 1
-      numericValue: 1
-      option: 
-      duration: 0
-      rawJson: '{"Trigger":"Battle_Start","Target":"Strength","Calc":"Add","Value":1.0,"Option":""}'
     - trigger: Battle_Start
       target: Eraser
       calc: Add

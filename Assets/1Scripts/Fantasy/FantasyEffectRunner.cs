@@ -1,6 +1,7 @@
 using GoldfishWalking.Core;
 using GoldfishWalking.Data;
 using GoldfishWalking.Item;
+using GoldfishWalking.Match;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -255,7 +256,8 @@ namespace GoldfishWalking.Fantasy
                 case "fandamagemirror":
                     if (normalizedTrigger == NormalizeTrigger("Turn_End") && TargetMatches("Attack_Count", targets) && runContext.currentBattle != null && HasSameDigits(runContext.currentBattle.playerBaseDamage))
                     {
-                        value += Mathf.FloorToInt(GetEffectValue(fantasy, "Turn_End", "Attack_Count", 1f, runContext));
+                        if (HasSameVisibleDigits(runContext.currentBattle.playerBaseDamage, runContext.currentBattle.playerBaseDamageSegmentState))
+                            value += Mathf.FloorToInt(GetEffectValue(fantasy, "Turn_End", "Attack_Count", 1f, runContext));
                         return true;
                     }
                     break;
@@ -337,10 +339,10 @@ namespace GoldfishWalking.Fantasy
                 return value;
 
             int transformed = value;
-            if (isPlayerNumber && runContext.fantasyInventory.Contains("fan_number_domino") && transformed < 5)
-                transformed = 5;
-            if (!isPlayerNumber && runContext.fantasyInventory.Contains("fan_number_applepie") && transformed > 5)
-                transformed = 5;
+            if (isPlayerNumber && runContext.fantasyInventory.Contains("fan_number_domino"))
+                transformed = TransformDigits(transformed, digit => digit < 5 ? 5 : digit);
+            if (!isPlayerNumber && runContext.fantasyInventory.Contains("fan_number_applepie"))
+                transformed = TransformDigits(transformed, digit => digit > 5 ? 5 : digit);
             if (isPlayerNumber && runContext.fantasyInventory.Contains("fan_odd_gemini"))
                 transformed = transformed % 2 != 0 ? transformed * 2 : 0;
 
@@ -685,6 +687,96 @@ namespace GoldfishWalking.Fantasy
             }
 
             return true;
+        }
+
+        private static bool HasSameVisibleDigits(int fallbackValue, string segmentState)
+        {
+            List<int> visibleDigits = ParseVisibleDigits(segmentState);
+            if (visibleDigits.Count == 0)
+                return HasSameDigits(fallbackValue);
+            if (visibleDigits.Count <= 1)
+                return true;
+
+            int first = visibleDigits[0];
+            for (int i = 1; i < visibleDigits.Count; i++)
+            {
+                if (visibleDigits[i] != first)
+                    return false;
+            }
+
+            return true;
+        }
+
+        private static List<int> ParseVisibleDigits(string segmentState)
+        {
+            List<int> result = new List<int>();
+            if (string.IsNullOrWhiteSpace(segmentState))
+                return result;
+
+            string[] parts = segmentState.Split('|');
+            if (parts.Length < 2 || !int.TryParse(parts[0], out int digitCount))
+                return result;
+
+            Dictionary<int, List<int>> digitSegments = new Dictionary<int, List<int>>();
+            string[] entries = parts[1].Split(',');
+            for (int i = 0; i < entries.Length; i++)
+            {
+                if (string.IsNullOrWhiteSpace(entries[i]))
+                    continue;
+
+                string[] fields = entries[i].Split(':');
+                if (fields.Length < 2)
+                    continue;
+                if (!int.TryParse(fields[0], out int digitIndex) || !int.TryParse(fields[1], out int segmentIndex))
+                    continue;
+
+                if (!digitSegments.TryGetValue(digitIndex, out List<int> segments))
+                {
+                    segments = new List<int>();
+                    digitSegments.Add(digitIndex, segments);
+                }
+
+                segments.Add(segmentIndex);
+            }
+
+            for (int digitIndex = 0; digitIndex < digitCount; digitIndex++)
+            {
+                if (!digitSegments.TryGetValue(digitIndex, out List<int> segments) || segments.Count == 0)
+                    continue;
+                if (TryParseDigit(segments, out int digit))
+                    result.Add(digit);
+            }
+
+            return result;
+        }
+
+        private static bool TryParseDigit(IReadOnlyList<int> segments, out int digit)
+        {
+            for (int i = 0; i < MatchPatternTable.DigitPatterns.Length; i++)
+            {
+                MatchPattern pattern = MatchPatternTable.DigitPatterns[i];
+                if (MatchPatternTable.SameSegments(segments, pattern.segments))
+                {
+                    digit = pattern.value;
+                    return true;
+                }
+            }
+
+            digit = 0;
+            return false;
+        }
+
+        private static int TransformDigits(int value, System.Func<int, int> transform)
+        {
+            string text = Mathf.Max(0, value).ToString();
+            int result = 0;
+            for (int i = 0; i < text.Length; i++)
+            {
+                int digit = text[i] - '0';
+                result = result * 10 + Mathf.Clamp(transform != null ? transform(digit) : digit, 0, 9);
+            }
+
+            return result;
         }
 
         private static int SetFirstDigit(int value, int digit)

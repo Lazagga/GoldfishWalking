@@ -14,6 +14,10 @@ namespace GoldfishWalking.Battle
 
             MonsterGrade grade = ToMonsterGrade(nodeType);
             int act = runContext != null ? runContext.act : 1;
+            MonsterData forcedMonster = FindForcedMonster(database, runContext);
+            if (forcedMonster != null)
+                return forcedMonster;
+
             if (act == 1 && grade == MonsterGrade.Normal && runContext != null)
             {
                 if (runContext.roomIndex == 0)
@@ -55,6 +59,31 @@ namespace GoldfishWalking.Battle
                 ? runContext.RollValue($"monster.select.{grade}", 0, candidates.Count - 1)
                 : 0;
             return candidates[index];
+        }
+
+        private static MonsterData FindForcedMonster(MonsterDatabase database, RunContext runContext)
+        {
+            if (database == null || database.monsters == null || runContext == null || string.IsNullOrWhiteSpace(runContext.debugForcedMonsterId))
+                return null;
+
+            string lookup = runContext.debugForcedMonsterId.Trim();
+            MonsterData found = database.monsters.Find(monster =>
+                monster != null
+                && (Matches(monster.id, lookup)
+                    || Matches(monster.dataName, lookup)
+                    || Matches(monster.devName, lookup)
+                    || Matches(monster.displayName, lookup)));
+
+            if (found != null)
+                runContext.debugForcedMonsterId = string.Empty;
+
+            return found;
+        }
+
+        private static bool Matches(string value, string lookup)
+        {
+            return !string.IsNullOrWhiteSpace(value)
+                && string.Equals(value.Trim(), lookup, System.StringComparison.OrdinalIgnoreCase);
         }
 
         private static MonsterGrade ToMonsterGrade(MapNodeType nodeType)

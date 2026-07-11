@@ -20,12 +20,12 @@ ID	Act	Difficulty	DevName	DataName	NameStringID	DescStringID	Type	BaseHP	BaseStr
 20105	2	Normal	자동인형	Mob_20105_Automaton			Normal	720	0	AutomatonSingle, AutomatonSingle, AutomatonSingle, AutomatonSingleStun	Static	
 20106	2	Normal	쥐	Mob_20106_GiantRat			Normal	560	0	2_Single, 2_Multi_1, GiantRatSkill	Static	
 20107	2	Normal	경비병	Mob_20107_Guard			Normal	297	0	2_Single	Static	
-20201	2	Normal	점술사	Mob_20201_FortuneTeller			Elite	800	0	2_Single, 2_Multi_1, FortuneTellerSkill, FortuneTellerExplode	Random	
+20201	2	Normal	점술사	Mob_20201_FortuneTeller			Elite	800	0	FortuneTellerSingle, FortuneTellerMulti, FortuneTellerExplode	Random	
 20202	2	Normal	연금술사	Mob_20202_Alchemist			Elite	960	0	AlchemistSingle, AlchemistSkill	Static	
 20203	2	Normal	지휘자	Mob_20203_Conductor			Elite	720	0	2_Single, 2_Multi_2	Random	
 20301	2	Normal	피리부는사나이	Mob_20301_PiedPiper			Boss	1120	0	Str_1, 2_Single, 2_Multi_2	Static	
 20302	2	Normal	역병 의사	Mob_20302_PlagueDoctor			Boss	1200	0	PlagueDoctorSingle, PlagueDoctorSkill	Static	
-20303	2	Normal	예언자	Mob_20303_Prophet			Boss	1320	0	ProphetSingle, ProphetMulti, ProphetExplode	Random	
+20303	2	Normal	예언자	Mob_20303_Prophet			Boss	1320	0	ProphetSingle, ProphetMulti, ProphetSingle, ProphetExplode	Static	
 30101	3	Easy	강철 허수아비	Mob_30101_SteelScarecrow			Normal	900	0	Str_1, 2_Multi_1, 2_Multi_2	Static	
 30102	3	Easy	해파리	Mob_30102_Jellyfish			Normal	800	0	JellyfishSingle, JellyfishSingle, JellyfishSkill	Static	
 30103	3	Easy	구체	Mob_30103_Orb			Normal	850	0	2_Multi_1, 2_Multi_2, 2_Multi_3, OrbSkill	Static	

@@ -370,31 +370,31 @@ MonoBehaviour:
       rawJson: '{"Target":"Self","Action":"AddBuff","Type":"Strength","Value":1}'
     sprite: 
     specialHandler: 
-  - id: FortuneTellerSkill
+  - id: FortuneTellerSingle
     sourceId: 0
-    dataCode: FortuneTellerSkill
+    dataCode: FortuneTellerSingle
     devName: 
     nameStringId: 
-    displayName: FortuneTellerSkill
+    displayName: FortuneTellerSingle
     description: "\uB54C\uB9B4 \uB54C\uB9C8\uB2E4 \uC810\uC220\uC0AC\uAC00 \uC790\uC2E0\uC774
       \uAC00\uD558\uB294 \uD53C\uD574\uB7C9\uB9CC\uD07C \uC2A4\uD0DD \uBC84\uD504
       \uB204\uC801"
-    patternType: 0
+    patternType: 1
     value: 0
     hitCount: 1
-    attackKey: 
+    attackKey: 2_Single
     hasDynamicDamageValue: 0
     damageValueExpression: 
-    damageDigitCount: 0
+    damageDigitCount: 2
     hitDigitCount: 0
     strengthDelta: 0
     condition: 
-    rawEffects: '{"Effects": [{"Target": "Self", "Action": "AddBuff", "Type": "FortuneStack",
-      "Value": "DamageDealt"}]}'
+    rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Self", "Action":
+      "Addbuff", "Type": "FortuneStack", "Value": "DamageDealt"}]}'
     effects:
     - timing: 
       target: Self
-      action: AddBuff
+      action: Addbuff
       type: FortuneStack
       condition: 
       valueExpression: DamageDealt
@@ -402,7 +402,40 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
-      rawJson: '{"Target":"Self","Action":"AddBuff","Type":"FortuneStack","Value":"DamageDealt"}'
+      rawJson: '{"Target":"Self","Action":"Addbuff","Type":"FortuneStack","Value":"DamageDealt"}'
+    sprite: 
+    specialHandler: 
+  - id: FortuneTellerMulti
+    sourceId: 0
+    dataCode: FortuneTellerMulti
+    devName: 
+    nameStringId: 
+    displayName: FortuneTellerMulti
+    description: 
+    patternType: 2
+    value: 0
+    hitCount: 1
+    attackKey: 2_Multi_1
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 2
+    hitDigitCount: 1
+    strengthDelta: 0
+    condition: 
+    rawEffects: '{"Attack": "2_Multi_1", "Effects": [{"Target": "Self", "Action":
+      "Addbuff", "Type": "FortuneStack", "Value": "DamageDealt"}]}'
+    effects:
+    - timing: 
+      target: Self
+      action: Addbuff
+      type: FortuneStack
+      condition: 
+      valueExpression: DamageDealt
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Self","Action":"Addbuff","Type":"FortuneStack","Value":"DamageDealt"}'
     sprite: 
     specialHandler: 
   - id: FortuneTellerExplode
@@ -411,8 +444,7 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: FortuneTellerExplode
-    description: "\uC313\uC778 \uC2A4\uD0DD\uC744 \uAE30\uBCF8 \uB370\uBBF8\uC9C0\uB85C
-      \uC0AC\uC6A9\uD558\uACE0 \uBC84\uD504 \uC81C\uAC70"
+    description: "\uC313\uC778 \uC2A4\uD0DD\uB9CC\uD07C \uB370\uBBF8\uC9C0"
     patternType: 1
     value: 0
     hitCount: 1
@@ -491,10 +523,10 @@ MonoBehaviour:
     hitDigitCount: 0
     strengthDelta: 0
     condition: 
-    rawEffects: '{"Effects": [{"Target": "Player", "Action": "MultiplyBuff", "Type":
-      "Bleed", "Value": 3}]}'
+    rawEffects: '{"Effects": [{"Timing": "NextTurn", "Target": "Player", "Action":
+      "MultiplyBuff", "Type": "Bleed", "Value": 3}]}'
     effects:
-    - timing: 
+    - timing: NextTurn
       target: Player
       action: MultiplyBuff
       type: Bleed
@@ -504,7 +536,7 @@ MonoBehaviour:
       numericValue: 3
       duration: 0
       lockDamage: 0
-      rawJson: '{"Target":"Player","Action":"MultiplyBuff","Type":"Bleed","Value":3}'
+      rawJson: '{"Timing":"NextTurn","Target":"Player","Action":"MultiplyBuff","Type":"Bleed","Value":3}'
     sprite: 
     specialHandler: 
   - id: PlagueDoctorSkill
@@ -617,8 +649,8 @@ MonoBehaviour:
     devName: 
     nameStringId: 
     displayName: ProphetExplode
-    description: "\uC313\uC778 \uC2A4\uD0DD\uC744 \uAE30\uBCF8 \uB370\uBBF8\uC9C0\uB85C
-      \uC0AC\uC6A9\uD558\uACE0 \uBC84\uD504 \uC81C\uAC70"
+    description: "\uBC84\uD504 \uC218\uCE58\uB9CC\uD07C \uB370\uBBF8\uC9C0 \uC8FC\uACE0
+      \uC9C0\uAE08\uAE4C\uC9C0 \uC313\uC778 \uC2A4\uD0DD\uC744 \uC81C\uAC70"
     patternType: 1
     value: 0
     hitCount: 1
