@@ -113,42 +113,48 @@ namespace GoldfishWalking.Fantasy
                 case "fanend8ball":
                     if (normalizedTrigger == NormalizeTrigger("Turn_End"))
                     {
-                        runContext.pendingMonsterDamage += CountDigitInBattleNumbers(runContext, 8) * 20;
+                        float damagePerDigit = GetEffectValue(fantasy, "Turn_End", "Damage", 20f, runContext);
+                        runContext.pendingMonsterDamage += Mathf.FloorToInt(CountDigitInBattleNumbers(runContext, 8) * damagePerDigit);
                         return true;
                     }
                     break;
                 case "fanendgrape":
                     if (normalizedTrigger == NormalizeTrigger("Turn_End"))
                     {
-                        runContext.health += Mathf.Max(0, runContext.remainingMoveCount) * 50;
+                        float healPerMove = GetEffectValue(fantasy, "Turn_End", "HP", 50f, runContext);
+                        runContext.health += Mathf.FloorToInt(Mathf.Max(0, runContext.remainingMoveCount) * healPerMove);
                         return true;
                     }
                     break;
                 case "fanendfan":
                     if (normalizedTrigger == NormalizeTrigger("Turn_End"))
                     {
-                        runContext.pendingMonsterDamage += Mathf.FloorToInt(runContext.health * 0.2f);
+                        float damagePercent = GetEffectValue(fantasy, "Turn_End", "Damage", 20f, runContext);
+                        runContext.pendingMonsterDamage += Mathf.FloorToInt(runContext.health * NormalizePercent(damagePercent));
                         return true;
                     }
                     break;
                 case "fanendfirecracker":
                     if (normalizedTrigger == NormalizeTrigger("Turn_End"))
                     {
-                        runContext.pendingMonsterDamage += Mathf.Max(0, runContext.itemUseCountThisBattle) * 30;
+                        float damagePerItem = GetEffectValue(fantasy, "Turn_End", "Damage", 30f, runContext);
+                        runContext.pendingMonsterDamage += Mathf.FloorToInt(Mathf.Max(0, runContext.itemUseCountThisBattle) * damagePerItem);
                         return true;
                     }
                     break;
                 case "fanendpaperplane":
                     if (normalizedTrigger == NormalizeTrigger("Turn_End") && runContext.currentBattle != null && runContext.currentBattle.playerBaseDamage == runContext.currentBattle.monsterBaseDamage)
                     {
-                        runContext.pendingMonsterDamage *= 2;
+                        float multiplier = GetEffectValue(fantasy, "Turn_End", "Additional_Damage", 2f, runContext);
+                        runContext.pendingMonsterDamage = Mathf.FloorToInt(runContext.pendingMonsterDamage * multiplier);
                         return true;
                     }
                     break;
                 case "fanstartcuestick":
                     if (normalizedTrigger == NormalizeTrigger("Battle_Start") && runContext.currentBattle != null)
                     {
-                        runContext.currentBattle.playerBaseDamage = SetFirstDigit(runContext.currentBattle.playerBaseDamage, 8);
+                        int digit = Mathf.FloorToInt(GetEffectValue(fantasy, "Battle_Start", "Base_Damage", 8f, runContext));
+                        runContext.currentBattle.playerBaseDamage = SetFirstDigit(runContext.currentBattle.playerBaseDamage, digit);
                         return true;
                     }
                     break;
@@ -175,14 +181,15 @@ namespace GoldfishWalking.Fantasy
                     if (normalizedTrigger == NormalizeTrigger("Use_Item"))
                     {
                         if (runContext.RollValue($"fantasy.musicbox.{runContext.itemUseCountThisBattle}", 0, 99) < 50)
-                            runContext.itemInventory.Add(runContext.lastUsedItemType, 1);
+                            runContext.itemInventory.Add(runContext.lastUsedItemType, Mathf.FloorToInt(GetEffectValue(fantasy, "Use_Item", "Item", 1f, runContext)));
                         return true;
                     }
                     break;
                 case "fanshopstampcoupon":
                     if (normalizedTrigger == NormalizeTrigger("Shop_Purchase"))
                     {
-                        if (runContext.lastShopPurchaseCost >= 999)
+                        int threshold = Mathf.Abs(Mathf.FloorToInt(GetEffectValue(fantasy, "Shop_Purchase", "HP", -999f, runContext)));
+                        if (runContext.lastShopPurchaseCost >= threshold)
                             runContext.passiveAttackCountBonus += 1;
                         return true;
                     }
@@ -202,7 +209,8 @@ namespace GoldfishWalking.Fantasy
                 case "fandamagelibra":
                     if (TargetMatches("Base_Damage", targets) && runContext.currentBattle != null)
                     {
-                        value = runContext.currentBattle.playerBaseDamage == 0 ? 200 : 0;
+                        int replacement = Mathf.FloorToInt(GetEffectValue(fantasy, string.Empty, "Base_Damage", 200f, runContext));
+                        value = runContext.currentBattle.playerBaseDamage == 0 ? replacement : 0;
                         return true;
                     }
                     break;
@@ -210,14 +218,14 @@ namespace GoldfishWalking.Fantasy
                     if (normalizedTrigger == NormalizeTrigger("Take_Damage") && TargetMatches("Damage_Taken", targets) && runContext.currentBattle != null)
                     {
                         if (runContext.currentBattle.monsterBaseDamage >= runContext.currentBattle.playerBaseDamage)
-                            value = Mathf.FloorToInt(value * 0.5f);
+                            value = Mathf.FloorToInt(value * GetEffectValue(fantasy, string.Empty, "Damage_Taken", 0.5f, runContext));
                         return true;
                     }
                     break;
                 case "fandamagemirror":
-                    if (TargetMatches("Attack_Count", targets) && runContext.currentBattle != null && HasSameDigits(runContext.currentBattle.playerBaseDamage))
+                    if (normalizedTrigger == NormalizeTrigger("Turn_End") && TargetMatches("Attack_Count", targets) && runContext.currentBattle != null && HasSameDigits(runContext.currentBattle.playerBaseDamage))
                     {
-                        value += 1;
+                        value += Mathf.FloorToInt(GetEffectValue(fantasy, "Turn_End", "Attack_Count", 1f, runContext));
                         return true;
                     }
                     break;
@@ -428,6 +436,27 @@ namespace GoldfishWalking.Fantasy
         private static float NormalizePercent(float value)
         {
             return value > 1f ? value * 0.01f : value;
+        }
+
+        private static float GetEffectValue(FantasyData fantasy, string trigger, string target, float fallback, RunContext runContext)
+        {
+            if (fantasy == null || fantasy.effects == null)
+                return fallback;
+
+            for (int i = 0; i < fantasy.effects.Length; i++)
+            {
+                FantasyEffectData effect = fantasy.effects[i];
+                if (effect == null)
+                    continue;
+                if (!TriggerMatches(effect.trigger, trigger))
+                    continue;
+                if (NormalizeTarget(effect.target) != NormalizeTarget(target))
+                    continue;
+
+                return EvaluateValue(effect.valueExpression, runContext);
+            }
+
+            return fallback;
         }
 
         private static float EvaluateValue(string expression, RunContext runContext)

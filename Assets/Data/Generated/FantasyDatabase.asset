@@ -664,9 +664,9 @@ MonoBehaviour:
     triggerType: Turn_End
     displayName: "\uD3EC\uB3C4"
     description: "\uD134 \uC885\uB8CC \uC2DC \uB0A8\uC740 \uC774\uB3D9 \uD69F\uC218\uB9C8\uB2E4
-      \uCCB4\uB825 +50"
+      \uCCB4\uB825 +20"
     sprite: 
-    rawEffects: '[{"Trigger":"Turn_End","Target":"HP","Calc":"Add","Value":50.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"Turn_End","Target":"HP","Calc":"Add","Value":20.0,"Option":""}]'
     effects:
     - trigger: Turn_End
       target: HP
