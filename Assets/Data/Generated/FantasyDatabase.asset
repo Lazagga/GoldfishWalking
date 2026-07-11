@@ -659,7 +659,7 @@ MonoBehaviour:
     devName: "\uD3EC\uB3C4"
     nameStringId: 
     descStringId: "\uD134 \uC885\uB8CC \uC2DC \uB0A8\uC740 \uC774\uB3D9 \uD69F\uC218\uB9C8\uB2E4
-      \uCCB4\uB825 +50"
+      \uCCB4\uB825 +20"
     grade: 0
     triggerType: Turn_End
     displayName: "\uD3EC\uB3C4"
@@ -671,14 +671,14 @@ MonoBehaviour:
     - trigger: Turn_End
       target: HP
       calc: Add
-      valueExpression: 50
+      valueExpression: 20
       hasNumericValue: 1
-      numericValue: 50
+      numericValue: 20
       option: 
-      rawJson: '{"Trigger":"Turn_End","Target":"HP","Calc":"Add","Value":50.0,"Option":""}'
+      rawJson: '{"Trigger":"Turn_End","Target":"HP","Calc":"Add","Value":20.0,"Option":""}'
     trigger: 3
     target: 1
-    value: 50
+    value: 20
     specialHandler: 
   - id: fan_start_stamp
     sourceId: 26
@@ -1128,8 +1128,7 @@ MonoBehaviour:
       \uD53C\uD574\uB7C9 \uC774\uC0C1\uC778 \uACBD\uC6B0, \uBC1B\uB294 \uD53C\uD574
       \uC808\uBC18"
     grade: 1
-    triggerType: "=AI(\"\uD45C \uCEE8\uD14D\uC2A4\uD2B8\uB97C \uAE30\uBC18\uC73C\uB85C
-      \uC774 \uC140\uC5D0 \uC801\uC808\uD55C \uAC12\uC744 \uC785\uB825\uD574 \uC918\")"
+    triggerType: Passive
     displayName: "\uC885\uC774 \uBC30"
     description: "\uC801\uC758 \uAE30\uBCF8 \uD53C\uD574\uB7C9\uC774 \uB0B4 \uAE30\uBCF8
       \uD53C\uD574\uB7C9 \uC774\uC0C1\uC778 \uACBD\uC6B0, \uBC1B\uB294 \uD53C\uD574
@@ -1145,7 +1144,7 @@ MonoBehaviour:
       numericValue: 0.5
       option: 
       rawJson: '{"Trigger":"","Target":"Damage_Taken","Calc":"Multiply","Value":0.5,"Option":""}'
-    trigger: 8
+    trigger: 1
     target: 9
     value: 0
     specialHandler: 
@@ -1600,7 +1599,7 @@ MonoBehaviour:
     displayName: "\uCE94\uB514"
     description: "\uD68D\uB4DD \uC2DC \uD604\uC7AC \uCCB4\uB825 +10%"
     sprite: 
-    rawEffects: '[{"Trigger":"Acquire", "Target": "HP","Calc":"Add", "Value":"HP*0.1"}]'
+    rawEffects: '[{"Trigger":"Acquire","Target":"HP","Calc":"Add","Value":"HP*0.1","Option":""}]'
     effects:
     - trigger: Acquire
       target: HP
@@ -1609,7 +1608,7 @@ MonoBehaviour:
       hasNumericValue: 0
       numericValue: 0
       option: 
-      rawJson: '{"Trigger":"Acquire","Target":"HP","Calc":"Add","Value":"HP*0.1"}'
+      rawJson: '{"Trigger":"Acquire","Target":"HP","Calc":"Add","Value":"HP*0.1","Option":""}'
     trigger: 8
     target: 1
     value: 0

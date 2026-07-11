@@ -87,12 +87,21 @@ namespace GoldfishWalking.Battle
                 AppendStatus(builder, "SHIELD", context.monster.Shield);
                 AppendStatus(builder, "FORTUNE", context.monster.FortuneStack);
                 AppendStatus(builder, "PROPHECY", context.monster.ProphecyStack);
-                if (context.run != null)
-                {
-                    AppendStatus(builder, "BLEED", context.run.playerBleed);
-                    AppendStatus(builder, "POISON", context.run.playerPoison);
-                }
 
+                return builder.Length > 0 ? builder.ToString() : "-";
+            }
+        }
+
+        public string PlayerStatusSummary
+        {
+            get
+            {
+                if (context == null || context.run == null)
+                    return "-";
+
+                StringBuilder builder = new StringBuilder();
+                AppendStatus(builder, "BLEED", context.run.playerBleed);
+                AppendStatus(builder, "POISON", context.run.playerPoison);
                 return builder.Length > 0 ? builder.ToString() : "-";
             }
         }
@@ -167,7 +176,14 @@ namespace GoldfishWalking.Battle
 
             context.run.ClearCommittedBattleEditItems();
             ApplyFormulaToMonster(playerResult);
+            if (CompleteBattleResolution())
+                return;
+
             ApplyTurnEndFantasyEffects();
+            if (CompleteBattleResolution())
+                return;
+
+            ApplyPlayerEndTurnStatusDamage();
             if (CompleteBattleResolution())
                 return;
 
@@ -516,6 +532,29 @@ namespace GoldfishWalking.Battle
             ApplyPendingMonsterDamage();
         }
 
+        private void ApplyPlayerEndTurnStatusDamage()
+        {
+            if (context == null || context.run == null)
+                return;
+
+            int damage = 0;
+            if (context.run.playerBleed > 0)
+            {
+                damage += context.run.playerBleed;
+                context.run.playerBleed = 0;
+            }
+
+            if (context.run.playerPoison > 0)
+                damage += context.run.playerPoison;
+
+            if (damage <= 0)
+                return;
+
+            context.run.health -= damage;
+            context.run.lastDamageTaken = damage;
+            context.run.battleDamageTaken += damage;
+        }
+
         private void ApplyPendingMonsterDamage()
         {
             if (context == null || context.run == null || context.monster == null)
@@ -581,6 +620,8 @@ namespace GoldfishWalking.Battle
                 return;
 
             context.run.strength = 0;
+            context.run.playerBleed = 0;
+            context.run.playerPoison = 0;
             context.run.ClearCommittedBattleEditItems();
             context.run.itemInventory.ClearTemporary();
             GameEventHub.RaiseItemInventoryChanged();

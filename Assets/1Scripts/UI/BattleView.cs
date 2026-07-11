@@ -39,6 +39,7 @@ namespace GoldfishWalking.UI
         private Text monsterNameText;
         private Text monsterHealthText;
         private Text monsterBuffText;
+        private Text playerBuffText;
         private Text moveCountText;
         private Text damageDebugText;
         private InputField debugFantasyInput;
@@ -233,6 +234,8 @@ namespace GoldfishWalking.UI
         {
             RectTransform panel = CreatePanel("PlayerFormulaPanel", layoutRoot, panelColor, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-560f, 92f), new Vector2(304f, 126f));
             playerDamageBox = CreateFormulaNumberBox(panel, "PlayerDamage", GetPlayerBaseDamage(), Vector2.zero, new Vector2(196f, 98f), healthColor, OnPlayerDamageDifferenceChanged, OnPlayerDamageEdited, false, GetPlayerDamageDigitCount());
+            playerBuffText = CreateText("PlayerBuffs", panel, "-", 18, cyanColor, TextAnchor.MiddleCenter);
+            SetRect(playerBuffText.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, -58f), new Vector2(-22f, 38f));
         }
 
         private void CreateMonsterFormula()
@@ -394,6 +397,8 @@ namespace GoldfishWalking.UI
                     : "0 / 1";
             if (monsterBuffText != null)
                 monsterBuffText.text = battleController != null ? battleController.MonsterStatusSummary : "-";
+            if (playerBuffText != null)
+                playerBuffText.text = battleController != null ? battleController.PlayerStatusSummary : "-";
         }
 
         private void RefreshFantasySlots()
@@ -641,7 +646,7 @@ namespace GoldfishWalking.UI
             string trigger = !string.IsNullOrWhiteSpace(effect.trigger) ? effect.trigger : fantasy.triggerType;
             string target = !string.IsNullOrWhiteSpace(effect.target) ? effect.target : "Effect";
             string calc = !string.IsNullOrWhiteSpace(effect.calc) ? effect.calc : "Apply";
-            string value = !string.IsNullOrWhiteSpace(effect.valueExpression) ? effect.valueExpression : "0";
+            string value = effect.hasNumericValue ? effect.numericValue.ToString(System.Globalization.CultureInfo.InvariantCulture) : (!string.IsNullOrWhiteSpace(effect.valueExpression) ? effect.valueExpression : "0");
             return $"{trigger} / {target} / {calc} {value}";
         }
 

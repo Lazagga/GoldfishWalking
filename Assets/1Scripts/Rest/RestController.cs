@@ -1,6 +1,7 @@
 using GoldfishWalking.Core;
 using GoldfishWalking.Data;
 using GoldfishWalking.Fantasy;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace GoldfishWalking.Rest
@@ -42,6 +43,9 @@ namespace GoldfishWalking.Rest
         public int MaxRestCount => bootstrap != null && bootstrap.RunContext != null
             ? Mathf.Max(1, fantasyEffectRunner.ModifyValue(bootstrap.RunContext, 1, "Passive", "Rest_Count"))
             : 1;
+        public IReadOnlyList<FantasyData> OwnedFantasies => bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.fantasyInventory != null
+            ? bootstrap.RunContext.fantasyInventory.ownedFantasies
+            : null;
         public bool CanClaimCoffeeFantasy => bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.fantasyInventory.Contains("fan_rest_coffee");
 
         public void SetHealAmount(int amount)

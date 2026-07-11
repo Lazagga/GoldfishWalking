@@ -96,7 +96,7 @@ namespace GoldfishWalking.Fantasy
                     if (!TargetMatches(effect.target, targets))
                         continue;
 
-                    value = ApplyCalculation(value, Normalize(effect.calc), EvaluateValue(effect.valueExpression, runContext));
+                    value = ApplyCalculation(value, Normalize(effect.calc), EvaluateEffectValue(effect, runContext));
                 }
             }
 
@@ -238,7 +238,7 @@ namespace GoldfishWalking.Fantasy
         {
             string target = NormalizeTarget(effect.target);
             string calc = Normalize(effect.calc);
-            float value = EvaluateValue(effect.valueExpression, runContext);
+            float value = EvaluateEffectValue(effect, runContext);
             int pendingBefore = runContext.pendingMonsterDamage;
 
             switch (target)
@@ -453,10 +453,21 @@ namespace GoldfishWalking.Fantasy
                 if (NormalizeTarget(effect.target) != NormalizeTarget(target))
                     continue;
 
-                return EvaluateValue(effect.valueExpression, runContext);
+                return EvaluateEffectValue(effect, runContext);
             }
 
             return fallback;
+        }
+
+        private static float EvaluateEffectValue(FantasyEffectData effect, RunContext runContext)
+        {
+            if (effect == null)
+                return 0f;
+
+            if (effect.hasNumericValue)
+                return effect.numericValue;
+
+            return EvaluateValue(effect.valueExpression, runContext);
         }
 
         private static float EvaluateValue(string expression, RunContext runContext)

@@ -3,6 +3,7 @@ using GoldfishWalking.Core;
 using GoldfishWalking.Data;
 using GoldfishWalking.Fantasy;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace GoldfishWalking.UI
@@ -30,8 +31,12 @@ namespace GoldfishWalking.UI
         private RectTransform rewardCardRoot;
         private RectTransform fantasySlotsRoot;
         private RectTransform consumablePanel;
+        private RectTransform fantasyTooltipRoot;
         private Image overlayImage;
         private Text healthText;
+        private Text fantasyTooltipName;
+        private Text fantasyTooltipDescription;
+        private Text fantasyTooltipEffect;
         private Button nextButton;
         private bool hasFantasyReward;
         private bool hasExtraMatchReward;
@@ -109,6 +114,7 @@ namespace GoldfishWalking.UI
             CreateBottomInventory();
             CreateRerollButton();
             CreateNextButton();
+            CreateFantasyTooltip();
         }
 
         private void CreateBackground()
@@ -167,6 +173,18 @@ namespace GoldfishWalking.UI
         {
             consumablePanel = CreatePanel("ConsumablePanel", layoutRoot, panelColor, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 96f), new Vector2(364f, 116f));
             RefreshConsumables();
+        }
+
+        private void CreateFantasyTooltip()
+        {
+            fantasyTooltipRoot = CreatePanel("FantasyTooltip", layoutRoot, new Color(0.08f, 0.09f, 0.12f, 0.98f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-560f, -38f), new Vector2(380f, 250f));
+            fantasyTooltipName = CreateText("Name", fantasyTooltipRoot, string.Empty, 20, textColor, TextAnchor.UpperCenter);
+            SetRect(fantasyTooltipName.rectTransform, new Vector2(0f, 0.72f), Vector2.one, new Vector2(0f, -14f), new Vector2(-24f, -12f));
+            fantasyTooltipDescription = CreateText("Description", fantasyTooltipRoot, string.Empty, 16, textColor, TextAnchor.UpperLeft);
+            SetRect(fantasyTooltipDescription.rectTransform, new Vector2(0f, 0.32f), new Vector2(1f, 0.76f), new Vector2(0f, -8f), new Vector2(-28f, -8f));
+            fantasyTooltipEffect = CreateText("Effect", fantasyTooltipRoot, string.Empty, 14, cyanColor, TextAnchor.UpperLeft);
+            SetRect(fantasyTooltipEffect.rectTransform, Vector2.zero, new Vector2(1f, 0.33f), new Vector2(0f, 8f), new Vector2(-28f, -8f));
+            fantasyTooltipRoot.gameObject.SetActive(false);
         }
 
         private void CreateSmallItem(RectTransform parent, Vector2 position, Color itemColor, string count)
@@ -392,6 +410,8 @@ namespace GoldfishWalking.UI
 
         private void CloseFantasyChoices()
         {
+            HideFantasyTooltip();
+
             if (rewardCardRoot == null)
                 return;
 
@@ -411,7 +431,7 @@ namespace GoldfishWalking.UI
         {
             if (overlayImage != null)
             {
-                overlayImage.raycastTarget = visible;
+                overlayImage.raycastTarget = false;
                 Color color = overlayImage.color;
                 color.a = visible ? overlayColor.a : 0f;
                 overlayImage.color = color;
@@ -419,6 +439,8 @@ namespace GoldfishWalking.UI
 
             SetActiveIfExists(fantasySlotsRoot, visible);
             SetActiveIfExists(consumablePanel, visible);
+            if (!visible)
+                HideFantasyTooltip();
         }
 
         private static void SetActiveIfExists(Component component, bool active)
@@ -470,7 +492,31 @@ namespace GoldfishWalking.UI
 
                 Text icon = CreateText("FantasyIcon", slot, "★", 29, GradeColor(owned[i].grade), TextAnchor.MiddleCenter);
                 SetRect(icon.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+                FantasyTooltipTrigger trigger = slot.gameObject.AddComponent<FantasyTooltipTrigger>();
+                trigger.Initialize(this, owned[i]);
             }
+
+            fantasySlotsRoot.SetAsLastSibling();
+            if (fantasyTooltipRoot != null)
+                fantasyTooltipRoot.SetAsLastSibling();
+        }
+
+        private void ShowFantasyTooltip(FantasyData fantasy)
+        {
+            if (fantasyTooltipRoot == null || fantasy == null)
+                return;
+
+            fantasyTooltipName.text = DisplayName(fantasy);
+            fantasyTooltipDescription.text = DescriptionText(fantasy);
+            fantasyTooltipEffect.text = EffectSummary(fantasy);
+            fantasyTooltipRoot.gameObject.SetActive(true);
+            fantasyTooltipRoot.SetAsLastSibling();
+        }
+
+        private void HideFantasyTooltip()
+        {
+            if (fantasyTooltipRoot != null)
+                fantasyTooltipRoot.gameObject.SetActive(false);
         }
 
         private static string DisplayName(FantasyData fantasy)
@@ -507,7 +553,7 @@ namespace GoldfishWalking.UI
             string trigger = !string.IsNullOrWhiteSpace(effect.trigger) ? effect.trigger : fantasy.triggerType;
             string target = !string.IsNullOrWhiteSpace(effect.target) ? effect.target : "Effect";
             string calc = !string.IsNullOrWhiteSpace(effect.calc) ? effect.calc : "Apply";
-            string value = !string.IsNullOrWhiteSpace(effect.valueExpression) ? effect.valueExpression : "0";
+            string value = effect.hasNumericValue ? effect.numericValue.ToString(System.Globalization.CultureInfo.InvariantCulture) : (!string.IsNullOrWhiteSpace(effect.valueExpression) ? effect.valueExpression : "0");
             return $"{trigger} / {target} / {calc} {value}";
         }
 
@@ -612,6 +658,28 @@ namespace GoldfishWalking.UI
             rect.pivot = new Vector2(0.5f, 0.5f);
             rect.anchoredPosition = anchoredPosition;
             rect.sizeDelta = sizeDelta;
+        }
+
+        private sealed class FantasyTooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+        {
+            private RewardView owner;
+            private FantasyData fantasy;
+
+            public void Initialize(RewardView tooltipOwner, FantasyData tooltipFantasy)
+            {
+                owner = tooltipOwner;
+                fantasy = tooltipFantasy;
+            }
+
+            public void OnPointerEnter(PointerEventData eventData)
+            {
+                owner?.ShowFantasyTooltip(fantasy);
+            }
+
+            public void OnPointerExit(PointerEventData eventData)
+            {
+                owner?.HideFantasyTooltip();
+            }
         }
     }
 }

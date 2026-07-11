@@ -1,7 +1,10 @@
 using System.Collections;
+using System.Collections.Generic;
+using GoldfishWalking.Data;
 using GoldfishWalking.Match;
 using GoldfishWalking.Rest;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace GoldfishWalking.UI
@@ -22,9 +25,14 @@ namespace GoldfishWalking.UI
 
         private RectTransform layoutRoot;
         private RectTransform statusPanel;
+        private RectTransform fantasyContentRoot;
         private RectTransform matchNumberRoot;
+        private RectTransform fantasyTooltipRoot;
         private Text healthText;
         private Text healFloatText;
+        private Text fantasyTooltipName;
+        private Text fantasyTooltipDescription;
+        private Text fantasyTooltipEffect;
         private Button restButton;
         private Button coffeeButton;
         private Button nextButton;
@@ -88,6 +96,7 @@ namespace GoldfishWalking.UI
             CreateBackground();
             CreateStatusArea();
             CreateMatchNumberArea();
+            CreateFantasyTooltip();
             CreateRestButton();
             CreateCoffeeButton();
             CreateNextButton();
@@ -117,11 +126,31 @@ namespace GoldfishWalking.UI
             SetRect(healFloatText.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-78f, 26f), new Vector2(130f, 46f));
             healFloatText.gameObject.SetActive(false);
 
+            CreateFantasyScroll();
+        }
+
+        private void CreateFantasyScroll()
+        {
             RectTransform fantasyPanel = CreatePanel("FantasySlots", layoutRoot, panelColor, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(299f, -228f), new Vector2(482f, 88f));
-            for (int i = 0; i < 6; i++)
-            {
-                CreatePanel($"FantasySlot{i + 1}", fantasyPanel, fantasySlotColor, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(48f + i * 76f, 0f), new Vector2(60f, 60f));
-            }
+            ScrollRect scrollRect = fantasyPanel.gameObject.AddComponent<ScrollRect>();
+            scrollRect.horizontal = true;
+            scrollRect.vertical = false;
+            scrollRect.inertia = true;
+            scrollRect.movementType = ScrollRect.MovementType.Clamped;
+
+            RectTransform viewport = CreateRect("Viewport", fantasyPanel, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            viewport.offsetMin = new Vector2(10f, 10f);
+            viewport.offsetMax = new Vector2(-10f, -10f);
+            viewport.gameObject.AddComponent<RectMask2D>();
+
+            fantasyContentRoot = CreateRect("Content", viewport, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), Vector2.zero, Vector2.zero);
+            fantasyContentRoot.pivot = new Vector2(0f, 0.5f);
+            fantasyContentRoot.anchoredPosition = Vector2.zero;
+            fantasyContentRoot.sizeDelta = new Vector2(746f, 68f);
+
+            scrollRect.viewport = viewport;
+            scrollRect.content = fantasyContentRoot;
+            RefreshFantasySlots();
         }
 
         private void CreateMatchNumberArea()
@@ -130,6 +159,18 @@ namespace GoldfishWalking.UI
             matchNumberRoot.anchoredPosition = new Vector2(0f, 130f);
             matchNumberRoot.sizeDelta = new Vector2(420f, 220f);
             DrawMatchNumber(healAmount);
+        }
+
+        private void CreateFantasyTooltip()
+        {
+            fantasyTooltipRoot = CreatePanel("FantasyTooltip", layoutRoot, new Color(0.08f, 0.09f, 0.12f, 0.98f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-560f, -38f), new Vector2(380f, 250f));
+            fantasyTooltipName = CreateText("Name", fantasyTooltipRoot, string.Empty, 20, textColor, TextAnchor.UpperCenter);
+            SetRect(fantasyTooltipName.rectTransform, new Vector2(0f, 0.72f), Vector2.one, new Vector2(0f, -14f), new Vector2(-24f, -12f));
+            fantasyTooltipDescription = CreateText("Description", fantasyTooltipRoot, string.Empty, 16, textColor, TextAnchor.UpperLeft);
+            SetRect(fantasyTooltipDescription.rectTransform, new Vector2(0f, 0.32f), new Vector2(1f, 0.76f), new Vector2(0f, -8f), new Vector2(-28f, -8f));
+            fantasyTooltipEffect = CreateText("Effect", fantasyTooltipRoot, string.Empty, 14, new Color(0.24f, 0.74f, 0.90f, 1f), TextAnchor.UpperLeft);
+            SetRect(fantasyTooltipEffect.rectTransform, Vector2.zero, new Vector2(1f, 0.33f), new Vector2(0f, 8f), new Vector2(-28f, -8f));
+            fantasyTooltipRoot.gameObject.SetActive(false);
         }
 
         private void CreateRestButton()
@@ -223,8 +264,35 @@ namespace GoldfishWalking.UI
             if (healFloatText != null && restUseCount == 0)
                 healFloatText.gameObject.SetActive(false);
 
+            RefreshFantasySlots();
+            HideFantasyTooltip();
             healAmount = restController != null ? restController.CurrentHealAmount : healAmount;
             DrawMatchNumber(healAmount);
+        }
+
+        private void RefreshFantasySlots()
+        {
+            if (fantasyContentRoot == null)
+                return;
+
+            ClearChildren(fantasyContentRoot);
+            IReadOnlyList<FantasyData> owned = restController != null ? restController.OwnedFantasies : null;
+            int ownedCount = owned != null ? owned.Count : 0;
+            int slotCount = Mathf.Max(10, ownedCount);
+            fantasyContentRoot.sizeDelta = new Vector2(Mathf.Max(746f, slotCount * 74f + 6f), 68f);
+
+            for (int i = 0; i < slotCount; i++)
+            {
+                RectTransform slot = CreatePanel($"FantasySlot{i + 1}", fantasyContentRoot, fantasySlotColor, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(34f + i * 74f, 0f), new Vector2(60f, 60f));
+                if (owned == null || i >= owned.Count || owned[i] == null)
+                    continue;
+
+                FantasyData fantasy = owned[i];
+                Text icon = CreateText("FantasyIcon", slot, "★", 29, GradeColor(fantasy.grade), TextAnchor.MiddleCenter);
+                SetRect(icon.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+                FantasyTooltipTrigger trigger = slot.gameObject.AddComponent<FantasyTooltipTrigger>();
+                trigger.Initialize(this, fantasy);
+            }
         }
 
         private void PlayHealFloat(int amount)
@@ -283,6 +351,69 @@ namespace GoldfishWalking.UI
             healAmount = Mathf.Max(0, newValue);
             if (restController != null)
                 restController.SetHealAmount(healAmount);
+        }
+
+        private void ShowFantasyTooltip(FantasyData fantasy)
+        {
+            if (fantasyTooltipRoot == null || fantasy == null)
+                return;
+
+            fantasyTooltipName.text = DisplayName(fantasy);
+            fantasyTooltipDescription.text = DescriptionText(fantasy);
+            fantasyTooltipEffect.text = EffectSummary(fantasy);
+            fantasyTooltipRoot.gameObject.SetActive(true);
+        }
+
+        private void HideFantasyTooltip()
+        {
+            if (fantasyTooltipRoot != null)
+                fantasyTooltipRoot.gameObject.SetActive(false);
+        }
+
+        private static string DisplayName(FantasyData fantasy)
+        {
+            if (fantasy == null)
+                return string.Empty;
+            if (!string.IsNullOrWhiteSpace(fantasy.displayName))
+                return fantasy.displayName;
+            if (!string.IsNullOrWhiteSpace(fantasy.devName))
+                return fantasy.devName;
+            return fantasy.id;
+        }
+
+        private static string DescriptionText(FantasyData fantasy)
+        {
+            if (fantasy == null)
+                return string.Empty;
+            if (!string.IsNullOrWhiteSpace(fantasy.description))
+                return fantasy.description;
+            return fantasy.descStringId;
+        }
+
+        private static string EffectSummary(FantasyData fantasy)
+        {
+            if (fantasy == null || fantasy.effects == null || fantasy.effects.Length == 0)
+                return string.Empty;
+
+            FantasyEffectData effect = fantasy.effects[0];
+            string trigger = !string.IsNullOrWhiteSpace(effect.trigger) ? effect.trigger : fantasy.triggerType;
+            string target = !string.IsNullOrWhiteSpace(effect.target) ? effect.target : "Effect";
+            string calc = !string.IsNullOrWhiteSpace(effect.calc) ? effect.calc : "Apply";
+            string value = effect.hasNumericValue ? effect.numericValue.ToString(System.Globalization.CultureInfo.InvariantCulture) : (!string.IsNullOrWhiteSpace(effect.valueExpression) ? effect.valueExpression : "0");
+            return $"{trigger} / {target} / {calc} {value}";
+        }
+
+        private Color GradeColor(FantasyGrade grade)
+        {
+            switch (grade)
+            {
+                case FantasyGrade.Blue:
+                    return new Color(0.24f, 0.74f, 0.90f, 1f);
+                case FantasyGrade.Red:
+                    return new Color(1f, 0.32f, 0.32f, 1f);
+                default:
+                    return textColor;
+            }
         }
 
         private void DrawDigit(RectTransform digitRoot, int digit)
@@ -414,6 +545,28 @@ namespace GoldfishWalking.UI
             rect.pivot = new Vector2(0.5f, 0.5f);
             rect.anchoredPosition = anchoredPosition;
             rect.sizeDelta = sizeDelta;
+        }
+
+        private sealed class FantasyTooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+        {
+            private RestView owner;
+            private FantasyData fantasy;
+
+            public void Initialize(RestView tooltipOwner, FantasyData tooltipFantasy)
+            {
+                owner = tooltipOwner;
+                fantasy = tooltipFantasy;
+            }
+
+            public void OnPointerEnter(PointerEventData eventData)
+            {
+                owner?.ShowFantasyTooltip(fantasy);
+            }
+
+            public void OnPointerExit(PointerEventData eventData)
+            {
+                owner?.HideFantasyTooltip();
+            }
         }
     }
 }

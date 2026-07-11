@@ -4,6 +4,7 @@ using GoldfishWalking.Data;
 using GoldfishWalking.Match;
 using GoldfishWalking.Shop;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace GoldfishWalking.UI
@@ -33,14 +34,19 @@ namespace GoldfishWalking.UI
         private RectTransform statusPanel;
         private RectTransform fantasySlotsRoot;
         private RectTransform fantasyContentRoot;
+        private RectTransform tooltipRoot;
         private Text healthText;
         private Text moveCountText;
         private Text spendFloatText;
+        private Text tooltipName;
+        private Text tooltipDescription;
+        private Text tooltipEffect;
         private Button closeButton;
         private Coroutine spendFloatRoutine;
         private readonly Dictionary<string, EditableSevenSegmentBox> priceBoxes = new Dictionary<string, EditableSevenSegmentBox>();
         private readonly Dictionary<string, Button> itemButtons = new Dictionary<string, Button>();
         private readonly Dictionary<string, RectTransform> itemRoots = new Dictionary<string, RectTransform>();
+        private readonly Dictionary<string, Text> itemTitleTexts = new Dictionary<string, Text>();
 
         private void Awake()
         {
@@ -100,6 +106,7 @@ namespace GoldfishWalking.UI
             CreateMerchantPanel();
             CreateMoveCounter();
             CreateShopGrid();
+            CreateTooltip();
             CreateCloseButton();
         }
 
@@ -142,7 +149,7 @@ namespace GoldfishWalking.UI
             fantasyContentRoot = CreateRect("Content", viewport, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), Vector2.zero, Vector2.zero);
             fantasyContentRoot.pivot = new Vector2(0f, 0.5f);
             fantasyContentRoot.anchoredPosition = Vector2.zero;
-            fantasyContentRoot.sizeDelta = new Vector2(462f, 68f);
+            fantasyContentRoot.sizeDelta = new Vector2(746f, 68f);
 
             scrollRect.viewport = viewport;
             scrollRect.content = fantasyContentRoot;
@@ -195,18 +202,33 @@ namespace GoldfishWalking.UI
             Button button = iconPanel.gameObject.AddComponent<Button>();
             button.onClick.AddListener(() => OnItemClicked(item, button));
             itemButtons[item.id] = button;
+            ShopTooltipTrigger trigger = iconPanel.gameObject.AddComponent<ShopTooltipTrigger>();
+            trigger.Initialize(this, item);
 
             string title = GetItemTitle(item);
             if (!string.IsNullOrWhiteSpace(title))
             {
                 Text titleText = CreateText("Title", itemRoot, title, 16, textColor, TextAnchor.MiddleCenter);
                 SetRect(titleText.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 106f), new Vector2(0f, 36f));
+                itemTitleTexts[item.id] = titleText;
             }
 
             RectTransform priceRoot = CreateRect("Price", itemRoot, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), Vector2.zero, Vector2.zero);
             priceRoot.anchoredPosition = new Vector2(0f, 35f);
             priceRoot.sizeDelta = new Vector2(230f, 88f);
             priceBoxes[item.id] = DrawMatchNumber(priceRoot, GetCurrentPrice(item), 0.45f, item.id);
+        }
+
+        private void CreateTooltip()
+        {
+            tooltipRoot = CreatePanel("ShopTooltip", layoutRoot, new Color(0.08f, 0.09f, 0.12f, 0.98f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-560f, -38f), new Vector2(380f, 250f));
+            tooltipName = CreateText("Name", tooltipRoot, string.Empty, 20, textColor, TextAnchor.UpperCenter);
+            SetRect(tooltipName.rectTransform, new Vector2(0f, 0.72f), Vector2.one, new Vector2(0f, -14f), new Vector2(-24f, -12f));
+            tooltipDescription = CreateText("Description", tooltipRoot, string.Empty, 16, textColor, TextAnchor.UpperLeft);
+            SetRect(tooltipDescription.rectTransform, new Vector2(0f, 0.32f), new Vector2(1f, 0.76f), new Vector2(0f, -8f), new Vector2(-28f, -8f));
+            tooltipEffect = CreateText("Effect", tooltipRoot, string.Empty, 14, new Color(0.24f, 0.74f, 0.90f, 1f), TextAnchor.UpperLeft);
+            SetRect(tooltipEffect.rectTransform, Vector2.zero, new Vector2(1f, 0.33f), new Vector2(0f, 8f), new Vector2(-28f, -8f));
+            tooltipRoot.gameObject.SetActive(false);
         }
 
         private void CreateCloseButton()
@@ -283,7 +305,9 @@ namespace GoldfishWalking.UI
                 moveCountText.text = $"2 / {(shopController != null ? shopController.CurrentMoveLimit : 2)}";
             RefreshFantasySlots();
             RefreshPrices();
+            RefreshItemTitles();
             RefreshItemButtons();
+            HideTooltip();
         }
 
         private void RefreshFantasySlots()
@@ -294,17 +318,19 @@ namespace GoldfishWalking.UI
             ClearChildren(fantasyContentRoot);
             IReadOnlyList<FantasyData> owned = shopController != null ? shopController.OwnedFantasies : null;
             int ownedCount = owned != null ? owned.Count : 0;
-            int slotCount = Mathf.Max(6, ownedCount);
-            fantasyContentRoot.sizeDelta = new Vector2(Mathf.Max(462f, slotCount * 76f + 12f), 68f);
+            int slotCount = Mathf.Max(10, ownedCount);
+            fantasyContentRoot.sizeDelta = new Vector2(Mathf.Max(746f, slotCount * 74f + 6f), 68f);
 
             for (int i = 0; i < slotCount; i++)
             {
-                RectTransform slot = CreatePanel($"FantasySlot{i + 1}", fantasyContentRoot, slotColor, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(32f + i * 76f, 0f), new Vector2(60f, 60f));
+                RectTransform slot = CreatePanel($"FantasySlot{i + 1}", fantasyContentRoot, slotColor, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(34f + i * 74f, 0f), new Vector2(60f, 60f));
                 if (owned == null || i >= owned.Count || owned[i] == null)
                     continue;
 
                 Text icon = CreateText("FantasyIcon", slot, "★", 29, GradeColor(owned[i].grade), TextAnchor.MiddleCenter);
                 SetRect(icon.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+                ShopTooltipTrigger trigger = slot.gameObject.AddComponent<ShopTooltipTrigger>();
+                trigger.Initialize(this, owned[i]);
             }
         }
 
@@ -365,6 +391,18 @@ namespace GoldfishWalking.UI
                     continue;
 
                 box.Configure(GetCurrentPrice(item), GetMinDigits(item.id), priceMatchColor, newValue => OnPriceEdited(item.id, newValue));
+            }
+        }
+
+        private void RefreshItemTitles()
+        {
+            for (int i = 0; i < shopItems.Length; i++)
+            {
+                ShopItem item = shopItems[i];
+                if (!itemTitleTexts.TryGetValue(item.id, out Text titleText) || titleText == null)
+                    continue;
+
+                titleText.text = GetItemTitle(item);
             }
         }
 
@@ -448,6 +486,53 @@ namespace GoldfishWalking.UI
             }
         }
 
+        private void ShowFantasyTooltip(FantasyData fantasy)
+        {
+            if (fantasy == null)
+                return;
+
+            ShowTooltip(DisplayName(fantasy), DescriptionText(fantasy), EffectSummary(fantasy));
+        }
+
+        private void ShowShopItemTooltip(ShopItem item)
+        {
+            if (TryGetShopFantasy(item, out FantasyData fantasy))
+            {
+                ShowFantasyTooltip(fantasy);
+                return;
+            }
+
+            switch (item.id)
+            {
+                case "ShopItemExtraMatch":
+                    ShowTooltip("Extra Match", "소모품", "구매 시 추가 성냥 +1");
+                    break;
+                case "ShopItemEraser":
+                    ShowTooltip("Eraser", "소모품", "구매 시 지우개 +1");
+                    break;
+                default:
+                    HideTooltip();
+                    break;
+            }
+        }
+
+        private void ShowTooltip(string title, string description, string effect)
+        {
+            if (tooltipRoot == null)
+                return;
+
+            tooltipName.text = title;
+            tooltipDescription.text = description;
+            tooltipEffect.text = effect;
+            tooltipRoot.gameObject.SetActive(true);
+        }
+
+        private void HideTooltip()
+        {
+            if (tooltipRoot != null)
+                tooltipRoot.gameObject.SetActive(false);
+        }
+
         private void RefreshItemButtons()
         {
             for (int i = 0; i < shopItems.Length; i++)
@@ -481,6 +566,28 @@ namespace GoldfishWalking.UI
                 return fantasy.devName;
 
             return fantasy.id;
+        }
+
+        private static string DescriptionText(FantasyData fantasy)
+        {
+            if (fantasy == null)
+                return string.Empty;
+            if (!string.IsNullOrWhiteSpace(fantasy.description))
+                return fantasy.description;
+            return fantasy.descStringId;
+        }
+
+        private static string EffectSummary(FantasyData fantasy)
+        {
+            if (fantasy == null || fantasy.effects == null || fantasy.effects.Length == 0)
+                return string.Empty;
+
+            FantasyEffectData effect = fantasy.effects[0];
+            string trigger = !string.IsNullOrWhiteSpace(effect.trigger) ? effect.trigger : fantasy.triggerType;
+            string target = !string.IsNullOrWhiteSpace(effect.target) ? effect.target : "Effect";
+            string calc = !string.IsNullOrWhiteSpace(effect.calc) ? effect.calc : "Apply";
+            string value = effect.hasNumericValue ? effect.numericValue.ToString(System.Globalization.CultureInfo.InvariantCulture) : (!string.IsNullOrWhiteSpace(effect.valueExpression) ? effect.valueExpression : "0");
+            return $"{trigger} / {target} / {calc} {value}";
         }
 
         private Color GradeColor(FantasyGrade grade)
@@ -681,6 +788,41 @@ namespace GoldfishWalking.UI
                 this.icon = icon;
                 this.price = price;
                 this.iconColor = iconColor;
+            }
+        }
+
+        private sealed class ShopTooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+        {
+            private ShopView owner;
+            private FantasyData fantasy;
+            private ShopItem item;
+            private bool hasItem;
+
+            public void Initialize(ShopView tooltipOwner, FantasyData tooltipFantasy)
+            {
+                owner = tooltipOwner;
+                fantasy = tooltipFantasy;
+                hasItem = false;
+            }
+
+            public void Initialize(ShopView tooltipOwner, ShopItem tooltipItem)
+            {
+                owner = tooltipOwner;
+                item = tooltipItem;
+                hasItem = true;
+            }
+
+            public void OnPointerEnter(PointerEventData eventData)
+            {
+                if (hasItem)
+                    owner?.ShowShopItemTooltip(item);
+                else
+                    owner?.ShowFantasyTooltip(fantasy);
+            }
+
+            public void OnPointerExit(PointerEventData eventData)
+            {
+                owner?.HideTooltip();
             }
         }
     }
