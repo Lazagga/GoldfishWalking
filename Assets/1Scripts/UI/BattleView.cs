@@ -150,6 +150,8 @@ namespace GoldfishWalking.UI
             if (layoutRoot == null)
                 return;
 
+            EnsureDevelopmentDebugUI();
+
             fantasyContent = FindRect("FantasySlots/Viewport/Content");
             consumablePanel = FindRect("ConsumablePanel");
             healthText = FindComponent<Text>("StatusPanel/Health");
@@ -161,6 +163,8 @@ namespace GoldfishWalking.UI
             monsterSpecialBoxLabel = FindComponent<Text>("MonsterSpecialBoxPanel/Label");
             moveCountText = FindComponent<Text>("MoveCounter/MoveCount");
             damageDebugText = FindComponent<Text>("DamageDebugPanel/DamageDebugText");
+            if (damageDebugText != null)
+                damageDebugText.supportRichText = true;
             debugFantasyInput = FindComponent<InputField>("DebugFantasyConsole/Input");
             fantasyTooltipRoot = FindRect("FantasyTooltip");
             fantasyTooltipName = FindComponent<Text>("FantasyTooltip/Name");
@@ -182,6 +186,93 @@ namespace GoldfishWalking.UI
             resolveBattleButton = FindComponent<Button>("ResolveBattleButton");
             debugConsoleButton = FindComponent<Button>("DebugFantasyConsole/AddButton");
             SetButtonLabel(resolveBattleButton, "턴\n종료", 26);
+        }
+
+        private void EnsureDevelopmentDebugUI()
+        {
+            if (layoutRoot.Find("DamageDebugPanel") == null)
+                CreateDamageDebugPanel();
+            if (layoutRoot.Find("DebugFantasyConsole") == null)
+                CreateDebugConsole();
+        }
+
+        private void CreateDamageDebugPanel()
+        {
+            RectTransform panel = CreateDebugRect("DamageDebugPanel", layoutRoot, new Vector2(430f, 150f));
+            panel.anchorMin = panel.anchorMax = new Vector2(1f, 0f);
+            panel.anchoredPosition = new Vector2(-300f, 250f);
+            panel.gameObject.AddComponent<Image>().color = new Color(0.1f, 0.11f, 0.15f, 0.88f);
+
+            Text text = CreateDebugText("DamageDebugText", panel, 18, TextAnchor.UpperLeft);
+            RectTransform rect = (RectTransform)text.transform;
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = new Vector2(14f, 10f);
+            rect.offsetMax = new Vector2(-14f, -10f);
+            text.text = "Damage log -";
+        }
+
+        private void CreateDebugConsole()
+        {
+            RectTransform panel = CreateDebugRect("DebugFantasyConsole", layoutRoot, new Vector2(484f, 120f));
+            panel.anchorMin = panel.anchorMax = Vector2.zero;
+            panel.anchoredPosition = new Vector2(300f, 250f);
+            panel.gameObject.AddComponent<Image>().color = new Color(0.1f, 0.11f, 0.15f, 0.88f);
+
+            RectTransform inputRect = CreateDebugRect("Input", panel, new Vector2(350f, 54f));
+            inputRect.anchoredPosition = new Vector2(-52f, 0f);
+            Image inputImage = inputRect.gameObject.AddComponent<Image>();
+            inputImage.color = slotColor;
+            InputField input = inputRect.gameObject.AddComponent<InputField>();
+
+            Text placeholder = CreateDebugText("Placeholder", inputRect, 17, TextAnchor.MiddleLeft);
+            placeholder.text = "fantasy / damage / kill / spawn";
+            placeholder.color = new Color(0.65f, 0.68f, 0.75f, 1f);
+            StretchDebugText(placeholder, 10f);
+
+            Text value = CreateDebugText("Text", inputRect, 17, TextAnchor.MiddleLeft);
+            StretchDebugText(value, 10f);
+            input.textComponent = value;
+            input.placeholder = placeholder;
+
+            RectTransform buttonRect = CreateDebugRect("AddButton", panel, new Vector2(96f, 54f));
+            buttonRect.anchoredPosition = new Vector2(180f, 0f);
+            Image buttonImage = buttonRect.gameObject.AddComponent<Image>();
+            buttonImage.color = cyanColor;
+            Button button = buttonRect.gameObject.AddComponent<Button>();
+            button.targetGraphic = buttonImage;
+            Text label = CreateDebugText("Text", buttonRect, 18, TextAnchor.MiddleCenter);
+            StretchDebugText(label, 0f);
+            label.text = "Run";
+        }
+
+        private RectTransform CreateDebugRect(string objectName, Transform parent, Vector2 size)
+        {
+            GameObject child = new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer));
+            RectTransform rect = child.GetComponent<RectTransform>();
+            rect.SetParent(parent, false);
+            rect.sizeDelta = size;
+            return rect;
+        }
+
+        private Text CreateDebugText(string objectName, Transform parent, int fontSize, TextAnchor alignment)
+        {
+            RectTransform rect = CreateDebugRect(objectName, parent, Vector2.zero);
+            Text text = rect.gameObject.AddComponent<Text>();
+            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.fontSize = fontSize;
+            text.alignment = alignment;
+            text.color = textColor;
+            return text;
+        }
+
+        private static void StretchDebugText(Text text, float horizontalPadding)
+        {
+            RectTransform rect = (RectTransform)text.transform;
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = new Vector2(horizontalPadding, 0f);
+            rect.offsetMax = new Vector2(-horizontalPadding, 0f);
         }
 
         private RectTransform FindRect(string path)

@@ -162,6 +162,17 @@ namespace GoldfishWalking.Core
                 battleDamageDebugLines.RemoveAt(0);
         }
 
+        public void AddPlayerDamageDebug(string source, int amount)
+        {
+            if (amount <= 0)
+                return;
+
+            AddBattleDamageDebug($"<color=#FF5555>{source}", amount);
+            int lastIndex = battleDamageDebugLines.Count - 1;
+            if (lastIndex >= 0)
+                battleDamageDebugLines[lastIndex] += "</color>";
+        }
+
         public void RegisterBattleEditItemSpend(ItemType itemType, int permanentCount, int temporaryCount)
         {
             if (itemType == ItemType.ExtraMatch)

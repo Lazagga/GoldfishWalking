@@ -306,7 +306,7 @@ namespace GoldfishWalking.Battle
             int actualDamage = context.monster.ApplyDamage(damage);
             if (context.run != null)
             {
-                context.run.AddBattleDamageDebug("Debug", actualDamage);
+                context.run.AddBattleDamageDebug("Debug", damage);
                 context.run.lastDamageDealt = actualDamage;
                 context.run.battleDamageDealt += actualDamage;
             }
@@ -777,6 +777,7 @@ namespace GoldfishWalking.Battle
             context.run.lastDamageTaken = incomingDamage;
             context.run.health -= incomingDamage;
             context.run.battleDamageTaken += incomingDamage;
+            context.run.AddPlayerDamageDebug("Damage Taken", incomingDamage);
             ApplyVampireHeal(incomingDamage);
             fantasyEffectRunner.ApplyTrigger(context.run, "Take_Damage");
             ApplyPendingMonsterDamage();
@@ -961,6 +962,7 @@ namespace GoldfishWalking.Battle
             context.run.health -= damage;
             context.run.lastDamageTaken = damage;
             context.run.battleDamageTaken += damage;
+            context.run.AddPlayerDamageDebug("Status Damage", damage);
         }
 
         private void ApplyPendingMonsterDamage()

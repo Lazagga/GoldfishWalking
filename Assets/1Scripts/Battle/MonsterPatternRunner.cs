@@ -379,6 +379,7 @@ namespace GoldfishWalking.Battle
             runContext.health -= actualDamage;
             runContext.lastDamageTaken = actualDamage;
             runContext.battleDamageTaken += actualDamage;
+            runContext.AddPlayerDamageDebug("Pattern Damage", actualDamage);
 
             if (actualDamage > 0 && IsVampire(monster))
                 monster.Heal(Mathf.FloorToInt(actualDamage * 0.3f));
