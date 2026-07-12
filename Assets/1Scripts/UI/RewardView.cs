@@ -457,6 +457,7 @@ namespace GoldfishWalking.UI
         {
             if (rerollButton != null)
                 rerollButton.interactable = bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.rewardRerolls > 0 && rewardCardRoot != null && rewardCardRoot.gameObject.activeSelf;
+            RefreshFantasySlots();
         }
 
         private void HideRewardChrome()

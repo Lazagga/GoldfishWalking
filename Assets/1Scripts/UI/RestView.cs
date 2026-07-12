@@ -31,6 +31,7 @@ namespace GoldfishWalking.UI
         private RectTransform matchNumberRoot;
         private RectTransform fantasyTooltipRoot;
         private Text healthText;
+        private Text moveCountText;
         private Text healFloatText;
         private Text fantasyTooltipName;
         private Text fantasyTooltipDescription;
@@ -42,6 +43,7 @@ namespace GoldfishWalking.UI
         private Button nextButton;
         private Coroutine healFloatRoutine;
         private int restUseCount;
+        private int healMoveDifference;
 
         private void Awake()
         {
@@ -143,6 +145,7 @@ namespace GoldfishWalking.UI
             matchNumberRoot = FindRect("MatchNumber");
             fantasyTooltipRoot = FindRect("FantasyTooltip");
             healthText = FindComponent<Text>("StatusPanel/Health");
+            moveCountText = FindComponent<Text>("MoveCounter/MoveCount");
             healFloatText = FindComponent<Text>("StatusPanel/HealFloat");
             fantasyTooltipName = FindComponent<Text>("FantasyTooltip/Name");
             fantasyTooltipDescription = FindComponent<Text>("FantasyTooltip/Description");
@@ -236,6 +239,7 @@ namespace GoldfishWalking.UI
             HideFantasyTooltip();
             healAmount = restController != null ? restController.CurrentHealAmount : healAmount;
             DrawMatchNumber(healAmount);
+            RefreshMoveCounter();
         }
 
         private void RefreshFantasySlots()
@@ -300,7 +304,27 @@ namespace GoldfishWalking.UI
                 return;
             }
 
-            box.Configure(value, 0, matchColor, OnHealAmountEdited);
+            box.Configure(value, 0, matchColor, OnHealAmountEdited, false, OnHealMoveDifferenceChanged, null, CanCommitHealMoveDifference);
+        }
+
+        private void OnHealMoveDifferenceChanged(int difference)
+        {
+            healMoveDifference = Mathf.Max(0, difference);
+            RefreshMoveCounter();
+        }
+
+        private bool CanCommitHealMoveDifference(int proposedDifference)
+        {
+            return restController == null || proposedDifference <= restController.CurrentMoveLimit;
+        }
+
+        private void RefreshMoveCounter()
+        {
+            if (moveCountText == null)
+                return;
+
+            int limit = restController != null ? restController.CurrentMoveLimit : 2;
+            moveCountText.text = $"{Mathf.Max(0, limit - healMoveDifference)} / {limit}";
         }
 
         private void OnHealAmountEdited(int newValue)

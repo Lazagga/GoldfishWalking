@@ -52,6 +52,8 @@ namespace GoldfishWalking.UI
         private readonly Dictionary<string, Button> itemButtons = new Dictionary<string, Button>();
         private readonly Dictionary<string, RectTransform> itemRoots = new Dictionary<string, RectTransform>();
         private readonly Dictionary<string, Text> itemTitleTexts = new Dictionary<string, Text>();
+        private readonly Dictionary<string, int> priceMoveDifferences = new Dictionary<string, int>();
+        private bool configuringPrices;
 
         private void Awake()
         {
@@ -64,6 +66,7 @@ namespace GoldfishWalking.UI
 
         private void OnEnable()
         {
+            priceMoveDifferences.Clear();
             ResolveReferences();
             HideScenePlaceholders();
             EnsureLayout();
@@ -195,10 +198,9 @@ namespace GoldfishWalking.UI
             if (iconPanel != null)
             {
                 ShopTooltipTrigger trigger = iconPanel.GetComponent<ShopTooltipTrigger>();
-                if (trigger != null)
-                    trigger.Initialize(this, item);
-                else
-                    Debug.LogWarning($"[ShopView] Missing ShopTooltipTrigger on {item.id}/IconPanel.");
+                if (trigger == null)
+                    trigger = iconPanel.gameObject.AddComponent<ShopTooltipTrigger>();
+                trigger.Initialize(this, item);
             }
 
             Transform title = itemRoot.Find("Title");
@@ -280,7 +282,7 @@ namespace GoldfishWalking.UI
             if (healthText != null)
                 healthText.text = shopController != null ? shopController.CurrentHealth.ToString() : "0";
             if (moveCountText != null)
-                moveCountText.text = $"2 / {(shopController != null ? shopController.CurrentMoveLimit : 2)}";
+                RefreshMoveCounter();
             RefreshFantasySlots();
             RefreshPrices();
             RefreshItemTitles();
@@ -340,14 +342,57 @@ namespace GoldfishWalking.UI
 
         private void RefreshPrices()
         {
+            configuringPrices = true;
             for (int i = 0; i < shopItems.Length; i++)
             {
                 ShopItem item = shopItems[i];
                 if (!priceBoxes.TryGetValue(item.id, out EditableSevenSegmentBox box) || box == null)
                     continue;
 
-                box.Configure(GetCurrentPrice(item), GetMinDigits(item.id), priceMatchColor, newValue => OnPriceEdited(item.id, newValue));
+                box.Configure(
+                    GetCurrentPrice(item),
+                    GetMinDigits(item.id),
+                    priceMatchColor,
+                    newValue => OnPriceEdited(item.id, newValue),
+                    false,
+                    difference => OnPriceMoveDifferenceChanged(item.id, difference),
+                    null,
+                    proposedDifference => CanCommitPriceMoveDifference(item.id, proposedDifference));
             }
+            configuringPrices = false;
+        }
+
+        private void OnPriceMoveDifferenceChanged(string itemId, int difference)
+        {
+            if (configuringPrices)
+                return;
+
+            priceMoveDifferences[itemId] = Mathf.Max(0, difference);
+            RefreshMoveCounter();
+        }
+
+        private bool CanCommitPriceMoveDifference(string itemId, int proposedDifference)
+        {
+            int total = Mathf.Max(0, proposedDifference);
+            foreach (KeyValuePair<string, int> pair in priceMoveDifferences)
+            {
+                if (pair.Key != itemId)
+                    total += Mathf.Max(0, pair.Value);
+            }
+
+            return shopController == null || total <= shopController.CurrentMoveLimit;
+        }
+
+        private void RefreshMoveCounter()
+        {
+            if (moveCountText == null)
+                return;
+
+            int used = 0;
+            foreach (int difference in priceMoveDifferences.Values)
+                used += Mathf.Max(0, difference);
+            int limit = shopController != null ? shopController.CurrentMoveLimit : 2;
+            moveCountText.text = $"{Mathf.Max(0, limit - used)} / {limit}";
         }
 
         private void RefreshItemTitles()
@@ -455,6 +500,18 @@ namespace GoldfishWalking.UI
             if (TryGetShopFantasy(item, out FantasyData fantasy))
             {
                 ShowFantasyTooltip(fantasy);
+                return;
+            }
+
+            if (item.id == "ShopItemExtraMatch")
+            {
+                ShowTooltip("Extra Match", "Adds one match to your inventory.", "Purchase: Extra Match +1");
+                return;
+            }
+
+            if (item.id == "ShopItemEraser")
+            {
+                ShowTooltip("Eraser", "Adds one eraser to your inventory.", "Purchase: Eraser +1");
                 return;
             }
 
@@ -601,7 +658,7 @@ namespace GoldfishWalking.UI
             }
         }
 
-        private sealed class ShopTooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+        private sealed class ShopTooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerMoveHandler
         {
             private ShopView owner;
             private FantasyData fantasy;
@@ -633,6 +690,11 @@ namespace GoldfishWalking.UI
             public void OnPointerExit(PointerEventData eventData)
             {
                 owner?.HideTooltip();
+            }
+
+            public void OnPointerMove(PointerEventData eventData)
+            {
+                OnPointerEnter(eventData);
             }
         }
     }

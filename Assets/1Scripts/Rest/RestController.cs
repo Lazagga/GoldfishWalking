@@ -43,6 +43,9 @@ namespace GoldfishWalking.Rest
         public int MaxRestCount => bootstrap != null && bootstrap.RunContext != null
             ? Mathf.Max(1, fantasyEffectRunner.ModifyValue(bootstrap.RunContext, 1, "Passive", "Rest_Count"))
             : 1;
+        public int CurrentMoveLimit => bootstrap != null && bootstrap.RunContext != null
+            ? Mathf.Max(0, fantasyEffectRunner.ModifyValue(bootstrap.RunContext, 2, "Passive", "Rest_Movement", "Movement"))
+            : 2;
         public IReadOnlyList<FantasyData> OwnedFantasies => bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.fantasyInventory != null
             ? bootstrap.RunContext.fantasyInventory.ownedFantasies
             : null;

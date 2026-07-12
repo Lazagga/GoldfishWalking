@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 
 namespace GoldfishWalking.UI
 {
-    public sealed class FantasyTooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public sealed class FantasyTooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerMoveHandler
     {
         private FantasyTooltipView tooltip;
         private FantasyData fantasy;
@@ -44,6 +44,11 @@ namespace GoldfishWalking.UI
         {
             if (tooltip != null)
                 tooltip.Hide();
+        }
+
+        public void OnPointerMove(PointerEventData eventData)
+        {
+            OnPointerEnter(eventData);
         }
     }
 }

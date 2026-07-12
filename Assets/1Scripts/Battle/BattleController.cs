@@ -174,7 +174,6 @@ namespace GoldfishWalking.Battle
             limit = fantasyEffectRunner.ModifyValue(bootstrap.RunContext, limit, "Passive", "Movement");
             limit = fantasyEffectRunner.ModifyValue(bootstrap.RunContext, limit, "Battle_Start", "Movement");
             limit = fantasyEffectRunner.ModifyValue(bootstrap.RunContext, limit, "Turn_Start", "Movement");
-            limit += bootstrap.RunContext.temporaryMoveBonus;
             return Mathf.Max(0, limit);
         }
 
@@ -438,7 +437,7 @@ namespace GoldfishWalking.Battle
 
             context.run.battleTurnNumber = Mathf.Max(1, turnNumber);
             context.run.currentTurnMoveLimit = CalculateCurrentMoveLimit();
-            context.run.remainingMoveCount = context.run.currentTurnMoveLimit;
+            context.run.remainingMoveCount = context.run.currentTurnMoveLimit + Mathf.Max(0, context.run.temporaryMoveBonus);
 
             if (applyTurnStartEffects)
             {
@@ -448,7 +447,6 @@ namespace GoldfishWalking.Battle
                     ApplyFantasyTrigger("Turn_Even");
             }
 
-            context.run.currentTurnMoveLimit = Mathf.Max(0, context.run.remainingMoveCount);
             BattleNumberState numbers = context.run.EnsureBattleNumbers(MonsterHitCount);
             EnsurePlayerBaseDamageDigitCount(numbers);
             EnsurePlayerTurnDamage(numbers);
