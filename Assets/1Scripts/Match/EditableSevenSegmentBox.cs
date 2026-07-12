@@ -33,6 +33,7 @@ namespace GoldfishWalking.Match
         private string segmentState;
         private Func<int, bool> moveCommitValidator;
         private Func<bool> interactionValidator;
+        private int committedMoveDifference;
 
         public int Value => value;
         public int OriginalValue => originalValue;
@@ -44,6 +45,7 @@ namespace GoldfishWalking.Match
         public Color LockedMatchColor => lockedMatchColor;
         public string SegmentState => segmentState;
         internal int DisplayDigitCount => displayDigitCount;
+        internal int CommittedMoveDifference => committedMoveDifference;
 
         private void Awake()
         {
@@ -61,6 +63,7 @@ namespace GoldfishWalking.Match
             locked = isLocked;
             moveCommitValidator = onMoveCommitValidated;
             interactionValidator = canInteract;
+            committedMoveDifference = 0;
             if (!TryApplySegmentState(savedSegmentState))
                 SetDisplayFromValue(value);
             StoreOriginalDisplaySlots();
@@ -98,7 +101,8 @@ namespace GoldfishWalking.Match
 
             Redraw();
             valueChanged.Invoke(value);
-            differenceChanged.Invoke(moveDifference >= 0 ? moveDifference : DifferenceFromOriginal);
+            committedMoveDifference = moveDifference >= 0 ? moveDifference : DifferenceFromOriginal;
+            differenceChanged.Invoke(committedMoveDifference);
         }
 
         private void StoreOriginalDisplaySlots()
@@ -486,6 +490,7 @@ namespace GoldfishWalking.Match
         private int spentErasers;
         private int spentTemporaryExtraMatches;
         private int spentTemporaryErasers;
+        private int normalMovesMade;
 
         public static void Open(EditableSevenSegmentBox owner)
         {
@@ -574,6 +579,7 @@ namespace GoldfishWalking.Match
             spentErasers = 0;
             spentTemporaryExtraMatches = 0;
             spentTemporaryErasers = 0;
+            normalMovesMade = 0;
             editingBox = FormulaBox.Number("seven_segment_popup", owner.Value, false);
             session.Open(editingBox);
             PopulateSlotsFromOwner();
@@ -796,6 +802,18 @@ namespace GoldfishWalking.Match
                 return;
             }
 
+            if (!session.IsHoldingPiece)
+            {
+                MatchSlot selected = FindSlot(view.DigitIndex, view.SegmentIndex);
+                bool costsMove = selected != null && selected.piece != null && !selected.piece.IsAdded;
+                if (costsMove && owner != null && !owner.CanCommitMoveDifference(CountCurrentMoveDifference() + 1))
+                {
+                    ShowMessage("Not enough moves.");
+                    return;
+                }
+            }
+
+            bool placingNormalMatch = session.IsHoldingPiece && session.heldPiece != null && !session.heldPiece.IsAdded;
             MatchEditResult result = session.IsHoldingPiece
                 ? session.TryPlace(view.DigitIndex, view.SegmentIndex)
                 : session.TryPickUp(view.DigitIndex, view.SegmentIndex);
@@ -809,7 +827,11 @@ namespace GoldfishWalking.Match
             if (session.IsHoldingPiece)
                 ShowHeldPreview();
             else
+            {
                 HideHeldPreview();
+                if (placingNormalMatch)
+                    normalMovesMade++;
+            }
 
             ShowMessage(string.Empty);
             RefreshSlots();
@@ -850,6 +872,7 @@ namespace GoldfishWalking.Match
             StoreOriginalShape();
             itemErasedOriginalAddresses.Clear();
             itemMode = ItemEditMode.None;
+            normalMovesMade = 0;
             HideHeldPreview();
             ShowMessage(string.Empty);
             RefreshSlots();
@@ -1242,29 +1265,8 @@ namespace GoldfishWalking.Match
 
         private int CountCurrentMoveDifference()
         {
-            HashSet<string> currentShape = new HashSet<string>();
-            foreach (MatchSlot slot in session.slots)
-            {
-                if (slot.piece != null && !slot.piece.IsAdded)
-                    currentShape.Add(Address(slot.digitIndex, slot.segmentIndex));
-            }
-
-            int difference = 0;
-            foreach (string address in originalShape)
-            {
-                if (itemErasedOriginalAddresses.Contains(address))
-                    continue;
-                if (!currentShape.Contains(address))
-                    difference++;
-            }
-
-            foreach (string address in currentShape)
-            {
-                if (!originalShape.Contains(address))
-                    difference++;
-            }
-
-            return difference / 2;
+            int committed = owner != null ? owner.CommittedMoveDifference : 0;
+            return committed + Mathf.Max(0, normalMovesMade);
         }
 
         private void UpdateHeldPreviewPosition()
