@@ -54,8 +54,9 @@ namespace GoldfishWalking.UI
             }
 
             FantasyTooltipTrigger trigger = slot.GetComponent<FantasyTooltipTrigger>();
-            if (trigger != null)
-                trigger.Initialize(tooltipView, fantasy);
+            if (trigger == null)
+                trigger = slot.gameObject.AddComponent<FantasyTooltipTrigger>();
+            trigger.Initialize(tooltipView, fantasy);
         }
 
         private static Text CreateIcon(Transform slot)
