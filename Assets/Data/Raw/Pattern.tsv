@@ -4,6 +4,7 @@ ID	DevName	DataCode	NameStringID	Effects	SpriteRes	설명
 		Skip		{"Attack": null, "Effect": null}		아무것도 안 함
 		LittleWitchSkill		{"Effects": [{"Target": "Player", "Action": "AddBuff", "Type": "MinusBox", "Value": 1}]}		플레이어 힘 1 감소
 		HunterSingle		{"Attack": "2_Single", "Effects": [{"Target": "Player", "Action": "Split"}, {"Target": "Player", "Action": "AddBuff", "Type": "BoxLock", "Value": 1}]}		플레이어 기본 피해량 상자를 분리시킨 뒤 하나를 잠금
+		HeartQueenSkill		{"Condition": "HeartQueenBox==0", "Effects": [{"Target": "Player", "Action": "Damage", "Value": 9999, "Lock": true}]}		
 		GhostSingle		{"Attack": "2_Single", "Effects": [{"Timing": "NextTurn", "Target": "Player", "Action": "Split", "Duration": 1}]}		단타 + 다음 턴 내 상자 분리
 		GhostMulti		{"Attack": "2_Multi_1", "Effects": [{"Timing": "NextTurn", "Target": "Self", "Action": "Split","Duration":1}]}		연타1 + 다음 턴 자기 상자 분리
 		AutomatonSingle		{"Attack": "2_Single", "Effects": [{"Target": "Self", "Action": "AddBuff", "Type": "Strength", "Value": 1}]}		단타 + 힘 증가
@@ -25,6 +26,8 @@ ID	DevName	DataCode	NameStringID	Effects	SpriteRes	설명
 		KnightSkill		{"Condition": "DamageTaken>=400", "Effects": [{"Action": "RemoveBuff", "Type": "Shield"}, {"Target": "Self", "Action": "AddBuff", "Type": "Strength", "Value": 3}]}		피해를 400 받으면 해당 버프를 없애고, 힘을 3 얻음
 		StargazerSingle		{"Attack": "3_Single", "Effects": [{"Target": "Self", "Action": "AddBox", "Value": "Random"}]}		3자릿수 단타 + 별 상자에 무작위 0~9까지 숫자 넣기
 		StargazerSkill		{"Effects": [{"Target": "Player", "Action": "Damage", "Value": "Stargazing_Multi_3"}]}		지정숫자 3개를 이어놓은 잠금타수만큼의 연타3 패턴 "유성우"
+		LibrarianSingle		{"Attack": "3_Single", "Effects": [{"Target": "Player", "Action": "LibrarianSkill", "Value": "1"}]}		
+		LibrarianMulti		{"Attack": "2_Multi_2", "Effects": [{"Target": "Player", "Action": "LibrarianSkill", "Value": "1"}]}		
 		BanditSingle		{"Attack": "2_Single", "Effects": [{"Target": "Player", "Action": "AddBuff", "Type": "Bleed", "Value": "DamageDealt"}]}		공격 시 입힌 피해량만큼 출혈 적용
 		RobberSingle		{"Attack": "2_Single", "Effects": [{"Target": "Player", "Action": "AddBuff", "Type": "Poison", "Value": "DamageDealt*0.5"}]}		공격 시 입힌 피해량 50%만큼 중독 적용
 		PlagueDoctorSingle		{"Attack": "2_Single", "Effects": [{"Target": "Player", "Action": "AddBuff", "Type": "Poison", "Value": "DamageDealt"}]}		공격 시 입힌 피해량만큼 중독 적용

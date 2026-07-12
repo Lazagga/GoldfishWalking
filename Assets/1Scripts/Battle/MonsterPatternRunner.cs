@@ -266,12 +266,15 @@ namespace GoldfishWalking.Battle
             {
                 if (target == "self")
                     monster.ApplyDamage(value);
-                else if (runContext != null)
-                {
-                    runContext.health -= Mathf.Max(0, value);
-                    runContext.lastDamageTaken = Mathf.Max(0, value);
-                    runContext.battleDamageTaken += Mathf.Max(0, value);
-                }
+                else
+                    ApplyMonsterDamageToPlayer(monster, runContext, value);
+                return;
+            }
+
+            if (action == "librarianskill")
+            {
+                int damage = SelectPlayerFormulaNumber(playerFormula, runContext);
+                ApplyMonsterDamageToPlayer(monster, runContext, damage);
                 return;
             }
 
@@ -309,6 +312,9 @@ namespace GoldfishWalking.Battle
                     ApplyBoxFlag(target, playerFormula, monsterFormula, split: false, locked: true);
                     return;
                 }
+
+                if (type == "strength" && IsKnightCapAlreadyBroken(monster))
+                    return;
 
                 AddBuff(monster, runContext, type, value);
                 return;
@@ -362,6 +368,67 @@ namespace GoldfishWalking.Battle
                     monster.SetPhase(2);
                     break;
             }
+        }
+
+        private static void ApplyMonsterDamageToPlayer(MonsterRuntime monster, RunContext runContext, int damage)
+        {
+            if (runContext == null)
+                return;
+
+            int actualDamage = Mathf.Max(0, damage);
+            runContext.health -= actualDamage;
+            runContext.lastDamageTaken = actualDamage;
+            runContext.battleDamageTaken += actualDamage;
+
+            if (actualDamage > 0 && IsVampire(monster))
+                monster.Heal(Mathf.FloorToInt(actualDamage * 0.3f));
+        }
+
+        private static int SelectPlayerFormulaNumber(BattleFormulaState playerFormula, RunContext runContext)
+        {
+            List<int> numbers = new List<int>();
+            AddFormulaNumbers(playerFormula != null ? playerFormula.damageExpression : null, numbers);
+            AddFormulaNumbers(playerFormula != null ? playerFormula.hitCountExpression : null, numbers);
+            if (numbers.Count == 0)
+                return 0;
+
+            int index = runContext != null
+                ? runContext.RollValue($"monster.librarian.pick.{runContext.battleTurnNumber}", 0, numbers.Count - 1)
+                : 0;
+            return Mathf.Max(0, numbers[Mathf.Clamp(index, 0, numbers.Count - 1)]);
+        }
+
+        private static void AddFormulaNumbers(FormulaState formula, List<int> numbers)
+        {
+            if (formula == null || formula.boxes == null)
+                return;
+
+            for (int i = 0; i < formula.boxes.Count; i++)
+            {
+                FormulaBox box = formula.boxes[i];
+                if (box != null && box.boxType == FormulaBoxType.Number)
+                    numbers.Add(box.numberValue);
+            }
+        }
+
+        private static bool IsKnightCapAlreadyBroken(MonsterRuntime monster)
+        {
+            return monster != null
+                && IsKnight(monster)
+                && monster.DamageCapPerHit == 0
+                && monster.DamageCapAccumulatedDamage >= 400;
+        }
+
+        private static bool IsKnight(MonsterRuntime monster)
+        {
+            string dataName = monster != null && monster.Data != null ? monster.Data.dataName ?? string.Empty : string.Empty;
+            return dataName.Contains("Knight");
+        }
+
+        private static bool IsVampire(MonsterRuntime monster)
+        {
+            string dataName = monster != null && monster.Data != null ? monster.Data.dataName ?? string.Empty : string.Empty;
+            return dataName.Contains("Vampire");
         }
 
         private static void SetBuff(MonsterRuntime monster, RunContext runContext, string type, int value)

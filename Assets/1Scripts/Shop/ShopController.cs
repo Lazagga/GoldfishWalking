@@ -38,6 +38,11 @@ namespace GoldfishWalking.Shop
             bootstrap.RunContext.health -= amount;
             bootstrap.RunContext.lastShopPurchaseCost = amount;
             fantasyEffectRunner.ApplyTrigger(bootstrap.RunContext, "Shop_Purchase");
+            bootstrap.RunContext.stampCouponHealthSpent = FantasyCollectionRules.ApplyShopPurchaseTransforms(
+                bootstrap.RunContext.fantasyInventory,
+                fantasyDatabase,
+                bootstrap.RunContext.stampCouponHealthSpent,
+                amount);
             bootstrap.RunContext.lastShopPurchaseCost = 0;
             return true;
         }

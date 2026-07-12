@@ -37,6 +37,8 @@ namespace GoldfishWalking.Battle
             ? bootstrap.RunContext.currentBattle.monsterHitCount
             : 1;
 
+        public bool MonsterBaseDamageLocked => context != null && context.monster != null && IsSteelScarecrow(context.monster.Data);
+
         public string PlayerBaseDamageSegmentState => bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.currentBattle != null
             ? bootstrap.RunContext.currentBattle.playerBaseDamageSegmentState
             : string.Empty;
@@ -104,6 +106,7 @@ namespace GoldfishWalking.Battle
                 AppendStatus(builder, "STUN", context.monster.StunTurns);
                 AppendStatus(builder, "SHIELD", context.monster.Shield);
                 AppendStatus(builder, "CAP", context.monster.DamageCapPerHit);
+                AppendStatus(builder, "CAPDMG", context.monster.DamageCapAccumulatedDamage);
                 AppendStatus(builder, "FORTUNE", context.monster.FortuneStack);
                 AppendStatus(builder, "PROPHECY", context.monster.ProphecyStack);
 
@@ -136,20 +139,36 @@ namespace GoldfishWalking.Battle
             }
         }
 
-        public int CurrentMoveLimit => bootstrap != null && bootstrap.RunContext != null
-            ? GetCurrentMoveLimit()
-            : 2;
+        public int CurrentMoveLimit
+        {
+            get
+            {
+                if (bootstrap == null || bootstrap.RunContext == null)
+                    return 2;
+
+                if (bootstrap.RunContext.battleTurnNumber <= 0 && bootstrap.RunContext.currentTurnMoveLimit <= 0)
+                    return CalculateCurrentMoveLimit();
+
+                return Mathf.Max(0, bootstrap.RunContext.currentTurnMoveLimit);
+            }
+        }
+
+        public int RemainingMoveCount => bootstrap != null && bootstrap.RunContext != null
+            ? bootstrap.RunContext.battleTurnNumber <= 0 && bootstrap.RunContext.remainingMoveCount <= 0
+                ? CurrentMoveLimit
+                : Mathf.Max(0, bootstrap.RunContext.remainingMoveCount)
+            : CurrentMoveLimit;
 
         public void SetUsedMoveCount(int usedMoveCount)
         {
             if (bootstrap == null || bootstrap.RunContext == null)
                 return;
 
-            bootstrap.RunContext.remainingMoveCount = Mathf.Max(0, CurrentMoveLimit - Mathf.Max(0, usedMoveCount));
+            bootstrap.RunContext.remainingMoveCount = Mathf.Max(0, bootstrap.RunContext.remainingMoveCount - Mathf.Max(0, usedMoveCount));
             bootstrap.RunContext.temporaryMoveBonus = 0;
         }
 
-        private int GetCurrentMoveLimit()
+        private int CalculateCurrentMoveLimit()
         {
             int limit = 2;
             limit = fantasyEffectRunner.ModifyValue(bootstrap.RunContext, limit, "Passive", "Movement");
@@ -418,6 +437,9 @@ namespace GoldfishWalking.Battle
                 return;
 
             context.run.battleTurnNumber = Mathf.Max(1, turnNumber);
+            context.run.currentTurnMoveLimit = CalculateCurrentMoveLimit();
+            context.run.remainingMoveCount = context.run.currentTurnMoveLimit;
+
             if (applyTurnStartEffects)
             {
                 ApplyFantasyTrigger("Turn_Start");
@@ -426,6 +448,7 @@ namespace GoldfishWalking.Battle
                     ApplyFantasyTrigger("Turn_Even");
             }
 
+            context.run.currentTurnMoveLimit = Mathf.Max(0, context.run.remainingMoveCount);
             BattleNumberState numbers = context.run.EnsureBattleNumbers(MonsterHitCount);
             EnsurePlayerBaseDamageDigitCount(numbers);
             EnsurePlayerTurnDamage(numbers);
@@ -435,7 +458,6 @@ namespace GoldfishWalking.Battle
             SyncSpecialBoxToNumbers(numbers);
             numbers.CaptureEditSnapshot(context.run.battleTurnNumber);
             context.run.ClearCommittedBattleEditItems();
-            context.run.remainingMoveCount = CurrentMoveLimit;
         }
 
         private void ApplyFantasyTrigger(string trigger)
@@ -751,6 +773,7 @@ namespace GoldfishWalking.Battle
             context.run.lastDamageTaken = incomingDamage;
             context.run.health -= incomingDamage;
             context.run.battleDamageTaken += incomingDamage;
+            ApplyVampireHeal(incomingDamage);
             fantasyEffectRunner.ApplyTrigger(context.run, "Take_Damage");
             ApplyPendingMonsterDamage();
             return incomingDamage;
@@ -846,6 +869,34 @@ namespace GoldfishWalking.Battle
             string dataName = data.dataName ?? string.Empty;
             string devName = data.devName ?? string.Empty;
             return dataName.Contains("HeartQueen") || devName.Contains("하트 여왕");
+        }
+
+        private static bool IsSteelScarecrow(MonsterData data)
+        {
+            if (data == null)
+                return false;
+
+            string dataName = data.dataName ?? string.Empty;
+            return dataName.Contains("SteelScarecrow");
+        }
+
+        private static bool IsVampire(MonsterData data)
+        {
+            if (data == null)
+                return false;
+
+            string dataName = data.dataName ?? string.Empty;
+            return dataName.Contains("Vampire");
+        }
+
+        private void ApplyVampireHeal(int damageDealt)
+        {
+            if (context == null || context.monster == null || damageDealt <= 0 || !IsVampire(context.monster.Data))
+                return;
+
+            int heal = Mathf.FloorToInt(damageDealt * 0.3f);
+            if (heal > 0)
+                context.monster.Heal(heal);
         }
 
         private void ProcessMonsterSelfDestruct()

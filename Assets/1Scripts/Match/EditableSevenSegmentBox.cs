@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using GoldfishWalking.Core;
 using GoldfishWalking.Data;
@@ -24,16 +25,19 @@ namespace GoldfishWalking.Match
         [SerializeField] private UnityEvent<int> differenceChanged = new UnityEvent<int>();
 
         private readonly List<MatchSlot> displaySlots = new List<MatchSlot>();
+        private readonly List<MatchSlot> originalDisplaySlots = new List<MatchSlot>();
         private readonly List<RectTransform> renderedDigits = new List<RectTransform>();
         private RectTransform rectTransform;
         private int originalValue;
         private int displayDigitCount;
         private string segmentState;
+        private Func<int, bool> moveCommitValidator;
+        private Func<bool> interactionValidator;
 
         public int Value => value;
         public int OriginalValue => originalValue;
         public int MinDigitCount => minDigitCount;
-        public int DifferenceFromOriginal => CountMoveDifference(originalValue, value, minDigitCount);
+        public int DifferenceFromOriginal => CountMoveDifference(originalDisplaySlots, displaySlots);
         public bool Locked => locked;
         public Color MatchColor => matchColor;
         public Color AddedMatchColor => addedMatchColor;
@@ -48,15 +52,18 @@ namespace GoldfishWalking.Match
             Redraw();
         }
 
-        public void Configure(int initialValue, int minimumDigits, Color segmentColor, UnityAction<int> onValueChanged = null, bool isLocked = false, UnityAction<int> onDifferenceChanged = null, string savedSegmentState = null)
+        public void Configure(int initialValue, int minimumDigits, Color segmentColor, UnityAction<int> onValueChanged = null, bool isLocked = false, UnityAction<int> onDifferenceChanged = null, string savedSegmentState = null, Func<int, bool> onMoveCommitValidated = null, Func<bool> canInteract = null)
         {
             value = Mathf.Max(0, initialValue);
             originalValue = value;
             minDigitCount = Mathf.Max(0, minimumDigits);
             matchColor = segmentColor;
             locked = isLocked;
+            moveCommitValidator = onMoveCommitValidated;
+            interactionValidator = canInteract;
             if (!TryApplySegmentState(savedSegmentState))
                 SetDisplayFromValue(value);
+            StoreOriginalDisplaySlots();
 
             if (valueChanged == null)
                 valueChanged = new UnityEvent<int>();
@@ -81,7 +88,7 @@ namespace GoldfishWalking.Match
             SetValueFromPopup(newValue, null, 0);
         }
 
-        internal void SetValueFromPopup(int newValue, IReadOnlyList<MatchSlot> slots, int digitCount)
+        internal void SetValueFromPopup(int newValue, IReadOnlyList<MatchSlot> slots, int digitCount, int moveDifference = -1)
         {
             value = Mathf.Max(0, newValue);
             if (slots != null)
@@ -91,7 +98,25 @@ namespace GoldfishWalking.Match
 
             Redraw();
             valueChanged.Invoke(value);
-            differenceChanged.Invoke(DifferenceFromOriginal);
+            differenceChanged.Invoke(moveDifference >= 0 ? moveDifference : DifferenceFromOriginal);
+        }
+
+        private void StoreOriginalDisplaySlots()
+        {
+            originalDisplaySlots.Clear();
+            for (int i = 0; i < displaySlots.Count; i++)
+            {
+                MatchSlot source = displaySlots[i];
+                if (source == null)
+                    continue;
+
+                originalDisplaySlots.Add(new MatchSlot
+                {
+                    digitIndex = source.digitIndex,
+                    segmentIndex = source.segmentIndex,
+                    piece = CopyPiece(source.piece)
+                });
+            }
         }
 
         internal List<MatchSlot> CopyDisplaySlots()
@@ -123,6 +148,18 @@ namespace GoldfishWalking.Match
         {
             HashSet<string> original = BuildShapeSet(Mathf.Max(0, originalNumber), minimumDigits);
             HashSet<string> current = BuildShapeSet(Mathf.Max(0, currentNumber), minimumDigits);
+            return CountMoveDifference(original, current);
+        }
+
+        private static int CountMoveDifference(IReadOnlyList<MatchSlot> originalSlots, IReadOnlyList<MatchSlot> currentSlots)
+        {
+            HashSet<string> original = BuildShapeSet(originalSlots);
+            HashSet<string> current = BuildShapeSet(currentSlots);
+            return CountMoveDifference(original, current);
+        }
+
+        private static int CountMoveDifference(HashSet<string> original, HashSet<string> current)
+        {
             int difference = 0;
 
             foreach (string address in original)
@@ -142,10 +179,19 @@ namespace GoldfishWalking.Match
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (locked)
+            if (locked || (interactionValidator != null && !interactionValidator()))
+                return;
+
+            GameBootstrap bootstrap = FindFirstObjectByType<GameBootstrap>(FindObjectsInactive.Include);
+            if (bootstrap != null && bootstrap.StateMachine != null && bootstrap.StateMachine.CurrentState == GameState.Reward)
                 return;
 
             SevenSegmentEditPopup.Open(this);
+        }
+
+        internal bool CanCommitMoveDifference(int proposedDifference)
+        {
+            return moveCommitValidator == null || moveCommitValidator(Mathf.Max(0, proposedDifference));
         }
 
         private void Redraw()
@@ -368,7 +414,13 @@ namespace GoldfishWalking.Match
         private static void ClearChildren(Transform root)
         {
             for (int i = root.childCount - 1; i >= 0; i--)
-                Destroy(root.GetChild(i).gameObject);
+            {
+                GameObject child = root.GetChild(i).gameObject;
+                if (Application.isPlaying)
+                    Destroy(child);
+                else
+                    DestroyImmediate(child);
+            }
         }
 
         private static HashSet<string> BuildShapeSet(int number, int minimumDigits)
@@ -390,6 +442,24 @@ namespace GoldfishWalking.Match
 
             return shape;
         }
+
+        private static HashSet<string> BuildShapeSet(IReadOnlyList<MatchSlot> slots)
+        {
+            HashSet<string> shape = new HashSet<string>();
+            if (slots == null)
+                return shape;
+
+            for (int i = 0; i < slots.Count; i++)
+            {
+                MatchSlot slot = slots[i];
+                if (slot == null || slot.piece == null)
+                    continue;
+
+                shape.Add($"{slot.digitIndex}:{slot.segmentIndex}");
+            }
+
+            return shape;
+        }
     }
 
     public sealed class SevenSegmentEditPopup : MonoBehaviour, IPointerClickHandler
@@ -398,6 +468,7 @@ namespace GoldfishWalking.Match
 
         private readonly MatchEditSession session = new MatchEditSession();
         private readonly List<SevenSegmentPopupSlot> slotViews = new List<SevenSegmentPopupSlot>();
+        private readonly HashSet<string> itemErasedOriginalAddresses = new HashSet<string>();
         private readonly HashSet<string> originalShape = new HashSet<string>();
         private EditableSevenSegmentBox owner;
         private ItemInventory inventory;
@@ -425,33 +496,91 @@ namespace GoldfishWalking.Match
             if (canvas == null)
                 return;
 
+            SevenSegmentEditPopup popup = FindOrCreate(canvas);
+            popup.Initialize(owner);
+        }
+
+        private static SevenSegmentEditPopup FindOrCreate(Canvas canvas)
+        {
+            Transform existing = FindExistingPopupRoot(canvas);
+            if (existing != null)
+            {
+                EnsurePopupRoot(existing.gameObject);
+                if (!existing.TryGetComponent(out SevenSegmentEditPopup existingPopup))
+                    existingPopup = existing.gameObject.AddComponent<SevenSegmentEditPopup>();
+                return existingPopup;
+            }
+
             GameObject popupObject = new GameObject("SevenSegmentEditPopup", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(SevenSegmentEditPopup));
             popupObject.transform.SetParent(canvas.transform, false);
+            EnsurePopupRoot(popupObject);
 
+            return popupObject.GetComponent<SevenSegmentEditPopup>();
+        }
+
+        private static Transform FindExistingPopupRoot(Canvas canvas)
+        {
+            if (canvas == null)
+                return null;
+
+            Transform direct = canvas.transform.Find("SevenSegmentEditPopup");
+            if (direct != null)
+                return direct;
+
+            RectTransform[] children = canvas.GetComponentsInChildren<RectTransform>(true);
+            for (int i = 0; i < children.Length; i++)
+            {
+                RectTransform child = children[i];
+                if (child != null && child.name == "SevenSegmentEditPopup")
+                    return child;
+            }
+
+            return null;
+        }
+
+        private static void EnsurePopupRoot(GameObject popupObject)
+        {
             RectTransform rect = popupObject.GetComponent<RectTransform>();
+            if (rect == null)
+                rect = popupObject.AddComponent<RectTransform>();
             rect.anchorMin = Vector2.zero;
             rect.anchorMax = Vector2.one;
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
 
             Image overlay = popupObject.GetComponent<Image>();
+            if (overlay == null)
+                overlay = popupObject.AddComponent<Image>();
             overlay.color = new Color(0.02f, 0.025f, 0.035f, 0.82f);
-
-            SevenSegmentEditPopup popup = popupObject.GetComponent<SevenSegmentEditPopup>();
-            popup.Initialize(owner);
         }
 
         private void Initialize(EditableSevenSegmentBox source)
         {
+            if (gameObject.activeSelf && owner != null)
+            {
+                RefundSpentItems();
+                HideHeldPreview();
+            }
+
+            gameObject.SetActive(true);
+            transform.SetAsLastSibling();
+
             owner = source;
             canvas = owner.GetComponentInParent<Canvas>();
             GameBootstrap bootstrap = FindFirstObjectByType<GameBootstrap>(FindObjectsInactive.Include);
             inventory = bootstrap != null && bootstrap.RunContext != null ? bootstrap.RunContext.itemInventory : null;
+            itemMode = ItemEditMode.None;
+            spentExtraMatches = 0;
+            spentErasers = 0;
+            spentTemporaryExtraMatches = 0;
+            spentTemporaryErasers = 0;
             editingBox = FormulaBox.Number("seven_segment_popup", owner.Value, false);
             session.Open(editingBox);
             PopulateSlotsFromOwner();
             StoreOriginalShape();
-            BuildLayout();
+            itemErasedOriginalAddresses.Clear();
+            EnsureLayout();
+            ShowMessage(string.Empty);
             RefreshSlots();
         }
 
@@ -500,6 +629,53 @@ namespace GoldfishWalking.Match
             List<MatchSlot> slots = owner.CopyDisplaySlots();
             for (int i = 0; i < slots.Count; i++)
                 session.slots.Add(slots[i]);
+        }
+
+        private void EnsureLayout()
+        {
+            if (editPanel != null)
+                return;
+
+            Transform existingPanel = transform.Find("Panel");
+            if (existingPanel is RectTransform existingRect)
+            {
+                BindExistingLayout(existingRect);
+                return;
+            }
+
+            BuildLayout();
+        }
+
+        private void BindExistingLayout(RectTransform panel)
+        {
+            editPanel = panel;
+            digitRoot = panel.Find("Digits") as RectTransform;
+            messageText = FindText(panel, "Message");
+            movesText = FindText(panel, "Moves");
+            extraMatchCountText = FindText(panel, "ItemPanel/ExtraMatchButton/Badge/Count");
+            eraserCountText = FindText(panel, "ItemPanel/EraserButton/Badge/Count");
+            BindButton(panel, "ResetButton", ResetPopup);
+            BindButton(panel, "CancelButton", ClosePopup);
+            BindButton(panel, "DoneButton", CommitPopup);
+            BindButton(panel, "ItemPanel/ExtraMatchButton", () => SelectItemMode(ItemEditMode.ExtraMatch));
+            BindButton(panel, "ItemPanel/EraserButton", () => SelectItemMode(ItemEditMode.Eraser));
+        }
+
+        private static Text FindText(Transform root, string path)
+        {
+            Transform child = root != null ? root.Find(path) : null;
+            return child != null ? child.GetComponent<Text>() : null;
+        }
+
+        private static void BindButton(Transform root, string path, UnityAction action)
+        {
+            Transform child = root != null ? root.Find(path) : null;
+            Button button = child != null ? child.GetComponent<Button>() : null;
+            if (button == null)
+                return;
+
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(action);
         }
 
         private void BuildLayout()
@@ -641,6 +817,13 @@ namespace GoldfishWalking.Match
 
         private void CommitPopup()
         {
+            int proposedDifference = CountCurrentMoveDifference();
+            if (owner != null && !owner.CanCommitMoveDifference(proposedDifference))
+            {
+                ShowMessage("Not enough moves.");
+                return;
+            }
+
             MatchEditResult result = session.Commit();
             if (!result.success)
             {
@@ -648,7 +831,7 @@ namespace GoldfishWalking.Match
                 return;
             }
 
-            owner.SetValueFromPopup(editingBox.numberValue, session.slots, CurrentDigitCount());
+            owner.SetValueFromPopup(editingBox.numberValue, session.slots, CurrentDigitCount(), proposedDifference);
             RegisterCommittedItemSpend(spentExtraMatches, spentTemporaryExtraMatches, spentErasers, spentTemporaryErasers);
             spentExtraMatches = 0;
             spentErasers = 0;
@@ -665,6 +848,7 @@ namespace GoldfishWalking.Match
             session.Open(editingBox);
             PopulateSlotsFromOwner();
             StoreOriginalShape();
+            itemErasedOriginalAddresses.Clear();
             itemMode = ItemEditMode.None;
             HideHeldPreview();
             ShowMessage(string.Empty);
@@ -674,7 +858,10 @@ namespace GoldfishWalking.Match
         private void ClosePopup()
         {
             RefundSpentItems();
-            Destroy(gameObject);
+            HideHeldPreview();
+            itemMode = ItemEditMode.None;
+            owner = null;
+            gameObject.SetActive(false);
         }
 
         private void SelectItemMode(ItemEditMode mode)
@@ -869,6 +1056,8 @@ namespace GoldfishWalking.Match
             }
 
             TrackSpentEraser(consumedTemporary);
+            if (!erasingAddedMatch)
+                itemErasedOriginalAddresses.Add(Address(view.DigitIndex, view.SegmentIndex));
             RegisterBattleItemUse();
             ApplyItemUseEffects(ItemType.Eraser);
             if (erasingAddedMatch)
@@ -1010,7 +1199,10 @@ namespace GoldfishWalking.Match
             if (heldPreview == null)
                 return;
 
-            Destroy(heldPreview.gameObject);
+            if (Application.isPlaying)
+                Destroy(heldPreview.gameObject);
+            else
+                DestroyImmediate(heldPreview.gameObject);
             heldPreview = null;
         }
 
@@ -1053,13 +1245,15 @@ namespace GoldfishWalking.Match
             HashSet<string> currentShape = new HashSet<string>();
             foreach (MatchSlot slot in session.slots)
             {
-                if (slot.piece != null)
+                if (slot.piece != null && !slot.piece.IsAdded)
                     currentShape.Add(Address(slot.digitIndex, slot.segmentIndex));
             }
 
             int difference = 0;
             foreach (string address in originalShape)
             {
+                if (itemErasedOriginalAddresses.Contains(address))
+                    continue;
                 if (!currentShape.Contains(address))
                     difference++;
             }
@@ -1102,7 +1296,13 @@ namespace GoldfishWalking.Match
         private static void ClearChildren(Transform root)
         {
             for (int i = root.childCount - 1; i >= 0; i--)
-                Destroy(root.GetChild(i).gameObject);
+            {
+                GameObject child = root.GetChild(i).gameObject;
+                if (Application.isPlaying)
+                    Destroy(child);
+                else
+                    DestroyImmediate(child);
+            }
         }
 
         private static void SetRect(RectTransform rect, Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPosition, Vector2 sizeDelta)

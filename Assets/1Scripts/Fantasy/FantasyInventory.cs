@@ -59,6 +59,8 @@ namespace GoldfishWalking.Fantasy
         public const string AnimalFriendsId = "fan_attack_animalfriends";
         public const string StencilId = "fan_shop_stencil";
         public const string CoffeeId = "fan_rest_coffee";
+        public const string StampCouponId = "fan_shop_stampcoupon";
+        public const string SyringeId = "fan_turn_syringe";
 
         private static readonly string[] CosmeticAnimalFriendIds =
         {
@@ -70,7 +72,27 @@ namespace GoldfishWalking.Fantasy
 
         public static bool CanAppearInRewardOrShop(FantasyData fantasy)
         {
-            return fantasy != null && fantasy.id != AnimalFriendsId;
+            return fantasy != null && fantasy.id != AnimalFriendsId && fantasy.id != SyringeId;
+        }
+
+        public static int ApplyShopPurchaseTransforms(FantasyInventory inventory, FantasyDatabase database, int accumulatedHealthSpent, int purchaseCost)
+        {
+            if (inventory == null || database == null || purchaseCost <= 0 || !inventory.Contains(StampCouponId))
+                return accumulatedHealthSpent;
+
+            accumulatedHealthSpent = purchaseCost > int.MaxValue - accumulatedHealthSpent
+                ? int.MaxValue
+                : accumulatedHealthSpent + purchaseCost;
+
+            if (accumulatedHealthSpent < 999 || inventory.Contains(SyringeId))
+                return accumulatedHealthSpent;
+
+            FantasyData syringe = FindFantasy(database, SyringeId);
+            if (syringe == null)
+                return accumulatedHealthSpent;
+
+            inventory.Add(syringe);
+            return accumulatedHealthSpent;
         }
 
         public static void ApplyPostAcquireTransforms(FantasyInventory inventory, FantasyDatabase database)

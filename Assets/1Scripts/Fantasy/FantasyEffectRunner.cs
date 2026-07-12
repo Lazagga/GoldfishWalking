@@ -190,12 +190,7 @@ namespace GoldfishWalking.Fantasy
                     break;
                 case "fanshopstampcoupon":
                     if (normalizedTrigger == NormalizeTrigger("Shop_Purchase"))
-                    {
-                        int threshold = Mathf.Abs(Mathf.FloorToInt(GetEffectValue(fantasy, "Shop_Purchase", "HP", -999f, runContext)));
-                        if (runContext.lastShopPurchaseCost >= threshold)
-                            runContext.passiveAttackCountBonus += 1;
                         return true;
-                    }
                     break;
                 case "fanstartstamp":
                     if (normalizedTrigger == NormalizeTrigger("Battle_Start"))

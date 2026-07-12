@@ -5,7 +5,7 @@ It is intended as the implementation baseline before large code changes.
 
 ## Current Project Shape
 
-Last status refresh: 2026-07-11.
+Last status refresh: 2026-07-12.
 
 The old prototype ran mostly inside `Assets/Scenes/Game.unity`. During the
 rebuild, the user decided that scene was outdated and not Canvas-based enough.
@@ -70,9 +70,11 @@ Current progression note:
 
 ## UI Implementation Direction
 
-Current Battle, Rest, Shop, Reward, and popup UI are mostly runtime-created by
-view scripts. This was useful for fast gameplay validation, but it is not the
-target final structure.
+Current Battle, Rest, Shop, Title seed input, and shared fantasy-list UI bind
+to pre-placed scene objects. Reward uses a hybrid approach: stable scene
+containers and buttons are pre-placed, while reward rows/cards are generated
+dynamically because the visible reward set changes per battle and fixed empty
+slots produced poor UX.
 
 Final UI direction:
 
@@ -82,14 +84,20 @@ Final UI direction:
   `CanvasGroup`.
 - View scripts should bind to existing UI through `SerializeField` references
   instead of creating every RectTransform at runtime.
+- Repeated data-sized content may be generated dynamically or through object
+  pools when the item count or layout changes at runtime. Current accepted
+  examples are reward rows/cards, map nodes/lines, and 7-segment
+  digit/segment content.
 - Shared UI such as the 7-segment popup should eventually be a prebuilt scene
-  object or prefab that is opened, initialized, and hidden/reused.
+  object or prefab that is opened, initialized, and hidden/reused. Its
+  per-digit/per-segment contents may remain pooled/dynamic.
 - Unity MCP can handle scene-side work: creating GameObjects, assigning
   components, wiring serialized fields, adjusting RectTransforms, and saving
   the scene.
 
-The recommended migration is Battle first, then Rest/Shop/Reward, then the
-7-segment popup once the shared popup behavior is stable.
+The recommended migration is to keep static chrome scene-bound, and convert
+remaining generated controls to prefabs/pools only where it improves authoring
+or runtime stability.
 
 ## Target Game Pillars
 
@@ -259,6 +267,8 @@ Current reward-list implementation:
 - Eraser appears with 50% probability.
 - Clicking either reward row immediately adds `+1` to `RunContext.itemInventory`
   and removes that row from the reward list.
+- Reward rows are generated dynamically and packed vertically, so absent reward
+  types do not leave visual gaps.
 
 ### Extra Match
 
@@ -646,7 +656,8 @@ Match manipulation in shop:
 
 Current placeholder implementation:
 
-- Shop UI is runtime-created.
+- Shop UI binds to the pre-placed `ShopRuntimeLayout` in
+  `Assets/Scenes/GumBwing_Er.unity`.
 - Prices are drawn using matchstick 7-segment digits.
 - Prices are seeded per room and per item id.
 - Edited prices are stored in the current shop room state.
@@ -671,7 +682,8 @@ Pressing the rest button heals by the formula value.
 
 Current placeholder implementation:
 
-- Rest UI is runtime-created.
+- Rest UI binds to the pre-placed `RestRuntimeLayout` in
+  `Assets/Scenes/GumBwing_Er.unity`.
 - The center heal value is drawn with matchstick 7-segment digits.
 - The heal value is seeded per room and can be edited through the shared
   7-segment popup.
@@ -783,7 +795,12 @@ source keys and does not intentionally maintain old typo-normalization paths.
   - Keep the current two-step reward overlay:
     reward list first, then 3-card fantasy choice only when the fantasy row is
     clicked.
-  - Later work should replace placeholder icons/text with data-driven rewards.
+  - Keep reward screen background disabled so Battle remains visible under the
+    overlay.
+  - Keep reward rows/cards dynamic or pooled because the reward set is variable
+    and fixed slots leave empty holes.
+  - Later work should replace placeholder icons/text with final art and
+    localized strings.
 
 ### Refactor Heavily
 
@@ -855,28 +872,31 @@ source keys and does not intentionally maintain old typo-normalization paths.
      the basic map structure.
 
 8. Expand shop.
-   - Runtime placeholder shop, health payment, seeded 7-segment prices, and
-     item inventory purchases exist.
+   - Shop screen chrome binds to `ShopRuntimeLayout`; health payment, seeded
+     7-segment prices, fantasy/item purchases, and item inventory purchases
+     exist.
    - Purchase-reset locking is still future work.
 
 9. Expand rest.
-   - Runtime placeholder rest screen and seeded editable 7-segment heal value
-     exist.
+   - Rest screen chrome binds to `RestRuntimeLayout`; seeded editable
+     7-segment heal value, rest healing, and coffee fantasy choice exist.
    - Shared full formula logic is still future work.
 
-10. Migrate runtime-created UI to prebuilt Canvas/prefab UI.
-   - Start with Battle screen references.
-   - Then apply the pattern to Rest, Shop, Reward, and the 7-segment popup.
-   - Keep view scripts responsible for data binding and behavior, not layout
-     construction.
+10. Continue UI cleanup with a hybrid rule.
+   - Static screen chrome should stay prebuilt in Canvas/prefab UI.
+   - Variable repeated content should be dynamic or pooled when it improves UX.
+   - Keep view scripts responsible for data binding and behavior, not
+     full-screen fallback layout construction.
 
 ## Immediate Risks
 
 - Legacy split scenes and the broken `GameSceneStructure.md` document were removed after `Game.unity` became the single active scene.
 - The current battle code stores too much unrelated responsibility in
   `GameManager`.
-- Runtime-created UI makes layout tuning awkward and should be migrated to
-  prebuilt Canvas/prefab UI before final visual polish.
+- Full-screen runtime-created UI makes layout tuning awkward and should stay
+  migrated toward prebuilt Canvas/prefab UI before final visual polish.
+- For variable lists such as rewards, fixed scene UI can create bad empty-space
+  layouts; dynamic or pooled repeated entries are acceptable.
 - Item refund logic must remain popup-local and state-aware as undo/reset
   behavior expands.
 - Division and invalid operator states require validation before popup close.
@@ -895,10 +915,11 @@ Recommended next target:
 2. Add the missing formula infrastructure used by monster/fantasy effects:
    split boxes, locked segments/boxes, advanced operators, and digit/value
    transforms.
-3. Migrate Battle UI from runtime-created layout to prebuilt Canvas objects with
-   serialized field bindings.
-4. Apply the same UI binding pattern to Rest, Shop, Reward, and the 7-segment
-   popup after Battle is stable.
+3. Regression-test Reward overlay after the hybrid rewrite: Battle must remain
+   visible, rows must pack without empty holes, and fantasy/card selection must
+   work.
+4. Continue UI binding cleanup where static chrome is still script-built, while
+   keeping data-sized repeated content dynamic or pooled where appropriate.
 
 ## Confirmed Formula And Match Rules
 

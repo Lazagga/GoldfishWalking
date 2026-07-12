@@ -12,6 +12,7 @@ namespace GoldfishWalking.Battle
         public int StunTurns { get; private set; }
         public int Shield { get; private set; }
         public int DamageCapPerHit { get; private set; }
+        public int DamageCapAccumulatedDamage { get; private set; }
         public int FortuneStack { get; private set; }
         public int ProphecyStack { get; private set; }
         public int Phase { get; private set; } = 1;
@@ -46,7 +47,9 @@ namespace GoldfishWalking.Battle
             }
 
             CurrentHealth -= amount;
-            return amount > 0 ? amount : 0;
+            int actualDamage = amount > 0 ? amount : 0;
+            ApplyDamageCapBreakProgress(actualDamage);
+            return actualDamage;
         }
 
         public void Kill()
@@ -126,6 +129,19 @@ namespace GoldfishWalking.Battle
             DamageCapPerHit = 0;
         }
 
+        private void ApplyDamageCapBreakProgress(int damage)
+        {
+            if (damage <= 0 || DamageCapPerHit <= 0 || !IsKnight(Data))
+                return;
+
+            DamageCapAccumulatedDamage += damage;
+            if (DamageCapAccumulatedDamage < 400)
+                return;
+
+            ClearDamageCap();
+            ChangeStrength(3);
+        }
+
         public void ChangeFortuneStack(int amount)
         {
             FortuneStack = System.Math.Max(0, FortuneStack + amount);
@@ -187,12 +203,20 @@ namespace GoldfishWalking.Battle
                 return 0;
 
             string dataName = data.dataName ?? string.Empty;
-            string devName = data.devName ?? string.Empty;
-            if (dataName.Contains("Guard") || devName.Contains("경비병"))
+            if (dataName.Contains("Guard"))
                 return 45;
-            if (dataName.Contains("Knight") || devName.Contains("기사"))
+            if (IsKnight(data))
                 return 20;
             return 0;
+        }
+
+        private static bool IsKnight(MonsterData data)
+        {
+            if (data == null)
+                return false;
+
+            string dataName = data.dataName ?? string.Empty;
+            return dataName.Contains("Knight");
         }
     }
 

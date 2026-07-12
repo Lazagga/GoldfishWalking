@@ -1,5 +1,6 @@
 using UnityEngine;
 using GoldfishWalking.Map;
+using System.Globalization;
 
 namespace GoldfishWalking.Core
 {
@@ -9,10 +10,14 @@ namespace GoldfishWalking.Core
 
         [SerializeField] private int startingHealth = 150;
         [SerializeField] private int mapSeed;
+        [SerializeField] private bool useFixedSeed;
         [SerializeField] private int mapRoomCount = 15;
 
         public RunContext RunContext { get; private set; }
         public GameStateMachine StateMachine { get; private set; }
+        public int CurrentSeed => RunContext != null && RunContext.seed != 0 ? RunContext.seed : mapSeed;
+        public bool HasActiveSeed => RunContext != null && RunContext.seed != 0;
+        public string SeedInputText => useFixedSeed || mapSeed != 0 ? mapSeed.ToString(CultureInfo.InvariantCulture) : string.Empty;
 
         private void Awake()
         {
@@ -49,10 +54,26 @@ namespace GoldfishWalking.Core
 
         public void StartNewRun()
         {
-            int seed = mapSeed != 0 ? mapSeed : Random.Range(1, int.MaxValue);
+            int seed = useFixedSeed || mapSeed != 0 ? mapSeed : Random.Range(1, int.MaxValue);
             RunContext.StartNewRun(seed, startingHealth);
             RunContext.map = new MapGenerator().Generate(seed, RunContext.act, mapRoomCount);
             StateMachine.ChangeState(GameState.Map);
+        }
+
+        public void SetSeedFromText(string seedText)
+        {
+            if (string.IsNullOrWhiteSpace(seedText))
+            {
+                useFixedSeed = false;
+                mapSeed = 0;
+                return;
+            }
+
+            if (!int.TryParse(seedText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int parsedSeed))
+                return;
+
+            useFixedSeed = true;
+            mapSeed = parsedSeed;
         }
 
         private void OnMapNodeSelected(MapNode node)

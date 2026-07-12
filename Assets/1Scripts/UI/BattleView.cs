@@ -6,7 +6,6 @@ using GoldfishWalking.Match;
 using System.Globalization;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 #if UNITY_EDITOR
@@ -23,6 +22,7 @@ namespace GoldfishWalking.UI
         [FormerlySerializedAs("endTurnButton")]
         [SerializeField] private Button resolveBattleButton;
         [SerializeField] private Button resetButton;
+        [SerializeField] private Button debugConsoleButton;
 
         private readonly Color backgroundColor = new Color(0.07f, 0.08f, 0.11f, 1f);
         private readonly Color panelColor = new Color(0.14f, 0.16f, 0.20f, 0.94f);
@@ -50,6 +50,8 @@ namespace GoldfishWalking.UI
         private Text fantasyTooltipName;
         private Text fantasyTooltipDescription;
         private Text fantasyTooltipEffect;
+        private FantasyTooltipView fantasyTooltipView;
+        private FantasyListView fantasyListView;
         private EditableSevenSegmentBox playerDamageBox;
         private EditableSevenSegmentBox monsterDamageBox;
         private EditableSevenSegmentBox monsterHitCountBox;
@@ -62,8 +64,6 @@ namespace GoldfishWalking.UI
         private void Awake()
         {
             ResolveReferences();
-            RemoveRuntimeLayouts();
-            HideScenePlaceholders();
             EnsureLayout();
             BindButtons();
         }
@@ -72,7 +72,6 @@ namespace GoldfishWalking.UI
         {
             GameEventHub.ItemInventoryChanged += RefreshConsumables;
             ResolveReferences();
-            HideScenePlaceholders();
             EnsureLayout();
             Refresh();
         }
@@ -97,19 +96,7 @@ namespace GoldfishWalking.UI
                 fantasyDatabase = FindFirstFantasyDatabase();
         }
 
-        private void HideScenePlaceholders()
-        {
-            for (int i = transform.childCount - 1; i >= 0; i--)
-            {
-                Transform child = transform.GetChild(i);
-                if (child.name == "BattleRuntimeLayout")
-                    continue;
-
-                child.gameObject.SetActive(false);
-            }
-        }
-
-        private void RemoveRuntimeLayouts()
+        private void RemoveExistingLayoutImmediate()
         {
             layoutRoot = null;
 
@@ -119,267 +106,112 @@ namespace GoldfishWalking.UI
                 if (child.name != "BattleRuntimeLayout")
                     continue;
 
-                GameObject childObject = child.gameObject;
-                if (Application.isPlaying)
-                {
-                    child.SetParent(null, false);
-                    Destroy(childObject);
-                }
-                else
-                {
-                    DestroyImmediate(childObject);
-                }
+                DestroyImmediate(child.gameObject);
             }
         }
+
+#if UNITY_EDITOR
+        [ContextMenu("Rebuild Scene UI Layout")]
+        public void RebuildSceneUILayout()
+        {
+            ResolveReferences();
+            RemoveExistingLayoutImmediate();
+            EnsureLayout();
+            BindExistingLayout();
+            EditorUtility.SetDirty(gameObject);
+            UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(gameObject.scene);
+        }
+#endif
 
         private void EnsureLayout()
         {
             if (layoutRoot != null)
                 return;
 
-            layoutRoot = CreateRect("BattleRuntimeLayout", transform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-            layoutRoot.offsetMin = Vector2.zero;
-            layoutRoot.offsetMax = Vector2.zero;
-
-            CreateBackground();
-            CreateStatusArea();
-            CreateMoveCounter();
-            CreateMonsterStatusPanel();
-            CreateCombatArea();
-            CreateBottomInventory();
-            CreateDamageDebugPanel();
-            CreateDebugFantasyConsole();
-            CreateFantasyTooltip();
-            CreateResetButton();
-            CreateResolveButton();
-        }
-
-        private void CreateBackground()
-        {
-            Image background = CreateImage("Background", layoutRoot, backgroundColor);
-            RectTransform rect = background.rectTransform;
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
-        }
-
-        private void CreateStatusArea()
-        {
-            RectTransform statusPanel = CreatePanel("StatusPanel", layoutRoot, panelColor, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(300f, -105f), new Vector2(484f, 112f));
-
-            Text nameText = CreateText("Name", statusPanel, "성냥팔이 소녀", 28, textColor, TextAnchor.MiddleLeft);
-            SetRect(nameText.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(160f, 0f), new Vector2(260f, 112f));
-
-            healthText = CreateText("Health", statusPanel, string.Empty, 34, healthColor, TextAnchor.MiddleRight);
-            SetRect(healthText.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 1f), new Vector2(-74f, 0f), new Vector2(90f, 112f));
-
-            CreateFantasyScroll();
-        }
-
-        private void CreateFantasyScroll()
-        {
-            RectTransform fantasyPanel = CreatePanel("FantasySlots", layoutRoot, panelColor, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(299f, -228f), new Vector2(482f, 88f));
-            ScrollRect scrollRect = fantasyPanel.gameObject.AddComponent<ScrollRect>();
-            scrollRect.horizontal = true;
-            scrollRect.vertical = false;
-            scrollRect.inertia = true;
-            scrollRect.movementType = ScrollRect.MovementType.Clamped;
-
-            RectTransform viewport = CreateRect("Viewport", fantasyPanel, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-            viewport.offsetMin = new Vector2(10f, 10f);
-            viewport.offsetMax = new Vector2(-10f, -10f);
-            viewport.gameObject.AddComponent<RectMask2D>();
-
-            RectTransform content = CreateRect("Content", viewport, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), Vector2.zero, Vector2.zero);
-            content.pivot = new Vector2(0f, 0.5f);
-            content.anchoredPosition = Vector2.zero;
-            content.sizeDelta = new Vector2(746f, 68f);
-            fantasyContent = content;
-            RefreshFantasySlots();
-
-            scrollRect.viewport = viewport;
-            scrollRect.content = content;
-        }
-
-        private void CreateMoveCounter()
-        {
-            RectTransform counter = CreatePanel("MoveCounter", layoutRoot, panelColor, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -104f), new Vector2(404f, 122f));
-            Text label = CreateText("MoveLabel", counter, "이동 횟수", 22, textColor, TextAnchor.MiddleCenter);
-            SetRect(label.rectTransform, new Vector2(0f, 0.52f), new Vector2(1f, 1f), new Vector2(0f, -8f), new Vector2(0f, 42f));
-            moveCountText = CreateText("MoveCount", counter, "0 / 2", 42, cyanColor, TextAnchor.MiddleCenter);
-            SetRect(moveCountText.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0.65f), new Vector2(0f, -4f), new Vector2(0f, 70f));
-        }
-
-        private void CreateMonsterStatusPanel()
-        {
-            RectTransform monsterStatus = CreatePanel("MonsterStatusPanel", layoutRoot, panelColor, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-300f, -105f), new Vector2(484f, 112f));
-            monsterNameText = CreateText("MonsterName", monsterStatus, string.Empty, 28, textColor, TextAnchor.MiddleLeft);
-            SetRect(monsterNameText.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(108f, 0f), new Vector2(220f, 112f));
-            monsterHealthText = CreateText("MonsterHealth", monsterStatus, string.Empty, 34, healthColor, TextAnchor.MiddleRight);
-            SetRect(monsterHealthText.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 1f), new Vector2(-88f, 0f), new Vector2(144f, 112f));
-        }
-
-        private void CreateCombatArea()
-        {
-            CreatePlayerFormula();
-            CreateMonsterFormula();
-            CreateMonsterSpecialBox();
-
-            Text arrow = CreateText("Arrow", layoutRoot, "←", 106, textColor, TextAnchor.MiddleCenter);
-            SetRect(arrow.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(220f, 112f), new Vector2(168f, 92f));
-
-            Text player = CreateText("PlayerSpritePlaceholder", layoutRoot, "성냥\n소녀", 28, textColor, TextAnchor.MiddleCenter);
-            SetRect(player.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-560f, -182f), new Vector2(180f, 180f));
-
-            Text monster = CreateText("MonsterSpritePlaceholder", layoutRoot, "요정", 30, textColor, TextAnchor.MiddleCenter);
-            SetRect(monster.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(560f, -142f), new Vector2(180f, 180f));
-        }
-
-        private void CreatePlayerFormula()
-        {
-            RectTransform panel = CreatePanel("PlayerFormulaPanel", layoutRoot, panelColor, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-560f, 92f), new Vector2(304f, 126f));
-            playerDamageBox = CreateFormulaNumberBox(panel, "PlayerDamage", GetPlayerBaseDamage(), Vector2.zero, new Vector2(196f, 98f), healthColor, OnPlayerDamageDifferenceChanged, OnPlayerDamageEdited, false, GetPlayerDamageDigitCount());
-            playerBuffText = CreateText("PlayerBuffs", panel, "-", 18, cyanColor, TextAnchor.MiddleCenter);
-            SetRect(playerBuffText.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, -58f), new Vector2(-22f, 38f));
-        }
-
-        private void CreateMonsterFormula()
-        {
-            RectTransform panel = CreatePanel("MonsterFormulaPanel", layoutRoot, panelColor, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-374f, 92f), new Vector2(504f, 126f));
-            Image panelImage = panel.GetComponent<Image>();
-            if (panelImage != null)
-                panelImage.color = new Color(0.07f, 0.20f, 0.15f, 0.95f);
-
-            RectTransform formulaContent = CreateRect("FormulaContent", panel, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), Vector2.zero, Vector2.zero);
-            formulaContent.pivot = new Vector2(1f, 0.5f);
-            formulaContent.anchoredPosition = new Vector2(-16f, 0f);
-            formulaContent.sizeDelta = new Vector2(470f, 104f);
-
-            monsterDamageBox = CreateFormulaNumberBox(formulaContent, "MonsterDamage", GetMonsterBaseDamage(), new Vector2(-330f, 0f), new Vector2(188f, 98f), healthColor, OnMonsterDamageDifferenceChanged, OnMonsterDamageEdited, true);
-            CreateFormulaOperator(formulaContent, "x", new Vector2(-192f, 0f), new Vector2(92f, 98f), healthColor, true);
-            monsterHitCountBox = CreateFormulaNumberBox(formulaContent, "MonsterHitCount", GetMonsterHitCount(), new Vector2(-54f, 0f), new Vector2(172f, 98f), healthColor, OnMonsterHitDifferenceChanged, OnMonsterHitCountEdited, true);
-
-            monsterBuffText = CreateText("MonsterBuffs", panel, "-", 18, cyanColor, TextAnchor.MiddleCenter);
-            SetRect(monsterBuffText.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, -58f), new Vector2(-22f, 38f));
-        }
-
-        private void CreateMonsterSpecialBox()
-        {
-            monsterSpecialBoxPanel = CreatePanel("MonsterSpecialBoxPanel", layoutRoot, new Color(0.07f, 0.20f, 0.15f, 0.95f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-514f, -36f), new Vector2(226f, 86f));
-            monsterSpecialBoxLabel = CreateText("Label", monsterSpecialBoxPanel, "SPECIAL", 15, cyanColor, TextAnchor.MiddleCenter);
-            SetRect(monsterSpecialBoxLabel.rectTransform, new Vector2(0f, 0f), new Vector2(0.36f, 1f), new Vector2(2f, 0f), new Vector2(-10f, -8f));
-            monsterSpecialBox = CreateFormulaNumberBox(monsterSpecialBoxPanel, "MonsterSpecialBox", 0, new Vector2(42f, 0f), new Vector2(132f, 72f), healthColor, OnMonsterSpecialBoxDifferenceChanged, OnMonsterSpecialBoxEdited, false, 1);
-            monsterSpecialBoxPanel.gameObject.SetActive(false);
-        }
-
-        private void CreateDamageDebugPanel()
-        {
-            RectTransform panel = CreatePanel("DamageDebugPanel", layoutRoot, new Color(0.10f, 0.11f, 0.15f, 0.88f), new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-300f, 250f), new Vector2(430f, 150f));
-            damageDebugText = CreateText("DamageDebugText", panel, "Damage log -", 16, textColor, TextAnchor.UpperLeft);
-            SetRect(damageDebugText.rectTransform, Vector2.zero, Vector2.one, new Vector2(0f, -8f), new Vector2(-24f, -18f));
-        }
-
-        private void CreateDebugFantasyConsole()
-        {
-            RectTransform panel = CreatePanel("DebugFantasyConsole", layoutRoot, new Color(0.10f, 0.11f, 0.15f, 0.88f), new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(300f, 250f), new Vector2(484f, 120f));
-
-            RectTransform inputRoot = CreatePanel("Input", panel, slotColor, new Vector2(0f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-64f, 10f), new Vector2(-156f, 44f));
-            debugFantasyInput = inputRoot.gameObject.AddComponent<InputField>();
-            Text inputText = CreateText("Text", inputRoot, string.Empty, 18, textColor, TextAnchor.MiddleLeft);
-            SetRect(inputText.rectTransform, Vector2.zero, Vector2.one, new Vector2(8f, 0f), new Vector2(-16f, -4f));
-            Text placeholder = CreateText("Placeholder", inputRoot, "ADD id / SPAWN id / DAMAGE n / KILL", 15, new Color(0.65f, 0.68f, 0.76f, 1f), TextAnchor.MiddleLeft);
-            SetRect(placeholder.rectTransform, Vector2.zero, Vector2.one, new Vector2(8f, 0f), new Vector2(-16f, -4f));
-            debugFantasyInput.textComponent = inputText;
-            debugFantasyInput.placeholder = placeholder;
-            debugFantasyInput.onEndEdit.AddListener(value =>
+            Transform existing = transform.Find("BattleRuntimeLayout");
+            if (existing is RectTransform existingLayout)
             {
-                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
-                    ExecuteDebugCommand();
-            });
+                layoutRoot = existingLayout;
+                BindExistingLayout();
+                return;
+            }
 
-            Button addButton = CreatePanel("AddButton", panel, panelColor, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-54f, 10f), new Vector2(92f, 46f)).gameObject.AddComponent<Button>();
-            Text addText = CreateText("Label", addButton.transform, "RUN", 18, greenColor, TextAnchor.MiddleCenter);
-            SetRect(addText.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-            addButton.onClick.AddListener(ExecuteDebugCommand);
+            Debug.LogError("[BattleView] Missing prebuilt BattleRuntimeLayout. Build the UI in the scene instead of creating it from script.");
         }
 
-        private void CreateFantasyTooltip()
+        private void BindExistingLayout()
         {
-            fantasyTooltipRoot = CreatePanel("FantasyTooltip", layoutRoot, new Color(0.08f, 0.09f, 0.12f, 0.98f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-560f, -38f), new Vector2(380f, 250f));
-            fantasyTooltipName = CreateText("Name", fantasyTooltipRoot, string.Empty, 20, textColor, TextAnchor.UpperCenter);
-            SetRect(fantasyTooltipName.rectTransform, new Vector2(0f, 0.72f), Vector2.one, new Vector2(0f, -14f), new Vector2(-24f, -12f));
-            fantasyTooltipDescription = CreateText("Description", fantasyTooltipRoot, string.Empty, 16, textColor, TextAnchor.UpperLeft);
-            SetRect(fantasyTooltipDescription.rectTransform, new Vector2(0f, 0.32f), new Vector2(1f, 0.76f), new Vector2(0f, -8f), new Vector2(-28f, -8f));
-            fantasyTooltipEffect = CreateText("Effect", fantasyTooltipRoot, string.Empty, 14, cyanColor, TextAnchor.UpperLeft);
-            SetRect(fantasyTooltipEffect.rectTransform, Vector2.zero, new Vector2(1f, 0.33f), new Vector2(0f, 8f), new Vector2(-28f, -8f));
-            fantasyTooltipRoot.gameObject.SetActive(false);
+            if (layoutRoot == null)
+                return;
+
+            fantasyContent = FindRect("FantasySlots/Viewport/Content");
+            consumablePanel = FindRect("ConsumablePanel");
+            healthText = FindComponent<Text>("StatusPanel/Health");
+            monsterNameText = FindComponent<Text>("MonsterStatusPanel/MonsterName");
+            monsterHealthText = FindComponent<Text>("MonsterStatusPanel/MonsterHealth");
+            monsterBuffText = FindComponent<Text>("MonsterFormulaPanel/MonsterBuffs");
+            playerBuffText = FindComponent<Text>("PlayerFormulaPanel/PlayerBuffs");
+            monsterSpecialBoxPanel = FindRect("MonsterSpecialBoxPanel");
+            monsterSpecialBoxLabel = FindComponent<Text>("MonsterSpecialBoxPanel/Label");
+            moveCountText = FindComponent<Text>("MoveCounter/MoveCount");
+            damageDebugText = FindComponent<Text>("DamageDebugPanel/DamageDebugText");
+            debugFantasyInput = FindComponent<InputField>("DebugFantasyConsole/Input");
+            fantasyTooltipRoot = FindRect("FantasyTooltip");
+            fantasyTooltipName = FindComponent<Text>("FantasyTooltip/Name");
+            fantasyTooltipDescription = FindComponent<Text>("FantasyTooltip/Description");
+            fantasyTooltipEffect = FindComponent<Text>("FantasyTooltip/Effect");
+            fantasyTooltipView = fantasyTooltipRoot != null ? fantasyTooltipRoot.GetComponent<FantasyTooltipView>() : null;
+            if (fantasyTooltipView != null)
+                fantasyTooltipView.Bind(fantasyTooltipName, fantasyTooltipDescription, fantasyTooltipEffect);
+            else if (fantasyTooltipRoot != null)
+                Debug.LogWarning("[BattleView] Missing FantasyTooltipView on FantasyTooltip.");
+            fantasyListView = fantasyContent != null ? fantasyContent.GetComponent<FantasyListView>() : null;
+            if (fantasyListView != null)
+                fantasyListView.Bind(fantasyContent, fantasyTooltipView, 10);
+            playerDamageBox = FindComponent<EditableSevenSegmentBox>("PlayerFormulaPanel/PlayerDamage");
+            monsterDamageBox = FindComponent<EditableSevenSegmentBox>("MonsterFormulaPanel/FormulaContent/MonsterDamage");
+            monsterHitCountBox = FindComponent<EditableSevenSegmentBox>("MonsterFormulaPanel/FormulaContent/MonsterHitCount");
+            monsterSpecialBox = FindComponent<EditableSevenSegmentBox>("MonsterSpecialBoxPanel/MonsterSpecialBox");
+            resetButton = FindComponent<Button>("ResetButton");
+            resolveBattleButton = FindComponent<Button>("ResolveBattleButton");
+            debugConsoleButton = FindComponent<Button>("DebugFantasyConsole/AddButton");
+            SetButtonLabel(resolveBattleButton, "턴\n종료", 26);
         }
 
-        private EditableSevenSegmentBox CreateFormulaNumberBox(RectTransform parent, string name, int value, Vector2 position, Vector2 size, Color color, UnityEngine.Events.UnityAction<int> onDifferenceChanged, UnityEngine.Events.UnityAction<int> onValueChanged, bool rightAnchor = false, int minimumDigits = 0)
+        private RectTransform FindRect(string path)
         {
-            Vector2 anchor = rightAnchor ? new Vector2(1f, 0.5f) : new Vector2(0.5f, 0.5f);
-            RectTransform box = CreatePanel(name, parent, slotColor, anchor, anchor, position, size);
-            EditableSevenSegmentBox sevenSegment = box.gameObject.AddComponent<EditableSevenSegmentBox>();
-            sevenSegment.Configure(value, minimumDigits, color, onValueChanged, false, diff =>
-            {
-                onDifferenceChanged?.Invoke(diff);
-                RefreshMoveCounter();
-            });
-            return sevenSegment;
+            Transform child = layoutRoot != null ? layoutRoot.Find(path) : null;
+            return child as RectTransform;
         }
 
-        private void CreateFormulaOperator(RectTransform parent, string value, Vector2 position, Vector2 size, Color color, bool rightAnchor = false)
+        private T FindComponent<T>(string path) where T : Component
         {
-            Vector2 anchor = rightAnchor ? new Vector2(1f, 0.5f) : new Vector2(0.5f, 0.5f);
-            RectTransform box = CreatePanel($"FormulaOperator_{value}", parent, slotColor, anchor, anchor, position, size);
-            Text text = CreateText("Text", box, value, 44, color, TextAnchor.MiddleCenter);
-            SetRect(text.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-        }
-
-        private void CreateBottomInventory()
-        {
-            consumablePanel = CreatePanel("ConsumablePanel", layoutRoot, panelColor, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 96f), new Vector2(364f, 116f));
-            RefreshConsumables();
-        }
-
-        private void CreateSmallItem(RectTransform parent, Vector2 position, Color itemColor, string count)
-        {
-            RectTransform slot = CreatePanel("ItemSlot", parent, slotColor, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), position, new Vector2(88f, 88f));
-            Text icon = CreateText("Icon", slot, "■", 31, itemColor, TextAnchor.MiddleCenter);
-            SetRect(icon.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-
-            RectTransform badge = CreatePanel("Badge", slot, panelColor, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-12f, -12f), new Vector2(38f, 38f));
-            Text badgeText = CreateText("Count", badge, count, 22, textColor, TextAnchor.MiddleCenter);
-            SetRect(badgeText.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-        }
-
-        private void CreateResetButton()
-        {
-            resetButton = CreateCircleButton("ResetButton", "↻", new Vector2(160f, 96f), false);
-        }
-
-        private void CreateResolveButton()
-        {
-            resolveBattleButton = CreateCircleButton("ResolveBattleButton", "E", new Vector2(-136f, 96f), true);
-        }
-
-        private Button CreateCircleButton(string name, string label, Vector2 position, bool rightAnchor)
-        {
-            Vector2 anchor = rightAnchor ? new Vector2(1f, 0f) : new Vector2(0f, 0f);
-            RectTransform panel = CreatePanel(name, layoutRoot, panelColor, anchor, anchor, position, new Vector2(108f, 108f));
-            Button button = panel.gameObject.AddComponent<Button>();
-            Text text = CreateText("Label", panel, label, 46, textColor, TextAnchor.MiddleCenter);
-            SetRect(text.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-            return button;
+            Transform child = layoutRoot != null ? layoutRoot.Find(path) : null;
+            return child != null ? child.GetComponent<T>() : null;
         }
 
         private void BindButtons()
         {
             if (resolveBattleButton != null)
+            {
+                resolveBattleButton.onClick.RemoveListener(OnResolveBattleClicked);
                 resolveBattleButton.onClick.AddListener(OnResolveBattleClicked);
+            }
             if (resetButton != null)
+            {
+                resetButton.onClick.RemoveListener(OnResetClicked);
                 resetButton.onClick.AddListener(OnResetClicked);
+            }
+            if (debugConsoleButton != null)
+            {
+                debugConsoleButton.onClick.RemoveListener(ExecuteDebugCommand);
+                debugConsoleButton.onClick.AddListener(ExecuteDebugCommand);
+            }
+            if (debugFantasyInput != null)
+            {
+                debugFantasyInput.onEndEdit.RemoveListener(OnDebugInputEndEdit);
+                debugFantasyInput.onEndEdit.AddListener(OnDebugInputEndEdit);
+            }
         }
 
         private void UnbindButtons()
@@ -388,6 +220,26 @@ namespace GoldfishWalking.UI
                 resolveBattleButton.onClick.RemoveListener(OnResolveBattleClicked);
             if (resetButton != null)
                 resetButton.onClick.RemoveListener(OnResetClicked);
+            if (debugConsoleButton != null)
+                debugConsoleButton.onClick.RemoveListener(ExecuteDebugCommand);
+            if (debugFantasyInput != null)
+                debugFantasyInput.onEndEdit.RemoveListener(OnDebugInputEndEdit);
+        }
+
+        private void SetButtonLabel(Button button, string label, int fontSize)
+        {
+            if (button == null)
+                return;
+
+            Text text = button.GetComponentInChildren<Text>(true);
+            if (text == null)
+                return;
+
+            text.text = label;
+            text.fontSize = fontSize;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
         }
 
         private void Refresh()
@@ -418,31 +270,16 @@ namespace GoldfishWalking.UI
 
         private void RefreshFantasySlots()
         {
-            if (fantasyContent == null)
-                return;
-
-            ClearChildren(fantasyContent);
-            int ownedCount = bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.fantasyInventory != null
-                ? bootstrap.RunContext.fantasyInventory.ownedFantasies.Count
-                : 0;
-            int slotCount = Mathf.Max(10, ownedCount);
-            fantasyContent.sizeDelta = new Vector2(Mathf.Max(746f, slotCount * 74f + 6f), 68f);
-
-            for (int i = 0; i < slotCount; i++)
+            if (fantasyListView != null)
             {
-                RectTransform slot = CreatePanel($"FantasySlot{i + 1}", fantasyContent, slotColor, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(34f + i * 74f, 0f), new Vector2(60f, 60f));
-                if (i >= ownedCount)
-                    continue;
-
-                FantasyData fantasy = bootstrap.RunContext.fantasyInventory.ownedFantasies[i];
-                if (fantasy == null)
-                    continue;
-
-                Text icon = CreateText("FantasyIcon", slot, "★", 29, GradeColor(fantasy.grade), TextAnchor.MiddleCenter);
-                SetRect(icon.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-                FantasyTooltipTrigger trigger = slot.gameObject.AddComponent<FantasyTooltipTrigger>();
-                trigger.Initialize(this, fantasy);
+                fantasyListView.Bind(fantasyContent, fantasyTooltipView, 10);
+                fantasyListView.Refresh(bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.fantasyInventory != null
+                    ? bootstrap.RunContext.fantasyInventory.ownedFantasies
+                    : null);
+                return;
             }
+
+            Debug.LogWarning("[BattleView] Missing FantasyListView on FantasySlots/Viewport/Content.");
         }
 
         private void RefreshDamageDebug()
@@ -456,8 +293,6 @@ namespace GoldfishWalking.UI
             if (consumablePanel == null)
                 return;
 
-            ClearChildren(consumablePanel);
-
             int extraMatchCount = bootstrap != null && bootstrap.RunContext != null
                 ? bootstrap.RunContext.itemInventory.GetCount(ItemType.ExtraMatch)
                 : 0;
@@ -465,18 +300,31 @@ namespace GoldfishWalking.UI
                 ? bootstrap.RunContext.itemInventory.GetCount(ItemType.Eraser)
                 : 0;
 
-            CreateSmallItem(consumablePanel, new Vector2(-58f, 0f), new Color(1f, 0.28f, 0.28f, 1f), extraMatchCount.ToString());
-            CreateSmallItem(consumablePanel, new Vector2(58f, 0f), new Color(0.95f, 0.97f, 1f, 1f), eraserCount.ToString());
+            BindConsumableCount(0, extraMatchCount);
+            BindConsumableCount(1, eraserCount);
+        }
+
+        private void BindConsumableCount(int slotIndex, int count)
+        {
+            if (consumablePanel == null || slotIndex < 0 || slotIndex >= consumablePanel.childCount)
+            {
+                Debug.LogWarning($"[BattleView] Missing prebuilt consumable slot {slotIndex}.");
+                return;
+            }
+
+            Text countText = consumablePanel.GetChild(slotIndex).Find("Badge/Count")?.GetComponent<Text>();
+            if (countText != null)
+                countText.text = count.ToString(CultureInfo.InvariantCulture);
         }
 
         private void RefreshFormulaValues()
         {
             if (playerDamageBox != null)
-                playerDamageBox.Configure(GetPlayerBaseDamage(), GetPlayerDamageDigitCount(), healthColor, OnPlayerDamageEdited, false, OnPlayerDamageDifferenceChanged, battleController != null ? battleController.PlayerBaseDamageSegmentState : string.Empty);
+                playerDamageBox.Configure(GetPlayerBaseDamage(), GetPlayerDamageDigitCount(), healthColor, OnPlayerDamageEdited, false, OnPlayerDamageDifferenceChanged, battleController != null ? battleController.PlayerBaseDamageSegmentState : string.Empty, CanCommitPlayerDamageDifference);
             if (monsterDamageBox != null)
-                monsterDamageBox.Configure(GetMonsterBaseDamage(), 0, healthColor, OnMonsterDamageEdited, false, OnMonsterDamageDifferenceChanged, battleController != null ? battleController.MonsterBaseDamageSegmentState : string.Empty);
+                monsterDamageBox.Configure(GetMonsterBaseDamage(), 0, healthColor, OnMonsterDamageEdited, battleController != null && battleController.MonsterBaseDamageLocked, OnMonsterDamageDifferenceChanged, battleController != null ? battleController.MonsterBaseDamageSegmentState : string.Empty, CanCommitMonsterDamageDifference);
             if (monsterHitCountBox != null)
-                monsterHitCountBox.Configure(GetMonsterHitCount(), 0, healthColor, OnMonsterHitCountEdited, false, OnMonsterHitDifferenceChanged, battleController != null ? battleController.MonsterHitCountSegmentState : string.Empty);
+                monsterHitCountBox.Configure(GetMonsterHitCount(), 0, healthColor, OnMonsterHitCountEdited, false, OnMonsterHitDifferenceChanged, battleController != null ? battleController.MonsterHitCountSegmentState : string.Empty, CanCommitMonsterHitDifference);
             RefreshMonsterSpecialBox();
         }
 
@@ -505,7 +353,8 @@ namespace GoldfishWalking.UI
                     OnMonsterSpecialBoxEdited,
                     false,
                     OnMonsterSpecialBoxDifferenceChanged,
-                    battleController.MonsterSpecialBoxSegmentState);
+                    battleController.MonsterSpecialBoxSegmentState,
+                    CanCommitMonsterSpecialBoxDifference);
         }
 
         private void RefreshMoveCounter()
@@ -513,9 +362,10 @@ namespace GoldfishWalking.UI
             if (moveCountText == null)
                 return;
 
-            int totalDifference = playerDamageDifference + monsterDamageDifference + monsterHitDifference + monsterSpecialBoxDifference;
+            int totalDifference = CurrentTotalMoveDifference();
+            int remaining = battleController != null ? Mathf.Max(0, battleController.RemainingMoveCount - totalDifference) : Mathf.Max(0, 2 - totalDifference);
             int limit = battleController != null ? battleController.CurrentMoveLimit : 2;
-            moveCountText.text = $"{totalDifference} / {limit}";
+            moveCountText.text = $"{remaining} / {limit}";
         }
 
         private int GetPlayerBaseDamage()
@@ -565,21 +415,63 @@ namespace GoldfishWalking.UI
         private void OnPlayerDamageDifferenceChanged(int difference)
         {
             playerDamageDifference = difference;
+            RefreshMoveCounter();
         }
 
         private void OnMonsterDamageDifferenceChanged(int difference)
         {
             monsterDamageDifference = difference;
+            RefreshMoveCounter();
         }
 
         private void OnMonsterHitDifferenceChanged(int difference)
         {
             monsterHitDifference = difference;
+            RefreshMoveCounter();
         }
 
         private void OnMonsterSpecialBoxDifferenceChanged(int difference)
         {
             monsterSpecialBoxDifference = difference;
+            RefreshMoveCounter();
+        }
+
+        private bool CanCommitPlayerDamageDifference(int proposedDifference)
+        {
+            return CanCommitMoveDifference(proposedDifference, monsterDamageDifference, monsterHitDifference, monsterSpecialBoxDifference);
+        }
+
+        private bool CanCommitMonsterDamageDifference(int proposedDifference)
+        {
+            return CanCommitMoveDifference(playerDamageDifference, proposedDifference, monsterHitDifference, monsterSpecialBoxDifference);
+        }
+
+        private bool CanCommitMonsterHitDifference(int proposedDifference)
+        {
+            return CanCommitMoveDifference(playerDamageDifference, monsterDamageDifference, proposedDifference, monsterSpecialBoxDifference);
+        }
+
+        private bool CanCommitMonsterSpecialBoxDifference(int proposedDifference)
+        {
+            return CanCommitMoveDifference(playerDamageDifference, monsterDamageDifference, monsterHitDifference, proposedDifference);
+        }
+
+        private bool CanCommitMoveDifference(int playerDifference, int monsterDamageDifferenceValue, int monsterHitDifferenceValue, int monsterSpecialDifferenceValue)
+        {
+            int totalDifference = Mathf.Max(0, playerDifference)
+                + Mathf.Max(0, monsterDamageDifferenceValue)
+                + Mathf.Max(0, monsterHitDifferenceValue)
+                + Mathf.Max(0, monsterSpecialDifferenceValue);
+            int remaining = battleController != null ? battleController.RemainingMoveCount : 2;
+            return totalDifference <= remaining;
+        }
+
+        private int CurrentTotalMoveDifference()
+        {
+            return Mathf.Max(0, playerDamageDifference)
+                + Mathf.Max(0, monsterDamageDifference)
+                + Mathf.Max(0, monsterHitDifference)
+                + Mathf.Max(0, monsterSpecialBoxDifference);
         }
 
         private Color GradeColor(FantasyGrade grade)
@@ -633,6 +525,12 @@ namespace GoldfishWalking.UI
             }
 
             Debug.LogWarning($"[BattleView] Unknown debug command: {command}");
+        }
+
+        private void OnDebugInputEndEdit(string value)
+        {
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+                ExecuteDebugCommand();
         }
 
         private void ExecuteAddCommand(string argument)
@@ -778,59 +676,29 @@ namespace GoldfishWalking.UI
 
         private void ShowFantasyTooltip(FantasyData fantasy)
         {
-            if (fantasyTooltipRoot == null || fantasy == null)
-                return;
-
-            fantasyTooltipName.text = DisplayName(fantasy);
-            fantasyTooltipDescription.text = DescriptionText(fantasy);
-            fantasyTooltipEffect.text = EffectSummary(fantasy);
-            fantasyTooltipRoot.gameObject.SetActive(true);
+            if (fantasyTooltipView != null)
+                fantasyTooltipView.Show(fantasy);
         }
 
         private void HideFantasyTooltip()
         {
-            if (fantasyTooltipRoot != null)
-                fantasyTooltipRoot.gameObject.SetActive(false);
-        }
-
-        private static string DisplayName(FantasyData fantasy)
-        {
-            if (fantasy == null)
-                return string.Empty;
-            if (!string.IsNullOrWhiteSpace(fantasy.displayName))
-                return fantasy.displayName;
-            if (!string.IsNullOrWhiteSpace(fantasy.devName))
-                return fantasy.devName;
-            return fantasy.id;
-        }
-
-        private static string DescriptionText(FantasyData fantasy)
-        {
-            if (fantasy == null)
-                return string.Empty;
-            if (!string.IsNullOrWhiteSpace(fantasy.description))
-                return fantasy.description;
-            return fantasy.descStringId;
-        }
-
-        private static string EffectSummary(FantasyData fantasy)
-        {
-            if (fantasy == null || fantasy.effects == null || fantasy.effects.Length == 0)
-                return string.Empty;
-
-            FantasyEffectData effect = fantasy.effects[0];
-            string trigger = !string.IsNullOrWhiteSpace(effect.trigger) ? effect.trigger : fantasy.triggerType;
-            string target = !string.IsNullOrWhiteSpace(effect.target) ? effect.target : "Effect";
-            string calc = !string.IsNullOrWhiteSpace(effect.calc) ? effect.calc : "Apply";
-            string value = effect.hasNumericValue ? effect.numericValue.ToString(System.Globalization.CultureInfo.InvariantCulture) : (!string.IsNullOrWhiteSpace(effect.valueExpression) ? effect.valueExpression : "0");
-            return $"{trigger} / {target} / {calc} {value}";
+            if (fantasyTooltipView != null)
+                fantasyTooltipView.Hide();
         }
 
         private void OnResolveBattleClicked()
         {
             if (battleController != null)
             {
-                battleController.SetUsedMoveCount(playerDamageDifference + monsterDamageDifference + monsterHitDifference + monsterSpecialBoxDifference);
+                int usedMoveCount = CurrentTotalMoveDifference();
+                if (usedMoveCount > battleController.RemainingMoveCount)
+                {
+                    Debug.LogWarning($"[BattleView] Not enough moves: used {usedMoveCount}, remaining {battleController.RemainingMoveCount}");
+                    RefreshMoveCounter();
+                    return;
+                }
+
+                battleController.SetUsedMoveCount(usedMoveCount);
                 battleController.ResolveBattle();
             }
 
@@ -844,92 +712,5 @@ namespace GoldfishWalking.UI
             Refresh();
         }
 
-        private static Image CreateImage(string name, Transform parent, Color color)
-        {
-            GameObject go = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-            go.transform.SetParent(parent, false);
-            Image image = go.GetComponent<Image>();
-            image.color = color;
-            return image;
-        }
-
-        private static RectTransform CreatePanel(string name, Transform parent, Color color, Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPosition, Vector2 sizeDelta)
-        {
-            Image image = CreateImage(name, parent, color);
-            RectTransform rect = image.rectTransform;
-            rect.anchorMin = anchorMin;
-            rect.anchorMax = anchorMax;
-            rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.anchoredPosition = anchoredPosition;
-            rect.sizeDelta = sizeDelta;
-            return rect;
-        }
-
-        private static Text CreateText(string name, Transform parent, string value, int fontSize, Color color, TextAnchor alignment)
-        {
-            GameObject go = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
-            go.transform.SetParent(parent, false);
-            Text text = go.GetComponent<Text>();
-            text.text = value;
-            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            text.fontSize = fontSize;
-            text.fontStyle = FontStyle.Bold;
-            text.alignment = alignment;
-            text.color = color;
-            text.raycastTarget = false;
-            return text;
-        }
-
-        private static RectTransform CreateRect(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax, Vector2 offsetMin, Vector2 offsetMax)
-        {
-            GameObject go = new GameObject(name, typeof(RectTransform));
-            go.transform.SetParent(parent, false);
-            RectTransform rect = go.GetComponent<RectTransform>();
-            rect.anchorMin = anchorMin;
-            rect.anchorMax = anchorMax;
-            rect.offsetMin = offsetMin;
-            rect.offsetMax = offsetMax;
-            return rect;
-        }
-
-        private static void SetRect(RectTransform rect, Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPosition, Vector2 sizeDelta)
-        {
-            rect.anchorMin = anchorMin;
-            rect.anchorMax = anchorMax;
-            rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.anchoredPosition = anchoredPosition;
-            rect.sizeDelta = sizeDelta;
-        }
-
-        private static void ClearChildren(Transform root)
-        {
-            if (root == null)
-                return;
-
-            for (int i = root.childCount - 1; i >= 0; i--)
-                Destroy(root.GetChild(i).gameObject);
-        }
-
-        private sealed class FantasyTooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
-        {
-            private BattleView owner;
-            private FantasyData fantasy;
-
-            public void Initialize(BattleView tooltipOwner, FantasyData tooltipFantasy)
-            {
-                owner = tooltipOwner;
-                fantasy = tooltipFantasy;
-            }
-
-            public void OnPointerEnter(PointerEventData eventData)
-            {
-                owner?.ShowFantasyTooltip(fantasy);
-            }
-
-            public void OnPointerExit(PointerEventData eventData)
-            {
-                owner?.HideFantasyTooltip();
-            }
-        }
     }
 }

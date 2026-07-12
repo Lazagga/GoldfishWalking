@@ -180,6 +180,39 @@ MonoBehaviour:
       rawJson: '{"Target":"Player","Action":"AddBuff","Type":"BoxLock","Value":1}'
     sprite: 
     specialHandler: 
+  - id: HeartQueenSkill
+    sourceId: 0
+    dataCode: HeartQueenSkill
+    devName: 
+    nameStringId: 
+    displayName: HeartQueenSkill
+    description: 
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    condition: HeartQueenBox==0
+    rawEffects: '{"Condition": "HeartQueenBox==0", "Effects": [{"Target": "Player",
+      "Action": "Damage", "Value": 9999, "Lock": true}]}'
+    effects:
+    - timing: 
+      target: Player
+      action: Damage
+      type: 
+      condition: 
+      valueExpression: 9999
+      hasNumericValue: 1
+      numericValue: 9999
+      duration: 0
+      lockDamage: 1
+      rawJson: '{"Target":"Player","Action":"Damage","Value":9999,"Lock":true}'
+    sprite: 
+    specialHandler: 
   - id: GhostSingle
     sourceId: 0
     dataCode: GhostSingle
@@ -946,6 +979,72 @@ MonoBehaviour:
       duration: 0
       lockDamage: 0
       rawJson: '{"Target":"Player","Action":"Damage","Value":"Stargazing_Multi_3"}'
+    sprite: 
+    specialHandler: 
+  - id: LibrarianSingle
+    sourceId: 0
+    dataCode: LibrarianSingle
+    devName: 
+    nameStringId: 
+    displayName: LibrarianSingle
+    description: 
+    patternType: 1
+    value: 0
+    hitCount: 1
+    attackKey: 3_Single
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 3
+    hitDigitCount: 0
+    strengthDelta: 0
+    condition: 
+    rawEffects: '{"Attack": "3_Single", "Effects": [{"Target": "Player", "Action":
+      "LibrarianSkill", "Value": "1"}]}'
+    effects:
+    - timing: 
+      target: Player
+      action: LibrarianSkill
+      type: 
+      condition: 
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Player","Action":"LibrarianSkill","Value":"1"}'
+    sprite: 
+    specialHandler: 
+  - id: LibrarianMulti
+    sourceId: 0
+    dataCode: LibrarianMulti
+    devName: 
+    nameStringId: 
+    displayName: LibrarianMulti
+    description: 
+    patternType: 2
+    value: 0
+    hitCount: 1
+    attackKey: 2_Multi_2
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 2
+    hitDigitCount: 2
+    strengthDelta: 0
+    condition: 
+    rawEffects: '{"Attack": "2_Multi_2", "Effects": [{"Target": "Player", "Action":
+      "LibrarianSkill", "Value": "1"}]}'
+    effects:
+    - timing: 
+      target: Player
+      action: LibrarianSkill
+      type: 
+      condition: 
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      duration: 0
+      lockDamage: 0
+      rawJson: '{"Target":"Player","Action":"LibrarianSkill","Value":"1"}'
     sprite: 
     specialHandler: 
   - id: BanditSingle

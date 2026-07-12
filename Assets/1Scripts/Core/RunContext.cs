@@ -34,6 +34,7 @@ namespace GoldfishWalking.Core
         public int pendingPlayerPoison;
         public int prophecyStack;
         public int battleTurnNumber;
+        public int currentTurnMoveLimit;
         public int remainingMoveCount;
         public int temporaryMoveBonus;
         public int passiveAttackCountBonus;
@@ -46,6 +47,7 @@ namespace GoldfishWalking.Core
         public int lastAcquiredItemCount;
         public ItemType lastUsedItemType;
         public int lastShopPurchaseCost;
+        public int stampCouponHealthSpent;
         public int rewardRerolls;
         public string debugForcedMonsterId;
         public List<TimedStrengthModifier> timedPlayerStrengthModifiers = new List<TimedStrengthModifier>();
@@ -66,6 +68,7 @@ namespace GoldfishWalking.Core
             itemInventory.Clear();
             fantasyInventory.Clear();
             passiveAttackCountBonus = 0;
+            stampCouponHealthSpent = 0;
             debugForcedMonsterId = string.Empty;
             ClearBattleRuntimeValues();
         }
@@ -109,6 +112,7 @@ namespace GoldfishWalking.Core
             pendingPlayerPoison = 0;
             prophecyStack = 0;
             battleTurnNumber = 0;
+            currentTurnMoveLimit = 0;
             remainingMoveCount = 0;
             temporaryMoveBonus = 0;
             itemUseCountThisBattle = 0;

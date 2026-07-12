@@ -1,10 +1,12 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using GoldfishWalking.Core;
 using GoldfishWalking.Data;
 using GoldfishWalking.Fantasy;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace GoldfishWalking.UI
 {
@@ -37,6 +39,9 @@ namespace GoldfishWalking.UI
         private Text fantasyTooltipName;
         private Text fantasyTooltipDescription;
         private Text fantasyTooltipEffect;
+        private FantasyTooltipView fantasyTooltipView;
+        private FantasyListView fantasyListView;
+        private Image screenBackgroundImage;
         private Button nextButton;
         private Button rerollButton;
         private bool hasFantasyReward;
@@ -48,6 +53,9 @@ namespace GoldfishWalking.UI
             ResolveReferences();
             HideScenePlaceholders();
             EnsureLayout();
+            BindExistingLayout();
+            HideScreenBackground();
+            HideRewardChrome();
             BindButtons();
         }
 
@@ -57,6 +65,9 @@ namespace GoldfishWalking.UI
             ResolveReferences();
             HideScenePlaceholders();
             EnsureLayout();
+            BindExistingLayout();
+            HideScreenBackground();
+            HideRewardChrome();
             PrepareRewardList();
             SetRewardChromeVisible(true);
             CloseFantasyChoices();
@@ -97,129 +108,97 @@ namespace GoldfishWalking.UI
             }
         }
 
+        private void RemoveExistingLayoutImmediate()
+        {
+            layoutRoot = null;
+
+            for (int i = transform.childCount - 1; i >= 0; i--)
+            {
+                Transform child = transform.GetChild(i);
+                if (child.name != "RewardRuntimeLayout")
+                    continue;
+
+                DestroyImmediate(child.gameObject);
+            }
+        }
+
+#if UNITY_EDITOR
+        [ContextMenu("Rebuild Scene UI Layout")]
+        public void RebuildSceneUILayout()
+        {
+            ResolveReferences();
+            RemoveExistingLayoutImmediate();
+            EnsureLayout();
+            BindExistingLayout();
+            EditorUtility.SetDirty(gameObject);
+            UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(gameObject.scene);
+        }
+#endif
+
         private void EnsureLayout()
         {
             if (layoutRoot != null)
                 return;
 
-            layoutRoot = CreateRect("RewardRuntimeLayout", transform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-            layoutRoot.offsetMin = Vector2.zero;
-            layoutRoot.offsetMax = Vector2.zero;
+            Transform existing = transform.Find("RewardRuntimeLayout");
+            if (existing is RectTransform existingLayout)
+            {
+                layoutRoot = existingLayout;
+                BindExistingLayout();
+                return;
+            }
 
-            CreateBackground();
-            CreateStatusArea();
-            CreateMoveCounter();
-            CreateCurrencyPanel();
-            CreateRewardList();
-            CreateRewardCards();
-            CreateBottomInventory();
-            CreateRerollButton();
-            CreateNextButton();
-            CreateFantasyTooltip();
+            Debug.LogError("[RewardView] Missing prebuilt RewardRuntimeLayout. Build the UI in the scene instead of creating it from script.");
         }
 
-        private void CreateBackground()
+        private void BindExistingLayout()
         {
-            overlayImage = CreateImage("Overlay", layoutRoot, overlayColor);
-            RectTransform rect = overlayImage.rectTransform;
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
+            if (layoutRoot == null)
+                return;
+
+            rewardListRoot = FindRect("RewardList");
+            rewardCardRoot = FindRect("RewardCards");
+            fantasySlotsRoot = FindRect("FantasySlots");
+            consumablePanel = FindRect("ConsumablePanel");
+            overlayImage = FindComponent<Image>("Overlay");
+            rerollButton = FindComponent<Button>("RerollButton");
+            nextButton = FindComponent<Button>("NextButton");
+            fantasyListView = FindComponent<FantasyListView>("FantasySlots/Viewport/Content");
+            fantasyTooltipRoot = FindRect("FantasyTooltip");
+            fantasyTooltipName = FindComponent<Text>("FantasyTooltip/Name");
+            fantasyTooltipDescription = FindComponent<Text>("FantasyTooltip/Description");
+            fantasyTooltipEffect = FindComponent<Text>("FantasyTooltip/Effect");
+            fantasyTooltipView = fantasyTooltipRoot != null ? fantasyTooltipRoot.GetComponent<FantasyTooltipView>() : null;
+            if (fantasyTooltipView != null)
+                fantasyTooltipView.Bind(fantasyTooltipName, fantasyTooltipDescription, fantasyTooltipEffect);
+            else if (fantasyTooltipRoot != null)
+                Debug.LogWarning("[RewardView] Missing FantasyTooltipView on FantasyTooltip.");
+            screenBackgroundImage = GetComponent<Image>();
+            HideRewardChrome();
         }
 
-        private void CreateStatusArea()
+        private RectTransform FindRect(string path)
         {
-            RectTransform statusPanel = CreatePanel("StatusPanel", layoutRoot, panelColor, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(300f, -105f), new Vector2(484f, 112f));
-
-            Text nameText = CreateText("Name", statusPanel, "성냥팔이 소녀", 28, textColor, TextAnchor.MiddleLeft);
-            SetRect(nameText.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(160f, 0f), new Vector2(260f, 112f));
-
-            healthText = CreateText("Health", statusPanel, string.Empty, 34, healthColor, TextAnchor.MiddleRight);
-            SetRect(healthText.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 1f), new Vector2(-74f, 0f), new Vector2(90f, 112f));
-
-            fantasySlotsRoot = CreatePanel("FantasySlots", layoutRoot, panelColor, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(299f, -228f), new Vector2(482f, 88f));
+            Transform child = layoutRoot != null ? layoutRoot.Find(path) : null;
+            return child as RectTransform;
         }
 
-        private void CreateMoveCounter()
+        private T FindComponent<T>(string path) where T : Component
         {
-            RectTransform counter = CreatePanel("MoveCounter", layoutRoot, panelColor, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -104f), new Vector2(404f, 122f));
-            Text label = CreateText("MoveLabel", counter, "이동 횟수", 22, textColor, TextAnchor.MiddleCenter);
-            SetRect(label.rectTransform, new Vector2(0f, 0.52f), new Vector2(1f, 1f), new Vector2(0f, -8f), new Vector2(0f, 42f));
-            Text count = CreateText("MoveCount", counter, "2 / 2", 42, cyanColor, TextAnchor.MiddleCenter);
-            SetRect(count.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0.65f), new Vector2(0f, -4f), new Vector2(0f, 70f));
+            Transform child = layoutRoot != null ? layoutRoot.Find(path) : null;
+            return child != null ? child.GetComponent<T>() : null;
         }
 
-        private void CreateCurrencyPanel()
+        private void HideScreenBackground()
         {
-            RectTransform currency = CreatePanel("CurrencyPanel", layoutRoot, panelColor, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-300f, -105f), new Vector2(484f, 112f));
-            Text label = CreateText("CurrencyLabel", currency, "요정", 28, textColor, TextAnchor.MiddleLeft);
-            SetRect(label.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(108f, 0f), new Vector2(170f, 112f));
-            Text value = CreateText("CurrencyValue", currency, "0", 34, greenColor, TextAnchor.MiddleRight);
-            SetRect(value.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 1f), new Vector2(-66f, 0f), new Vector2(90f, 112f));
-        }
+            if (screenBackgroundImage == null)
+                screenBackgroundImage = GetComponent<Image>();
 
-        private void CreateRewardCards()
-        {
-            rewardCardRoot = CreateRect("RewardCards", layoutRoot, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-            rewardCardRoot.gameObject.SetActive(false);
-        }
-
-        private void CreateRewardList()
-        {
-            rewardListRoot = CreatePanel("RewardList", layoutRoot, panelColor, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, -22f), new Vector2(500f, 608f));
-        }
-
-        private void CreateBottomInventory()
-        {
-            consumablePanel = CreatePanel("ConsumablePanel", layoutRoot, panelColor, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 96f), new Vector2(364f, 116f));
-            RefreshConsumables();
-        }
-
-        private void CreateFantasyTooltip()
-        {
-            fantasyTooltipRoot = CreatePanel("FantasyTooltip", layoutRoot, new Color(0.08f, 0.09f, 0.12f, 0.98f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-560f, -38f), new Vector2(380f, 250f));
-            fantasyTooltipName = CreateText("Name", fantasyTooltipRoot, string.Empty, 20, textColor, TextAnchor.UpperCenter);
-            SetRect(fantasyTooltipName.rectTransform, new Vector2(0f, 0.72f), Vector2.one, new Vector2(0f, -14f), new Vector2(-24f, -12f));
-            fantasyTooltipDescription = CreateText("Description", fantasyTooltipRoot, string.Empty, 16, textColor, TextAnchor.UpperLeft);
-            SetRect(fantasyTooltipDescription.rectTransform, new Vector2(0f, 0.32f), new Vector2(1f, 0.76f), new Vector2(0f, -8f), new Vector2(-28f, -8f));
-            fantasyTooltipEffect = CreateText("Effect", fantasyTooltipRoot, string.Empty, 14, cyanColor, TextAnchor.UpperLeft);
-            SetRect(fantasyTooltipEffect.rectTransform, Vector2.zero, new Vector2(1f, 0.33f), new Vector2(0f, 8f), new Vector2(-28f, -8f));
-            fantasyTooltipRoot.gameObject.SetActive(false);
-        }
-
-        private void CreateSmallItem(RectTransform parent, Vector2 position, Color itemColor, string count)
-        {
-            RectTransform slot = CreatePanel("ItemSlot", parent, slotColor, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), position, new Vector2(88f, 88f));
-            Text icon = CreateText("Icon", slot, "■", 31, itemColor, TextAnchor.MiddleCenter);
-            SetRect(icon.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-
-            RectTransform badge = CreatePanel("Badge", slot, panelColor, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-12f, -12f), new Vector2(38f, 38f));
-            Text badgeText = CreateText("Count", badge, count, 22, textColor, TextAnchor.MiddleCenter);
-            SetRect(badgeText.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-        }
-
-        private void CreateRerollButton()
-        {
-            RectTransform panel = CreatePanel("RerollButton", layoutRoot, panelColor, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(160f, 96f), new Vector2(112f, 112f));
-            rerollButton = panel.gameObject.AddComponent<Button>();
-            Text icon = CreateText("Icon", panel, "↻", 48, textColor, TextAnchor.MiddleCenter);
-            SetRect(icon.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-        }
-
-        private void CreateNextButton()
-        {
-            nextButton = CreateButton("NextButton", "다음 지역으로 이동 →", new Vector2(-281f, 96f), new Vector2(486f, 112f), 31, true);
-        }
-
-        private Button CreateButton(string name, string label, Vector2 anchoredPosition, Vector2 size, int fontSize, bool rightAnchor = false)
-        {
-            Vector2 anchor = rightAnchor ? new Vector2(1f, 0f) : new Vector2(0f, 0f);
-            RectTransform panel = CreatePanel(name, layoutRoot, panelColor, anchor, anchor, anchoredPosition, size);
-            Button button = panel.gameObject.AddComponent<Button>();
-            Text buttonText = CreateText("Label", panel, label, fontSize, greenColor, TextAnchor.MiddleCenter);
-            SetRect(buttonText.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-            return button;
+            if (screenBackgroundImage != null)
+            {
+                screenBackgroundImage.enabled = false;
+                screenBackgroundImage.raycastTarget = false;
+            }
         }
 
         private void PrepareRewardList()
@@ -247,42 +226,26 @@ namespace GoldfishWalking.UI
             rewardListRoot.gameObject.SetActive(true);
 
             float rowY = -102f;
+            const float rowStep = 145f;
             if (hasFantasyReward)
             {
-                CreateRewardListRow(
-                    "FantasyReward",
-                    "★",
-                    GradeColor(FantasyGrade.White),
-                    rowY,
-                    OpenFantasyChoices);
-                rowY -= 145f;
+                CreateRewardListRow("FantasyReward", "★", GradeColor(FantasyGrade.White), rowY, OpenFantasyChoices);
+                rowY -= rowStep;
             }
 
             if (hasExtraMatchReward)
             {
-                CreateRewardListRow(
-                    "ExtraMatchReward",
-                    "●",
-                    new Color(1f, 0.30f, 0.30f, 1f),
-                    rowY,
-                    ClaimExtraMatch);
-                rowY -= 145f;
+                CreateRewardListRow("ExtraMatchReward", "+", new Color(1f, 0.30f, 0.30f, 1f), rowY, ClaimExtraMatch);
+                rowY -= rowStep;
             }
 
             if (hasEraserReward)
             {
-                CreateRewardListRow(
-                    "EraserReward",
-                    "■",
-                    textColor,
-                    rowY,
-                    ClaimEraser);
+                CreateRewardListRow("EraserReward", "-", textColor, rowY, ClaimEraser);
+                rowY -= rowStep;
             }
 
-            Button closeButton = CreatePanel("CloseButton", rewardListRoot, slotColor, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 78f), new Vector2(232f, 96f)).gameObject.AddComponent<Button>();
-            Text closeText = CreateText("Label", closeButton.transform, "Close", 31, textColor, TextAnchor.MiddleCenter);
-            SetRect(closeText.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-            closeButton.onClick.AddListener(CloseRewardList);
+            CreateCloseButton();
 
             if (!HasPendingRewards())
                 CloseRewardList();
@@ -297,6 +260,33 @@ namespace GoldfishWalking.UI
             RectTransform iconPanel = CreatePanel("IconPanel", row, panelColor, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(62f, 0f), new Vector2(90f, 90f));
             Text icon = CreateText("Icon", iconPanel, iconText, 48, iconColor, TextAnchor.MiddleCenter);
             SetRect(icon.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+
+            Text label = CreateText("Label", row, RewardRowLabel(name), 26, textColor, TextAnchor.MiddleLeft);
+            SetRect(label.rectTransform, Vector2.zero, Vector2.one, new Vector2(52f, 0f), new Vector2(-144f, -20f));
+        }
+
+        private static string RewardRowLabel(string name)
+        {
+            switch (name)
+            {
+                case "FantasyReward":
+                    return "Fantasy";
+                case "ExtraMatchReward":
+                    return "Extra Match";
+                case "EraserReward":
+                    return "Eraser";
+                default:
+                    return name;
+            }
+        }
+
+        private void CreateCloseButton()
+        {
+            RectTransform panel = CreatePanel("CloseButton", rewardListRoot, slotColor, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 78f), new Vector2(232f, 96f));
+            Button closeButton = panel.gameObject.AddComponent<Button>();
+            closeButton.onClick.AddListener(CloseRewardList);
+            Text closeText = CreateText("Label", panel, "Close", 31, textColor, TextAnchor.MiddleCenter);
+            SetRect(closeText.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
         }
 
         private void OpenFantasyChoices()
@@ -334,6 +324,9 @@ namespace GoldfishWalking.UI
 
         private void RebuildRewardCards()
         {
+            if (rewardCardRoot == null)
+                return;
+
             ClearChildren(rewardCardRoot);
             rewardCardRoot.gameObject.SetActive(true);
 
@@ -361,13 +354,13 @@ namespace GoldfishWalking.UI
             SetRect(icon.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
 
             RectTransform descPanel = CreatePanel("DescriptionPanel", card, slotColor, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 142f), new Vector2(264f, 210f));
-            Text name = CreateText("Name", descPanel, DisplayName(fantasy), 24, textColor, TextAnchor.UpperCenter);
+            Text name = CreateText("Name", descPanel, FantasyText.DisplayName(fantasy), 24, textColor, TextAnchor.UpperCenter);
             SetRect(name.rectTransform, new Vector2(0f, 0.64f), Vector2.one, new Vector2(0f, -18f), new Vector2(-26f, -16f));
 
-            Text description = CreateText("Description", descPanel, DescriptionText(fantasy), 18, textColor, TextAnchor.UpperLeft);
+            Text description = CreateText("Description", descPanel, FantasyText.Description(fantasy), 18, textColor, TextAnchor.UpperLeft);
             SetRect(description.rectTransform, new Vector2(0f, 0.24f), new Vector2(1f, 0.70f), new Vector2(0f, -8f), new Vector2(-28f, -8f));
 
-            Text effect = CreateText("Effect", descPanel, EffectSummary(fantasy), 15, cyanColor, TextAnchor.UpperLeft);
+            Text effect = CreateText("Effect", descPanel, FantasyText.EffectSummary(fantasy), 15, cyanColor, TextAnchor.UpperLeft);
             SetRect(effect.rectTransform, Vector2.zero, new Vector2(1f, 0.28f), new Vector2(0f, 8f), new Vector2(-28f, -8f));
         }
 
@@ -382,7 +375,6 @@ namespace GoldfishWalking.UI
             FantasyCollectionRules.ApplyPostAcquireTransforms(bootstrap.RunContext.fantasyInventory, fantasyDatabase);
             hasFantasyReward = false;
             CloseFantasyChoices();
-            RefreshFantasySlots();
             Refresh();
 
             if (HasPendingRewards())
@@ -398,7 +390,6 @@ namespace GoldfishWalking.UI
 
             fantasyEffectRunner.AddItemWithAcquireEffects(bootstrap.RunContext, ItemType.ExtraMatch, 1);
             hasExtraMatchReward = false;
-            RefreshConsumables();
             RebuildRewardList();
         }
 
@@ -409,7 +400,6 @@ namespace GoldfishWalking.UI
 
             fantasyEffectRunner.AddItemWithAcquireEffects(bootstrap.RunContext, ItemType.Eraser, 1);
             hasEraserReward = false;
-            RefreshConsumables();
             RebuildRewardList();
         }
 
@@ -423,7 +413,6 @@ namespace GoldfishWalking.UI
             ClearChildren(rewardCardRoot);
             rewardCardRoot.gameObject.SetActive(false);
         }
-
         private void CloseRewardList()
         {
             CloseFantasyChoices();
@@ -437,21 +426,10 @@ namespace GoldfishWalking.UI
             if (overlayImage != null)
             {
                 overlayImage.raycastTarget = false;
-                Color color = overlayImage.color;
-                color.a = visible ? overlayColor.a : 0f;
-                overlayImage.color = color;
+                overlayImage.gameObject.SetActive(false);
             }
 
-            SetActiveIfExists(fantasySlotsRoot, visible);
-            SetActiveIfExists(consumablePanel, visible);
-            if (!visible)
-                HideFantasyTooltip();
-        }
-
-        private static void SetActiveIfExists(Component component, bool active)
-        {
-            if (component != null)
-                component.gameObject.SetActive(active);
+            HideRewardChrome();
         }
 
         private bool HasPendingRewards()
@@ -477,12 +455,29 @@ namespace GoldfishWalking.UI
 
         private void Refresh()
         {
-            if (healthText != null)
-                healthText.text = bootstrap != null && bootstrap.RunContext != null ? bootstrap.RunContext.health.ToString() : "0";
-            RefreshFantasySlots();
-            RefreshConsumables();
             if (rerollButton != null)
                 rerollButton.interactable = bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.rewardRerolls > 0 && rewardCardRoot != null && rewardCardRoot.gameObject.activeSelf;
+        }
+
+        private void HideRewardChrome()
+        {
+            if (layoutRoot == null)
+                return;
+
+            HideChild("StatusPanel");
+            HideChild("MoveCounter");
+            HideChild("CurrencyPanel");
+            HideChild("FantasySlots");
+            HideChild("ConsumablePanel");
+            HideChild("FantasyTooltip");
+            HideChild("Overlay");
+        }
+
+        private void HideChild(string childName)
+        {
+            Transform child = layoutRoot.Find(childName);
+            if (child != null)
+                child.gameObject.SetActive(false);
         }
 
         private void RerollFantasyChoices()
@@ -499,85 +494,30 @@ namespace GoldfishWalking.UI
 
         private void RefreshFantasySlots()
         {
-            if (fantasySlotsRoot == null)
-                return;
-
-            ClearChildren(fantasySlotsRoot);
-            List<FantasyData> owned = bootstrap != null && bootstrap.RunContext != null
-                ? bootstrap.RunContext.fantasyInventory.ownedFantasies
-                : null;
-
-            for (int i = 0; i < 6; i++)
+            if (fantasyListView != null)
             {
-                RectTransform slot = CreatePanel($"FantasySlot{i + 1}", fantasySlotsRoot, slotColor, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(48f + i * 76f, 0f), new Vector2(60f, 60f));
-                if (owned == null || i >= owned.Count || owned[i] == null)
-                    continue;
-
-                Text icon = CreateText("FantasyIcon", slot, "★", 29, GradeColor(owned[i].grade), TextAnchor.MiddleCenter);
-                SetRect(icon.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-                FantasyTooltipTrigger trigger = slot.gameObject.AddComponent<FantasyTooltipTrigger>();
-                trigger.Initialize(this, owned[i]);
+                fantasyListView.Refresh(bootstrap != null && bootstrap.RunContext != null
+                    ? bootstrap.RunContext.fantasyInventory.ownedFantasies
+                    : null);
+                if (fantasySlotsRoot != null)
+                    fantasySlotsRoot.SetAsLastSibling();
+                if (fantasyTooltipRoot != null)
+                    fantasyTooltipRoot.SetAsLastSibling();
+                return;
             }
 
-            fantasySlotsRoot.SetAsLastSibling();
-            if (fantasyTooltipRoot != null)
-                fantasyTooltipRoot.SetAsLastSibling();
+            Debug.LogWarning("[RewardView] Missing FantasyListView on FantasySlots/Viewport/Content.");
         }
-
         private void ShowFantasyTooltip(FantasyData fantasy)
         {
-            if (fantasyTooltipRoot == null || fantasy == null)
-                return;
-
-            fantasyTooltipName.text = DisplayName(fantasy);
-            fantasyTooltipDescription.text = DescriptionText(fantasy);
-            fantasyTooltipEffect.text = EffectSummary(fantasy);
-            fantasyTooltipRoot.gameObject.SetActive(true);
-            fantasyTooltipRoot.SetAsLastSibling();
+            if (fantasyTooltipView != null)
+                fantasyTooltipView.Show(fantasy);
         }
 
         private void HideFantasyTooltip()
         {
-            if (fantasyTooltipRoot != null)
-                fantasyTooltipRoot.gameObject.SetActive(false);
-        }
-
-        private static string DisplayName(FantasyData fantasy)
-        {
-            if (fantasy == null)
-                return string.Empty;
-
-            if (!string.IsNullOrWhiteSpace(fantasy.displayName))
-                return fantasy.displayName;
-
-            if (!string.IsNullOrWhiteSpace(fantasy.devName))
-                return fantasy.devName;
-
-            return fantasy.id;
-        }
-
-        private static string DescriptionText(FantasyData fantasy)
-        {
-            if (fantasy == null)
-                return string.Empty;
-
-            if (!string.IsNullOrWhiteSpace(fantasy.description))
-                return fantasy.description;
-
-            return fantasy.descStringId;
-        }
-
-        private static string EffectSummary(FantasyData fantasy)
-        {
-            if (fantasy == null || fantasy.effects == null || fantasy.effects.Length == 0)
-                return string.Empty;
-
-            FantasyEffectData effect = fantasy.effects[0];
-            string trigger = !string.IsNullOrWhiteSpace(effect.trigger) ? effect.trigger : fantasy.triggerType;
-            string target = !string.IsNullOrWhiteSpace(effect.target) ? effect.target : "Effect";
-            string calc = !string.IsNullOrWhiteSpace(effect.calc) ? effect.calc : "Apply";
-            string value = effect.hasNumericValue ? effect.numericValue.ToString(System.Globalization.CultureInfo.InvariantCulture) : (!string.IsNullOrWhiteSpace(effect.valueExpression) ? effect.valueExpression : "0");
-            return $"{trigger} / {target} / {calc} {value}";
+            if (fantasyTooltipView != null)
+                fantasyTooltipView.Hide();
         }
 
         private Color GradeColor(FantasyGrade grade)
@@ -598,8 +538,6 @@ namespace GoldfishWalking.UI
             if (consumablePanel == null)
                 return;
 
-            ClearChildren(consumablePanel);
-
             int extraMatchCount = bootstrap != null && bootstrap.RunContext != null
                 ? bootstrap.RunContext.itemInventory.GetCount(ItemType.ExtraMatch)
                 : 0;
@@ -607,25 +545,19 @@ namespace GoldfishWalking.UI
                 ? bootstrap.RunContext.itemInventory.GetCount(ItemType.Eraser)
                 : 0;
 
-            CreateSmallItem(consumablePanel, new Vector2(-58f, 0f), new Color(1f, 0.28f, 0.28f, 1f), extraMatchCount.ToString());
-            CreateSmallItem(consumablePanel, new Vector2(58f, 0f), new Color(0.95f, 0.97f, 1f, 1f), eraserCount.ToString());
+            SetConsumableCount(0, extraMatchCount);
+            SetConsumableCount(1, eraserCount);
         }
 
-        private static void ClearChildren(Transform root)
+        private void SetConsumableCount(int slotIndex, int count)
         {
-            if (root == null)
+            if (consumablePanel == null || slotIndex < 0 || slotIndex >= consumablePanel.childCount)
                 return;
 
-            for (int i = root.childCount - 1; i >= 0; i--)
-            {
-                Transform child = root.GetChild(i);
-                GameObject childObject = child.gameObject;
-                childObject.SetActive(false);
-                child.SetParent(null, false);
-                Destroy(childObject);
-            }
+            Text countText = consumablePanel.GetChild(slotIndex).Find("Badge/Count")?.GetComponent<Text>();
+            if (countText != null)
+                countText.text = count.ToString(System.Globalization.CultureInfo.InvariantCulture);
         }
-
         private static Image CreateImage(string name, Transform parent, Color color)
         {
             GameObject go = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
@@ -662,18 +594,6 @@ namespace GoldfishWalking.UI
             return text;
         }
 
-        private static RectTransform CreateRect(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax, Vector2 offsetMin, Vector2 offsetMax)
-        {
-            GameObject go = new GameObject(name, typeof(RectTransform));
-            go.transform.SetParent(parent, false);
-            RectTransform rect = go.GetComponent<RectTransform>();
-            rect.anchorMin = anchorMin;
-            rect.anchorMax = anchorMax;
-            rect.offsetMin = offsetMin;
-            rect.offsetMax = offsetMax;
-            return rect;
-        }
-
         private static void SetRect(RectTransform rect, Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPosition, Vector2 sizeDelta)
         {
             rect.anchorMin = anchorMin;
@@ -683,25 +603,18 @@ namespace GoldfishWalking.UI
             rect.sizeDelta = sizeDelta;
         }
 
-        private sealed class FantasyTooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+        private static void ClearChildren(Transform root)
         {
-            private RewardView owner;
-            private FantasyData fantasy;
+            if (root == null)
+                return;
 
-            public void Initialize(RewardView tooltipOwner, FantasyData tooltipFantasy)
+            for (int i = root.childCount - 1; i >= 0; i--)
             {
-                owner = tooltipOwner;
-                fantasy = tooltipFantasy;
-            }
-
-            public void OnPointerEnter(PointerEventData eventData)
-            {
-                owner?.ShowFantasyTooltip(fantasy);
-            }
-
-            public void OnPointerExit(PointerEventData eventData)
-            {
-                owner?.HideFantasyTooltip();
+                GameObject child = root.GetChild(i).gameObject;
+                if (Application.isPlaying)
+                    Destroy(child);
+                else
+                    DestroyImmediate(child);
             }
         }
     }

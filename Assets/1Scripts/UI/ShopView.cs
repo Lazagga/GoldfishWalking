@@ -6,6 +6,9 @@ using GoldfishWalking.Shop;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace GoldfishWalking.UI
 {
@@ -41,6 +44,8 @@ namespace GoldfishWalking.UI
         private Text tooltipName;
         private Text tooltipDescription;
         private Text tooltipEffect;
+        private FantasyTooltipView tooltipView;
+        private FantasyListView fantasyListView;
         private Button closeButton;
         private Coroutine spendFloatRoutine;
         private readonly Dictionary<string, EditableSevenSegmentBox> priceBoxes = new Dictionary<string, EditableSevenSegmentBox>();
@@ -53,6 +58,7 @@ namespace GoldfishWalking.UI
             ResolveReferences();
             HideScenePlaceholders();
             EnsureLayout();
+            BindExistingLayout();
             BindButtons();
         }
 
@@ -61,6 +67,7 @@ namespace GoldfishWalking.UI
             ResolveReferences();
             HideScenePlaceholders();
             EnsureLayout();
+            BindExistingLayout();
             Refresh();
         }
 
@@ -92,158 +99,129 @@ namespace GoldfishWalking.UI
             }
         }
 
+        private void RemoveExistingLayoutImmediate()
+        {
+            layoutRoot = null;
+
+            for (int i = transform.childCount - 1; i >= 0; i--)
+            {
+                Transform child = transform.GetChild(i);
+                if (child.name != "ShopRuntimeLayout")
+                    continue;
+
+                DestroyImmediate(child.gameObject);
+            }
+        }
+
+#if UNITY_EDITOR
+        [ContextMenu("Rebuild Scene UI Layout")]
+        public void RebuildSceneUILayout()
+        {
+            ResolveReferences();
+            RemoveExistingLayoutImmediate();
+            EnsureLayout();
+            BindExistingLayout();
+            EditorUtility.SetDirty(gameObject);
+            UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(gameObject.scene);
+        }
+#endif
+
         private void EnsureLayout()
         {
             if (layoutRoot != null)
                 return;
 
-            layoutRoot = CreateRect("ShopRuntimeLayout", transform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-            layoutRoot.offsetMin = Vector2.zero;
-            layoutRoot.offsetMax = Vector2.zero;
-
-            CreateBackground();
-            CreateStatusArea();
-            CreateMerchantPanel();
-            CreateMoveCounter();
-            CreateShopGrid();
-            CreateTooltip();
-            CreateCloseButton();
-        }
-
-        private void CreateBackground()
-        {
-            Image background = CreateImage("Background", layoutRoot, backgroundColor);
-            RectTransform rect = background.rectTransform;
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
-        }
-
-        private void CreateStatusArea()
-        {
-            statusPanel = CreatePanel("StatusPanel", layoutRoot, panelColor, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(300f, -105f), new Vector2(484f, 112f));
-
-            Text nameText = CreateText("Name", statusPanel, "성냥팔이 소녀", 28, textColor, TextAnchor.MiddleLeft);
-            SetRect(nameText.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(160f, 0f), new Vector2(260f, 112f));
-
-            healthText = CreateText("Health", statusPanel, string.Empty, 34, healthColor, TextAnchor.MiddleRight);
-            SetRect(healthText.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 1f), new Vector2(-74f, 0f), new Vector2(90f, 112f));
-
-            spendFloatText = CreateText("SpendFloat", statusPanel, string.Empty, 34, healthColor, TextAnchor.MiddleCenter);
-            SetRect(spendFloatText.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-78f, 26f), new Vector2(130f, 46f));
-            spendFloatText.gameObject.SetActive(false);
-
-            fantasySlotsRoot = CreatePanel("FantasySlots", layoutRoot, panelColor, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(299f, -228f), new Vector2(482f, 88f));
-            ScrollRect scrollRect = fantasySlotsRoot.gameObject.AddComponent<ScrollRect>();
-            scrollRect.horizontal = true;
-            scrollRect.vertical = false;
-            scrollRect.inertia = true;
-            scrollRect.movementType = ScrollRect.MovementType.Clamped;
-
-            RectTransform viewport = CreateRect("Viewport", fantasySlotsRoot, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-            viewport.offsetMin = new Vector2(10f, 10f);
-            viewport.offsetMax = new Vector2(-10f, -10f);
-            viewport.gameObject.AddComponent<RectMask2D>();
-
-            fantasyContentRoot = CreateRect("Content", viewport, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), Vector2.zero, Vector2.zero);
-            fantasyContentRoot.pivot = new Vector2(0f, 0.5f);
-            fantasyContentRoot.anchoredPosition = Vector2.zero;
-            fantasyContentRoot.sizeDelta = new Vector2(746f, 68f);
-
-            scrollRect.viewport = viewport;
-            scrollRect.content = fantasyContentRoot;
-            RefreshFantasySlots();
-        }
-
-        private void CreateMerchantPanel()
-        {
-            RectTransform merchant = CreatePanel("MerchantPanel", layoutRoot, panelColor, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(299f, 458f), new Vector2(452f, 524f));
-            Text face = CreateText("MerchantFace", merchant, "상점", 52, textColor, TextAnchor.MiddleCenter);
-            SetRect(face.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-        }
-
-        private void CreateMoveCounter()
-        {
-            RectTransform counter = CreatePanel("MoveCounter", layoutRoot, panelColor, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(299f, 96f), new Vector2(404f, 104f));
-            Text label = CreateText("MoveLabel", counter, "이동 횟수", 22, textColor, TextAnchor.MiddleCenter);
-            SetRect(label.rectTransform, new Vector2(0f, 0.5f), new Vector2(1f, 1f), new Vector2(0f, -8f), new Vector2(0f, 42f));
-            moveCountText = CreateText("MoveCount", counter, "2 / 2", 36, new Color(0.24f, 0.74f, 0.90f, 1f), TextAnchor.MiddleCenter);
-            SetRect(moveCountText.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0.6f), new Vector2(0f, -4f), new Vector2(0f, 58f));
-        }
-
-        private void CreateShopGrid()
-        {
-            Vector2[] positions =
+            Transform existing = transform.Find("ShopRuntimeLayout");
+            if (existing is RectTransform existingLayout)
             {
-                new Vector2(850f, 760f),
-                new Vector2(1230f, 760f),
-                new Vector2(1610f, 760f),
-                new Vector2(850f, 360f),
-                new Vector2(1230f, 360f),
-                new Vector2(1610f, 360f)
-            };
-
-            for (int i = 0; i < shopItems.Length; i++)
-                CreateShopItem(shopItems[i], positions[i]);
-        }
-
-        private void CreateShopItem(ShopItem item, Vector2 centerPosition)
-        {
-            RectTransform itemRoot = CreateRect(item.id, layoutRoot, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
-            itemRoot.anchoredPosition = centerPosition;
-            itemRoot.sizeDelta = new Vector2(260f, 330f);
-            itemRoots[item.id] = itemRoot;
-
-            RectTransform iconPanel = CreatePanel("IconPanel", itemRoot, panelColor, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -92f), new Vector2(216f, 216f));
-            Text icon = CreateText("Icon", iconPanel, item.icon, 92, item.iconColor, TextAnchor.MiddleCenter);
-            SetRect(icon.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-
-            Button button = iconPanel.gameObject.AddComponent<Button>();
-            button.onClick.AddListener(() => OnItemClicked(item, button));
-            itemButtons[item.id] = button;
-            ShopTooltipTrigger trigger = iconPanel.gameObject.AddComponent<ShopTooltipTrigger>();
-            trigger.Initialize(this, item);
-
-            string title = GetItemTitle(item);
-            if (!string.IsNullOrWhiteSpace(title))
-            {
-                Text titleText = CreateText("Title", itemRoot, title, 16, textColor, TextAnchor.MiddleCenter);
-                SetRect(titleText.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 106f), new Vector2(0f, 36f));
-                itemTitleTexts[item.id] = titleText;
+                layoutRoot = existingLayout;
+                BindExistingLayout();
+                return;
             }
 
-            RectTransform priceRoot = CreateRect("Price", itemRoot, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), Vector2.zero, Vector2.zero);
-            priceRoot.anchoredPosition = new Vector2(0f, 35f);
-            priceRoot.sizeDelta = new Vector2(230f, 88f);
-            priceBoxes[item.id] = DrawMatchNumber(priceRoot, GetCurrentPrice(item), 0.45f, item.id);
+            Debug.LogError("[ShopView] Missing prebuilt ShopRuntimeLayout. Build the UI in the scene instead of creating it from script.");
         }
 
-        private void CreateTooltip()
+        private void BindExistingLayout()
         {
-            tooltipRoot = CreatePanel("ShopTooltip", layoutRoot, new Color(0.08f, 0.09f, 0.12f, 0.98f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-560f, -38f), new Vector2(380f, 250f));
-            tooltipName = CreateText("Name", tooltipRoot, string.Empty, 20, textColor, TextAnchor.UpperCenter);
-            SetRect(tooltipName.rectTransform, new Vector2(0f, 0.72f), Vector2.one, new Vector2(0f, -14f), new Vector2(-24f, -12f));
-            tooltipDescription = CreateText("Description", tooltipRoot, string.Empty, 16, textColor, TextAnchor.UpperLeft);
-            SetRect(tooltipDescription.rectTransform, new Vector2(0f, 0.32f), new Vector2(1f, 0.76f), new Vector2(0f, -8f), new Vector2(-28f, -8f));
-            tooltipEffect = CreateText("Effect", tooltipRoot, string.Empty, 14, new Color(0.24f, 0.74f, 0.90f, 1f), TextAnchor.UpperLeft);
-            SetRect(tooltipEffect.rectTransform, Vector2.zero, new Vector2(1f, 0.33f), new Vector2(0f, 8f), new Vector2(-28f, -8f));
-            tooltipRoot.gameObject.SetActive(false);
+            if (layoutRoot == null)
+                return;
+
+            statusPanel = FindRect("StatusPanel");
+            fantasySlotsRoot = FindRect("FantasySlots");
+            fantasyContentRoot = FindRect("FantasySlots/Viewport/Content");
+            tooltipRoot = FindRect("ShopTooltip");
+            healthText = FindComponent<Text>("StatusPanel/Health");
+            spendFloatText = FindComponent<Text>("StatusPanel/SpendFloat");
+            moveCountText = FindComponent<Text>("MoveCounter/MoveCount");
+            tooltipName = FindComponent<Text>("ShopTooltip/Name");
+            tooltipDescription = FindComponent<Text>("ShopTooltip/Description");
+            tooltipEffect = FindComponent<Text>("ShopTooltip/Effect");
+            tooltipView = tooltipRoot != null ? tooltipRoot.GetComponent<FantasyTooltipView>() : null;
+            if (tooltipView != null)
+                tooltipView.Bind(tooltipName, tooltipDescription, tooltipEffect);
+            else if (tooltipRoot != null)
+                Debug.LogWarning("[ShopView] Missing FantasyTooltipView on ShopTooltip.");
+            fantasyListView = fantasyContentRoot != null ? fantasyContentRoot.GetComponent<FantasyListView>() : null;
+            if (fantasyListView != null)
+                fantasyListView.Bind(fantasyContentRoot, tooltipView, 10);
+            closeButton = FindComponent<Button>("CloseButton");
+
+            priceBoxes.Clear();
+            itemButtons.Clear();
+            itemRoots.Clear();
+            itemTitleTexts.Clear();
+            for (int i = 0; i < shopItems.Length; i++)
+                BindShopItem(shopItems[i]);
         }
 
-        private void CreateCloseButton()
+        private void BindShopItem(ShopItem item)
         {
-            closeButton = CreateButton("CloseButton", "다음 지역으로 이동 →", new Vector2(-281f, 96f), new Vector2(486f, 96f), 28, true);
+            RectTransform itemRoot = FindRect(item.id);
+            if (itemRoot == null)
+                return;
+
+            itemRoots[item.id] = itemRoot;
+
+            Transform iconPanel = itemRoot.Find("IconPanel");
+            Button button = iconPanel != null ? iconPanel.GetComponent<Button>() : null;
+            if (button != null)
+            {
+                button.onClick.RemoveAllListeners();
+                button.onClick.AddListener(() => OnItemClicked(item, button));
+                itemButtons[item.id] = button;
+            }
+
+            if (iconPanel != null)
+            {
+                ShopTooltipTrigger trigger = iconPanel.GetComponent<ShopTooltipTrigger>();
+                if (trigger != null)
+                    trigger.Initialize(this, item);
+                else
+                    Debug.LogWarning($"[ShopView] Missing ShopTooltipTrigger on {item.id}/IconPanel.");
+            }
+
+            Transform title = itemRoot.Find("Title");
+            Text titleText = title != null ? title.GetComponent<Text>() : null;
+            if (titleText != null)
+                itemTitleTexts[item.id] = titleText;
+
+            Transform price = itemRoot.Find("Price");
+            EditableSevenSegmentBox priceBox = price != null ? price.GetComponent<EditableSevenSegmentBox>() : null;
+            if (priceBox != null)
+                priceBoxes[item.id] = priceBox;
         }
 
-        private Button CreateButton(string name, string label, Vector2 anchoredPosition, Vector2 size, int fontSize, bool rightAnchor = false)
+        private RectTransform FindRect(string path)
         {
-            Vector2 anchor = rightAnchor ? new Vector2(1f, 0f) : new Vector2(0f, 0f);
-            RectTransform panel = CreatePanel(name, layoutRoot, panelColor, anchor, anchor, anchoredPosition, size);
-            Button button = panel.gameObject.AddComponent<Button>();
-            Text buttonText = CreateText("Label", panel, label, fontSize, textColor, TextAnchor.MiddleCenter);
-            SetRect(buttonText.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-            return button;
+            Transform child = layoutRoot != null ? layoutRoot.Find(path) : null;
+            return child as RectTransform;
+        }
+
+        private T FindComponent<T>(string path) where T : Component
+        {
+            Transform child = layoutRoot != null ? layoutRoot.Find(path) : null;
+            return child != null ? child.GetComponent<T>() : null;
         }
 
         private void BindButtons()
@@ -312,26 +290,14 @@ namespace GoldfishWalking.UI
 
         private void RefreshFantasySlots()
         {
-            if (fantasyContentRoot == null)
-                return;
-
-            ClearChildren(fantasyContentRoot);
-            IReadOnlyList<FantasyData> owned = shopController != null ? shopController.OwnedFantasies : null;
-            int ownedCount = owned != null ? owned.Count : 0;
-            int slotCount = Mathf.Max(10, ownedCount);
-            fantasyContentRoot.sizeDelta = new Vector2(Mathf.Max(746f, slotCount * 74f + 6f), 68f);
-
-            for (int i = 0; i < slotCount; i++)
+            if (fantasyListView != null)
             {
-                RectTransform slot = CreatePanel($"FantasySlot{i + 1}", fantasyContentRoot, slotColor, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(34f + i * 74f, 0f), new Vector2(60f, 60f));
-                if (owned == null || i >= owned.Count || owned[i] == null)
-                    continue;
-
-                Text icon = CreateText("FantasyIcon", slot, "★", 29, GradeColor(owned[i].grade), TextAnchor.MiddleCenter);
-                SetRect(icon.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-                ShopTooltipTrigger trigger = slot.gameObject.AddComponent<ShopTooltipTrigger>();
-                trigger.Initialize(this, owned[i]);
+                fantasyListView.Bind(fantasyContentRoot, tooltipView, 10);
+                fantasyListView.Refresh(shopController != null ? shopController.OwnedFantasies : null);
+                return;
             }
+
+            Debug.LogWarning("[ShopView] Missing FantasyListView on FantasySlots/Viewport/Content.");
         }
 
         private void PlaySpendFloat(int amount)
@@ -370,16 +336,6 @@ namespace GoldfishWalking.UI
 
             spendFloatText.gameObject.SetActive(false);
             spendFloatRoutine = null;
-        }
-
-        private EditableSevenSegmentBox DrawMatchNumber(RectTransform root, int value, float scale, string itemId)
-        {
-            EditableSevenSegmentBox box = root.GetComponent<EditableSevenSegmentBox>();
-            if (box == null)
-                box = root.gameObject.AddComponent<EditableSevenSegmentBox>();
-
-            box.Configure(value, GetMinDigits(itemId), priceMatchColor, newValue => OnPriceEdited(itemId, newValue));
-            return box;
         }
 
         private void RefreshPrices()
@@ -473,7 +429,7 @@ namespace GoldfishWalking.UI
         private string GetItemTitle(ShopItem item)
         {
             if (TryGetShopFantasy(item, out FantasyData fantasy))
-                return DisplayName(fantasy);
+                return FantasyText.DisplayName(fantasy);
 
             switch (item.id)
             {
@@ -491,7 +447,7 @@ namespace GoldfishWalking.UI
             if (fantasy == null)
                 return;
 
-            ShowTooltip(DisplayName(fantasy), DescriptionText(fantasy), EffectSummary(fantasy));
+            ShowTooltip(FantasyText.DisplayName(fantasy), FantasyText.Description(fantasy), FantasyText.EffectSummary(fantasy));
         }
 
         private void ShowShopItemTooltip(ShopItem item)
@@ -518,19 +474,14 @@ namespace GoldfishWalking.UI
 
         private void ShowTooltip(string title, string description, string effect)
         {
-            if (tooltipRoot == null)
-                return;
-
-            tooltipName.text = title;
-            tooltipDescription.text = description;
-            tooltipEffect.text = effect;
-            tooltipRoot.gameObject.SetActive(true);
+            if (tooltipView != null)
+                tooltipView.Show(title, description, effect);
         }
 
         private void HideTooltip()
         {
-            if (tooltipRoot != null)
-                tooltipRoot.gameObject.SetActive(false);
+            if (tooltipView != null)
+                tooltipView.Hide();
         }
 
         private void RefreshItemButtons()
@@ -590,19 +541,6 @@ namespace GoldfishWalking.UI
             return $"{trigger} / {target} / {calc} {value}";
         }
 
-        private Color GradeColor(FantasyGrade grade)
-        {
-            switch (grade)
-            {
-                case FantasyGrade.Blue:
-                    return new Color(0.24f, 0.74f, 0.90f, 1f);
-                case FantasyGrade.Red:
-                    return healthColor;
-                default:
-                    return textColor;
-            }
-        }
-
         private static int GetMinPrice(ShopItem item)
         {
             if (item.id == "ShopFantasyRed")
@@ -645,134 +583,6 @@ namespace GoldfishWalking.UI
             }
 
             return false;
-        }
-
-        private void DrawDigit(RectTransform digitRoot, int digit, float scale)
-        {
-            MatchPattern pattern = null;
-            foreach (MatchPattern candidate in MatchPatternTable.DigitPatterns)
-            {
-                if (candidate.value == digit)
-                {
-                    pattern = candidate;
-                    break;
-                }
-            }
-
-            if (pattern == null)
-                return;
-
-            for (int i = 0; i < pattern.segments.Length; i++)
-                CreateMatchSegment(digitRoot, (MatchSegment)pattern.segments[i], scale);
-        }
-
-        private void CreateMatchSegment(RectTransform digitRoot, MatchSegment segment, float scale)
-        {
-            RectTransform match = CreatePanel($"Segment{segment}", digitRoot, priceMatchColor, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), SegmentPosition(segment) * scale, SegmentSize(segment) * scale);
-            match.gameObject.AddComponent<MatchstickView>();
-        }
-
-        private static Vector2 SegmentPosition(MatchSegment segment)
-        {
-            switch (segment)
-            {
-                case MatchSegment.Top:
-                    return new Vector2(0f, 74f);
-                case MatchSegment.UpperRight:
-                    return new Vector2(45f, 38f);
-                case MatchSegment.LowerRight:
-                    return new Vector2(45f, -38f);
-                case MatchSegment.Bottom:
-                    return new Vector2(0f, -74f);
-                case MatchSegment.LowerLeft:
-                    return new Vector2(-45f, -38f);
-                case MatchSegment.UpperLeft:
-                    return new Vector2(-45f, 38f);
-                case MatchSegment.Middle:
-                    return new Vector2(0f, 0f);
-                default:
-                    return Vector2.zero;
-            }
-        }
-
-        private static Vector2 SegmentSize(MatchSegment segment)
-        {
-            switch (segment)
-            {
-                case MatchSegment.UpperRight:
-                case MatchSegment.LowerRight:
-                case MatchSegment.LowerLeft:
-                case MatchSegment.UpperLeft:
-                    return new Vector2(14f, 72f);
-                default:
-                    return new Vector2(78f, 14f);
-            }
-        }
-
-        private static Image CreateImage(string name, Transform parent, Color color)
-        {
-            GameObject go = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-            go.transform.SetParent(parent, false);
-            Image image = go.GetComponent<Image>();
-            image.color = color;
-            return image;
-        }
-
-        private static RectTransform CreatePanel(string name, Transform parent, Color color, Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPosition, Vector2 sizeDelta)
-        {
-            Image image = CreateImage(name, parent, color);
-            RectTransform rect = image.rectTransform;
-            rect.anchorMin = anchorMin;
-            rect.anchorMax = anchorMax;
-            rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.anchoredPosition = anchoredPosition;
-            rect.sizeDelta = sizeDelta;
-            return rect;
-        }
-
-        private static Text CreateText(string name, Transform parent, string value, int fontSize, Color color, TextAnchor alignment)
-        {
-            GameObject go = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
-            go.transform.SetParent(parent, false);
-            Text text = go.GetComponent<Text>();
-            text.text = value;
-            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            text.fontSize = fontSize;
-            text.fontStyle = FontStyle.Bold;
-            text.alignment = alignment;
-            text.color = color;
-            text.raycastTarget = false;
-            return text;
-        }
-
-        private static RectTransform CreateRect(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax, Vector2 offsetMin, Vector2 offsetMax)
-        {
-            GameObject go = new GameObject(name, typeof(RectTransform));
-            go.transform.SetParent(parent, false);
-            RectTransform rect = go.GetComponent<RectTransform>();
-            rect.anchorMin = anchorMin;
-            rect.anchorMax = anchorMax;
-            rect.offsetMin = offsetMin;
-            rect.offsetMax = offsetMax;
-            return rect;
-        }
-
-        private static void SetRect(RectTransform rect, Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPosition, Vector2 sizeDelta)
-        {
-            rect.anchorMin = anchorMin;
-            rect.anchorMax = anchorMax;
-            rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.anchoredPosition = anchoredPosition;
-            rect.sizeDelta = sizeDelta;
-        }
-
-        private static void ClearChildren(Transform root)
-        {
-            if (root == null)
-                return;
-
-            for (int i = root.childCount - 1; i >= 0; i--)
-                Destroy(root.GetChild(i).gameObject);
         }
 
         private readonly struct ShopItem

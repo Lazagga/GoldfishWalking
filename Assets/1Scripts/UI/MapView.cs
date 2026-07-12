@@ -3,6 +3,9 @@ using GoldfishWalking.Map;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace GoldfishWalking.UI
 {
@@ -10,6 +13,7 @@ namespace GoldfishWalking.UI
     {
         [SerializeField] private MapController mapController;
         [SerializeField] private GameBootstrap gameBootstrap;
+        [SerializeField] private RectTransform layoutRoot;
         [SerializeField] private RectTransform contentRoot;
         [SerializeField] private RectTransform lineRoot;
         [SerializeField] private RectTransform nodeRoot;
@@ -35,12 +39,15 @@ namespace GoldfishWalking.UI
         private void Awake()
         {
             ResolveReferences();
+            HideScenePlaceholders();
             EnsureRoots();
         }
 
         private void OnEnable()
         {
             GameEventHub.StateChanged += OnStateChanged;
+            HideScenePlaceholders();
+            EnsureRoots();
             focusedFloor = GetCurrentFloor();
             Render();
         }
@@ -139,15 +146,29 @@ namespace GoldfishWalking.UI
             if (self == null)
                 return;
 
-            if (contentRoot == null)
-                contentRoot = CreateLayer("MapContent", self);
+            if (layoutRoot == null)
+            {
+                Transform existingLayout = transform.Find("MapRuntimeLayout");
+                if (existingLayout is RectTransform existingRect)
+                    layoutRoot = existingRect;
+            }
 
+            if (layoutRoot == null)
+                layoutRoot = CreateLayer("MapRuntimeLayout", self);
+
+            contentRoot = FindRect("MapContent");
+            if (contentRoot == null)
+                contentRoot = CreateLayer("MapContent", layoutRoot);
+
+            lineRoot = FindRect("MapContent/MapLines");
             if (lineRoot == null)
                 lineRoot = CreateLayer("MapLines", contentRoot);
 
+            nodeRoot = FindRect("MapContent/MapNodes");
             if (nodeRoot == null)
                 nodeRoot = CreateLayer("MapNodes", contentRoot);
 
+            BindHeader();
         }
 
         private static RectTransform CreateLayer(string layerName, RectTransform parent)
@@ -161,6 +182,53 @@ namespace GoldfishWalking.UI
             rect.offsetMax = Vector2.zero;
             return rect;
         }
+
+        private void HideScenePlaceholders()
+        {
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                Transform child = transform.GetChild(i);
+                if (layoutRoot != null && child == layoutRoot)
+                    continue;
+                if (child.name == "MapRuntimeLayout")
+                {
+                    layoutRoot = child as RectTransform;
+                    continue;
+                }
+
+                child.gameObject.SetActive(false);
+            }
+        }
+
+        private void RemoveExistingLayoutImmediate()
+        {
+            layoutRoot = null;
+            contentRoot = null;
+            lineRoot = null;
+            nodeRoot = null;
+            headerText = null;
+
+            for (int i = transform.childCount - 1; i >= 0; i--)
+            {
+                Transform child = transform.GetChild(i);
+                if (child.name != "MapRuntimeLayout")
+                    continue;
+
+                DestroyImmediate(child.gameObject);
+            }
+        }
+
+#if UNITY_EDITOR
+        [ContextMenu("Rebuild Scene UI Layout")]
+        public void RebuildSceneUILayout()
+        {
+            ResolveReferences();
+            RemoveExistingLayoutImmediate();
+            EnsureRoots();
+            EditorUtility.SetDirty(gameObject);
+            UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(gameObject.scene);
+        }
+#endif
 
         private void BuildMap(RunMap map)
         {
@@ -238,10 +306,10 @@ namespace GoldfishWalking.UI
 
         private void CreateHeader()
         {
-            if (headerText != null || nodeRoot == null)
+            if (headerText != null || layoutRoot == null)
                 return;
 
-            headerText = CreateText("MapHeader", nodeRoot, "MAP", 32, Color.white);
+            headerText = CreateText("MapHeader", layoutRoot, "MAP", 32, Color.white);
             headerText.fontStyle = FontStyle.Bold;
 
             RectTransform rect = headerText.rectTransform;
@@ -250,6 +318,27 @@ namespace GoldfishWalking.UI
             rect.pivot = new Vector2(0.5f, 1f);
             rect.anchoredPosition = new Vector2(0f, -28f);
             rect.sizeDelta = new Vector2(0f, 54f);
+        }
+
+        private void BindHeader()
+        {
+            if (layoutRoot == null)
+                return;
+
+            Transform existingHeader = layoutRoot.Find("MapHeader");
+            if (existingHeader != null)
+                headerText = existingHeader.GetComponent<Text>();
+
+            CreateHeader();
+        }
+
+        private RectTransform FindRect(string path)
+        {
+            if (layoutRoot == null)
+                return null;
+
+            Transform found = layoutRoot.Find(path);
+            return found as RectTransform;
         }
 
         private void UpdateHeader(string text)
@@ -306,7 +395,9 @@ namespace GoldfishWalking.UI
                 bool visible = IsFloorVisible(node.roomIndex);
 
                 if (nodeTransform.TryGetComponent(out Image image))
+                {
                     image.color = current ? CurrentColor : completed ? CompletedColor : selectable ? AvailableColor : LockedColor;
+                }
 
                 if (nodeTransform.TryGetComponent(out Button button))
                     button.interactable = visible && selectable;
@@ -426,6 +517,7 @@ namespace GoldfishWalking.UI
             {
                 GameObject child = root.GetChild(i).gameObject;
                 child.SetActive(false);
+                child.transform.SetParent(null, false);
                 Destroy(child);
             }
         }

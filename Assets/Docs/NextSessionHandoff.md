@@ -1,13 +1,34 @@
 ﻿# Next Session Handoff
 
-Last updated: 2026-07-11
+Last updated: 2026-07-12
 
-## Latest 2026-07-11 Handoff
+## Latest 2026-07-12 Handoff
 
 The current gameplay source of truth is still `Assets/1Scripts`.
 
-Recent work focused on making monster patterns and fantasy acquisition rules
-data-driven enough for end-to-end content testing:
+Recent work focused on UI cleanup after the monster/fantasy/content pass:
+
+- Battle, Rest, Shop, Title seed input, Seed display, and shared fantasy-list
+  view scripts now bind to existing scene UI instead of building full screen
+  layouts when opened.
+- Reward remains a Battle overlay. Its screen background and old duplicate
+  reward chrome were removed/disabled so the Battle screen remains visible
+  underneath.
+- Reward list rows and reward cards are intentionally dynamic again. This keeps
+  the reward list compact when only some reward types are present, avoiding
+  awkward fixed empty slots.
+- `RewardView` now creates only transient reward rows/cards under existing
+  `RewardList` and `RewardCards` containers. The scene keeps the stable
+  containers plus `RerollButton` and `NextButton`.
+- Common fantasy tooltip/list components were added for Battle/Rest/Shop and
+  reward-adjacent UI. Tooltip graphics do not block raycasts and follow the
+  mouse from the top-left corner.
+- Current remaining intentional runtime UI generation is data-driven control
+  content: `EditableSevenSegmentBox` creates 7-segment digits/popup/drag
+  preview content, and `MapView` creates map nodes/lines from generated map
+  data. Do not treat those as accidental full-screen fallback layout code.
+
+Content/data status from the previous pass remains:
 
 - Monster and pattern TSV import currently reports `0` warnings and `0` errors.
 - Imported monster count: `39`.
@@ -54,11 +75,14 @@ Latest validation:
 Recommended next work is cleanup and QA rather than more feature expansion:
 
 1. Run through the accumulated bug report as regression QA.
-2. Verify shop/reward/rest fantasy candidate pools in play mode.
-3. Verify monster pattern sequences and special boxes against current
+2. Verify reward overlay behavior in play mode: Battle remains visible,
+   reward list rows pack without empty holes, fantasy card selection works, and
+   Next returns to Map.
+3. Verify shop/reward/rest fantasy candidate pools in play mode.
+4. Verify monster pattern sequences and special boxes against current
    `Pattern.tsv`.
-4. Start moving runtime-created UI toward prebuilt Canvas/prefab UI only after
-   the gameplay loop is stable enough.
+5. Continue converting static screen chrome to scene/prefab UI, but keep
+   data-sized controls dynamic or pooled where fixed UI makes authoring worse.
 
 ## Project
 
@@ -343,28 +367,26 @@ Monster and pattern TSV import is implemented:
 - `TitleScreen/StartRunButton` is connected to `GameBootstrap.StartNewRun()`.
 - `MainCanvas/GameScreenRouter` is connected to all screen panels.
 - `BattleScreen/BattleView` is connected to `BattleController`.
-- `BattleScreen` current layout:
-  - top left: `FANTASY -`
-  - top right: `ITEMS -`
-  - left formula panel: player damage, locked hit count, `MOVES 0 / 2`
-  - center stage: player and monster placeholder sprites, HP labels above them
-  - right formula panel: monster damage, monster hit count, pattern preview
-  - bottom bar: `RESET` button on left, `TURN` button on right
-- `BattleScreen` is only a placeholder layout for now. User wants to postpone
-  battle implementation until monster/fantasy data parsing is done.
+- Battle/Rest/Shop/Reward runtime layout roots are pre-placed in the scene.
+  View scripts bind those roots and should not rebuild entire screen layouts at
+  runtime.
+- `BattleScreen` currently contains player/monster HP, damage boxes, monster
+  pattern boxes, move counter, item counts, debug console, fantasy list, and
+  tooltip UI as scene objects. The visual style is still placeholder-level.
 
 ### Current Implemented Screen Flow
 
-The current rebuild scene uses runtime-created uGUI layouts from
-`Assets/1Scripts/UI`. Most visuals are deliberately simple single-color
-placeholder panels because final sprites will be substituted later.
+The current rebuild scene uses pre-placed scene UI for most static screen
+chrome, with some dynamic repeated content under existing containers. Most
+visuals are still deliberately simple single-color placeholder panels because
+final sprites will be substituted later.
 
-Important UI direction: runtime-created layouts are a temporary implementation
-shortcut for rapid feature validation. The target structure is to pre-place the
-screen and popup UI under the scene Canvas or prefabs, toggle screens with
-`SetActive`/`CanvasGroup`, and have view scripts bind to `SerializeField`
-references. Unity MCP can be used to create the objects, wire serialized fields,
-adjust RectTransforms, and save the scene.
+Important UI direction: full-screen layout fallback creation is no longer the
+target. Static screen chrome should be pre-placed under the scene Canvas or
+prefabs, toggled with `SetActive`/`CanvasGroup`, and bound by view scripts.
+However, data-sized repeated content may still be dynamic or pooled when fixed
+scene UI creates poor UX. Current examples are reward rows/cards, map
+nodes/lines, and 7-segment digit/segment content.
 
 Implemented flow:
 
@@ -413,7 +435,7 @@ Boss battles still grant rewards. After the reward flow completes:
 
 ### Rest Implementation State
 
-- `RestView` is runtime-created.
+- `RestView` binds to `RestRuntimeLayout` in the scene.
 - The center heal number is drawn using the matchstick 7-segment style.
 - The heal value is generated from the run seed and current room context.
 - Pressing the rest button heals by that value.
@@ -423,7 +445,7 @@ Boss battles still grant rewards. After the reward flow completes:
 
 ### Shop Implementation State
 
-- `ShopView` is runtime-created.
+- `ShopView` binds to `ShopRuntimeLayout` in the scene.
 - Shop item prices are drawn with the matchstick 7-segment style.
 - Shop prices are generated from the run seed, current room context, and item
   id. Edited prices are stored in current shop room state.
@@ -440,7 +462,7 @@ Boss battles still grant rewards. After the reward flow completes:
 
 ### Battle UI Implementation State
 
-- `BattleView` is runtime-created.
+- `BattleView` binds to `BattleRuntimeLayout` in the scene.
 - The top-left fantasy area is a horizontal `ScrollRect`, not an explanatory
   text label.
 - Monster formula content is right-anchored and pivots from the right, so longer
@@ -508,15 +530,21 @@ Boss battles still grant rewards. After the reward flow completes:
 ### Reward Implementation State
 
 - Reward is an overlay on top of Battle.
+- Reward no longer owns a full-screen background. `RewardScreen` image and
+  `Overlay` chrome are disabled/removed so the Battle screen remains visible.
 - Battle victory opens a reward list first, not the 3-card fantasy choice
   screen directly.
 - The reward list always contains one fantasy reward row.
 - Extra match and eraser reward rows each appear independently at 50% chance.
+- Reward rows are dynamically generated and packed from the top, so missing
+  reward types do not leave empty fixed slots.
 - Clicking extra match or eraser immediately adds `+1` to
   `RunContext.itemInventory` and removes that row.
 - Item count changes raise `GameEventHub.ItemInventoryChanged` so visible item
   UI can refresh.
 - Clicking the fantasy row opens the existing 3-card fantasy choice UI.
+- Fantasy choice cards are dynamically generated under the existing
+  `RewardCards` container.
 - Selecting one fantasy adds it to `RunContext.fantasyInventory`.
 - If more reward rows remain after fantasy selection, the UI returns to the
   reward list.
@@ -836,9 +864,9 @@ Unity MCP tools are now exposed and working.
    coverage.
 2. Finish regression QA against the accumulated bug report before adding more
    content.
-3. Convert runtime-created screen UI into pre-placed Canvas/prefab UI with
-   serialized field bindings. Start with Battle, then apply the same pattern to
-   Rest, Shop, Reward, and the 7-segment popup.
+3. Continue converting static screen chrome into pre-placed Canvas/prefab UI
+   with serialized field bindings. Keep variable repeated content dynamic or
+   pooled when fixed UI creates worse layout.
 4. Continue replacing placeholder visuals with real data binding before final
    art.
 5. Fantasy inventory and the first fantasy effect trigger pass are connected

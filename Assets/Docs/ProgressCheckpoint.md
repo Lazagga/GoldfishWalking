@@ -1,6 +1,6 @@
 # Progress Checkpoint
 
-Last updated: 2026-07-11
+Last updated: 2026-07-12
 
 ## Latest Checkpoint
 
@@ -18,6 +18,17 @@ Latest verified state:
 
 Recent completed items:
 
+- Static screen chrome migration started:
+  - Battle, Rest, Shop, Title seed input, Seed display, and shared fantasy-list
+    UI bind to scene objects instead of creating full screen layouts at
+    runtime.
+  - Reward screen background/overlay chrome was removed or disabled so Battle
+    remains visible under the reward overlay.
+  - Reward rows/cards are dynamic again because the reward set is variable and
+    fixed slots produced awkward empty spaces.
+  - `EditableSevenSegmentBox` and `MapView` still create data-driven repeated
+    content at runtime; this is intentional for now and should later become
+    pooled/prefab-backed only if needed.
 - Monster pattern runtime supports the current data set's condition/phase,
   dynamic damage expression, timed strength, status, stack, and special-box
   needs.
@@ -112,8 +123,9 @@ Recent completed items:
   - player HP and monster HP sit above their placeholder sprites
   - player formula lower shelf shows `MOVES 0 / 2`
   - bottom bar has `RESET` and `TURN`
-- Decided to postpone deeper Battle implementation until monster/fantasy data
-  parsing is settled.
+- Deeper battle implementation resumed after monster/fantasy data parsing was
+  connected; remaining battle work is now mostly regression QA, presentation,
+  and missing formula infrastructure.
 - Implemented current map generation rules:
   - 15 floors
   - floor 1 single battle
@@ -155,12 +167,15 @@ Recent completed items:
   - bottom-right `E` resolves battle
   - duplicate runtime layout creation fixed
 - Implemented `RewardView` as a Battle overlay:
+  - reward screen background is disabled so the battle state remains visible
+    behind the overlay
   - reward list appears before fantasy choice cards
   - fantasy reward row always appears
   - extra match row appears at 50% chance
   - eraser row appears at 50% chance
+  - reward rows are generated dynamically and packed without empty gaps
   - extra match/eraser rows immediately add `+1` to item inventory on click
-  - fantasy row opens the existing 3-card choice UI
+  - fantasy row opens dynamically generated 3-card fantasy choices
   - selecting a fantasy adds it to fantasy inventory
   - returns to the reward list if more rewards remain
   - closes the reward UI if no rewards remain or `Close` is pressed
@@ -368,12 +383,13 @@ do not exist yet, or are only partially mapped:
 ## Current State
 
 The project is now using `Assets/1Scripts` as the gameplay source of truth.
-`GumBwing_Er.unity` is the Canvas-based rebuild scene. Map, Rest, Shop, Battle
-placeholder UI, and Reward overlay/list flow are implemented with runtime uGUI
-placeholder visuals. Battle has core formula logic, shared 7-segment popup
-editing, item inventory usage, and seeded room number state. Deeper battle
-implementation is paused until monster/fantasy data parsing direction is
-settled.
+`GumBwing_Er.unity` is the Canvas-based rebuild scene. Battle, Rest, Shop,
+Title seed input, Seed display, and shared fantasy-list chrome now bind to
+scene UI. Reward uses a hybrid overlay: stable scene containers/buttons plus
+dynamic rows/cards under those containers. Map nodes/lines and 7-segment
+digits/segments remain data-driven runtime content. Battle has core formula
+logic, shared 7-segment popup editing, item inventory usage, and seeded room
+number state.
 
 Deterministic seeded number generation is implemented for player base damage,
 monster base damage, monster hit count, rest heal amount, and shop prices.
@@ -398,9 +414,10 @@ deferred or need UI polish: cosmetic visuals, aquarius redesign, split boxes,
 advanced operator boxes, explicit fantasy copy/transform choice UI, and final
 reward/reroll UX.
 
-Important UI direction: current view scripts still create most UI at runtime.
-This should be migrated to prebuilt Canvas/prefab UI with serialized field
-bindings. Unity MCP can be used to create and wire those scene references.
+Important UI direction: static screen chrome should be prebuilt in the scene or
+prefabs and bound by view scripts. Variable repeated content can stay dynamic or
+be converted to pools when appropriate. Current accepted dynamic areas are
+reward rows/cards, map nodes/lines, and 7-segment digit/segment content.
 
 ## Next Step
 
@@ -411,10 +428,10 @@ Next:
 3. Run regression QA against the accumulated bug report before adding more
    content.
 4. Verify imported monster/pattern/fantasy data in play mode.
-5. Recommended cleanup target: migrate Battle UI from runtime-created layout to
-   prebuilt Canvas objects with serialized field bindings.
-6. Apply the same UI binding pattern to Rest, Shop, Reward, and the 7-segment
-   popup after Battle is stable.
+5. Recommended cleanup target: regression-test Reward overlay after the dynamic
+   row/card correction.
+6. Continue static UI chrome cleanup, but keep variable repeated content
+   dynamic or pooled when fixed UI hurts layout.
 7. Improve reward cards to show imported fantasy name/description/effect data
    more cleanly once string/localization data is settled.
 8. Decide the next fantasy-system target:
