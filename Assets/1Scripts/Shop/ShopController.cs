@@ -78,7 +78,8 @@ namespace GoldfishWalking.Shop
             if (bootstrap.RunContext.currentShop.prices.TryGetValue(itemId, out int price))
                 return price;
 
-            int rolledPrice = bootstrap.RunContext.RollValue($"shop.price.{itemId}", minInclusive, maxInclusive);
+            bootstrap.RunContext.currentShop.priceRollCounts.TryGetValue(itemId, out int rollCount);
+            int rolledPrice = bootstrap.RunContext.RollValue($"shop.price.{itemId}.{rollCount}", minInclusive, maxInclusive);
             price = Mathf.Max(0, fantasyEffectRunner.ModifyValue(bootstrap.RunContext, rolledPrice, "Passive", "Price"));
             bootstrap.RunContext.currentShop.prices[itemId] = price;
             return price;
@@ -90,6 +91,16 @@ namespace GoldfishWalking.Shop
                 return;
 
             bootstrap.RunContext.SetShopPrice(itemId, price);
+        }
+
+        public void RefreshConsumablePrice(string itemId)
+        {
+            if (bootstrap == null || bootstrap.RunContext == null || bootstrap.RunContext.currentShop == null || string.IsNullOrWhiteSpace(itemId))
+                return;
+
+            bootstrap.RunContext.currentShop.priceRollCounts.TryGetValue(itemId, out int rollCount);
+            bootstrap.RunContext.currentShop.priceRollCounts[itemId] = rollCount + 1;
+            bootstrap.RunContext.currentShop.prices.Remove(itemId);
         }
 
         public void AddItem(ItemType itemType, int count)

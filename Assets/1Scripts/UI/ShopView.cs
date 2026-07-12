@@ -258,6 +258,7 @@ namespace GoldfishWalking.UI
                     return;
 
                 shopController.AddItem(itemType, 1);
+                shopController.RefreshConsumablePrice(item.id);
                 price = freePurchase ? 0 : price;
             }
             else

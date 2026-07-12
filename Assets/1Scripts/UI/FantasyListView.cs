@@ -25,15 +25,39 @@ namespace GoldfishWalking.UI
             if (contentRoot == null)
                 return;
 
-            int slotCount = Mathf.Min(visibleSlots, contentRoot.childCount);
+            int fantasyCount = fantasies != null ? fantasies.Count : 0;
+            EnsureSlotCount(Mathf.Max(visibleSlots, fantasyCount));
+            int slotCount = Mathf.Min(Mathf.Max(visibleSlots, fantasyCount), contentRoot.childCount);
             for (int i = 0; i < slotCount; i++)
                 BindSlot(contentRoot.GetChild(i), fantasies != null && i < fantasies.Count ? fantasies[i] : null);
 
             for (int i = slotCount; i < contentRoot.childCount; i++)
                 contentRoot.GetChild(i).gameObject.SetActive(false);
 
-            if (visibleSlots > contentRoot.childCount)
-                Debug.LogWarning($"[FantasyListView] Not enough prebuilt fantasy slots: requested {visibleSlots}, found {contentRoot.childCount}.");
+        }
+
+        private void EnsureSlotCount(int requiredCount)
+        {
+            if (contentRoot == null || requiredCount <= contentRoot.childCount)
+                return;
+
+            Transform template = contentRoot.childCount > 0 ? contentRoot.GetChild(contentRoot.childCount - 1) : null;
+            while (contentRoot.childCount < requiredCount)
+            {
+                GameObject slotObject;
+                if (template != null)
+                {
+                    slotObject = Object.Instantiate(template.gameObject, contentRoot, false);
+                }
+                else
+                {
+                    slotObject = new GameObject("FantasySlot", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+                    slotObject.transform.SetParent(contentRoot, false);
+                }
+
+                slotObject.name = $"FantasySlot{contentRoot.childCount}";
+                slotObject.SetActive(true);
+            }
         }
 
         private void BindSlot(Transform slot, FantasyData fantasy)

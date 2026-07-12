@@ -112,6 +112,7 @@ namespace GoldfishWalking.Core
     public sealed class ShopNumberState
     {
         public Dictionary<string, int> prices = new Dictionary<string, int>();
+        public Dictionary<string, int> priceRollCounts = new Dictionary<string, int>();
         public Dictionary<string, string> fantasyIds = new Dictionary<string, string>();
         public List<string> purchasedFantasyIds = new List<string>();
         public List<string> freePurchasedItemIds = new List<string>();
@@ -120,6 +121,7 @@ namespace GoldfishWalking.Core
         public void Clear()
         {
             prices.Clear();
+            priceRollCounts.Clear();
             fantasyIds.Clear();
             purchasedFantasyIds.Clear();
             freePurchasedItemIds.Clear();

@@ -81,6 +81,12 @@ namespace GoldfishWalking.UI
             GameEventHub.ItemInventoryChanged -= RefreshConsumables;
         }
 
+        private void LateUpdate()
+        {
+            if (healthText != null && bootstrap != null && bootstrap.RunContext != null)
+                healthText.text = bootstrap.RunContext.health.ToString();
+        }
+
         private void OnDestroy()
         {
             UnbindButtons();

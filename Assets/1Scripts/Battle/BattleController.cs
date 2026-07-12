@@ -213,6 +213,12 @@ namespace GoldfishWalking.Battle
 
             context.run.ClearCommittedBattleEditItems();
             ApplyFormulaToMonster(playerResult);
+            if (context.monster != null && context.monster.IsDead)
+            {
+                ApplyTurnEndFantasyEffects();
+                CompleteBattleResolution();
+                return;
+            }
             if (CompleteBattleResolution())
                 return;
 
