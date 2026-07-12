@@ -71,6 +71,7 @@ namespace GoldfishWalking.UI
         private void OnEnable()
         {
             GameEventHub.ItemInventoryChanged += RefreshConsumables;
+            GameEventHub.FantasyInventoryChanged += RefreshFantasySlots;
             ResolveReferences();
             EnsureLayout();
             Refresh();
@@ -79,6 +80,7 @@ namespace GoldfishWalking.UI
         private void OnDisable()
         {
             GameEventHub.ItemInventoryChanged -= RefreshConsumables;
+            GameEventHub.FantasyInventoryChanged -= RefreshFantasySlots;
         }
 
         private void LateUpdate()

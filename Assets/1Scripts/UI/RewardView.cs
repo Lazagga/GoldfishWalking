@@ -373,6 +373,7 @@ namespace GoldfishWalking.UI
             fantasyEffectRunner.Apply(fantasy, bootstrap.RunContext, "On_Acquire");
             fantasyEffectRunner.Apply(fantasy, bootstrap.RunContext, "Acquire");
             FantasyCollectionRules.ApplyPostAcquireTransforms(bootstrap.RunContext.fantasyInventory, fantasyDatabase);
+            GameEventHub.RaiseFantasyInventoryChanged();
             hasFantasyReward = false;
             CloseFantasyChoices();
             Refresh();

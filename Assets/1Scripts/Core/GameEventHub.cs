@@ -14,6 +14,7 @@ namespace GoldfishWalking.Core
         public static event Action RestCompleted;
         public static event Action ShopClosed;
         public static event Action ItemInventoryChanged;
+        public static event Action FantasyInventoryChanged;
 
         public static void RaiseStateChanged(GameState previous, GameState next)
         {
@@ -58,6 +59,11 @@ namespace GoldfishWalking.Core
         public static void RaiseItemInventoryChanged()
         {
             ItemInventoryChanged?.Invoke();
+        }
+
+        public static void RaiseFantasyInventoryChanged()
+        {
+            FantasyInventoryChanged?.Invoke();
         }
     }
 }
