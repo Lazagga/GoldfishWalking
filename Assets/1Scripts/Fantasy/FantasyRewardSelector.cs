@@ -15,6 +15,16 @@ namespace GoldfishWalking.Fantasy
 
         public List<FantasyData> SelectRewards(FantasyDatabase database, FantasyInventory inventory, int count, RunContext runContext)
         {
+            return SelectRewards(database, inventory, count, runContext, null);
+        }
+
+        public List<FantasyData> SelectRewards(
+            FantasyDatabase database,
+            FantasyInventory inventory,
+            int count,
+            RunContext runContext,
+            ISet<string> excludedFantasyIds)
+        {
             List<FantasyData> rewards = new List<FantasyData>();
             if (database == null || database.fantasies == null || count <= 0)
                 return rewards;
@@ -22,6 +32,8 @@ namespace GoldfishWalking.Fantasy
             FantasyGrade? preferredGrade = GetPreferredGrade(runContext);
             List<FantasyData> primaryCandidates = new List<FantasyData>();
             List<FantasyData> fallbackCandidates = new List<FantasyData>();
+            List<FantasyData> excludedPrimaryCandidates = new List<FantasyData>();
+            List<FantasyData> excludedFallbackCandidates = new List<FantasyData>();
 
             foreach (FantasyData fantasy in database.fantasies)
             {
@@ -33,7 +45,13 @@ namespace GoldfishWalking.Fantasy
                 if (inventory != null && inventory.Contains(fantasy.id))
                     continue;
 
-                if (preferredGrade.HasValue && fantasy.grade == preferredGrade.Value)
+                bool preferred = preferredGrade.HasValue && fantasy.grade == preferredGrade.Value;
+                bool excluded = excludedFantasyIds != null && excludedFantasyIds.Contains(fantasy.id);
+                if (excluded && preferred)
+                    excludedPrimaryCandidates.Add(fantasy);
+                else if (excluded)
+                    excludedFallbackCandidates.Add(fantasy);
+                else if (preferred)
                     primaryCandidates.Add(fantasy);
                 else
                     fallbackCandidates.Add(fantasy);
@@ -42,9 +60,13 @@ namespace GoldfishWalking.Fantasy
             Random random = CreateRewardRandom(runContext);
             Shuffle(primaryCandidates, random);
             Shuffle(fallbackCandidates, random);
+            Shuffle(excludedPrimaryCandidates, random);
+            Shuffle(excludedFallbackCandidates, random);
 
             AddUpTo(rewards, primaryCandidates, count);
             AddUpTo(rewards, fallbackCandidates, count);
+            AddUpTo(rewards, excludedPrimaryCandidates, count);
+            AddUpTo(rewards, excludedFallbackCandidates, count);
             return rewards;
         }
 
@@ -69,7 +91,7 @@ namespace GoldfishWalking.Fantasy
         private static Random CreateRewardRandom(RunContext runContext)
         {
             int seed = runContext != null
-                ? runContext.RollValue("reward.fantasy.choices", 0, int.MaxValue - 1)
+                ? runContext.RollValue($"reward.fantasy.choices.{runContext.rewardChoiceRollIndex}", 0, int.MaxValue - 1)
                 : Environment.TickCount;
 
             return new Random(seed);

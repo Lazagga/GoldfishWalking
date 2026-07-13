@@ -273,23 +273,24 @@ namespace GoldfishWalking.Battle
             if (CompleteBattleResolution())
                 return;
 
+            ApplyPlayerEndTurnStatusDamage();
+            ActivatePendingPlayerStatuses();
+            if (CompleteBattleResolution())
+                return;
+
+            AdvanceFantasyEffectDurations();
+
+            // Countdown outcomes are the final step of the current turn. The
+            // player attack, monster action, status processing, and duration
+            // cleanup must all finish before an escape or doom outcome ends it.
             if (ProcessMonsterEscapeCountdown())
                 return;
 
             if (ProcessHeartQueenDoomCountdown())
                 return;
 
-            ApplyPlayerEndTurnStatusDamage();
-            ActivatePendingPlayerStatuses();
-            if (CompleteBattleResolution())
-                return;
-
-            if (!CompleteBattleResolution())
-            {
-                AdvanceFantasyEffectDurations();
-                context.state = BattleState.Editing;
-                PrepareTurn(context.run.battleTurnNumber + 1, true);
-            }
+            context.state = BattleState.Editing;
+            PrepareTurn(context.run.battleTurnNumber + 1, true);
         }
 
         public void ResetBattle()
@@ -898,13 +899,16 @@ namespace GoldfishWalking.Battle
             if (context.monster.SpecialBoxValue > 0)
                 return false;
 
-            if (context.run != null)
-                context.run.health = 0;
-
-            CleanupBattleTemporaryState();
-            context.state = BattleState.Lost;
-            GameEventHub.RaiseBattleLost();
-            return true;
+            MonsterPatternData doomPattern = monsterPatternRunner.ResolvePattern(monsterPatternDatabase, "HeartQueenSkill");
+            monsterPatternRunner.ApplyPatternEffects(
+                context.monster,
+                context.run,
+                doomPattern,
+                context.playerFormula,
+                context.monsterFormula,
+                "Immediate",
+                0);
+            return CompleteBattleResolution();
         }
 
         private static bool IsWhiteRabbit(MonsterData data)

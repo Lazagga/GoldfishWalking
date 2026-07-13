@@ -49,6 +49,7 @@ namespace GoldfishWalking.Core
         public int lastShopPurchaseCost;
         public int stampCouponHealthSpent;
         public int rewardRerolls;
+        public int rewardChoiceRollIndex;
         public string debugForcedMonsterId;
         public List<TimedStrengthModifier> timedPlayerStrengthModifiers = new List<TimedStrengthModifier>();
         public List<TimedStrengthModifier> pendingEnemyStrengthModifiers = new List<TimedStrengthModifier>();
@@ -123,6 +124,7 @@ namespace GoldfishWalking.Core
             lastAcquiredItemCount = 0;
             lastShopPurchaseCost = 0;
             rewardRerolls = 0;
+            rewardChoiceRollIndex = 0;
             timedPlayerStrengthModifiers.Clear();
             pendingEnemyStrengthModifiers.Clear();
             itemInventory.ClearTemporary();

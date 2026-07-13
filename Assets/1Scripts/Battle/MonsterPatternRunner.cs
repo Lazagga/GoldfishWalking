@@ -673,6 +673,8 @@ namespace GoldfishWalking.Battle
                 case "playerhp":
                 case "hp":
                     return runContext != null ? runContext.health : 0f;
+                case "heartqueenbox":
+                    return monster != null && monster.HasSpecialBox ? monster.SpecialBoxValue : 0f;
                 case "playerhpmulti2":
                     return runContext != null ? Mathf.Floor(runContext.health * 0.2f) : 0f;
                 case "stargazingmulti3":

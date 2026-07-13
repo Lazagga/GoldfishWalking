@@ -300,11 +300,16 @@ namespace GoldfishWalking.UI
             PrepareFantasyChoices();
         }
 
-        private void PrepareFantasyChoices()
+        private void PrepareFantasyChoices(ISet<string> excludedFantasyIds = null)
         {
             currentRewards.Clear();
             if (bootstrap != null && bootstrap.RunContext != null)
-                currentRewards.AddRange(rewardSelector.SelectRewards(fantasyDatabase, bootstrap.RunContext.fantasyInventory, RewardCount, bootstrap.RunContext));
+                currentRewards.AddRange(rewardSelector.SelectRewards(
+                    fantasyDatabase,
+                    bootstrap.RunContext.fantasyInventory,
+                    RewardCount,
+                    bootstrap.RunContext,
+                    excludedFantasyIds));
 
             for (int i = currentRewards.Count; i < RewardCount; i++)
             {
@@ -489,8 +494,17 @@ namespace GoldfishWalking.UI
             if (rewardCardRoot == null || !rewardCardRoot.gameObject.activeSelf)
                 return;
 
+            HashSet<string> previousRewardIds = new HashSet<string>();
+            for (int i = 0; i < currentRewards.Count; i++)
+            {
+                FantasyData fantasy = currentRewards[i];
+                if (fantasy != null && !string.IsNullOrWhiteSpace(fantasy.id))
+                    previousRewardIds.Add(fantasy.id);
+            }
+
             bootstrap.RunContext.rewardRerolls--;
-            PrepareFantasyChoices();
+            bootstrap.RunContext.rewardChoiceRollIndex++;
+            PrepareFantasyChoices(previousRewardIds);
             Refresh();
         }
 
