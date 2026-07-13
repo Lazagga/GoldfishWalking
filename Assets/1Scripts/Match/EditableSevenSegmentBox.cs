@@ -237,23 +237,36 @@ namespace GoldfishWalking.Match
             ClearChildren(rectTransform);
             renderedDigits.Clear();
 
-            string valueText = Mathf.Max(0, value).ToString();
-            if (minDigitCount > valueText.Length)
-                valueText = valueText.PadLeft(minDigitCount, '0');
+            List<int> visibleDigitIndices = new List<int>();
+            for (int digitIndex = 0; digitIndex < displayDigitCount; digitIndex++)
+            {
+                for (int slotIndex = 0; slotIndex < displaySlots.Count; slotIndex++)
+                {
+                    MatchSlot slot = displaySlots[slotIndex];
+                    if (slot == null || slot.piece == null || slot.digitIndex != digitIndex)
+                        continue;
+
+                    visibleDigitIndices.Add(digitIndex);
+                    break;
+                }
+            }
+
+            if (visibleDigitIndices.Count == 0)
+                return;
 
             float height = Mathf.Max(1f, rectTransform.rect.height);
             float digitWidth = Mathf.Max(34f, height * 0.62f);
             float gap = Mathf.Max(8f, height * 0.12f);
-            float totalWidth = valueText.Length * digitWidth + Mathf.Max(0, valueText.Length - 1) * gap;
+            float totalWidth = visibleDigitIndices.Count * digitWidth + Mathf.Max(0, visibleDigitIndices.Count - 1) * gap;
             float startX = -totalWidth * 0.5f + digitWidth * 0.5f;
 
-            for (int i = 0; i < valueText.Length; i++)
+            for (int i = 0; i < visibleDigitIndices.Count; i++)
             {
-                int digit = valueText[i] - '0';
-                RectTransform digitRoot = SevenSegmentUI.CreateRect($"Digit{i}_{digit}", rectTransform);
+                int digitIndex = visibleDigitIndices[i];
+                RectTransform digitRoot = SevenSegmentUI.CreateRect($"Digit{digitIndex}", rectTransform);
                 digitRoot.anchoredPosition = new Vector2(startX + i * (digitWidth + gap), 0f);
                 digitRoot.sizeDelta = new Vector2(digitWidth, height);
-                SevenSegmentUI.DrawDigit(digitRoot, digit, matchColor);
+                DrawDisplayDigit(digitRoot, digitIndex);
                 renderedDigits.Add(digitRoot);
             }
         }
