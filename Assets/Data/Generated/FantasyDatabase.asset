@@ -162,12 +162,12 @@ MonoBehaviour:
     devName: "\uCFE0\uD0A4"
     nameStringId: 
     descStringId: "\uC0C1\uC810\uC5D0 \uB4E4\uC5B4\uAC08 \uB54C\uB9C8\uB2E4, \uCCB4\uB825
-      +300"
+      +200"
     grade: 0
     triggerType: Shop_Enter
     displayName: "\uCFE0\uD0A4"
     description: "\uC0C1\uC810\uC5D0 \uB4E4\uC5B4\uAC08 \uB54C\uB9C8\uB2E4, \uCCB4\uB825
-      +300"
+      +200"
     sprite: 
     rawEffects: '[{"Trigger":"Shop_Enter","Target":"HP","Calc":"Add","Value":300.0,"Option":""}]'
     effects:
@@ -652,11 +652,11 @@ MonoBehaviour:
     dataCode: fan_acquire_watermelon
     devName: "\uC218\uBC15"
     nameStringId: 
-    descStringId: "\uD68D\uB4DD \uC2DC \uCCB4\uB825 +200"
+    descStringId: "\uD68D\uB4DD \uC2DC \uCCB4\uB825 +150"
     grade: 0
     triggerType: On_Acquire
     displayName: "\uC218\uBC15"
-    description: "\uD68D\uB4DD \uC2DC \uCCB4\uB825 +200"
+    description: "\uD68D\uB4DD \uC2DC \uCCB4\uB825 +150"
     sprite: 
     rawEffects: '[{"Trigger":"On_Acquire","Target":"HP","Calc":"Add","Value":200.0,"Option":""}]'
     effects:
@@ -707,28 +707,28 @@ MonoBehaviour:
     devName: "\uD3EC\uB3C4"
     nameStringId: 
     descStringId: "\uD134 \uC885\uB8CC \uC2DC \uB0A8\uC740 \uC774\uB3D9 \uD69F\uC218\uB9C8\uB2E4
-      \uCCB4\uB825 +20"
+      \uCCB4\uB825 +5"
     grade: 0
     triggerType: Turn_End
     displayName: "\uD3EC\uB3C4"
     description: "\uD134 \uC885\uB8CC \uC2DC \uB0A8\uC740 \uC774\uB3D9 \uD69F\uC218\uB9C8\uB2E4
-      \uCCB4\uB825 +20"
+      \uCCB4\uB825 +5"
     sprite: 
-    rawEffects: '[{"Trigger":"Turn_End","Target":"HP","Calc":"Add","Value":20.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"Turn_End","Target":"HP","Calc":"Add","Value":5,"Option":""}]'
     effects:
     - trigger: Turn_End
       target: HP
       calc: Add
-      valueExpression: 20
+      valueExpression: 5
       hasNumericValue: 1
-      numericValue: 20
+      numericValue: 5
       option: 
       duration: 0
-      rawJson: '{"Trigger":"Turn_End","Target":"HP","Calc":"Add","Value":20.0,"Option":""}'
+      rawJson: '{"Trigger":"Turn_End","Target":"HP","Calc":"Add","Value":5,"Option":""}'
     isTemporary: 0
     trigger: 3
     target: 1
-    value: 20
+    value: 5
     specialHandler: 
   - id: fan_start_stamp
     sourceId: 26
@@ -824,7 +824,7 @@ MonoBehaviour:
     nameStringId: 
     descStringId: "\uD734\uC2DD \uC7A5\uC18C\uC5D0\uC11C \uD734\uC2DD \uC0C1\uC790\uC758
       \uD798 +1"
-    grade: 0
+    grade: 1
     triggerType: Passive
     displayName: "\uBA38\uADF8\uC794"
     description: "\uD734\uC2DD \uC7A5\uC18C\uC5D0\uC11C \uD734\uC2DD \uC0C1\uC790\uC758
@@ -1142,7 +1142,7 @@ MonoBehaviour:
     sourceId: 39
     dataCode: fan_shop_stampcoupon
     devName: "\uC2A4\uD0EC\uD504\uCFE0\uD3F0"
-    nameStringId: 
+    nameStringId: "\uD134 \u3148"
     descStringId: "\uC0C1\uC810\uC5D0\uC11C \uCCB4\uB825 999 \uC18C\uBAA8 \uC2DC
       \uB9E4 \uD134 \uACF5\uACA9 \uD69F\uC218 +1\uC758 \uD658\uC0C1\uC73C\uB85C \uBCC0\uACBD"
     grade: 1

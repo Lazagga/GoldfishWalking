@@ -247,6 +247,13 @@ namespace GoldfishWalking.Battle
             {
                 if (monsterPatternRunner.CanMonsterAct(context.monster))
                 {
+                    int editableHealValue = monsterPatternRunner.TryGetEditableHealDigitCount(
+                        context.monsterPattern,
+                        context.monster,
+                        context.run,
+                        out _)
+                        ? Mathf.Max(0, monsterResult.damagePerHit)
+                        : -1;
                     monsterPatternRunner.ApplyImmediateNonAttack(context.monster, context.monsterPattern);
                     monsterPatternRunner.ApplyPatternEffects(
                         context.monster,
@@ -255,7 +262,8 @@ namespace GoldfishWalking.Battle
                         context.playerFormula,
                         context.monsterFormula,
                         "Immediate",
-                        0);
+                        0,
+                        editableHealValue);
                 }
 
                 monsterPatternRunner.AdvanceTurnDurations(context.monster);
@@ -625,6 +633,23 @@ namespace GoldfishWalking.Battle
                 numbers.monsterBaseDamageSegmentState = string.Empty;
                 numbers.monsterHitCountSegmentState = string.Empty;
                 context.monsterFormula = formulaBuilder.BuildMonsterFormula(0, 1, false, context.run);
+                EnsureMonsterIdentitySpecialBox(numbers);
+                return;
+            }
+
+            if (monsterPatternRunner.TryGetEditableHealDigitCount(pattern, context.monster, context.run, out int healDigitCount))
+            {
+                int healMin = MonsterPatternKeyUtility.MinForDigits(healDigitCount);
+                int healMax = MonsterPatternKeyUtility.MaxForDigits(healDigitCount);
+                int healValue = numbers.EnsureMonsterPatternDamage(turnKey, () =>
+                    context.run.RollValue($"battle.monster.heal.{patternId}.{context.run.battleTurnNumber}", healMin, healMax));
+
+                numbers.monsterBaseDamage = Mathf.Max(0, healValue);
+                numbers.monsterBaseDamageDigitCount = Mathf.Max(1, healDigitCount);
+                numbers.monsterHitCount = 1;
+                numbers.monsterBaseDamageSegmentState = string.Empty;
+                numbers.monsterHitCountSegmentState = string.Empty;
+                context.monsterFormula = formulaBuilder.BuildMonsterFormula(numbers.monsterBaseDamage, 1, false, context.run);
                 EnsureMonsterIdentitySpecialBox(numbers);
                 return;
             }

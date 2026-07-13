@@ -135,11 +135,6 @@ namespace GoldfishWalking.Battle
                 return;
 
             DamageCapAccumulatedDamage += damage;
-            if (DamageCapAccumulatedDamage < 400)
-                return;
-
-            ClearDamageCap();
-            ChangeStrength(3);
         }
 
         public void ChangeFortuneStack(int amount)
@@ -173,6 +168,21 @@ namespace GoldfishWalking.Battle
             SpecialBoxValue = System.Math.Max(0, value);
             SpecialBoxDigitCount = System.Math.Max(1, digitCount);
             SpecialBoxLabel = label ?? string.Empty;
+        }
+
+        public void AppendSpecialBoxDigit(int digit, string label)
+        {
+            int clampedDigit = System.Math.Max(0, System.Math.Min(9, digit));
+            if (!HasSpecialBox)
+            {
+                SetSpecialBox(clampedDigit, 1, label);
+                return;
+            }
+
+            SpecialBoxValue = SpecialBoxValue * 10 + clampedDigit;
+            SpecialBoxDigitCount = System.Math.Max(1, SpecialBoxDigitCount + 1);
+            if (!string.IsNullOrWhiteSpace(label))
+                SpecialBoxLabel = label;
         }
 
         public void SetSpecialBoxValue(int value)

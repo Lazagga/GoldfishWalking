@@ -289,14 +289,14 @@ MonoBehaviour:
     patternType: 1
     value: 0
     hitCount: 1
-    attackKey: 2_Single
+    attackKey: 1_Single
     hasDynamicDamageValue: 0
     damageValueExpression: 
-    damageDigitCount: 2
+    damageDigitCount: 1
     hitDigitCount: 0
     strengthDelta: 0
     condition: 
-    rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Self", "Action":
+    rawEffects: '{"Attack": "1_Single", "Effects": [{"Target": "Self", "Action":
       "AddBuff", "Type": "Strength", "Value": 1}]}'
     effects:
     - timing: 
@@ -323,14 +323,14 @@ MonoBehaviour:
     patternType: 1
     value: 0
     hitCount: 1
-    attackKey: 2_Single
+    attackKey: 1_Single
     hasDynamicDamageValue: 0
     damageValueExpression: 
-    damageDigitCount: 2
+    damageDigitCount: 1
     hitDigitCount: 0
     strengthDelta: 0
     condition: 
-    rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Self", "Action":
+    rawEffects: '{"Attack": "1_Single", "Effects": [{"Target": "Self", "Action":
       "AddBuff", "Type": "Stun", "Duration": 1}, {"Target": "Self", "Action": "SetBuff",
       "Type": "Strength", "Value": 0}]}'
     effects:
@@ -852,8 +852,9 @@ MonoBehaviour:
     damageDigitCount: 0
     hitDigitCount: 0
     strengthDelta: 0
-    condition: 
-    rawEffects: '{"Effects": [{"Target": "Player", "Action": "Damage", "Value": "PlayerHP_Multi_2"}]}'
+    condition: HPRate<=0.5
+    rawEffects: '{"Condition": "HPRate<=0.5", "Effects": [{"Target": "Player", "Action":
+      "Damage", "Value": "PlayerHP_Multi_2"}]}'
     effects:
     - timing: 
       target: Player
@@ -875,7 +876,7 @@ MonoBehaviour:
     nameStringId: 
     displayName: KnightSkill
     description: "\uD53C\uD574\uB97C 400 \uBC1B\uC73C\uBA74 \uD574\uB2F9 \uBC84\uD504\uB97C
-      \uC5C6\uC560\uACE0, \uD798\uC744 3 \uC5BB\uC74C"
+      \uC5C6\uC560\uACE0, \uD798\uC744 1 \uC5BB\uC74C"
     patternType: 0
     value: 0
     hitCount: 1
@@ -888,7 +889,7 @@ MonoBehaviour:
     condition: DamageTaken>=400
     rawEffects: '{"Condition": "DamageTaken>=400", "Effects": [{"Action": "RemoveBuff",
       "Type": "Shield"}, {"Target": "Self", "Action": "AddBuff", "Type": "Strength",
-      "Value": 3}]}'
+      "Value": 1}]}'
     effects:
     - timing: 
       target: 
@@ -906,12 +907,12 @@ MonoBehaviour:
       action: AddBuff
       type: Strength
       condition: 
-      valueExpression: 3
+      valueExpression: 1
       hasNumericValue: 1
-      numericValue: 3
+      numericValue: 1
       duration: 0
       lockDamage: 0
-      rawJson: '{"Target":"Self","Action":"AddBuff","Type":"Strength","Value":3}'
+      rawJson: '{"Target":"Self","Action":"AddBuff","Type":"Strength","Value":1}'
     sprite: 
     specialHandler: 
   - id: StargazerSingle

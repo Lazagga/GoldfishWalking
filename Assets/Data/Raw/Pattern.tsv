@@ -7,8 +7,8 @@ ID	DevName	DataCode	NameStringID	Effects	SpriteRes	설명
 		HeartQueenSkill		{"Condition": "HeartQueenBox==0", "Effects": [{"Target": "Player", "Action": "Damage", "Value": 9999, "Lock": true}]}		
 		GhostSingle		{"Attack": "2_Single", "Effects": [{"Timing": "NextTurn", "Target": "Player", "Action": "Split", "Duration": 1}]}		단타 + 다음 턴 내 상자 분리
 		GhostMulti		{"Attack": "2_Multi_1", "Effects": [{"Timing": "NextTurn", "Target": "Self", "Action": "Split","Duration":1}]}		연타1 + 다음 턴 자기 상자 분리
-		AutomatonSingle		{"Attack": "2_Single", "Effects": [{"Target": "Self", "Action": "AddBuff", "Type": "Strength", "Value": 1}]}		단타 + 힘 증가
-		AutomatonSingleStun		{"Attack": "2_Single", "Effects": [{"Target": "Self", "Action": "AddBuff", "Type": "Stun", "Duration": 1}, {"Target": "Self", "Action": "SetBuff", "Type": "Strength", "Value": 0}]}		단타 + 자체 스턴, 이후 증가한 힘 초기화
+		AutomatonSingle		{"Attack": "1_Single", "Effects": [{"Target": "Self", "Action": "AddBuff", "Type": "Strength", "Value": 1}]}		단타 + 힘 증가
+		AutomatonSingleStun		{"Attack": "1_Single", "Effects": [{"Target": "Self", "Action": "AddBuff", "Type": "Stun", "Duration": 1}, {"Target": "Self", "Action": "SetBuff", "Type": "Strength", "Value": 0}]}		단타 + 자체 스턴, 이후 증가한 힘 초기화
 		GiantRatSkill		{"Effects": [{"Target": "Self", "Action": "Heal", "Value": 3}, {"Target": "Self", "Action": "AddBuff", "Type": "Strength", "Value": 1}]}		3자릿수의 체력 회복(회복 상자 조작 가능) 및 힘1 증가
 		FortuneTellerSingle		{"Attack": "2_Single", "Effects": [{"Target": "Self", "Action": "Addbuff", "Type": "FortuneStack", "Value": "DamageDealt"}]}		때릴 때마다 점술사가 자신이 가하는 피해량만큼 스택 버프 누적
 		FortuneTellerMulti		{"Attack": "2_Multi_1", "Effects": [{"Target": "Self", "Action": "Addbuff", "Type": "FortuneStack", "Value": "DamageDealt"}]}		
@@ -22,8 +22,8 @@ ID	DevName	DataCode	NameStringID	Effects	SpriteRes	설명
 		JellyfishSingle		{"Attack": "2_Single", "Effects": [{"Target": "Player", "Action": "AddBuff", "Type": "Bleed", "Value": "DamageDealt*0.5"}, {"Target": "Player", "Action": "AddBuff", "Type": "Poison", "Value": "DamageDealt*0.5"}]}		해파리가 가하는 피해의 50%가 각각 출혈/중독 적용
 		JellyfishSkill		{"Effects": [{"Target": "Self", "Action": "Heal", "Value": "PlayerBleed"}, {"Target": "Self", "Action": "Heal", "Value": "PlayerPoison"}]}		플레이어의 출혈/중독 수치만큼 회복
 		OrbSkill		{"Effects": [{"Target": "Player", "Action": "Damage", "Value": "PlayerHP*0.3", "Lock": true}]}		4번째 턴 종료 시 자폭, 플레이어 체력 30% 잠금 피해
-		VampireSkill		{"Effects": [{"Target": "Player", "Action": "Damage", "Value": "PlayerHP_Multi_2"}]}		[체력 아이콘] [X] [2자릿수] [%] 데미지 패턴
-		KnightSkill		{"Condition": "DamageTaken>=400", "Effects": [{"Action": "RemoveBuff", "Type": "Shield"}, {"Target": "Self", "Action": "AddBuff", "Type": "Strength", "Value": 3}]}		피해를 400 받으면 해당 버프를 없애고, 힘을 3 얻음
+		VampireSkill		{"Condition": "HPRate<=0.5", "Effects": [{"Target": "Player", "Action": "Damage", "Value": "PlayerHP_Multi_2"}]}		[체력 아이콘] [X] [2자릿수] [%] 데미지 패턴
+		KnightSkill		{"Condition": "DamageTaken>=400", "Effects": [{"Action": "RemoveBuff", "Type": "Shield"}, {"Target": "Self", "Action": "AddBuff", "Type": "Strength", "Value": 1}]}		피해를 400 받으면 해당 버프를 없애고, 힘을 1 얻음
 		StargazerSingle		{"Attack": "3_Single", "Effects": [{"Target": "Self", "Action": "AddBox", "Value": "Random"}]}		3자릿수 단타 + 별 상자에 무작위 0~9까지 숫자 넣기
 		StargazerSkill		{"Effects": [{"Target": "Player", "Action": "Damage", "Value": "Stargazing_Multi_3"}]}		지정숫자 3개를 이어놓은 잠금타수만큼의 연타3 패턴 "유성우"
 		LibrarianSingle		{"Attack": "3_Single", "Effects": [{"Target": "Player", "Action": "LibrarianSkill", "Value": "1"}]}		

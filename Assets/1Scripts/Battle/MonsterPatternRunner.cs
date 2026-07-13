@@ -69,6 +69,31 @@ namespace GoldfishWalking.Battle
             return monster == null || !monster.IsStunned;
         }
 
+        public bool TryGetEditableHealDigitCount(
+            MonsterPatternData pattern,
+            MonsterRuntime monster,
+            RunContext runContext,
+            out int digitCount)
+        {
+            digitCount = 0;
+            if (pattern == null || pattern.effects == null || !UsesEditableHealBox(pattern))
+                return false;
+
+            for (int i = 0; i < pattern.effects.Length; i++)
+            {
+                MonsterPatternEffectData effect = pattern.effects[i];
+                if (effect == null
+                    || NormalizeLookup(effect.action) != "heal"
+                    || NormalizeLookup(effect.target) == "player")
+                    continue;
+
+                digitCount = Mathf.Max(1, Mathf.FloorToInt(EvaluateValue(effect.valueExpression, monster, runContext, 0)));
+                return true;
+            }
+
+            return false;
+        }
+
         public int ResolveDamage(MonsterRuntime monster, MonsterPatternData pattern)
         {
             if (monster == null || pattern == null)
@@ -126,7 +151,8 @@ namespace GoldfishWalking.Battle
             BattleFormulaState playerFormula,
             BattleFormulaState monsterFormula,
             string timing,
-            int damageDealt)
+            int damageDealt,
+            int editableHealValue = -1)
         {
             if (monster == null || pattern == null || pattern.effects == null)
                 return;
@@ -155,7 +181,7 @@ namespace GoldfishWalking.Battle
                     continue;
                 }
 
-                ApplyEffect(monster, runContext, effect, playerFormula, monsterFormula, damageDealt);
+                ApplyEffect(monster, runContext, effect, playerFormula, monsterFormula, damageDealt, editableHealValue);
             }
         }
 
@@ -175,7 +201,7 @@ namespace GoldfishWalking.Battle
                 if (scheduled == null || scheduled.effect == null || scheduled.triggerTurn > turn)
                     continue;
 
-                ApplyEffect(monster, runContext, scheduled.effect, playerFormula, monsterFormula, 0);
+                ApplyEffect(monster, runContext, scheduled.effect, playerFormula, monsterFormula, 0, -1);
                 monster.ScheduledEffects.RemoveAt(i);
             }
         }
@@ -210,7 +236,8 @@ namespace GoldfishWalking.Battle
             MonsterPatternEffectData effect,
             BattleFormulaState playerFormula,
             BattleFormulaState monsterFormula,
-            int damageDealt)
+            int damageDealt,
+            int editableHealValue)
         {
             string action = NormalizeLookup(effect.action);
             string type = NormalizeLookup(effect.type);
@@ -255,6 +282,9 @@ namespace GoldfishWalking.Battle
 
             if (action == "heal")
             {
+                if (editableHealValue >= 0 && target != "player")
+                    value = editableHealValue;
+
                 if (target == "player")
                     runContext.health += Mathf.Max(0, value);
                 else
@@ -266,6 +296,11 @@ namespace GoldfishWalking.Battle
             {
                 if (target == "self")
                     monster.ApplyDamage(value);
+                else if (NormalizeLookup(effect.valueExpression) == "stargazingmulti3")
+                {
+                    for (int hitIndex = 0; hitIndex < 3; hitIndex++)
+                        ApplyMonsterDamageToPlayer(monster, runContext, value);
+                }
                 else
                     ApplyMonsterDamageToPlayer(monster, runContext, value);
                 return;
@@ -293,7 +328,11 @@ namespace GoldfishWalking.Battle
             if (action == "addbox")
             {
                 int count = ExtractCount(effect.rawJson);
-                monster.SetSpecialBox(value, count, SpecialBoxLabel(target));
+                string label = SpecialBoxLabel(target);
+                if (IsStargazer(monster) && count == 1)
+                    monster.AppendSpecialBoxDigit(value, label);
+                else
+                    monster.SetSpecialBox(value, count, label);
                 return;
             }
 
@@ -312,9 +351,6 @@ namespace GoldfishWalking.Battle
                     ApplyBoxFlag(target, playerFormula, monsterFormula, split: false, locked: true);
                     return;
                 }
-
-                if (type == "strength" && IsKnightCapAlreadyBroken(monster))
-                    return;
 
                 AddBuff(monster, runContext, type, value);
                 return;
@@ -412,24 +448,16 @@ namespace GoldfishWalking.Battle
             }
         }
 
-        private static bool IsKnightCapAlreadyBroken(MonsterRuntime monster)
-        {
-            return monster != null
-                && IsKnight(monster)
-                && monster.DamageCapPerHit == 0
-                && monster.DamageCapAccumulatedDamage >= 400;
-        }
-
-        private static bool IsKnight(MonsterRuntime monster)
-        {
-            string dataName = monster != null && monster.Data != null ? monster.Data.dataName ?? string.Empty : string.Empty;
-            return dataName.Contains("Knight");
-        }
-
         private static bool IsVampire(MonsterRuntime monster)
         {
             string dataName = monster != null && monster.Data != null ? monster.Data.dataName ?? string.Empty : string.Empty;
             return dataName.Contains("Vampire");
+        }
+
+        private static bool IsStargazer(MonsterRuntime monster)
+        {
+            string dataName = monster != null && monster.Data != null ? monster.Data.dataName ?? string.Empty : string.Empty;
+            return dataName.Contains("Stargazer");
         }
 
         private static void SetBuff(MonsterRuntime monster, RunContext runContext, string type, int value)
@@ -629,7 +657,7 @@ namespace GoldfishWalking.Battle
             switch (NormalizeLookup(text))
             {
                 case "damagedealt":
-                    return damageDealt > 0 ? damageDealt : (runContext != null ? runContext.lastDamageDealt : 0f);
+                    return Mathf.Max(0, damageDealt);
                 case "damagetaken":
                     return runContext != null ? runContext.battleDamageDealt : 0f;
                 case "fortunestack":
@@ -714,6 +742,12 @@ namespace GoldfishWalking.Battle
             }
 
             return result;
+        }
+
+        private static bool UsesEditableHealBox(MonsterPatternData pattern)
+        {
+            string key = NormalizeLookup(!string.IsNullOrWhiteSpace(pattern.dataCode) ? pattern.dataCode : pattern.id);
+            return key == "giantratskill" || key == "cosmictreeheal";
         }
 
         private static int ExtractCount(string rawJson)
