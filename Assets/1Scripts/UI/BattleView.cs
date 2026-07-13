@@ -469,7 +469,7 @@ namespace GoldfishWalking.UI
 
         private int GetPlayerBaseDamage()
         {
-            return battleController != null && battleController.PlayerBaseDamage > 0 ? battleController.PlayerBaseDamage : 25;
+            return battleController != null ? battleController.PlayerBaseDamage : 25;
         }
 
         private int GetPlayerDamageDigitCount()

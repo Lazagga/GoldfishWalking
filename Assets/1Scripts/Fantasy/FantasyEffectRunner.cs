@@ -132,8 +132,9 @@ namespace GoldfishWalking.Fantasy
                 case "fanendfan":
                     if (normalizedTrigger == NormalizeTrigger("Turn_End"))
                     {
-                        float damagePercent = GetEffectValue(fantasy, "Turn_End", "Damage", 20f, runContext);
-                        runContext.pendingMonsterDamage += Mathf.FloorToInt(runContext.health * NormalizePercent(damagePercent));
+                        float damagePercent = GetEffectValue(fantasy, "Turn_End", "Damage", 10f, runContext);
+                        float fanDamage = runContext.health * NormalizePercent(damagePercent);
+                        runContext.pendingMonsterDamage += Mathf.FloorToInt(fanDamage + 0.0001f);
                         return true;
                     }
                     break;
