@@ -238,6 +238,8 @@ namespace GoldfishWalking.Match
             renderedDigits.Clear();
 
             string valueText = Mathf.Max(0, value).ToString();
+            if (minDigitCount > valueText.Length)
+                valueText = valueText.PadLeft(minDigitCount, '0');
 
             float height = Mathf.Max(1f, rectTransform.rect.height);
             float digitWidth = Mathf.Max(34f, height * 0.62f);
