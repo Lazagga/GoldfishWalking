@@ -421,7 +421,7 @@ namespace GoldfishWalking.UI
             if (playerDamageBox != null)
                 playerDamageBox.Configure(GetPlayerBaseDamage(), GetPlayerDamageDigitCount(), healthColor, OnPlayerDamageEdited, false, OnPlayerDamageDifferenceChanged, battleController != null ? battleController.PlayerBaseDamageSegmentState : string.Empty, CanCommitPlayerDamageDifference);
             if (monsterDamageBox != null)
-                monsterDamageBox.Configure(GetMonsterBaseDamage(), 0, healthColor, OnMonsterDamageEdited, battleController != null && battleController.MonsterBaseDamageLocked, OnMonsterDamageDifferenceChanged, battleController != null ? battleController.MonsterBaseDamageSegmentState : string.Empty, CanCommitMonsterDamageDifference);
+                monsterDamageBox.Configure(GetMonsterBaseDamage(), battleController != null ? battleController.MonsterBaseDamageDigitCount : 1, healthColor, OnMonsterDamageEdited, battleController != null && battleController.MonsterBaseDamageLocked, OnMonsterDamageDifferenceChanged, battleController != null ? battleController.MonsterBaseDamageSegmentState : string.Empty, CanCommitMonsterDamageDifference);
             if (monsterHitCountBox != null)
                 monsterHitCountBox.Configure(GetMonsterHitCount(), 0, healthColor, OnMonsterHitCountEdited, false, OnMonsterHitDifferenceChanged, battleController != null ? battleController.MonsterHitCountSegmentState : string.Empty, CanCommitMonsterHitDifference);
             RefreshMonsterSpecialBox();

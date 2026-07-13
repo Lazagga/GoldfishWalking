@@ -26,12 +26,17 @@ namespace GoldfishWalking.Battle
             : 0;
 
         public int PlayerDamageDigitCount => bootstrap != null && bootstrap.RunContext != null
-            ? GetPlayerDamageDigitCount(bootstrap.RunContext)
+            && bootstrap.RunContext.currentBattle != null
+            ? Mathf.Max(1, bootstrap.RunContext.currentBattle.playerBaseDamageDigitCount)
             : 2;
 
         public int MonsterBaseDamage => bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.currentBattle != null
             ? bootstrap.RunContext.currentBattle.monsterBaseDamage
             : 0;
+
+        public int MonsterBaseDamageDigitCount => bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.currentBattle != null
+            ? Mathf.Max(1, bootstrap.RunContext.currentBattle.monsterBaseDamageDigitCount)
+            : 1;
 
         public int MonsterHitCount => bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.currentBattle != null
             ? bootstrap.RunContext.currentBattle.monsterHitCount
@@ -407,6 +412,18 @@ namespace GoldfishWalking.Battle
             SetPlayerBaseDamage(value, string.Empty);
         }
 
+        private static int DigitCountFromSegmentState(string segmentState, int fallback)
+        {
+            if (!string.IsNullOrWhiteSpace(segmentState))
+            {
+                string[] parts = segmentState.Split('|');
+                if (parts.Length > 0 && int.TryParse(parts[0], out int digitCount))
+                    return Mathf.Max(1, digitCount);
+            }
+
+            return Mathf.Max(1, fallback);
+        }
+
         public void SetPlayerBaseDamage(int value, string segmentState)
         {
             if (bootstrap == null || bootstrap.RunContext == null)
@@ -415,6 +432,7 @@ namespace GoldfishWalking.Battle
             BattleNumberState numbers = bootstrap.RunContext.EnsureBattleNumbers(monsterHitCount: MonsterHitCount);
             numbers.playerBaseDamage = Mathf.Max(0, value);
             numbers.playerBaseDamageSegmentState = segmentState;
+            numbers.playerBaseDamageDigitCount = DigitCountFromSegmentState(segmentState, numbers.playerBaseDamageDigitCount);
             if (context != null)
                 context.playerFormula = formulaBuilder.BuildPlayerFormula(bootstrap.RunContext, numbers.playerBaseDamage);
         }
@@ -432,6 +450,7 @@ namespace GoldfishWalking.Battle
             BattleNumberState numbers = bootstrap.RunContext.EnsureBattleNumbers(monsterHitCount: MonsterHitCount);
             numbers.monsterBaseDamage = Mathf.Max(0, value);
             numbers.monsterBaseDamageSegmentState = segmentState;
+            numbers.monsterBaseDamageDigitCount = DigitCountFromSegmentState(segmentState, numbers.monsterBaseDamageDigitCount);
             if (context != null)
                 context.monsterFormula = formulaBuilder.BuildMonsterFormula(numbers.monsterBaseDamage, numbers.monsterHitCount, true, context.run);
         }
@@ -601,6 +620,7 @@ namespace GoldfishWalking.Battle
             if (context.monster != null && context.monster.IsStunned)
             {
                 numbers.monsterBaseDamage = 0;
+                numbers.monsterBaseDamageDigitCount = 1;
                 numbers.monsterHitCount = 1;
                 numbers.monsterBaseDamageSegmentState = string.Empty;
                 numbers.monsterHitCountSegmentState = string.Empty;
@@ -612,6 +632,7 @@ namespace GoldfishWalking.Battle
             if (!monsterPatternRunner.IsAttackPattern(pattern))
             {
                 numbers.monsterBaseDamage = 0;
+                numbers.monsterBaseDamageDigitCount = 1;
                 numbers.monsterHitCount = 1;
                 numbers.monsterBaseDamageSegmentState = string.Empty;
                 numbers.monsterHitCountSegmentState = string.Empty;
@@ -621,14 +642,17 @@ namespace GoldfishWalking.Battle
             }
 
             int baseDamage;
+            int baseDamageDigitCount;
             if (pattern.hasDynamicDamageValue)
             {
                 baseDamage = Mathf.Max(0, monsterPatternRunner.EvaluateValueExpression(pattern.damageValueExpression, context.monster, context.run));
+                baseDamageDigitCount = Mathf.Max(1, pattern.damageDigitCount);
             }
             else
             {
                 int monsterStrength = context.monster != null ? context.monster.Strength : 0;
                 int damageDigits = Mathf.Max(1, pattern.damageDigitCount + monsterStrength);
+                baseDamageDigitCount = damageDigits;
                 int damageMin = MonsterPatternKeyUtility.MinForDigits(damageDigits);
                 int damageMax = MonsterPatternKeyUtility.MaxForDigits(damageDigits);
                 baseDamage = numbers.EnsureMonsterPatternDamage(turnKey, () =>
@@ -647,6 +671,7 @@ namespace GoldfishWalking.Battle
             }
 
             numbers.monsterBaseDamage = Mathf.Max(0, baseDamage);
+            numbers.monsterBaseDamageDigitCount = Mathf.Max(1, baseDamageDigitCount);
             numbers.monsterHitCount = Mathf.Max(0, hitCount);
             context.monsterFormula = formulaBuilder.BuildMonsterFormula(numbers.monsterBaseDamage, numbers.monsterHitCount, hitCountEditable, context.run);
             EnsureMonsterIdentitySpecialBox(numbers);
@@ -725,11 +750,12 @@ namespace GoldfishWalking.Battle
                 return;
 
             int hitCount = GetModifiedPlayerHitCount(result.hitCount);
+            int damagePerHit = fantasyEffectRunner.ModifyValue(context.run, result.damagePerHit, "Turn_End", "Additional_Damage");
             for (int hitIndex = 0; hitIndex < hitCount; hitIndex++)
             {
                 if (result.countsAsHit)
                 {
-                    int dealt = context.monster.ApplyDamage(result.damagePerHit);
+                    int dealt = context.monster.ApplyDamage(damagePerHit);
                     context.run.AddBattleDamageDebug("Direct", dealt);
                     context.run.lastDamageDealt = dealt;
                     context.run.battleDamageDealt += dealt;

@@ -10,6 +10,7 @@ namespace GoldfishWalking.Core
         public int playerBaseDamageDigitCount = 2;
         public int playerBaseDamageTurn;
         public int monsterBaseDamage;
+        public int monsterBaseDamageDigitCount = 1;
         public int monsterHitCount = 1;
         public bool monsterSpecialBoxVisible;
         public int monsterSpecialBoxValue;
@@ -25,6 +26,7 @@ namespace GoldfishWalking.Core
         public int editSnapshotTurn;
         public int editSnapshotPlayerBaseDamage;
         public int editSnapshotMonsterBaseDamage;
+        public int editSnapshotMonsterBaseDamageDigitCount;
         public int editSnapshotMonsterHitCount;
         public bool editSnapshotMonsterSpecialBoxVisible;
         public int editSnapshotMonsterSpecialBoxValue;
@@ -74,6 +76,7 @@ namespace GoldfishWalking.Core
             editSnapshotTurn = Math.Max(1, turnNumber);
             editSnapshotPlayerBaseDamage = playerBaseDamage;
             editSnapshotMonsterBaseDamage = monsterBaseDamage;
+            editSnapshotMonsterBaseDamageDigitCount = monsterBaseDamageDigitCount;
             editSnapshotMonsterHitCount = monsterHitCount;
             editSnapshotMonsterSpecialBoxVisible = monsterSpecialBoxVisible;
             editSnapshotMonsterSpecialBoxValue = monsterSpecialBoxValue;
@@ -89,6 +92,7 @@ namespace GoldfishWalking.Core
         {
             playerBaseDamage = editSnapshotPlayerBaseDamage;
             monsterBaseDamage = editSnapshotMonsterBaseDamage;
+            monsterBaseDamageDigitCount = editSnapshotMonsterBaseDamageDigitCount;
             monsterHitCount = editSnapshotMonsterHitCount;
             monsterSpecialBoxVisible = editSnapshotMonsterSpecialBoxVisible;
             monsterSpecialBoxValue = editSnapshotMonsterSpecialBoxValue;

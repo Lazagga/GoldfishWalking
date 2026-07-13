@@ -146,12 +146,8 @@ namespace GoldfishWalking.Fantasy
                     }
                     break;
                 case "fanendpaperplane":
-                    if (normalizedTrigger == NormalizeTrigger("Turn_End") && runContext.currentBattle != null && runContext.currentBattle.playerBaseDamage == runContext.currentBattle.monsterBaseDamage)
-                    {
-                        float multiplier = GetEffectValue(fantasy, "Turn_End", "Additional_Damage", 2f, runContext);
-                        runContext.pendingMonsterDamage = Mathf.FloorToInt(runContext.pendingMonsterDamage * multiplier);
+                    if (normalizedTrigger == NormalizeTrigger("Turn_End"))
                         return true;
-                    }
                     break;
                 case "fanstartcuestick":
                     if (normalizedTrigger == NormalizeTrigger("Battle_Start") && runContext.currentBattle != null)
@@ -249,10 +245,19 @@ namespace GoldfishWalking.Fantasy
                     }
                     break;
                 case "fandamagemirror":
-                    if (normalizedTrigger == NormalizeTrigger("Turn_End") && TargetMatches("Attack_Count", targets) && runContext.currentBattle != null && HasSameDigits(runContext.currentBattle.playerBaseDamage))
+                    if (normalizedTrigger == NormalizeTrigger("Turn_End") && TargetMatches("Attack_Count", targets))
                     {
-                        if (HasSameVisibleDigits(runContext.currentBattle.playerBaseDamage, runContext.currentBattle.playerBaseDamageSegmentState))
+                        if (runContext.currentBattle != null && HasSameDigits(runContext.currentBattle.playerBaseDamage)
+                            && HasSameVisibleDigits(runContext.currentBattle.playerBaseDamage, runContext.currentBattle.playerBaseDamageSegmentState))
                             value += Mathf.FloorToInt(GetEffectValue(fantasy, "Turn_End", "Attack_Count", 1f, runContext));
+                        return true;
+                    }
+                    break;
+                case "fanendpaperplane":
+                    if (normalizedTrigger == NormalizeTrigger("Turn_End") && TargetMatches("Additional_Damage", targets))
+                    {
+                        if (runContext.currentBattle != null && runContext.currentBattle.playerBaseDamage == runContext.currentBattle.monsterBaseDamage)
+                            value = Mathf.FloorToInt(value * GetEffectValue(fantasy, "Turn_End", "Additional_Damage", 2f, runContext));
                         return true;
                     }
                     break;
