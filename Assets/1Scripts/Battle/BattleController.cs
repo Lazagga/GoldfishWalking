@@ -567,7 +567,6 @@ numbers.battleStartFantasyApplied = true;
             BattleNumberState numbers = context.run.EnsureBattleNumbers(MonsterHitCount);
             EnsurePlayerBaseDamageDigitCount(numbers);
             EnsurePlayerTurnDamage(numbers);
-            ApplyGeneratedNumberModifiers(numbers, "Turn_Start");
             context.playerFormula = formulaBuilder.BuildPlayerFormula(context.run, numbers.playerBaseDamage);
             PrepareMonsterPatternFormula(numbers);
             monsterPatternRunner.ApplyScheduledEffects(context.monster, context.run, context.playerFormula, context.monsterFormula);
@@ -719,23 +718,17 @@ private static void RestoreFormulaStateStructure(FormulaState source, FormulaSta
             int damageMin = MonsterPatternKeyUtility.MinForDigits(digitCount);
             int damageMax = MonsterPatternKeyUtility.MaxForDigits(digitCount);
             string turnKey = $"{turnNumber}.{digitCount}digits";
-            numbers.playerBaseDamage = numbers.EnsurePlayerTurnDamage(turnKey, () =>
-                context.run.RollValue($"battle.player.base_damage.{digitCount}digits.turn.{turnNumber}", damageMin, damageMax));
-            numbers.playerBaseDamageTurn = turnNumber;
-            numbers.playerBaseDamageSegmentState = string.Empty;
-        }
-
-private void ApplyGeneratedNumberModifiers(BattleNumberState numbers, string trigger)
-        {
-            if (numbers == null
-                || context == null
-                || context.run == null)
+            if (!numbers.playerTurnDamageValues.TryGetValue(turnKey, out int turnDamage))
             {
-                return;
+                int generatedDamage = context.run.RollValue(
+                    $"battle.player.base_damage.{digitCount}digits.turn.{turnNumber}", damageMin, damageMax);
+                turnDamage = fantasyEffectRunner.ModifyValueAtTurnPreparation(
+                    context.run, generatedDamage, "Player_Base_Damage");
+                numbers.playerTurnDamageValues[turnKey] = turnDamage;
             }
 
-            numbers.playerBaseDamage = fantasyEffectRunner.ModifyValue(
-                context.run, numbers.playerBaseDamage, trigger, "Player_Base_Damage");
+            numbers.playerBaseDamage = turnDamage;
+            numbers.playerBaseDamageTurn = turnNumber;
             numbers.playerBaseDamageSegmentState = string.Empty;
         }
 

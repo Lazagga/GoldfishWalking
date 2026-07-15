@@ -12,6 +12,7 @@ namespace GoldfishWalking.Editor
         private int selectedIndex;
         private Vector2 listScroll;
         private bool showAdvanced;
+        private string jsonError;
 
         private void OnEnable()
         {
@@ -87,7 +88,31 @@ namespace GoldfishWalking.Editor
                 EditorGUILayout.PropertyField(Find(fantasy, "triggerType"), new GUIContent("Default Trigger"));
 
                 EditorGUILayout.Space(4f);
-                DrawEffects(Find(fantasy, "effects"));
+                EditorGUILayout.LabelField("Effects JSON (Runtime Source)", EditorStyles.boldLabel);
+                EditorGUILayout.HelpBox("Valid JSON is parsed immediately. The runtime executes the parsed preview below.", MessageType.Info);
+                SerializedProperty rawEffects = Find(fantasy, "rawEffects");
+                EditorGUI.BeginChangeCheck();
+                EditorGUILayout.PropertyField(rawEffects, GUIContent.none, GUILayout.MinHeight(100f));
+                bool jsonChanged = EditorGUI.EndChangeCheck();
+                if (jsonChanged)
+                {
+                    serializedObject.ApplyModifiedProperties();
+                    FantasyDatabase database = (FantasyDatabase)target;
+                    FantasyData data = database.fantasies[selectedIndex];
+                    if (EffectJsonInspectorParser.TryApply(data, out jsonError))
+                    {
+                        jsonError = string.Empty;
+                        EditorUtility.SetDirty(database);
+                        serializedObject.Update();
+                    }
+                }
+                if (!string.IsNullOrWhiteSpace(jsonError))
+                    EditorGUILayout.HelpBox($"JSON was not applied: {jsonError}", MessageType.Error);
+
+                EditorGUILayout.Space(4f);
+                EditorGUILayout.LabelField("Parsed Runtime Preview", EditorStyles.boldLabel);
+                using (new EditorGUI.DisabledScope(true))
+                    DrawEffects(Find(fantasy, "effects"));
 
                 EditorGUILayout.Space(4f);
                 showAdvanced = EditorGUILayout.Foldout(showAdvanced, "Advanced / Import Data", true);
@@ -98,7 +123,6 @@ namespace GoldfishWalking.Editor
                     EditorGUILayout.PropertyField(Find(fantasy, "nameStringId"));
                     EditorGUILayout.PropertyField(Find(fantasy, "descStringId"));
                     EditorGUILayout.PropertyField(Find(fantasy, "sprite"));
-                    EditorGUILayout.PropertyField(Find(fantasy, "rawEffects"));
                     EditorGUILayout.PropertyField(Find(fantasy, "trigger"));
                     EditorGUILayout.PropertyField(Find(fantasy, "target"));
                     EditorGUILayout.PropertyField(Find(fantasy, "value"));

@@ -128,6 +128,22 @@ namespace GoldfishWalking.Fantasy
             return value;
         }
 
+        public int ModifyValueAtTurnPreparation(RunContext runContext, int baseValue, params string[] targets)
+        {
+            if (runContext == null)
+                return baseValue;
+
+            int turnNumber = Mathf.Max(1, runContext.battleTurnNumber);
+            int value = ModifyValue(runContext, baseValue, "Passive", targets);
+            if (turnNumber == 1)
+                value = ModifyValue(runContext, value, "Battle_Start", targets);
+            value = ModifyValue(runContext, value, "Turn_Start", targets);
+            value = ModifyValue(runContext, value, $"Turn_{turnNumber}", targets);
+            if (turnNumber % 2 == 0)
+                value = ModifyValue(runContext, value, "Turn_Even", targets);
+            return value;
+        }
+
         private void ApplyEffect(FantasyData fantasy, FantasyEffectData effect, RunContext runContext)
         {
             string target = NormalizeTarget(effect.target);

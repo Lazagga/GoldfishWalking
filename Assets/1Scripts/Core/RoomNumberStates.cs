@@ -41,16 +41,6 @@ namespace GoldfishWalking.Core
         public Dictionary<string, int> monsterPatternHitCountValues = new Dictionary<string, int>();
         public bool battleStartFantasyApplied;
 
-        public int EnsurePlayerTurnDamage(string key, Func<int> roll)
-        {
-            if (playerTurnDamageValues.TryGetValue(key, out int value))
-                return value;
-
-            value = roll != null ? roll() : playerBaseDamage;
-            playerTurnDamageValues[key] = value;
-            return value;
-        }
-
         public int EnsureMonsterPatternDamage(string key, Func<int> roll)
         {
             if (monsterPatternDamageValues.TryGetValue(key, out int value))
