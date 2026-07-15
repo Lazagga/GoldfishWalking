@@ -3,6 +3,9 @@ using GoldfishWalking.Data;
 using GoldfishWalking.Fantasy;
 using GoldfishWalking.Formula;
 using GoldfishWalking.Map;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
@@ -20,6 +23,17 @@ namespace GoldfishWalking.Battle
         private readonly BattleFormulaBuilder formulaBuilder = new BattleFormulaBuilder();
         private readonly FantasyEffectRunner fantasyEffectRunner = new FantasyEffectRunner();
         private BattleContext context;
+        private Coroutine resolutionCoroutine;
+
+        [SerializeField, Min(0f)] private float attackStepDelay = 0.2f;
+        [SerializeField, Min(0f)] private float phaseStepDelay = 0.1f;
+
+        public event Action<BattleState> ResolutionPhaseChanged;
+        public event Action<BattleHitStep> PlayerHitPresented;
+        public event Action<int, int> MonsterHitPresented;
+        public event Action BattlePresentationChanged;
+
+        public BattleState State => context != null ? context.state : BattleState.NotStarted;
 
         public int PlayerBaseDamage => bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.currentBattle != null
             ? bootstrap.RunContext.currentBattle.playerBaseDamage
@@ -192,106 +206,135 @@ namespace GoldfishWalking.Battle
             GameEventHub.StateChanged -= OnStateChanged;
         }
 
-        public void ResolveBattle()
+public void ResolveBattle()
         {
-            if (context == null || context.state != BattleState.Editing)
+            if (context == null || context.state != BattleState.Editing || resolutionCoroutine != null)
                 return;
 
-            context.state = BattleState.Resolving;
+            resolutionCoroutine = StartCoroutine(ResolveBattleRoutine());
+        }
+
+private IEnumerator ResolveBattleRoutine()
+        {
+            SetResolutionPhase(BattleState.Validating);
             context.run.battleDamageDebugLines.Clear();
             BattleFormulaResult playerResult = formulaEvaluator.EvaluateBattleFormula(context.playerFormula);
-
-            if (!playerResult.isValid)
-            {
-                Debug.LogWarning($"[BattleController] Invalid player formula: {playerResult.error}");
-                context.state = BattleState.Editing;
-                return;
-            }
-
             BattleFormulaResult monsterResult = formulaEvaluator.EvaluateBattleFormula(context.monsterFormula);
-            if (!monsterResult.isValid)
+            if (!playerResult.isValid || !monsterResult.isValid)
             {
-                Debug.LogWarning($"[BattleController] Invalid monster formula: {monsterResult.error}");
-                context.state = BattleState.Editing;
-                return;
+                string error = !playerResult.isValid ? playerResult.error : monsterResult.error;
+                Debug.LogWarning($"[BattleController] Invalid battle formula: {error}");
+                FinishResolutionAsEditing();
+                yield break;
             }
 
             context.run.ClearCommittedBattleEditItems();
-            ApplyFormulaToMonster(playerResult);
-            if (context.monster != null && context.monster.IsDead)
+            SetResolutionPhase(BattleState.PlayerAttack);
+            List<BattleHitStep> playerHits = BuildPlayerHitSteps(playerResult);
+            for (int i = 0; i < playerHits.Count; i++)
             {
-                ApplyTurnEndFantasyEffects();
-                CompleteBattleResolution();
-                return;
+                BattleHitStep hit = playerHits[i];
+                PlayerHitPresented?.Invoke(hit);
+                if (attackStepDelay > 0f)
+                    yield return new WaitForSeconds(attackStepDelay);
+
+                ApplyPlayerHit(playerResult, hit.damage);
+                BattlePresentationChanged?.Invoke();
+                if (context.monster != null && context.monster.IsDead)
+                    break;
             }
-            if (CompleteBattleResolution())
-                return;
 
+            SetResolutionPhase(BattleState.PlayerEffects);
             ApplyTurnEndFantasyEffects();
+            BattlePresentationChanged?.Invoke();
+            if (phaseStepDelay > 0f)
+                yield return new WaitForSeconds(phaseStepDelay);
             if (CompleteBattleResolution())
-                return;
+            {
+                resolutionCoroutine = null;
+                yield break;
+            }
 
+            SetResolutionPhase(BattleState.MonsterAction);
             if (monsterPatternRunner.IsAttackPattern(context.monsterPattern) && monsterPatternRunner.CanMonsterAct(context.monster))
             {
-                int monsterDamageDealt = ApplyFormulaToPlayer(monsterResult);
-                monsterPatternRunner.ApplyPatternEffects(
-                    context.monster,
-                    context.run,
-                    context.monsterPattern,
-                    context.playerFormula,
-                    context.monsterFormula,
-                    "Immediate",
-                    monsterDamageDealt);
+                int totalDamage = 0;
+                int damagePerHit = Mathf.Max(0, monsterResult.damagePerHit);
+                for (int i = 0; i < Mathf.Max(0, monsterResult.hitCount); i++)
+                {
+                    MonsterHitPresented?.Invoke(i, damagePerHit);
+                    if (attackStepDelay > 0f)
+                        yield return new WaitForSeconds(attackStepDelay);
+
+                    totalDamage += ApplyMonsterHitToPlayer(damagePerHit);
+                    BattlePresentationChanged?.Invoke();
+                }
+
+                SetResolutionPhase(BattleState.MonsterEffects);
+                context.run.lastDamageTaken = totalDamage;
+                ApplyVampireHeal(totalDamage);
+                fantasyEffectRunner.ApplyTrigger(context.run, "Take_Damage");
+                ApplyPendingMonsterDamage();
+                monsterPatternRunner.ApplyPatternEffects(context.monster, context.run, context.monsterPattern,
+                    context.playerFormula, context.monsterFormula, "Immediate", totalDamage);
+                BattlePresentationChanged?.Invoke();
             }
             else
             {
-                if (monsterPatternRunner.CanMonsterAct(context.monster))
-                {
-                    int editableHealValue = monsterPatternRunner.TryGetEditableHealDigitCount(
-                        context.monsterPattern,
-                        context.monster,
-                        context.run,
-                        out _)
-                        ? Mathf.Max(0, monsterResult.damagePerHit)
-                        : -1;
-                    monsterPatternRunner.ApplyImmediateNonAttack(context.monster, context.monsterPattern);
-                    monsterPatternRunner.ApplyPatternEffects(
-                        context.monster,
-                        context.run,
-                        context.monsterPattern,
-                        context.playerFormula,
-                        context.monsterFormula,
-                        "Immediate",
-                        0,
-                        editableHealValue);
-                }
-
-                monsterPatternRunner.AdvanceTurnDurations(context.monster);
+                ApplyMonsterNonAttack(monsterResult);
+                BattlePresentationChanged?.Invoke();
             }
 
             ProcessMonsterSelfDestruct();
+            BattlePresentationChanged?.Invoke();
             if (CompleteBattleResolution())
-                return;
+            {
+                resolutionCoroutine = null;
+                yield break;
+            }
 
+            SetResolutionPhase(BattleState.StatusEffects);
             ApplyPlayerEndTurnStatusDamage();
             ActivatePendingPlayerStatuses();
+            BattlePresentationChanged?.Invoke();
+            if (phaseStepDelay > 0f)
+                yield return new WaitForSeconds(phaseStepDelay);
             if (CompleteBattleResolution())
-                return;
+            {
+                resolutionCoroutine = null;
+                yield break;
+            }
 
+            SetResolutionPhase(BattleState.DurationCleanup);
             AdvanceFantasyEffectDurations();
+            BattlePresentationChanged?.Invoke();
 
-            // Countdown outcomes are the final step of the current turn. The
-            // player attack, monster action, status processing, and duration
-            // cleanup must all finish before an escape or doom outcome ends it.
-            if (ProcessMonsterEscapeCountdown())
-                return;
+            SetResolutionPhase(BattleState.OutcomeCheck);
+            if (ProcessMonsterEscapeCountdown() || ProcessHeartQueenDoomCountdown())
+            {
+                resolutionCoroutine = null;
+                yield break;
+            }
+            BattlePresentationChanged?.Invoke();
 
-            if (ProcessHeartQueenDoomCountdown())
-                return;
-
-            context.state = BattleState.Editing;
             PrepareTurn(context.run.battleTurnNumber + 1, true);
+            FinishResolutionAsEditing();
         }
+
+        private void SetResolutionPhase(BattleState phase)
+        {
+            if (context == null)
+                return;
+            context.state = phase;
+            ResolutionPhaseChanged?.Invoke(phase);
+        }
+
+        private void FinishResolutionAsEditing()
+        {
+            resolutionCoroutine = null;
+            SetResolutionPhase(BattleState.Editing);
+        }
+
 
         public void ResetBattle()
         {
@@ -414,6 +457,7 @@ namespace GoldfishWalking.Battle
             }
 
             PrepareTurn(1, true);
+            SetResolutionPhase(BattleState.Editing);
         }
 
         public void SetPlayerBaseDamage(int value)
@@ -1075,7 +1119,6 @@ namespace GoldfishWalking.Battle
                 return true;
             }
 
-            context.state = BattleState.Editing;
             return false;
         }
 
@@ -1114,5 +1157,96 @@ namespace GoldfishWalking.Battle
                 context.run.pendingPlayerPoison = 0;
             }
         }
-    }
+
+        private List<BattleHitStep> BuildPlayerHitSteps(BattleFormulaResult result)
+        {
+            var hits = new List<BattleHitStep>();
+            int runningCount = Mathf.Max(0, result.hitCount);
+            AddHits(hits, null, runningCount, result.damagePerHit);
+            if (context?.run?.fantasyInventory == null)
+                return hits;
+
+            int passive = Mathf.Max(0, context.run.passiveAttackCountBonus);
+            AddHits(hits, null, passive, result.damagePerHit);
+            runningCount += passive;
+
+            IReadOnlyList<FantasyData> fantasies = context.run.fantasyInventory.ownedFantasies;
+            for (int i = 0; i < fantasies.Count; i++)
+            {
+                FantasyData fantasy = fantasies[i];
+                if (fantasy == null)
+                    continue;
+
+                if (fantasy.id == FantasyCollectionRules.AnimalFriendsId)
+                {
+                    AddHits(hits, fantasy, 4, result.damagePerHit);
+                    runningCount += 4;
+                }
+
+                runningCount = AddFantasyHitContribution(hits, fantasy, runningCount, "Passive", result.damagePerHit);
+                runningCount = AddFantasyHitContribution(hits, fantasy, runningCount, "Turn_Start", result.damagePerHit);
+                runningCount = AddFantasyHitContribution(hits, fantasy, runningCount, $"Turn_{context.run.battleTurnNumber}", result.damagePerHit);
+                if (context.run.battleTurnNumber % 2 == 0)
+                    runningCount = AddFantasyHitContribution(hits, fantasy, runningCount, "Turn_Even", result.damagePerHit);
+                runningCount = AddFantasyHitContribution(hits, fantasy, runningCount, "Turn_End", result.damagePerHit);
+            }
+            return hits;
+        }
+
+        private int AddFantasyHitContribution(List<BattleHitStep> hits, FantasyData fantasy, int currentCount, string trigger, int damage)
+        {
+            int modified = Mathf.Max(0, fantasyEffectRunner.ModifyValueForFantasy(fantasy, context.run, currentCount, trigger, "Attack_Count"));
+            AddHits(hits, fantasy, Mathf.Max(0, modified - currentCount), damage);
+            return modified;
+        }
+
+        private static void AddHits(List<BattleHitStep> hits, FantasyData fantasy, int count, int damage)
+        {
+            for (int i = 0; i < Mathf.Max(0, count); i++)
+                hits.Add(new BattleHitStep { hitIndex = hits.Count, damage = damage, sourceFantasy = fantasy });
+        }
+
+        private void ApplyPlayerHit(BattleFormulaResult result, int damagePerHit)
+        {
+            if (context?.monster == null)
+                return;
+            if (!result.countsAsHit)
+            {
+                context.monster.ApplyDamage(result.damagePerHit);
+                return;
+            }
+
+            int modifiedDamage = fantasyEffectRunner.ModifyValue(context.run, damagePerHit, "Turn_End", "Additional_Damage");
+            int dealt = context.monster.ApplyDamage(modifiedDamage);
+            context.run.AddBattleDamageDebug("Direct", dealt);
+            context.run.lastDamageDealt = dealt;
+            context.run.battleDamageDealt += dealt;
+            fantasyEffectRunner.ApplyTrigger(context.run, "Attack");
+            fantasyEffectRunner.ApplyTrigger(context.run, "Deal_Damage");
+            fantasyEffectRunner.ApplyTrigger(context.run, "On_Hit");
+            ApplyPendingMonsterDamage();
+        }
+
+private int ApplyMonsterHitToPlayer(int damagePerHit)
+        {
+            int damage = Mathf.Max(0, fantasyEffectRunner.ModifyValue(context.run, damagePerHit, "Take_Damage", "Damage_Taken"));
+            context.run.health -= damage;
+            context.run.battleDamageTaken += damage;
+            context.run.AddPlayerDamageDebug("Damage Taken", damage);
+            return damage;
+        }
+
+        private void ApplyMonsterNonAttack(BattleFormulaResult result)
+        {
+            if (monsterPatternRunner.CanMonsterAct(context.monster))
+            {
+                int editableHeal = monsterPatternRunner.TryGetEditableHealDigitCount(context.monsterPattern, context.monster, context.run, out _)
+                    ? Mathf.Max(0, result.damagePerHit) : -1;
+                monsterPatternRunner.ApplyImmediateNonAttack(context.monster, context.monsterPattern);
+                monsterPatternRunner.ApplyPatternEffects(context.monster, context.run, context.monsterPattern,
+                    context.playerFormula, context.monsterFormula, "Immediate", 0, editableHeal);
+            }
+            monsterPatternRunner.AdvanceTurnDurations(context.monster);
+        }
+}
 }

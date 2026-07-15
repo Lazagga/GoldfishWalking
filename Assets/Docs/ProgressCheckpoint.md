@@ -1,6 +1,6 @@
 # Progress Checkpoint
 
-Last updated: 2026-07-12
+Last updated: 2026-07-13
 
 ## Latest Checkpoint
 
@@ -15,6 +15,33 @@ Latest verified state:
 - Fantasy import: 60 imported, 12 incomplete skipped rows, 0 warnings, 0
   errors.
 - Monster import: 39 monsters, 33 patterns, 0 warnings, 0 errors.
+
+Latest 2026-07-13 regression pass:
+
+- Corrected closed 7-segment rendering for real leading zeroes, erased leading
+  positions, and fully empty boxes while preserving popup segment state.
+- Fantasy inventory UI now creates an unlimited number of slots and sizes its
+  horizontal content to the number of owned fantasies.
+- Damage logs remain available during Game Over; incoming player damage is red;
+  the development console and damage debug panel intentionally remain present.
+- Match/item holding modes support right-click cancel, and movement remains
+  based on net segment-shape difference.
+- Fixed current-attack `DamageDealt` handling so zero monster damage cannot
+  reuse player damage for bleed/poison stacks.
+- Implemented editable healing boxes for Giant Rat and Cosmic Tree; corrected
+  Jellyfish flooring/status healing, Knight cap removal, Stargazer digit
+  accumulation and three-hit Meteor Shower, and final-step countdown outcomes.
+- White Rabbit escape and Heart Queen doom now occur after all normal turn-end
+  processing. Heart Queen executes `HeartQueenSkill` through the pattern runner.
+- Consumable shop purchases regenerate price and clear the prior price edit's
+  movement difference.
+- `fan_end_dice` reroll is complete: charges are granted/consumed, each roll has
+  a deterministic index, and the previous three choices are avoided when the
+  candidate pool permits it.
+- Runtime regression check for Dice produced two three-card sets with `0`
+  overlapping cards.
+- `fan_start_stamp` creates a deterministic temporary owned-fantasy duplicate
+  at battle start, and normal battle cleanup removes temporary copies.
 
 Recent completed items:
 
@@ -51,8 +78,9 @@ Recent completed items:
   temporary lifetime.
 - Shop fantasy display now uses the actual selected shop fantasy instead of
   reusing stale first-shop data.
-- Player bleed/poison from monsters is implemented as player debuffs, ticks
-  after player attack and before monster attack, and is cleared after battle.
+- Player bleed/poison from monsters is implemented as player debuffs. Existing
+  stacks tick after the monster action near turn end; newly pending stacks are
+  activated afterward so they do not tick immediately. Both clear after battle.
 - `fan_shop_stencil` is implemented as the sixth shop slot. It offers one owned
   White fantasy excluding stencil itself, uses a 2-digit price, supports hover
   tooltip, and is buyable once per shop.
@@ -345,11 +373,6 @@ do not exist yet, or are only partially mapped:
   cosmetic head visuals are not implemented. Need player cosmetic/avatar
   attachment UI before these can do anything visible. They now still contribute
   to the animalfriends transform rule.
-- `fan_start_stamp`: battle-start temporary copy of an owned fantasy is not
-  implemented. It needs temporary fantasy instances, duplicate handling, and
-  cleanup after battle.
-- `fan_end_dice`: fantasy reroll state and reward reroll button exist, but the
-  final UX/polish should still be checked.
 - `fan_upgrade_aquarius`: movement penalty works, but operator-box upgrade is
   intentionally deferred because the effect is expected to change.
 - `fan_erase_sagittarius`: requires split boxes and an eraser mode that can
@@ -411,8 +434,7 @@ runtime effect pass is now connected to battle, reward, shop, rest, acquisition,
 and item-use flows. Most simple numeric/item/combat modifiers are usable. The
 remaining fantasy work is concentrated around systems that are intentionally
 deferred or need UI polish: cosmetic visuals, aquarius redesign, split boxes,
-advanced operator boxes, explicit fantasy copy/transform choice UI, and final
-reward/reroll UX.
+advanced operator boxes, and explicit fantasy copy/transform choice UI.
 
 Important UI direction: static screen chrome should be prebuilt in the scene or
 prefabs and bound by view scripts. Variable repeated content can stay dynamic or

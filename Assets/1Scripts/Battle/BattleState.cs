@@ -4,7 +4,14 @@ namespace GoldfishWalking.Battle
     {
         NotStarted,
         Editing,
-        Resolving,
+        Validating,
+        PlayerAttack,
+        PlayerEffects,
+        MonsterAction,
+        MonsterEffects,
+        StatusEffects,
+        DurationCleanup,
+        OutcomeCheck,
         Won,
         Lost
     }

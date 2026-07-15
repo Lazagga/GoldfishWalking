@@ -9,6 +9,29 @@ namespace GoldfishWalking.Fantasy
 {
     public sealed class FantasyEffectRunner
     {
+        public int ModifyValueForFantasy(FantasyData fantasy, RunContext runContext, int baseValue, string trigger, params string[] targets)
+        {
+            if (fantasy == null || runContext == null)
+                return baseValue;
+
+            int value = baseValue;
+            bool specialHandled = TryModifySpecialFantasyValue(fantasy, runContext, trigger, targets, ref value);
+            if (fantasy.effects == null)
+                return value;
+
+            foreach (FantasyEffectData effect in fantasy.effects)
+            {
+                if (effect == null || !TriggerMatches(effect.trigger, trigger) || !TargetMatches(effect.target, targets))
+                    continue;
+                if (specialHandled)
+                    continue;
+
+                value = ApplyCalculation(value, Normalize(effect.calc), EvaluateEffectValue(effect, runContext));
+            }
+
+            return value;
+        }
+
         public void AddItemWithAcquireEffects(RunContext runContext, ItemType itemType, int count)
         {
             if (runContext == null || count <= 0)

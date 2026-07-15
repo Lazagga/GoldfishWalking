@@ -1,8 +1,91 @@
 ﻿# Next Session Handoff
 
-Last updated: 2026-07-12
+Last updated: 2026-07-13
 
-## Latest 2026-07-12 Handoff
+## Latest 2026-07-13 Gameplay And QA Handoff
+
+The current gameplay source of truth remains `Assets/1Scripts`, and the active
+rebuild scene remains `Assets/Scenes/GumBwing_Er.unity`.
+
+Recent UI, match-box, and debugging fixes:
+
+- Fantasy inventory slots are created only for owned fantasies and no longer
+  stop at 10 entries. The horizontal content width follows the actual fantasy
+  count so small inventories do not scroll unnecessarily.
+- Reward fantasy acquisition refreshes the visible fantasy inventory
+  immediately while the reward overlay remains above Battle.
+- Closed 7-segment boxes now preserve real leading zero digits such as `06`,
+  `01`, and `08`; completely erased digit positions are omitted; and a box
+  whose segments are all empty renders blank. Reopening still restores the
+  saved editable segment arrangement.
+- Match movement remains difference-based. Returning a held match to its
+  original location does not consume movement, and extra matches/erasers no
+  longer create movement refunds by restoring an earlier shape.
+- Held normal matches, extra matches, and eraser mode can be cancelled with
+  right-click before committing to a slot.
+- The development console and damage debug panel intentionally remain visible.
+  Player damage received is logged in red, the log stays visible on Game Over,
+  and debug-entered damage remains recorded even when it kills the monster.
+
+Recent monster and battle fixes:
+
+- Monster `DamageDealt` expressions now use only the damage from the current
+  monster attack. A zero-damage Bandit/Robber/Jellyfish attack no longer falls
+  back to the player's previous damage, including when Anchor or Poinsettia
+  reduces incoming damage to zero.
+- Giant Rat and Cosmic Tree healing patterns now generate deterministic,
+  editable healing boxes whose digit count comes from the pattern value. The
+  edited box value is the actual heal amount.
+- Jellyfish half-damage bleed/poison values use floored current monster damage,
+  and its healing uses the actual integer player status stacks.
+- Knight keeps its per-hit damage cap until accumulated received damage reaches
+  the pattern condition; `KnightSkill` then removes the cap and applies the
+  data-authored strength increase (`+1`).
+- Stargazer star digits accumulate across turns (`3`, then `34`, then `341`)
+  instead of replacing the prior value. Meteor Shower resolves the accumulated
+  value as three hits.
+- Slime's `SlimeSingle` path was runtime-verified as a 2-digit single attack.
+- Countdown outcomes now resolve only after player attack, monster action,
+  status processing, and duration cleanup. White Rabbit escapes at that final
+  step; Heart Queen executes the actual `HeartQueenSkill` pattern instead of
+  directly overwriting player HP.
+
+Recent shop and fantasy fixes:
+
+- Consumable purchases reroll their shop price and clear the purchased price
+  box's previous match-move difference before the new price is displayed.
+- `fan_end_dice` is functionally implemented. Battle end grants reroll charges,
+  the reward button consumes one charge, each reroll uses a separate
+  deterministic roll index, and the previous three cards are excluded whenever
+  the remaining candidate pool is large enough. Previous cards are allowed
+  only as a fallback when the pool cannot fill all three choices.
+- `fan_start_stamp` creates a deterministic temporary duplicate of a random
+  owned fantasy at battle start; battle cleanup removes temporary copies.
+- Paper Plane, Mirror, and Fan damage behavior received regression fixes during
+  the same QA pass.
+
+Latest validation:
+
+- `dotnet build Assembly-CSharp.csproj -v:q` passes with `0` errors.
+- The existing Unity/MCP `System.Net.Http` and `System.IO.Compression` reference
+  conflict warnings remain unchanged.
+- Unity script refresh/compile succeeds.
+- Unity console error/warning query reports `0` entries.
+- Unity in-editor regression checks verified zero-damage status application,
+  Jellyfish flooring, Giant Rat healing, Knight cap removal, Stargazer
+  accumulation/Meteor Shower, Slime digit count, and Dice reroll replacement.
+
+Recommended next work:
+
+1. Continue play-mode regression QA for the remaining monster patterns.
+2. Verify countdown presentation and Stargazer accumulated-box presentation in
+   the live Battle UI.
+3. Continue missing structural formula work: split boxes, locked segments, and
+   advanced operator/value transforms.
+4. Continue final UI/art replacement without removing the development console
+   or damage log.
+
+## Previous 2026-07-12 Handoff
 
 The current gameplay source of truth is still `Assets/1Scripts`.
 
@@ -658,9 +741,6 @@ Unimplemented or intentionally deferred fantasies and reasons:
 - `fan_rabbit_head`, `fan_turtle_head`, `fan_cat_head`, `fan_parrot_head`:
   cosmetic visuals need player/avatar attachment UI. They can still participate
   in the animalfriends transform rule.
-- `fan_start_stamp`: needs temporary fantasy copy instances and battle cleanup.
-- `fan_end_dice`: reward fantasy reroll state exists, but final UX/polish
-  should still be reviewed.
 - `fan_upgrade_aquarius`: advanced operator box part is intentionally deferred
   until the effect redesign is finalized.
 - `fan_erase_sagittarius`: needs split boxes and whole-box erase behavior.
@@ -874,7 +954,7 @@ Unity MCP tools are now exposed and working.
 6. Recommended next gameplay target: choose one of the remaining missing
    support systems before implementing more fantasies:
    - split/advanced operator/value-transform formula infrastructure
-   - fantasy copy/reroll/transform UI
+   - fantasy copy/transform UI
    - cosmetic attachment visuals
 7. Deeper battle content work should now be driven by QA findings from the
    current imported data rather than by hardcoded special cases.

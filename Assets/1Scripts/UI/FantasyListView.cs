@@ -39,6 +39,36 @@ namespace GoldfishWalking.UI
             LayoutSlots();
         }
 
+public void Emphasize(FantasyData fantasy)
+        {
+            if (fantasy == null || contentRoot == null)
+                return;
+
+            for (int i = 0; i < contentRoot.childCount; i++)
+            {
+                FantasyTooltipTrigger trigger = contentRoot.GetChild(i).GetComponent<FantasyTooltipTrigger>();
+                if (trigger != null && trigger.Matches(fantasy))
+                    StartCoroutine(HighlightSlot(contentRoot.GetChild(i) as RectTransform));
+            }
+        }
+
+private System.Collections.IEnumerator HighlightSlot(RectTransform slot)
+        {
+            if (slot == null)
+                yield break;
+
+            Image image = slot.GetComponent<Image>();
+            if (image == null)
+                yield break;
+
+            Color originalColor = image.color;
+            image.color = Color.Lerp(originalColor, Color.white, 0.75f);
+            yield return new WaitForSeconds(0.14f);
+            if (image != null)
+                image.color = originalColor;
+        }
+
+
         private void InitializeDynamicSlots()
         {
             if (dynamicSlotsInitialized || contentRoot == null)

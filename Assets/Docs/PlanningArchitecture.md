@@ -5,7 +5,7 @@ It is intended as the implementation baseline before large code changes.
 
 ## Current Project Shape
 
-Last status refresh: 2026-07-12.
+Last status refresh: 2026-07-13.
 
 The old prototype ran mostly inside `Assets/Scenes/Game.unity`. During the
 rebuild, the user decided that scene was outdated and not Canvas-based enough.
@@ -393,6 +393,10 @@ Implemented fantasy effect groups:
   - shop consumable once-free purchase
   - shop discount and shop-entry heal
   - shop movement count increase
+  - deterministic battle-reward fantasy rerolls from `fan_end_dice`, with a
+    per-reroll index and previous-choice exclusion when enough candidates exist
+  - deterministic battle-start temporary fantasy copy from `fan_start_stamp`,
+    removed by battle cleanup
 - Rest effects:
   - passive rest heal modifiers
   - rest heal multiplier
@@ -412,10 +416,8 @@ Implemented fantasy effect groups:
 Known unimplemented fantasy/system gaps:
 
 - Cosmetic head fantasies require a player cosmetic/avatar attachment system.
-- Stamp requires temporary fantasy copy instances and battle cleanup.
 - Blueprint currently copies a random owned fantasy on acquire; add explicit
   selection UI later if design requires player agency.
-- Dice reward reroll state exists, but reward/reroll UX still needs polish.
 - Aquarius is intentionally deferred because the effect is expected to change.
 - Sagittarius requires split boxes and whole-box erase behavior.
 - Skipped source rows `62` through `73` require filled `DataCode` and
@@ -534,6 +536,16 @@ Current runtime behavior:
   conditions, phases, simple heal/strength, timed strength, dynamic damage
   expressions, player bleed/poison, stack mechanics, and special editable
   monster boxes.
+- `DamageDealt` in monster effects is scoped to the current monster attack, so
+  an attack reduced to zero cannot inherit the player's previous dealt damage.
+- Giant Rat and Cosmic Tree use editable deterministic healing boxes; the
+  pattern value determines their healing-box digit count.
+- Stargazer appends one star digit per applicable turn and Meteor Shower uses
+  the accumulated value for three hits.
+- Knight's damage cap is removed by its data-authored conditional skill after
+  accumulated damage reaches the threshold.
+- Countdown outcomes run after normal turn resolution. White Rabbit escapes at
+  that point, while Heart Queen invokes its actual doom pattern.
 - Still future/polish work: split boxes, locked segments/boxes, shield
   presentation, lock damage presentation, stun polish, and final timing/visuals
   for status and fantasy damage.

@@ -68,20 +68,73 @@ namespace GoldfishWalking.UI
             BindButtons();
         }
 
-        private void OnEnable()
+private void OnEnable()
         {
             GameEventHub.ItemInventoryChanged += RefreshConsumables;
             GameEventHub.FantasyInventoryChanged += RefreshFantasySlots;
             ResolveReferences();
+            SubscribeBattlePresentation();
             EnsureLayout();
-            Refresh();
+            if (battleController != null)
+                OnResolutionPhaseChanged(battleController.State);
+            else
+                Refresh();
         }
 
-        private void OnDisable()
+private void OnDisable()
         {
             GameEventHub.ItemInventoryChanged -= RefreshConsumables;
             GameEventHub.FantasyInventoryChanged -= RefreshFantasySlots;
+            UnsubscribeBattlePresentation();
         }
+
+private void SubscribeBattlePresentation()
+        {
+            if (battleController == null)
+                return;
+            battleController.PlayerHitPresented -= OnPlayerHitPresented;
+            battleController.ResolutionPhaseChanged -= OnResolutionPhaseChanged;
+            battleController.BattlePresentationChanged -= OnBattlePresentationChanged;
+            battleController.PlayerHitPresented += OnPlayerHitPresented;
+            battleController.ResolutionPhaseChanged += OnResolutionPhaseChanged;
+            battleController.BattlePresentationChanged += OnBattlePresentationChanged;
+        }
+
+private void UnsubscribeBattlePresentation()
+        {
+            if (battleController == null)
+                return;
+            battleController.PlayerHitPresented -= OnPlayerHitPresented;
+            battleController.ResolutionPhaseChanged -= OnResolutionPhaseChanged;
+            battleController.BattlePresentationChanged -= OnBattlePresentationChanged;
+        }
+
+private void OnPlayerHitPresented(BattleHitStep hit)
+        {
+            if (hit != null && hit.sourceFantasy != null)
+                fantasyListView?.Emphasize(hit.sourceFantasy);
+        }
+
+private void OnBattlePresentationChanged()
+        {
+            Refresh();
+        }
+
+
+
+
+        private void OnResolutionPhaseChanged(BattleState phase)
+        {
+            bool editing = phase == BattleState.Editing;
+            if (resolveBattleButton != null)
+                resolveBattleButton.interactable = editing;
+            if (resetButton != null)
+                resetButton.interactable = editing;
+            Refresh();
+        }
+
+
+
 
         private void LateUpdate()
         {

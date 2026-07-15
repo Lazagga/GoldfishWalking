@@ -20,6 +20,12 @@ namespace GoldfishWalking.UI
             usesText = false;
         }
 
+public bool Matches(FantasyData candidate)
+        {
+            return fantasy != null && candidate != null && ReferenceEquals(fantasy, candidate);
+        }
+
+
         public void Initialize(FantasyTooltipView tooltipView, string tooltipTitle, string tooltipDescription, string tooltipEffect)
         {
             tooltip = tooltipView;
