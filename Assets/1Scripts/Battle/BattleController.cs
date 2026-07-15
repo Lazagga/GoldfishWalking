@@ -519,7 +519,11 @@ numbers.battleStartFantasyApplied = true;
             numbers.playerBaseDamageSegmentState = segmentState;
             numbers.playerBaseDamageDigitCount = DigitCountFromSegmentState(segmentState, numbers.playerBaseDamageDigitCount);
             if (context != null)
+            {
+                BattleFormulaState previousStructure = context.playerFormula;
                 context.playerFormula = formulaBuilder.BuildPlayerFormula(bootstrap.RunContext, numbers.playerBaseDamage);
+                RestoreFormulaStructure(previousStructure, context.playerFormula);
+            }
         }
 
         public void SetMonsterBaseDamage(int value)
@@ -537,7 +541,11 @@ numbers.battleStartFantasyApplied = true;
             numbers.monsterBaseDamageSegmentState = segmentState;
             numbers.monsterBaseDamageDigitCount = DigitCountFromSegmentState(segmentState, numbers.monsterBaseDamageDigitCount);
             if (context != null)
+            {
+                BattleFormulaState previousStructure = context.monsterFormula;
                 context.monsterFormula = formulaBuilder.BuildMonsterFormula(numbers.monsterBaseDamage, numbers.monsterHitCount, true, context.run);
+                RestoreFormulaStructure(previousStructure, context.monsterFormula);
+            }
         }
 
         private void PrepareTurn(int turnNumber, bool applyTurnStartEffects)
@@ -873,7 +881,11 @@ private void ApplyCueStickToGeneratedDamage(BattleNumberState numbers)
             numbers.monsterHitCount = Mathf.Max(0, value);
             numbers.monsterHitCountSegmentState = segmentState;
             if (context != null)
+            {
+                BattleFormulaState previousStructure = context.monsterFormula;
                 context.monsterFormula = formulaBuilder.BuildMonsterFormula(numbers.monsterBaseDamage, numbers.monsterHitCount, true, context.run);
+                RestoreFormulaStructure(previousStructure, context.monsterFormula);
+            }
         }
 
         public void SetMonsterSpecialBoxValue(int value, string segmentState)
