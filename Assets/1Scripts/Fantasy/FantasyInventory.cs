@@ -48,6 +48,48 @@ namespace GoldfishWalking.Fantasy
             return ownedFantasies.Exists(fantasy => fantasy != null && fantasy.id == id);
         }
 
+        public bool HasEffect(string target, string calc = null)
+        {
+            string normalizedTarget = Normalize(target);
+            string normalizedCalc = Normalize(calc);
+            for (int i = 0; i < ownedFantasies.Count; i++)
+            {
+                FantasyEffectData[] effects = ownedFantasies[i]?.effects;
+                if (effects == null)
+                    continue;
+                for (int j = 0; j < effects.Length; j++)
+                {
+                    FantasyEffectData effect = effects[j];
+                    if (effect != null && Normalize(effect.target) == normalizedTarget
+                        && (string.IsNullOrEmpty(normalizedCalc) || Normalize(effect.calc) == normalizedCalc))
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool DataHasEffect(FantasyData fantasy, string target, string calc = null)
+        {
+            string normalizedTarget = Normalize(target);
+            string normalizedCalc = Normalize(calc);
+            FantasyEffectData[] effects = fantasy?.effects;
+            if (effects == null)
+                return false;
+            for (int i = 0; i < effects.Length; i++)
+            {
+                FantasyEffectData effect = effects[i];
+                if (effect != null && Normalize(effect.target) == normalizedTarget
+                    && (string.IsNullOrEmpty(normalizedCalc) || Normalize(effect.calc) == normalizedCalc))
+                    return true;
+            }
+            return false;
+        }
+
+        private static string Normalize(string value)
+        {
+            return (value ?? string.Empty).Trim().Replace("_", string.Empty).Replace("-", string.Empty).Replace(" ", string.Empty).ToLowerInvariant();
+        }
+
         public void Clear()
         {
             ownedFantasies.Clear();
@@ -56,61 +98,60 @@ namespace GoldfishWalking.Fantasy
 
     public static class FantasyCollectionRules
     {
-        public const string AnimalFriendsId = "fan_attack_animalfriends";
-        public const string StencilId = "fan_shop_stencil";
-        public const string CoffeeId = "fan_rest_coffee";
-        public const string StampCouponId = "fan_shop_stampcoupon";
-        public const string SyringeId = "fan_turn_syringe";
-
-        private static readonly string[] CosmeticAnimalFriendIds =
+public static bool CanAppearInRewardOrShop(FantasyData fantasy)
         {
-            "fan_rabbit_head",
-            "fan_turtle_head",
-            "fan_cat_head",
-            "fan_parrot_head"
-        };
-
-        public static bool CanAppearInRewardOrShop(FantasyData fantasy)
-        {
-            return fantasy != null && fantasy.id != AnimalFriendsId && fantasy.id != SyringeId;
+            return fantasy != null && !FantasyInventory.DataHasEffect(fantasy, "Availability", "Exclude");
         }
 
-        public static int ApplyShopPurchaseTransforms(FantasyInventory inventory, FantasyDatabase database, int accumulatedHealthSpent, int purchaseCost)
+public static int ApplyShopPurchaseTransforms(FantasyInventory inventory, FantasyDatabase database, int accumulatedHealthSpent, int purchaseCost)
         {
-            if (inventory == null || database == null || purchaseCost <= 0 || !inventory.Contains(StampCouponId))
+            if (inventory == null || database == null || purchaseCost <= 0)
+                return accumulatedHealthSpent;
+
+            FantasyEffectData transform = null;
+            for (int i = 0; i < inventory.ownedFantasies.Count && transform == null; i++)
+                transform = FindEffect(inventory.ownedFantasies[i], "Health_Spent", "Transform");
+
+            if (transform == null)
                 return accumulatedHealthSpent;
 
             accumulatedHealthSpent = purchaseCost > int.MaxValue - accumulatedHealthSpent
-                ? int.MaxValue
-                : accumulatedHealthSpent + purchaseCost;
-
-            if (accumulatedHealthSpent < 999 || inventory.Contains(SyringeId))
+                ? int.MaxValue : accumulatedHealthSpent + purchaseCost;
+            int threshold = transform.hasNumericValue ? UnityEngine.Mathf.Max(1, UnityEngine.Mathf.FloorToInt(transform.numericValue)) : 1;
+            if (accumulatedHealthSpent < threshold || string.IsNullOrWhiteSpace(transform.option))
                 return accumulatedHealthSpent;
 
-            FantasyData syringe = FindFantasy(database, SyringeId);
-            if (syringe == null)
-                return accumulatedHealthSpent;
-
-            inventory.Add(syringe);
+            FantasyData reward = FindFantasy(database, transform.option);
+            if (reward != null && !inventory.Contains(reward.id))
+                inventory.Add(reward);
             return accumulatedHealthSpent;
         }
 
-        public static void ApplyPostAcquireTransforms(FantasyInventory inventory, FantasyDatabase database)
+public static void ApplyPostAcquireTransforms(FantasyInventory inventory, FantasyDatabase database)
         {
-            if (inventory == null || database == null || database.fantasies == null)
-                return;
-            if (inventory.Contains(AnimalFriendsId))
+            if (inventory == null || database?.fantasies == null)
                 return;
 
-            for (int i = 0; i < CosmeticAnimalFriendIds.Length; i++)
+            for (int i = 0; i < database.fantasies.Count; i++)
             {
-                if (!inventory.Contains(CosmeticAnimalFriendIds[i]))
-                    return;
-            }
+                FantasyData result = database.fantasies[i];
+                FantasyEffectData recipe = FindEffect(result, "Collection", "Combine");
+                if (recipe == null || inventory.Contains(result.id) || string.IsNullOrWhiteSpace(recipe.option))
+                    continue;
 
-            FantasyData animalFriends = FindFantasy(database, AnimalFriendsId);
-            if (animalFriends != null)
-                inventory.Add(animalFriends);
+                string[] requiredIds = recipe.option.Split(',');
+                bool complete = true;
+                for (int j = 0; j < requiredIds.Length; j++)
+                {
+                    if (!inventory.Contains(requiredIds[j].Trim()))
+                    {
+                        complete = false;
+                        break;
+                    }
+                }
+                if (complete)
+                    inventory.Add(result);
+            }
         }
 
         private static FantasyData FindFantasy(FantasyDatabase database, string fantasyId)
@@ -124,5 +165,26 @@ namespace GoldfishWalking.Fantasy
 
             return null;
         }
-    }
+
+
+private static FantasyEffectData FindEffect(FantasyData fantasy, string target, string calc)
+        {
+            if (fantasy?.effects == null)
+                return null;
+            string normalizedTarget = Normalize(target);
+            string normalizedCalc = Normalize(calc);
+            for (int i = 0; i < fantasy.effects.Length; i++)
+            {
+                FantasyEffectData effect = fantasy.effects[i];
+                if (effect != null && Normalize(effect.target) == normalizedTarget && Normalize(effect.calc) == normalizedCalc)
+                    return effect;
+            }
+            return null;
+        }
+
+        private static string Normalize(string value)
+        {
+            return (value ?? string.Empty).Trim().Replace("_", string.Empty).Replace("-", string.Empty).Replace(" ", string.Empty).ToLowerInvariant();
+        }
+}
 }

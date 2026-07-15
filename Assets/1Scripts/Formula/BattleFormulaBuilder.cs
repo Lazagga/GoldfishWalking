@@ -73,7 +73,7 @@ namespace GoldfishWalking.Formula
         {
             return runContext != null
                 && runContext.fantasyInventory != null
-                && runContext.fantasyInventory.Contains("fan_erase_sagittarius");
+                && runContext.fantasyInventory.HasEffect("Player_Boxes", "Split");
         }
     }
 }

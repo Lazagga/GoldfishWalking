@@ -14,7 +14,9 @@ namespace GoldfishWalking.Editor.DataImport
     public static class MonsterTsvImporter
     {
         private const string MonsterSourcePath = "Assets/Data/Raw/Monster.tsv";
+        private const string MonsterRulesSourcePath = "Assets/Data/Raw/MonsterRules.tsv";
         private const string PatternSourcePath = "Assets/Data/Raw/Pattern.tsv";
+        private const string PatternRulesSourcePath = "Assets/Data/Raw/PatternRules.tsv";
         private const string MonsterDatabasePath = "Assets/Data/Generated/MonsterDatabase.asset";
         private const string PatternDatabasePath = "Assets/Data/Generated/MonsterPatternDatabase.asset";
         private const string ReportPath = "Assets/Data/Generated/MonsterImportReport.json";
@@ -55,6 +57,7 @@ namespace GoldfishWalking.Editor.DataImport
             }
 
             List<Dictionary<string, string>> rows = ReadTsv(PatternSourcePath);
+            Dictionary<string, Dictionary<string, string>> rulesByPattern = LoadRules(PatternRulesSourcePath, "DataCode");
             HashSet<string> ids = new HashSet<string>();
             for (int i = 0; i < rows.Count; i++)
             {
@@ -86,6 +89,8 @@ namespace GoldfishWalking.Editor.DataImport
                     report.warnings.Add($"Pattern row {rowNumber}: duplicate pattern id '{pattern.id}'.");
 
                 ParsePatternJson(pattern, report, rowNumber);
+                if (rulesByPattern.TryGetValue(pattern.dataCode, out Dictionary<string, string> rule))
+                    ApplyPatternRules(pattern, rule);
                 patterns.Add(pattern);
             }
 
@@ -102,6 +107,7 @@ namespace GoldfishWalking.Editor.DataImport
             }
 
             List<Dictionary<string, string>> rows = ReadTsv(MonsterSourcePath);
+            Dictionary<string, Dictionary<string, string>> rulesByMonster = LoadMonsterRules();
             HashSet<string> ids = new HashSet<string>();
             for (int i = 0; i < rows.Count; i++)
             {
@@ -109,6 +115,8 @@ namespace GoldfishWalking.Editor.DataImport
                 Dictionary<string, string> row = rows[i];
                 string id = Get(row, "ID");
                 string dataName = Get(row, "DataName");
+                rulesByMonster.TryGetValue(dataName, out Dictionary<string, string> rule);
+                rule ??= new Dictionary<string, string>();
                 if (string.IsNullOrWhiteSpace(id) && string.IsNullOrWhiteSpace(dataName))
                 {
                     report.skippedMonsterRows.Add($"Row {rowNumber}: missing ID and DataName.");
@@ -134,7 +142,17 @@ namespace GoldfishWalking.Editor.DataImport
                     rawPatternArray = rawPatterns,
                     patternIds = SplitPatternList(rawPatterns),
                     aiType = ParseAiType(Get(row, "AIType"), report, rowNumber),
-                    sprite = Get(row, "Sprite")
+                    sprite = Get(row, "Sprite"),
+                    damageCap = Mathf.Max(0, ParseInt(Get(rule, "DamageCap"), 0)),
+                    damageCapBreakThreshold = Mathf.Max(0, ParseInt(Get(rule, "DamageCapBreak"), 0)),
+                    lifestealRate = Mathf.Max(0f, ParseFloat(Get(rule, "Lifesteal"), 0f)),
+                    baseDamageLocked = ParseBool(Get(rule, "BaseDamageLocked")),
+                    specialBoxLabel = Get(rule, "SpecialBoxLabel"),
+                    specialBoxMin = ParseInt(Get(rule, "SpecialBoxMin"), 0),
+                    specialBoxMax = ParseInt(Get(rule, "SpecialBoxMax"), 9),
+                    specialBoxValue = ParseInt(Get(rule, "SpecialBoxValue"), -1),
+                    countdownAction = Get(rule, "CountdownAction"),
+                    countdownPattern = Get(rule, "CountdownPattern")
                 };
 
                 if (!ids.Add(monster.id))
@@ -162,6 +180,10 @@ namespace GoldfishWalking.Editor.DataImport
                 JObject root = JObject.Parse(pattern.rawEffects);
                 ApplyAttackKey(pattern, ReadString(root, "Attack"));
                 pattern.condition = ReadString(root, "Condition");
+                pattern.maxUses = root["Count"] != null && root["Count"].Type != JTokenType.Null
+                    ? Mathf.Max(0, root["Count"].Value<int>())
+                    : -1;
+                pattern.selfDestruct = root["SelfDestruct"]?.Value<bool>() ?? false;
 
                 JToken effectsToken = root["Effects"] ?? root["Effect"];
                 if (effectsToken == null || effectsToken.Type == JTokenType.Null)
@@ -190,6 +212,8 @@ namespace GoldfishWalking.Editor.DataImport
                         valueExpression = ReadValueExpression(obj["Value"]),
                         duration = ParseInt(ReadValueExpression(obj["Duration"]), 0),
                         lockDamage = ParseBool(ReadValueExpression(obj["Lock"])),
+                        mode = ReadString(obj, "Mode"),
+                        editable = ParseBool(ReadValueExpression(obj["Editable"])),
                         rawJson = obj.ToString(Formatting.None)
                     };
 
@@ -247,6 +271,56 @@ namespace GoldfishWalking.Editor.DataImport
             database.patterns = patterns;
             EditorUtility.SetDirty(database);
             AssetDatabase.SaveAssets();
+        }
+
+        private static Dictionary<string, Dictionary<string, string>> LoadMonsterRules()
+        {
+            Dictionary<string, Dictionary<string, string>> result = new Dictionary<string, Dictionary<string, string>>();
+            if (!File.Exists(MonsterRulesSourcePath))
+                return result;
+            foreach (Dictionary<string, string> row in ReadTsv(MonsterRulesSourcePath))
+            {
+                string dataName = Get(row, "DataName");
+                if (!string.IsNullOrWhiteSpace(dataName))
+                    result[dataName] = row;
+            }
+            return result;
+        }
+
+        private static Dictionary<string, Dictionary<string, string>> LoadRules(string path, string keyColumn)
+        {
+            Dictionary<string, Dictionary<string, string>> result = new Dictionary<string, Dictionary<string, string>>();
+            if (!File.Exists(path))
+                return result;
+            foreach (Dictionary<string, string> row in ReadTsv(path))
+            {
+                string key = Get(row, keyColumn);
+                if (!string.IsNullOrWhiteSpace(key))
+                    result[key] = row;
+            }
+            return result;
+        }
+
+        private static void ApplyPatternRules(MonsterPatternData pattern, Dictionary<string, string> rule)
+        {
+            pattern.selfDestruct = ParseBool(Get(rule, "SelfDestruct"));
+            string condition = Get(rule, "Condition");
+            if (!string.IsNullOrWhiteSpace(condition))
+                pattern.condition = condition;
+            if (pattern.effects == null)
+                return;
+            string addBoxMode = Get(rule, "AddBoxMode");
+            bool editableHeal = ParseBool(Get(rule, "EditableHeal"));
+            for (int i = 0; i < pattern.effects.Length; i++)
+            {
+                MonsterPatternEffectData effect = pattern.effects[i];
+                if (effect == null)
+                    continue;
+                if (!string.IsNullOrWhiteSpace(addBoxMode) && string.Equals(effect.action, "AddBox", StringComparison.OrdinalIgnoreCase))
+                    effect.mode = addBoxMode;
+                if (editableHeal && string.Equals(effect.action, "Heal", StringComparison.OrdinalIgnoreCase))
+                    effect.editable = true;
+            }
         }
 
         private static List<Dictionary<string, string>> ReadTsv(string path)
@@ -389,6 +463,11 @@ namespace GoldfishWalking.Editor.DataImport
             if (float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out float floatValue))
                 return Mathf.RoundToInt(floatValue);
             return fallback;
+        }
+
+        private static float ParseFloat(string value, float fallback)
+        {
+            return float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out float result) ? result : fallback;
         }
 
         private static bool TryParseFloat(string value, out float result)

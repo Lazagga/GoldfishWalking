@@ -14,7 +14,9 @@ Current source files:
 ```text
 Assets/Data/Raw
   Monster.tsv
+  MonsterRules.tsv
   Pattern.tsv
+  PatternRules.tsv
   Fantasies.tsv
 
 Assets/Data/Generated
@@ -310,6 +312,35 @@ Effect object fields:
 - `Calc`: operation to apply.
 - `Value`: numeric value or expression string.
 - `Option`: optional string parameter for cosmetic or special handlers.
+- `Condition`: optional runtime condition such as `CurrentValue==0` or
+  `MonsterBaseDamage>=PlayerBaseDamage`.
+- `Chance`: activation probability, written as `0..1` or `0..100`.
+- `Lifetime`: `Battle` for temporary battle-only grants; omitted for permanent
+  grants.
+- `Execution`: `Modifier`, `Action`, or `Capability`. Omitted means the effect
+  may participate in the normal action/modifier paths.
+
+Runtime content must not branch on `DataCode`. `DataCode` is identity and save
+data only. Mechanics are selected by `Trigger + Target + Calc`, with optional
+`Condition`, `Chance`, `Lifetime`, and `Execution`. Changing values, conditions,
+divisors, recipes, thresholds, or referenced fantasy IDs therefore requires
+only a TSV/JSON edit and reimport.
+
+Examples:
+
+```json
+{"Trigger":"Passive","Target":"Attack_Count","Calc":"Add","Value":"ConsumableCount/10","Execution":"Modifier"}
+{"Trigger":"","Target":"Base_Damage","Calc":"Multiply","Value":0.5,"Condition":"CurrentValue!=0","Execution":"Modifier"}
+{"Trigger":"On_Acquire","Target":"Collection","Calc":"Combine","Option":"id_a,id_b,id_c","Execution":"Capability"}
+```
+
+`MonsterRules.tsv` contains identity-independent monster properties that do
+not belong to a turn pattern: damage caps, lifesteal, locked base damage,
+special-box setup, and countdown outcome. `PatternRules.tsv` contains pattern
+metadata that the current sheet JSON did not previously expose: self-destruct,
+append-mode special boxes, and editable healing. These tables are keyed by
+stable data keys and are imported into generated data; runtime code never
+checks monster or pattern names.
 
 Fantasy effect `Trigger` values observed:
 

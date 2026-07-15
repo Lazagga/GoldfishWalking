@@ -248,7 +248,7 @@ public bool IsFreeConsumablePurchaseAvailable(string itemId)
                 FantasyData fantasy = owned[i];
                 if (fantasy == null || fantasy.isTemporary || fantasy.grade != FantasyGrade.White)
                     continue;
-                if (fantasy.id == FantasyCollectionRules.StencilId)
+                if (FantasyInventory.DataHasEffect(fantasy, "Shop_Extra_Fantasy_Slot", "Enable"))
                     continue;
                 if (!FantasyCollectionRules.CanAppearInRewardOrShop(fantasy))
                     continue;
@@ -269,7 +269,7 @@ public bool IsFreeConsumablePurchaseAvailable(string itemId)
             if (bootstrap == null || bootstrap.RunContext == null || bootstrap.RunContext.fantasyInventory == null)
                 return false;
 
-            return bootstrap.RunContext.fantasyInventory.Contains("fan_shop_stickyglove");
+            return fantasyEffectRunner.ModifyValue(bootstrap.RunContext, 100, "Passive", "Item_Cost") <= 0;
         }
 
         private bool HasStencil()
@@ -277,7 +277,7 @@ public bool IsFreeConsumablePurchaseAvailable(string itemId)
             if (bootstrap == null || bootstrap.RunContext == null || bootstrap.RunContext.fantasyInventory == null)
                 return false;
 
-            return bootstrap.RunContext.fantasyInventory.Contains(FantasyCollectionRules.StencilId);
+            return bootstrap.RunContext.fantasyInventory.HasEffect("Shop_Extra_Fantasy_Slot", "Enable");
         }
 
         private bool IsFantasyAlreadyOffered(string fantasyId)

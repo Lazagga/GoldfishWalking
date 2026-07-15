@@ -66,7 +66,7 @@ namespace GoldfishWalking.Battle
         public int MonsterHitCountLockedDigitCount => GetFirstNumberBox(context?.monsterFormula?.hitCountExpression)?.lockedDigitCount ?? 0;
 
         public bool MonsterBaseDamageLocked => GetFirstNumberBox(context?.monsterFormula?.damageExpression)?.locked == true
-            || (context != null && context.monster != null && IsSteelScarecrow(context.monster.Data));
+            || (context != null && context.monster != null && context.monster.Data != null && context.monster.Data.baseDamageLocked);
 
         public string PlayerBaseDamageSegmentState => bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.currentBattle != null
             ? bootstrap.RunContext.currentBattle.playerBaseDamageSegmentState
@@ -85,7 +85,7 @@ namespace GoldfishWalking.Battle
         public bool AllFormulaBoxesSplit => context != null
             && context.run != null
             && context.run.fantasyInventory != null
-            && context.run.fantasyInventory.Contains("fan_erase_sagittarius");
+            && context.run.fantasyInventory.HasEffect("Player_Boxes", "Split");
         public bool MonsterSpecialBoxVisible => context != null && context.monster != null && context.monster.HasSpecialBox;
 
         public int MonsterSpecialBoxValue => context != null && context.monster != null && context.monster.HasSpecialBox
@@ -482,7 +482,6 @@ private IEnumerator ResolveBattleRoutine()
             if (!numbers.battleStartFantasyApplied)
             {
 
-                GrantSagittariusBattleEraser();
                 ApplyFantasyTrigger("Battle_Start");
                 EnsurePlayerBaseDamageDigitCount(numbers);
 numbers.battleStartFantasyApplied = true;
@@ -585,21 +584,6 @@ numbers.battleStartFantasyApplied = true;
             fantasyEffectRunner.ApplyTrigger(context.run, trigger);
             ApplyPendingEnemyStrengthModifiers();
         }
-
-private void GrantSagittariusBattleEraser()
-        {
-            if (context == null
-                || context.run == null
-                || context.run.fantasyInventory == null
-                || !context.run.fantasyInventory.Contains("fan_erase_sagittarius"))
-            {
-                return;
-            }
-
-            context.run.itemInventory.AddTemporary(ItemType.Eraser, 1);
-            GameEventHub.RaiseItemInventoryChanged();
-        }
-
 
         private void ApplyPendingEnemyStrengthModifiers()
         {
@@ -746,22 +730,13 @@ private void ApplyCueStickToGeneratedDamage(BattleNumberState numbers)
             if (numbers == null
                 || context == null
                 || context.run == null
-                || context.run.battleTurnNumber != 1
-                || context.run.fantasyInventory == null
-                || !context.run.fantasyInventory.Contains("fan_start_cuestick"))
+                || context.run.battleTurnNumber != 1)
             {
                 return;
             }
 
-            int value = Mathf.Max(0, numbers.playerBaseDamage);
-            int placeValue = 1;
-            while (value >= 10)
-            {
-                value /= 10;
-                placeValue *= 10;
-            }
-
-            numbers.playerBaseDamage = 8 * placeValue + numbers.playerBaseDamage % placeValue;
+            numbers.playerBaseDamage = fantasyEffectRunner.ModifyValue(
+                context.run, numbers.playerBaseDamage, "Battle_Start", "Player_First_Digit");
             numbers.playerBaseDamageSegmentState = string.Empty;
         }
 
@@ -972,9 +947,9 @@ private void ApplyCueStickToGeneratedDamage(BattleNumberState numbers)
 
             int hitCount = Mathf.Max(0, baseHitCount);
             hitCount += context.run.passiveAttackCountBonus;
-            if (context.run.fantasyInventory != null && context.run.fantasyInventory.Contains("fan_attack_animalfriends"))
-                hitCount += 4;
             hitCount = fantasyEffectRunner.ModifyValue(context.run, hitCount, "Passive", "Attack_Count");
+            if (context.run.battleTurnNumber == 1)
+                hitCount = fantasyEffectRunner.ModifyValue(context.run, hitCount, "Battle_Start", "Attack_Count");
             hitCount = fantasyEffectRunner.ModifyValue(context.run, hitCount, "Turn_Start", "Attack_Count");
             hitCount = fantasyEffectRunner.ModifyValue(context.run, hitCount, $"Turn_{context.run.battleTurnNumber}", "Attack_Count");
             if (context.run.battleTurnNumber % 2 == 0)
@@ -1004,46 +979,33 @@ private void ApplyCueStickToGeneratedDamage(BattleNumberState numbers)
             return incomingDamage;
         }
 
-        private void EnsureMonsterIdentitySpecialBox(BattleNumberState numbers)
+private void EnsureMonsterIdentitySpecialBox(BattleNumberState numbers)
         {
             if (context == null || context.monster == null || context.monster.Data == null || context.monster.HasSpecialBox || numbers == null)
                 return;
 
-            string dataName = context.monster.Data.dataName ?? string.Empty;
-            string devName = context.monster.Data.devName ?? string.Empty;
-            string label = string.Empty;
-            int min = 0;
-            int max = 9;
-
-            if (dataName.Contains("WhiteRabbit") || devName.Contains("화이트 래빗"))
-                label = "RABBIT";
-            else if (dataName.Contains("HeartQueen") || devName.Contains("하트 여왕"))
-                label = "HEART";
-            else if ((dataName.Contains("Witch") && !dataName.Contains("LittleWitch")) || devName == "마녀")
-            {
-                label = "/";
-                min = 1;
-            }
-
+            MonsterData data = context.monster.Data;
+            string label = data.specialBoxLabel ?? string.Empty;
             if (string.IsNullOrWhiteSpace(label))
                 return;
 
-            int value = context.run != null
-                ? context.run.RollValue($"monster.identity_box.{dataName}.{context.run.battleTurnNumber}", min, max)
-                : min;
-
-            if (IsWhiteRabbit(context.monster.Data))
-                value = 3;
-            else if (IsHeartQueen(context.monster.Data))
-                value = 5;
+            int min = data.specialBoxMin;
+            int max = Mathf.Max(min, data.specialBoxMax);
+            int value = data.specialBoxValue >= 0
+                ? data.specialBoxValue
+                : context.run != null
+                    ? context.run.RollValue($"monster.identity_box.{data.id}.{context.run.battleTurnNumber}", min, max)
+                    : min;
 
             context.monster.SetSpecialBox(value, 1, label);
             SyncSpecialBoxToNumbers(numbers);
         }
 
-        private bool ProcessMonsterEscapeCountdown()
+private bool ProcessMonsterEscapeCountdown()
         {
-            if (context == null || context.monster == null || !IsWhiteRabbit(context.monster.Data) || !context.monster.HasSpecialBox)
+            if (context == null || context.monster == null || context.monster.Data == null
+                || !string.Equals(context.monster.Data.countdownAction, "Escape", System.StringComparison.OrdinalIgnoreCase)
+                || !context.monster.HasSpecialBox)
                 return false;
 
             context.monster.SetSpecialBoxValue(context.monster.SpecialBoxValue - 1);
@@ -1057,9 +1019,11 @@ private void ApplyCueStickToGeneratedDamage(BattleNumberState numbers)
             return true;
         }
 
-        private bool ProcessHeartQueenDoomCountdown()
+private bool ProcessHeartQueenDoomCountdown()
         {
-            if (context == null || context.monster == null || !IsHeartQueen(context.monster.Data) || !context.monster.HasSpecialBox)
+            if (context == null || context.monster == null || context.monster.Data == null
+                || !string.Equals(context.monster.Data.countdownAction, "Pattern", System.StringComparison.OrdinalIgnoreCase)
+                || !context.monster.HasSpecialBox)
                 return false;
 
             context.monster.SetSpecialBoxValue(context.monster.SpecialBoxValue - 1);
@@ -1067,62 +1031,27 @@ private void ApplyCueStickToGeneratedDamage(BattleNumberState numbers)
             if (context.monster.SpecialBoxValue > 0)
                 return false;
 
-            MonsterPatternData doomPattern = monsterPatternRunner.ResolvePattern(monsterPatternDatabase, "HeartQueenSkill");
-            monsterPatternRunner.ApplyPatternEffects(
-                context.monster,
-                context.run,
-                doomPattern,
-                context.playerFormula,
-                context.monsterFormula,
-                "Immediate",
-                0);
+            MonsterPatternData pattern = monsterPatternRunner.ResolvePattern(monsterPatternDatabase, context.monster.Data.countdownPattern);
+            monsterPatternRunner.ApplyPatternEffects(context.monster, context.run, pattern,
+                context.playerFormula, context.monsterFormula, "Immediate", 0);
             return CompleteBattleResolution();
         }
 
-        private static bool IsWhiteRabbit(MonsterData data)
+
+
+
+
+
+
+
+
+private void ApplyVampireHeal(int damageDealt)
         {
-            if (data == null)
-                return false;
-
-            string dataName = data.dataName ?? string.Empty;
-            string devName = data.devName ?? string.Empty;
-            return dataName.Contains("WhiteRabbit") || devName.Contains("화이트 래빗");
-        }
-
-        private static bool IsHeartQueen(MonsterData data)
-        {
-            if (data == null)
-                return false;
-
-            string dataName = data.dataName ?? string.Empty;
-            string devName = data.devName ?? string.Empty;
-            return dataName.Contains("HeartQueen") || devName.Contains("하트 여왕");
-        }
-
-        private static bool IsSteelScarecrow(MonsterData data)
-        {
-            if (data == null)
-                return false;
-
-            string dataName = data.dataName ?? string.Empty;
-            return dataName.Contains("SteelScarecrow");
-        }
-
-        private static bool IsVampire(MonsterData data)
-        {
-            if (data == null)
-                return false;
-
-            string dataName = data.dataName ?? string.Empty;
-            return dataName.Contains("Vampire");
-        }
-
-        private void ApplyVampireHeal(int damageDealt)
-        {
-            if (context == null || context.monster == null || damageDealt <= 0 || !IsVampire(context.monster.Data))
+            if (context == null || context.monster == null || context.monster.Data == null
+                || damageDealt <= 0 || context.monster.Data.lifestealRate <= 0f)
                 return;
 
-            int heal = Mathf.FloorToInt(damageDealt * 0.3f);
+            int heal = Mathf.FloorToInt(damageDealt * context.monster.Data.lifestealRate);
             if (heal > 0)
                 context.monster.Heal(heal);
         }
@@ -1140,17 +1069,9 @@ private void ApplyCueStickToGeneratedDamage(BattleNumberState numbers)
                 context.run.AddBattleDamageDebug("Self Destruct", damage);
         }
 
-        private static bool IsSelfDestructPattern(MonsterPatternData pattern)
+private static bool IsSelfDestructPattern(MonsterPatternData pattern)
         {
-            if (pattern == null)
-                return false;
-
-            string id = pattern.id ?? string.Empty;
-            string dataCode = pattern.dataCode ?? string.Empty;
-            string handler = pattern.specialHandler ?? string.Empty;
-            return id.IndexOf("OrbSkill", System.StringComparison.OrdinalIgnoreCase) >= 0
-                || dataCode.IndexOf("OrbSkill", System.StringComparison.OrdinalIgnoreCase) >= 0
-                || handler.IndexOf("OrbSkill", System.StringComparison.OrdinalIgnoreCase) >= 0;
+            return pattern != null && pattern.selfDestruct;
         }
 
         private void ApplyTurnEndFantasyEffects()
@@ -1300,12 +1221,6 @@ private void ApplyCueStickToGeneratedDamage(BattleNumberState numbers)
                 FantasyData fantasy = fantasies[i];
                 if (fantasy == null)
                     continue;
-
-                if (fantasy.id == FantasyCollectionRules.AnimalFriendsId)
-                {
-                    AddHits(hits, fantasy, 4, result.damagePerHit);
-                    runningCount += 4;
-                }
 
                 runningCount = AddFantasyHitContribution(hits, fantasy, runningCount, "Passive", result.damagePerHit);
                 runningCount = AddFantasyHitContribution(hits, fantasy, runningCount, "Turn_Start", result.damagePerHit);

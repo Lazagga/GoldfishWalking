@@ -39,6 +39,8 @@ namespace GoldfishWalking.Data
         public MonsterPatternEffectData[] effects = Array.Empty<MonsterPatternEffectData>();
         public string sprite;
         public string specialHandler;
+        public int maxUses = -1;
+        public bool selfDestruct;
     }
 
     [Serializable]
@@ -54,6 +56,8 @@ namespace GoldfishWalking.Data
         public float numericValue;
         public int duration;
         public bool lockDamage;
+        public string mode;
+        public bool editable;
         public string rawJson;
     }
 

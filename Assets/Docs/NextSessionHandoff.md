@@ -1,11 +1,57 @@
 ﻿# Next Session Handoff
 
-Last updated: 2026-07-13
+Last updated: 2026-07-15
+
+## Latest 2026-07-15 Battle FSM, Patterns, And Fantasy Handoff
+
+The current gameplay source of truth is `Assets/1Scripts`, and the current main
+Unity scene is `Assets/Scenes/Game.unity`. Older sections below describing
+`GumBwing_Er.unity` as the active rebuild scene are historical context.
+
+- Battle turn resolution now runs as an explicit state sequence with queued,
+  individually presented player hits, monster hits, fantasy effects, status
+  damage, cleanup, and outcome checks. The first player hit logs as `Direct`;
+  fantasy-added hits log with the contributing fantasy name.
+- Damage-log and battle UI refreshes occur during the individual resolution
+  steps. Pulse/attack animation placeholders were removed; per-hit timing and
+  fantasy emphasis hooks remain for later animation work.
+- Monster attacks resolve one hit at a time. `Take_Damage` reflection, including
+  Sail and Bottle, runs after every damaging hit, is logged immediately, and
+  stops the remaining multi-hit sequence when either combatant dies.
+- Monster structural patterns are functional. Split digits cannot exchange
+  matchsticks. Whole-box locks and leftmost partial-digit locks block movement,
+  extra matches, and erasers and render locked matches black.
+- Slime/Ghost split patterns, Mushroom whole-box lock, and Hunter split plus
+  leftmost-digit lock are connected to the next editing turn. Structural
+  effects are scheduled even when the triggering attack deals zero damage.
+- Turn reset restores the current turn's numeric/segment edit snapshot and
+  refunds committed edit items while preserving split, whole-lock, and
+  partial-lock structure. Formula rebuilds caused by player damage, monster
+  damage, or monster hit-count edits also preserve those structural flags.
+- `fan_start_stamp` copies battle-start effects before generated-number
+  post-processing, so copied first-turn effects are applied.
+- `fan_start_cuestick` now runs after the first-turn random damage number is
+  generated and replaces only its leftmost digit with `8`; the digit remains
+  editable and temporary Stamp copies work.
+- `fan_damage_libra` evaluates the final transformed base-damage value: final
+  `0` is treated as `200`, and any nonzero result is treated as `0`, without
+  changing the displayed/editable number.
+- `fan_erase_sagittarius` splits all battle number boxes, grants one temporary
+  eraser at battle start, and lets the first committed eraser use per battle
+  erase an entire selected split digit. Popup cancel/reset and current-turn
+  reset refund the item and one-use state as appropriate.
+- `fan_shop_stickyglove` displays eligible consumable prices as `0` until that
+  item's once-per-shop free purchase is consumed; fantasy prices are unaffected.
+
+Latest validation: `dotnet build Assembly-CSharp.csproj -v:q` passes with zero
+errors and Unity reports no script errors. The existing MCP assembly reference
+warnings for `System.Net.Http` and `System.IO.Compression` remain unchanged.
 
 ## Latest 2026-07-13 Gameplay And QA Handoff
 
-The current gameplay source of truth remains `Assets/1Scripts`, and the active
-rebuild scene remains `Assets/Scenes/GumBwing_Er.unity`.
+The gameplay source of truth remains `Assets/1Scripts`. At the time of this
+older handoff, the active rebuild scene was `Assets/Scenes/GumBwing_Er.unity`;
+the current main scene is now `Assets/Scenes/Game.unity`.
 
 Recent UI, match-box, and debugging fixes:
 
@@ -80,8 +126,9 @@ Recommended next work:
 1. Continue play-mode regression QA for the remaining monster patterns.
 2. Verify countdown presentation and Stargazer accumulated-box presentation in
    the live Battle UI.
-3. Continue missing structural formula work: split boxes, locked segments, and
-   advanced operator/value transforms.
+3. Continue live regression QA for split/lock/reset combinations and the
+   Sagittarius whole-digit eraser. Advanced operator transforms remain future
+   work.
 4. Continue final UI/art replacement without removing the development console
    or damage log.
 
@@ -606,9 +653,9 @@ Boss battles still grant rewards. After the reward flow completes:
 - `FortuneTeller` and `Prophet` no longer use a visible extra accumulation
   box. They stack dealt damage into self buffs and their explode patterns use
   that stack as the base damage value.
-- Still incomplete or placeholder-level: split boxes, locked segments/boxes,
-  shield presentation, lock damage presentation, stun turn-skip polish, and
-  final animation/timing for status damage.
+- Still incomplete or placeholder-level: shield presentation, lock-damage
+  presentation, stun turn-skip polish, and final animation/timing for status
+  damage. Split and lock mechanics are functional but still need visual polish.
 
 ### Reward Implementation State
 
@@ -743,7 +790,6 @@ Unimplemented or intentionally deferred fantasies and reasons:
   in the animalfriends transform rule.
 - `fan_upgrade_aquarius`: advanced operator box part is intentionally deferred
   until the effect redesign is finalized.
-- `fan_erase_sagittarius`: needs split boxes and whole-box erase behavior.
 - `fan_acquire_blueprint`: current implementation copies a random owned
   fantasy on acquire; a future explicit choice UI would be better if design
   requires player agency.

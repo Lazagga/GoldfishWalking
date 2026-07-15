@@ -1242,7 +1242,7 @@ private bool CanUseSagittariusWholeBoxErase()
                 && runContext != null
                 && runContext.sagittariusWholeBoxEraseTurn <= 0
                 && runContext.fantasyInventory != null
-                && runContext.fantasyInventory.Contains("fan_erase_sagittarius");
+                && runContext.fantasyInventory.HasEffect("Split_Digit_Erase", "Enable");
         }
 
 private void UseSagittariusWholeBoxEraser(int digitIndex)

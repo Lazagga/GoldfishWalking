@@ -11,7 +11,7 @@ ID	Act	Difficulty	DevName	DataName	NameStringID	DescStringID	Type	BaseHP	BaseStr
 10202	1	Normal	작은 마녀	Mob_10202_LittleWitch			Elite	425	0	LittleWitchSkill, 2_Single, 2_Single	Static	
 10203	1	Normal	사냥꾼	Mob_10203_Hunter			Elite	450	0	HunterSingle, HunterSingle, 2_Single, 2_Single, Str_1	Static	
 10301	1	Normal	하트 여왕	Mob_10301_HeartQueen			Boss	600	0	2_Single, 2_Multi_1, Str_1, HeartQueenSkill	Static	
-10302	1	Normal	마녀	Mob_10302_Witch			Boss	750	0	2_Single, 2_Multi_1, Str_1	Static	
+10302	1	Normal	마녀	Mob_10302_Witch			Boss	750	0	WitchSkill, 2_Single, 2_Multi_1, Str_1	Static	
 10303	1	Normal	엘프	Mob_10303_Elf			Boss	500	0	2_Single, 2_Multi_2	Random	
 20101	2	Easy	눈사람	Mob_20101_Snowman			Normal	560	0	2_Multi_1, 2_Multi_2, 3_Single	Static	
 20102	2	Easy	강도	Mob_20102_Robber			Normal	520	0	RobberSingle	Random	

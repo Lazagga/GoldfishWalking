@@ -2,8 +2,9 @@ ID	DevName	DataCode	NameStringID	Effects	SpriteRes	설명
 		SlimeSingle		{"Attack": "2_Single","Effects": [{"Timing": "NextTurn","Target": "Self","Action": "Split","Duration": 1}]}		단타 맞 다음 턴 자기 상자 분리 (해당 턴에만 적용)
 		MushroomLock		{"Attack": null,"Effects": [{"Timing": "NextTurn","Target": "Player","Action": "Lock"}]}		플레이어 상자 잠금
 		Skip		{"Attack": null, "Effect": null}		아무것도 안 함
-		LittleWitchSkill		{"Effects": [{"Target": "Player", "Action": "AddBuff", "Type": "MinusBox", "Value": 1}]}		플레이어 힘 1 감소
-		HunterSingle		{"Attack": "2_Single", "Effects": [{"Target": "Player", "Action": "Split"}, {"Target": "Player", "Action": "AddBuff", "Type": "BoxLock", "Value": 1}]}		플레이어 기본 피해량 상자를 분리시킨 뒤 하나를 잠금
+		LittleWitchSkill		{"Attack": null, "Effects": [{"Target": "Player", "Action": "AddBuff", "Type": "MinusBox", "Value": 1}]}		플레이어 힘 1 감소
+		HunterSingle		{"Attack": "2_Single", "Effects": [{"Target": "Player", "Action": "Split"}, {"Target": "Player", "Action": "AddBuff", "Type": "BoxLock", "Value": 1, "Duration": 1}]}		플레이어 기본 피해량 상자를 분리시킨 뒤 하나를 잠금
+		WitchSkill		{"Count":1, "Attack": null, "Effects": [{"Target": "Player", "Action": "AddBuff", "Type": "DivideBox", "Value": 1}]}		
 		HeartQueenSkill		{"Condition": "HeartQueenBox==0", "Effects": [{"Target": "Player", "Action": "Damage", "Value": 9999, "Lock": true}]}		
 		GhostSingle		{"Attack": "2_Single", "Effects": [{"Timing": "NextTurn", "Target": "Player", "Action": "Split", "Duration": 1}]}		단타 + 다음 턴 내 상자 분리
 		GhostMulti		{"Attack": "2_Multi_1", "Effects": [{"Timing": "NextTurn", "Target": "Self", "Action": "Split","Duration":1}]}		연타1 + 다음 턴 자기 상자 분리

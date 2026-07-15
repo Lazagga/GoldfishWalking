@@ -1,6 +1,33 @@
 # Progress Checkpoint
 
-Last updated: 2026-07-13
+Last updated: 2026-07-15
+
+## 2026-07-15 Battle Structure And Fantasy Checkpoint
+
+- Current gameplay source: `Assets/1Scripts`; current main scene:
+  `Assets/Scenes/Game.unity`. References below to `GumBwing_Er.unity` describe
+  earlier rebuild history.
+
+- Added state-driven turn resolution with per-hit player/monster processing,
+  per-step damage-log refresh, fantasy hit attribution, status phases, cleanup,
+  and outcome checks.
+- Reflection now triggers and logs after each damaging monster hit. A reflected
+  kill or player death stops the remaining multi-hit sequence immediately.
+- Implemented runtime split, whole-box lock, and partial leftmost-digit lock
+  behavior, including visual separation/black locks and edit/item restrictions.
+- Slime, Ghost, Mushroom, and Hunter structural patterns are connected. Their
+  structure survives number edits and whole-turn reset.
+- Turn reset restores only current editing state and refunds committed edit
+  items; it preserves the active turn's split/lock flags rather than replaying
+  the previous turn.
+- Completed Cue Stick post-roll leftmost-`8`, Libra final-zero-to-`200`, and
+  Sagittarius all-box splitting plus one whole-digit eraser per battle.
+- Sticky Glove now displays eligible consumables at price `0` before their free
+  purchase is used.
+- Fixed copied battle-start fantasy execution, next-turn number refresh, second
+  node turn-end interaction, and state-by-state damage-log refresh.
+
+Latest validation: C# build errors `0`; Unity script-console errors `0`.
 
 ## Latest Checkpoint
 
@@ -375,8 +402,6 @@ do not exist yet, or are only partially mapped:
   to the animalfriends transform rule.
 - `fan_upgrade_aquarius`: movement penalty works, but operator-box upgrade is
   intentionally deferred because the effect is expected to change.
-- `fan_erase_sagittarius`: requires split boxes and an eraser mode that can
-  erase an entire number box once per battle. Current eraser removes one match.
 - `fan_acquire_blueprint`: currently copies a random owned fantasy on acquire.
   Add an explicit choice UI later if design requires player agency.
 - Cosmetic sprite application and aquarius redesign are intentionally deferred.
@@ -426,15 +451,16 @@ selection, HP/name display, sequential pattern cycling, attack digit counts,
 editable multi-hit counts, `Skip`, `Str_n`, conditions, phases, dynamic damage
 expressions, timed strength modifiers, player bleed/poison, stack mechanics,
 and special editable monster boxes. Remaining monster/pattern work is mostly
-polish and missing infrastructure for split/lock/shield presentation and final
-animation/timing.
+polish for split/lock/shield presentation and final animation/timing. Split and
+lock rules themselves are now functional.
 
 Fantasy data is imported from TSV into `FantasyDatabase.asset`, and the first
 runtime effect pass is now connected to battle, reward, shop, rest, acquisition,
 and item-use flows. Most simple numeric/item/combat modifiers are usable. The
 remaining fantasy work is concentrated around systems that are intentionally
-deferred or need UI polish: cosmetic visuals, aquarius redesign, split boxes,
-advanced operator boxes, and explicit fantasy copy/transform choice UI.
+deferred or need UI polish: cosmetic visuals, aquarius redesign, advanced
+operator boxes, split/lock presentation polish, and explicit fantasy
+copy/transform choice UI.
 
 Important UI direction: static screen chrome should be prebuilt in the scene or
 prefabs and bound by view scripts. Variable repeated content can stay dynamic or

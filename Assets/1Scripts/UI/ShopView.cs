@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using GoldfishWalking.Data;
+using GoldfishWalking.Fantasy;
 using GoldfishWalking.Match;
 using GoldfishWalking.Shop;
 using UnityEngine;
@@ -633,7 +634,7 @@ private int GetCurrentPrice(ShopItem item)
 
             return shopController != null
                 && shopController.OwnedFantasies != null
-                && ContainsFantasy(shopController.OwnedFantasies, "fan_shop_stencil");
+                && HasFantasyEffect(shopController.OwnedFantasies, "Shop_Extra_Fantasy_Slot", "Enable");
         }
 
         private static bool ContainsFantasy(IReadOnlyList<FantasyData> fantasies, string fantasyId)
@@ -648,6 +649,18 @@ private int GetCurrentPrice(ShopItem item)
                     return true;
             }
 
+            return false;
+        }
+
+        private static bool HasFantasyEffect(IReadOnlyList<FantasyData> fantasies, string target, string calc)
+        {
+            if (fantasies == null)
+                return false;
+            for (int i = 0; i < fantasies.Count; i++)
+            {
+                if (FantasyInventory.DataHasEffect(fantasies[i], target, calc))
+                    return true;
+            }
             return false;
         }
 

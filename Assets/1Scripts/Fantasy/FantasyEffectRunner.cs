@@ -3,6 +3,7 @@ using GoldfishWalking.Data;
 using GoldfishWalking.Item;
 using GoldfishWalking.Match;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 namespace GoldfishWalking.Fantasy
@@ -15,18 +16,18 @@ namespace GoldfishWalking.Fantasy
                 return baseValue;
 
             int value = baseValue;
-            bool specialHandled = TryModifySpecialFantasyValue(fantasy, runContext, trigger, targets, ref value);
+            int conditionValue = baseValue;
             if (fantasy.effects == null)
                 return value;
 
             foreach (FantasyEffectData effect in fantasy.effects)
             {
-                if (effect == null || !TriggerMatches(effect.trigger, trigger) || !TargetMatches(effect.target, targets))
-                    continue;
-                if (specialHandled)
+                if (effect == null || Normalize(effect.execution) == "action"
+                    || !TriggerMatches(effect.trigger, trigger) || !TargetMatches(effect.target, targets)
+                    || !EvaluateCondition(effect.condition, runContext, conditionValue))
                     continue;
 
-                value = ApplyCalculation(value, Normalize(effect.calc), EvaluateEffectValue(effect, runContext));
+                value = ApplyCalculation(value, Normalize(effect.calc), EvaluateEffectValue(effect, runContext, value));
             }
 
             return value;
@@ -75,13 +76,6 @@ namespace GoldfishWalking.Fantasy
             if (fantasy == null || runContext == null)
                 return;
 
-            int pendingBeforeSpecial = runContext.pendingMonsterDamage;
-            if (ApplySpecialFantasy(fantasy, runContext, trigger))
-            {
-                LogPendingDamageDelta(fantasy, runContext, pendingBeforeSpecial);
-                return;
-            }
-
             if (fantasy.effects == null || fantasy.effects.Length == 0)
             {
                 ApplyLegacyEffect(fantasy, runContext);
@@ -94,6 +88,10 @@ namespace GoldfishWalking.Fantasy
                     continue;
 
                 if (!string.IsNullOrWhiteSpace(trigger) && !TriggerMatches(effect.trigger, trigger))
+                    continue;
+                if (!EvaluateCondition(effect.condition, runContext, 0))
+                    continue;
+                if (!PassesChance(fantasy, effect, runContext))
                     continue;
 
                 ApplyEffect(fantasy, effect, runContext);
@@ -111,182 +109,23 @@ namespace GoldfishWalking.Fantasy
                 if (fantasy == null || fantasy.effects == null)
                     continue;
 
+                int conditionValue = value;
                 foreach (FantasyEffectData effect in fantasy.effects)
                 {
-                    if (effect == null)
-                        continue;
-                    if (TryModifySpecialFantasyValue(fantasy, runContext, trigger, targets, ref value))
+                    if (effect == null || Normalize(effect.execution) == "action")
                         continue;
                     if (!TriggerMatches(effect.trigger, trigger))
                         continue;
                     if (!TargetMatches(effect.target, targets))
                         continue;
+                    if (!EvaluateCondition(effect.condition, runContext, conditionValue))
+                        continue;
 
-                    value = ApplyCalculation(value, Normalize(effect.calc), EvaluateEffectValue(effect, runContext));
+                    value = ApplyCalculation(value, Normalize(effect.calc), EvaluateEffectValue(effect, runContext, value));
                 }
             }
 
             return value;
-        }
-
-        private bool ApplySpecialFantasy(FantasyData fantasy, RunContext runContext, string trigger)
-        {
-            string id = NormalizeId(fantasy.id);
-            string normalizedTrigger = NormalizeTrigger(trigger);
-
-            switch (id)
-            {
-                case "fanend8ball":
-                    if (normalizedTrigger == NormalizeTrigger("Turn_End"))
-                    {
-                        float damagePerDigit = GetEffectValue(fantasy, "Turn_End", "Damage", 20f, runContext);
-                        runContext.pendingMonsterDamage += Mathf.FloorToInt(CountDigitInBattleNumbers(runContext, 8) * damagePerDigit);
-                        return true;
-                    }
-                    break;
-                case "fanendgrape":
-                    if (normalizedTrigger == NormalizeTrigger("Turn_End"))
-                    {
-                        float healPerMove = GetEffectValue(fantasy, "Turn_End", "HP", 50f, runContext);
-                        runContext.health += Mathf.FloorToInt(Mathf.Max(0, runContext.remainingMoveCount) * healPerMove);
-                        return true;
-                    }
-                    break;
-                case "fanendfan":
-                    if (normalizedTrigger == NormalizeTrigger("Turn_End"))
-                    {
-                        float damagePercent = GetEffectValue(fantasy, "Turn_End", "Damage", 10f, runContext);
-                        float fanDamage = runContext.health * NormalizePercent(damagePercent);
-                        runContext.pendingMonsterDamage += Mathf.FloorToInt(fanDamage + 0.0001f);
-                        return true;
-                    }
-                    break;
-                case "fanendfirecracker":
-                    if (normalizedTrigger == NormalizeTrigger("Turn_End"))
-                    {
-                        float damagePerItem = GetEffectValue(fantasy, "Turn_End", "Damage", 30f, runContext);
-                        runContext.pendingMonsterDamage += Mathf.FloorToInt(Mathf.Max(0, runContext.itemUseCountThisBattle) * damagePerItem);
-                        return true;
-                    }
-                    break;
-                case "fanendpaperplane":
-                    if (normalizedTrigger == NormalizeTrigger("Turn_End"))
-                        return true;
-                    break;
-                case "fanstartcuestick":
-                    if (normalizedTrigger == NormalizeTrigger("Battle_Start"))
-                        return true;
-                    break;
-                case "fanendtrumpcard":
-                    if (normalizedTrigger == NormalizeTrigger("Turn_End"))
-                    {
-                        runContext.temporaryMoveBonus += Mathf.Max(0, runContext.remainingMoveCount);
-                        runContext.remainingMoveCount = 0;
-                        return true;
-                    }
-                    break;
-                case "fanturnpisces":
-                    if (normalizedTrigger == NormalizeTrigger("Turn_Start"))
-                    {
-                        int convertedMoves = Mathf.Max(0, runContext.remainingMoveCount);
-                        runContext.remainingMoveCount = 0;
-                        runContext.itemInventory.AddTemporary(ItemType.ExtraMatch, convertedMoves);
-                        runContext.itemInventory.AddTemporary(ItemType.Eraser, convertedMoves);
-                        GameEventHub.RaiseItemInventoryChanged();
-                        return true;
-                    }
-                    break;
-                case "fanusemusicbox":
-                    if (normalizedTrigger == NormalizeTrigger("Use_Item"))
-                    {
-                        if (runContext.RollValue($"fantasy.musicbox.{runContext.itemUseCountThisBattle}", 0, 99) < 50)
-                            runContext.itemInventory.Add(runContext.lastUsedItemType, Mathf.FloorToInt(GetEffectValue(fantasy, "Use_Item", "Item", 1f, runContext)));
-                        return true;
-                    }
-                    break;
-                case "fanshopstampcoupon":
-                    if (normalizedTrigger == NormalizeTrigger("Shop_Purchase"))
-                        return true;
-                    break;
-                case "fanstartstamp":
-                    if (normalizedTrigger == NormalizeTrigger("Battle_Start"))
-                    {
-                        FantasyData copied = SelectOwnedFantasyCopy(runContext, fantasy);
-                        if (copied != null)
-                        {
-                            runContext.fantasyInventory.AddDuplicate(copied);
-                            Apply(copied, runContext, "Battle_Start");
-                        }
-                        return true;
-                    }
-                    break;
-                case "fanenddice":
-                    if (normalizedTrigger == NormalizeTrigger("Battle_End"))
-                    {
-                        runContext.rewardRerolls += Mathf.FloorToInt(GetEffectValue(fantasy, "Battle_End", "Fantasy_Reroll", 1f, runContext));
-                        return true;
-                    }
-                    break;
-                case "fanacquireblueprint":
-                    if (normalizedTrigger == NormalizeTrigger("On_Acquire"))
-                    {
-                        FantasyData copied = SelectOwnedFantasyCopy(runContext, fantasy, temporary: false);
-                        if (copied != null)
-                        {
-                            runContext.fantasyInventory.Remove(fantasy);
-                            runContext.fantasyInventory.AddDuplicate(copied);
-                        }
-                        return true;
-                    }
-                    break;
-            }
-
-            return false;
-        }
-
-        private bool TryModifySpecialFantasyValue(FantasyData fantasy, RunContext runContext, string trigger, string[] targets, ref int value)
-        {
-            string id = NormalizeId(fantasy.id);
-            string normalizedTrigger = NormalizeTrigger(trigger);
-
-            switch (id)
-            {
-                case "fandamagelibra":
-                    if (TargetMatches("Base_Damage", targets) && runContext.currentBattle != null)
-                    {
-                        int replacement = Mathf.FloorToInt(GetEffectValue(fantasy, string.Empty, "Base_Damage", 200f, runContext));
-                        value = value == 0 ? replacement : 0;
-                        return true;
-                    }
-                    break;
-                case "fandefendpaperboat":
-                    if (normalizedTrigger == NormalizeTrigger("Take_Damage") && TargetMatches("Damage_Taken", targets) && runContext.currentBattle != null)
-                    {
-                        if (runContext.currentBattle.monsterBaseDamage >= runContext.currentBattle.playerBaseDamage)
-                            value = Mathf.FloorToInt(value * GetEffectValue(fantasy, string.Empty, "Damage_Taken", 0.5f, runContext));
-                        return true;
-                    }
-                    break;
-                case "fandamagemirror":
-                    if (normalizedTrigger == NormalizeTrigger("Turn_End") && TargetMatches("Attack_Count", targets))
-                    {
-                        if (runContext.currentBattle != null && HasSameDigits(runContext.currentBattle.playerBaseDamage)
-                            && HasSameVisibleDigits(runContext.currentBattle.playerBaseDamage, runContext.currentBattle.playerBaseDamageSegmentState))
-                            value += Mathf.FloorToInt(GetEffectValue(fantasy, "Turn_End", "Attack_Count", 1f, runContext));
-                        return true;
-                    }
-                    break;
-                case "fanendpaperplane":
-                    if (normalizedTrigger == NormalizeTrigger("Turn_End") && TargetMatches("Additional_Damage", targets))
-                    {
-                        if (runContext.currentBattle != null && runContext.currentBattle.playerBaseDamage == runContext.currentBattle.monsterBaseDamage)
-                            value = Mathf.FloorToInt(value * GetEffectValue(fantasy, "Turn_End", "Additional_Damage", 2f, runContext));
-                        return true;
-                    }
-                    break;
-            }
-
-            return false;
         }
 
         private void ApplyEffect(FantasyData fantasy, FantasyEffectData effect, RunContext runContext)
@@ -320,11 +159,11 @@ namespace GoldfishWalking.Fantasy
                     GameEventHub.RaiseItemInventoryChanged();
                     break;
                 case "extramatch":
-                    AddItemByLifetime(runContext, ItemType.ExtraMatch, Mathf.FloorToInt(value), effect.trigger);
+                    AddItemByLifetime(runContext, ItemType.ExtraMatch, Mathf.FloorToInt(value), effect.trigger, effect.lifetime);
                     GameEventHub.RaiseItemInventoryChanged();
                     break;
                 case "eraser":
-                    AddItemByLifetime(runContext, ItemType.Eraser, Mathf.FloorToInt(value), effect.trigger);
+                    AddItemByLifetime(runContext, ItemType.Eraser, Mathf.FloorToInt(value), effect.trigger, effect.lifetime);
                     GameEventHub.RaiseItemInventoryChanged();
                     break;
                 case "strength":
@@ -353,6 +192,19 @@ namespace GoldfishWalking.Fantasy
                 case "fantasyreroll":
                     runContext.rewardRerolls += Mathf.FloorToInt(value);
                     break;
+                case "movement":
+                    runContext.remainingMoveCount = ApplyCalculation(runContext.remainingMoveCount, calc, value);
+                    break;
+                case "temporarymovement":
+                    runContext.temporaryMoveBonus = ApplyCalculation(runContext.temporaryMoveBonus, calc, value);
+                    break;
+                case "lastuseditem":
+                    runContext.itemInventory.Add(runContext.lastUsedItemType, Mathf.FloorToInt(value));
+                    GameEventHub.RaiseItemInventoryChanged();
+                    break;
+                case "fantasy":
+                    ApplyFantasyOperation(fantasy, effect, runContext);
+                    break;
             }
         }
 
@@ -362,12 +214,20 @@ namespace GoldfishWalking.Fantasy
                 return value;
 
             int transformed = value;
-            if (isPlayerNumber && runContext.fantasyInventory.Contains("fan_number_domino"))
-                transformed = TransformDigits(transformed, digit => digit < 5 ? 5 : digit);
-            if (!isPlayerNumber && runContext.fantasyInventory.Contains("fan_number_applepie"))
-                transformed = TransformDigits(transformed, digit => digit > 5 ? 5 : digit);
-            if (isPlayerNumber && runContext.fantasyInventory.Contains("fan_odd_gemini"))
-                transformed = transformed % 2 != 0 ? transformed * 2 : 0;
+            string target = isPlayerNumber ? "Player_Number" : "Monster_Number";
+            foreach (FantasyData fantasy in runContext.fantasyInventory.ownedFantasies)
+            {
+                if (fantasy?.effects == null)
+                    continue;
+                int conditionValue = transformed;
+                foreach (FantasyEffectData effect in fantasy.effects)
+                {
+                    if (effect == null || !TargetMatches(effect.target, new[] { target })
+                        || !EvaluateCondition(effect.condition, runContext, conditionValue))
+                        continue;
+                    transformed = ApplyCalculation(transformed, Normalize(effect.calc), EvaluateEffectValue(effect, runContext, transformed));
+                }
+            }
 
             return Mathf.Max(0, transformed);
         }
@@ -405,12 +265,40 @@ namespace GoldfishWalking.Fantasy
             return false;
         }
 
-        private static void AddItemByLifetime(RunContext runContext, ItemType itemType, int count, string trigger)
+        private static void AddItemByLifetime(RunContext runContext, ItemType itemType, int count, string trigger, string lifetime = null)
         {
-            if (IsTemporaryItemGrant(trigger))
+            if (Normalize(lifetime) == "battle" || IsTemporaryItemGrant(trigger))
                 runContext.itemInventory.AddTemporary(itemType, count);
             else
                 runContext.itemInventory.Add(itemType, count);
+        }
+
+        private static bool PassesChance(FantasyData fantasy, FantasyEffectData effect, RunContext runContext)
+        {
+            if (effect == null || effect.chance >= 1f)
+                return true;
+            if (effect.chance <= 0f || runContext == null)
+                return false;
+            int threshold = Mathf.FloorToInt(effect.chance * 10000f);
+            string key = $"fantasy.effect.{fantasy?.id}.{effect.trigger}.{effect.target}.{runContext.battleTurnNumber}.{runContext.itemUseCountThisBattle}";
+            return runContext.RollValue(key, 0, 9999) < threshold;
+        }
+
+        private void ApplyFantasyOperation(FantasyData source, FantasyEffectData effect, RunContext runContext)
+        {
+            string calc = Normalize(effect?.calc);
+            if (calc != "copytemporary" && calc != "replacewithcopy")
+                return;
+
+            bool temporary = calc == "copytemporary";
+            FantasyData copied = SelectOwnedFantasyCopy(runContext, source, temporary);
+            if (copied == null)
+                return;
+            if (!temporary)
+                runContext.fantasyInventory.Remove(source);
+            runContext.fantasyInventory.AddDuplicate(copied);
+            if (temporary)
+                Apply(copied, runContext, effect.trigger);
         }
 
         private static bool IsTemporaryItemGrant(string trigger)
@@ -470,6 +358,12 @@ namespace GoldfishWalking.Fantasy
                     return Mathf.FloorToInt(value);
                 case "multiply":
                     return Mathf.FloorToInt(current * value);
+                case "digitmin":
+                    return TransformDigits(current, digit => Mathf.Max(digit, Mathf.FloorToInt(value)));
+                case "digitmax":
+                    return TransformDigits(current, digit => Mathf.Min(digit, Mathf.FloorToInt(value)));
+                case "setfirstdigit":
+                    return SetFirstDigit(current, Mathf.FloorToInt(value));
                 case "add":
                 default:
                     return current + Mathf.FloorToInt(value);
@@ -583,7 +477,7 @@ namespace GoldfishWalking.Fantasy
             for (int i = 0; i < fantasy.effects.Length; i++)
             {
                 FantasyEffectData effect = fantasy.effects[i];
-                if (effect == null)
+                if (effect == null || Normalize(effect.execution) == "modifier")
                     continue;
                 if (!TriggerMatches(effect.trigger, trigger))
                     continue;
@@ -596,7 +490,7 @@ namespace GoldfishWalking.Fantasy
             return fallback;
         }
 
-        private static float EvaluateEffectValue(FantasyEffectData effect, RunContext runContext)
+        private static float EvaluateEffectValue(FantasyEffectData effect, RunContext runContext, int currentValue = 0)
         {
             if (effect == null)
                 return 0f;
@@ -604,10 +498,10 @@ namespace GoldfishWalking.Fantasy
             if (effect.hasNumericValue)
                 return effect.numericValue;
 
-            return EvaluateValue(effect.valueExpression, runContext);
+            return EvaluateValue(effect.valueExpression, runContext, currentValue);
         }
 
-        private static float EvaluateValue(string expression, RunContext runContext)
+        private static float EvaluateValue(string expression, RunContext runContext, int currentValue = 0)
         {
             string text = (expression ?? string.Empty).Trim();
             if (string.IsNullOrEmpty(text))
@@ -616,10 +510,10 @@ namespace GoldfishWalking.Fantasy
             if (float.TryParse(text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float numericValue))
                 return numericValue;
 
-            return EvaluateSimpleExpression(text, runContext);
+            return EvaluateSimpleExpression(text, runContext, currentValue);
         }
 
-        private static float EvaluateSimpleExpression(string expression, RunContext runContext)
+        private static float EvaluateSimpleExpression(string expression, RunContext runContext, int currentValue)
         {
             char[] operators = { '*', '/', '+', '-' };
             foreach (char op in operators)
@@ -628,8 +522,8 @@ namespace GoldfishWalking.Fantasy
                 if (index <= 0)
                     continue;
 
-                float left = ResolveValueToken(expression.Substring(0, index), runContext);
-                float right = ResolveValueToken(expression.Substring(index + 1), runContext);
+                float left = ResolveValueToken(expression.Substring(0, index), runContext, currentValue);
+                float right = ResolveValueToken(expression.Substring(index + 1), runContext, currentValue);
                 switch (op)
                 {
                     case '*':
@@ -643,10 +537,10 @@ namespace GoldfishWalking.Fantasy
                 }
             }
 
-            return ResolveValueToken(expression, runContext);
+            return ResolveValueToken(expression, runContext, currentValue);
         }
 
-        private static float ResolveValueToken(string token, RunContext runContext)
+        private static float ResolveValueToken(string token, RunContext runContext, int currentValue)
         {
             string value = (token ?? string.Empty).Trim();
             if (float.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float numericValue))
@@ -654,6 +548,12 @@ namespace GoldfishWalking.Fantasy
 
             switch (Normalize(value))
             {
+                case "currentvalue":
+                    return currentValue;
+                case "currentvalueisodd":
+                    return Mathf.Abs(currentValue) % 2 == 1 ? 1f : 0f;
+                case "currentvalueiseven":
+                    return Mathf.Abs(currentValue) % 2 == 0 ? 1f : 0f;
                 case "hp":
                 case "playerhp":
                     return runContext != null ? runContext.health : 0f;
@@ -667,9 +567,58 @@ namespace GoldfishWalking.Fantasy
                     return runContext != null ? runContext.lastDamageTaken : 0f;
                 case "totaldamagetaken":
                     return runContext != null ? runContext.battleDamageTaken : 0f;
+                case "battledigit8count":
+                    return CountDigitInBattleNumbers(runContext, 8);
+                case "remainingmoves":
+                    return runContext != null ? runContext.remainingMoveCount : 0f;
+                case "itemusecount":
+                    return runContext != null ? runContext.itemUseCountThisBattle : 0f;
+                case "consumablecount":
+                    return runContext != null ? runContext.itemInventory.GetCount(ItemType.ExtraMatch) + runContext.itemInventory.GetCount(ItemType.Eraser) : 0f;
+                case "playerbasedamage":
+                    return runContext?.currentBattle != null ? runContext.currentBattle.playerBaseDamage : 0f;
+                case "monsterbasedamage":
+                    return runContext?.currentBattle != null ? runContext.currentBattle.monsterBaseDamage : 0f;
+                case "playerbasedamagesamedigits":
+                    return runContext?.currentBattle != null && HasSameDigits(runContext.currentBattle.playerBaseDamage)
+                        && HasSameVisibleDigits(runContext.currentBattle.playerBaseDamage, runContext.currentBattle.playerBaseDamageSegmentState) ? 1f : 0f;
                 default:
                     return 0f;
             }
+        }
+
+        private static bool EvaluateCondition(string expression, RunContext runContext, int currentValue)
+        {
+            string text = (expression ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(text))
+                return true;
+
+            string[] andParts = text.Split(new[] { "&&" }, System.StringSplitOptions.None);
+            for (int i = 0; i < andParts.Length; i++)
+            {
+                string part = andParts[i].Trim();
+                string[] operators = { ">=", "<=", "==", "!=", ">", "<" };
+                bool matched = false;
+                for (int j = 0; j < operators.Length; j++)
+                {
+                    string op = operators[j];
+                    int index = part.IndexOf(op, System.StringComparison.Ordinal);
+                    if (index < 0)
+                        continue;
+                    float left = EvaluateValue(part.Substring(0, index), runContext, currentValue);
+                    float right = EvaluateValue(part.Substring(index + op.Length), runContext, currentValue);
+                    bool result = op == ">=" ? left >= right : op == "<=" ? left <= right
+                        : op == "==" ? Mathf.Approximately(left, right) : op == "!=" ? !Mathf.Approximately(left, right)
+                        : op == ">" ? left > right : left < right;
+                    if (!result)
+                        return false;
+                    matched = true;
+                    break;
+                }
+                if (!matched && EvaluateValue(part, runContext, currentValue) <= 0f)
+                    return false;
+            }
+            return true;
         }
 
         private static int CountDigitInBattleNumbers(RunContext runContext, int digit)

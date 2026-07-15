@@ -17,24 +17,33 @@ namespace GoldfishWalking.Battle
             if (monster == null || monster.Data == null)
                 return MonsterPatternKeyUtility.CreateFromKey(FallbackPatternKey);
 
+            int turn = runContext != null ? Math.Max(1, runContext.battleTurnNumber) : 1;
+            if (monster.SelectedPatternTurn == turn && monster.SelectedPattern != null)
+                return monster.SelectedPattern;
+
             string[] patternIds = monster.Data.patternIds;
             if (patternIds == null || patternIds.Length == 0)
                 return MonsterPatternKeyUtility.CreateFromKey(FallbackPatternKey);
 
-            List<MonsterPatternData> eligiblePatterns = new List<MonsterPatternData>();
+            List<MonsterPatternData> patterns = new List<MonsterPatternData>();
             for (int i = 0; i < patternIds.Length; i++)
-            {
-                MonsterPatternData candidate = ResolvePattern(database, patternIds[i]);
-                if (EvaluateCondition(candidate.condition, monster, runContext))
-                    eligiblePatterns.Add(candidate);
-            }
+                patterns.Add(ResolvePattern(database, patternIds[i]));
 
-            if (eligiblePatterns.Count == 0)
+            if (patterns.Count == 0)
                 return MonsterPatternKeyUtility.CreateFromKey(FallbackPatternKey);
 
-            int index = runContext != null ? Math.Max(0, runContext.battleTurnNumber - 1) % eligiblePatterns.Count : 0;
+            int startIndex = Math.Max(0, turn - 1) % patterns.Count;
+            for (int offset = 0; offset < patterns.Count; offset++)
+            {
+                MonsterPatternData candidate = patterns[(startIndex + offset) % patterns.Count];
+                if (!monster.CanUsePattern(candidate) || !EvaluateCondition(candidate.condition, monster, runContext))
+                    continue;
 
-            return eligiblePatterns[Math.Max(0, Math.Min(index, eligiblePatterns.Count - 1))];
+                monster.SelectPatternForTurn(candidate, turn);
+                return candidate;
+            }
+
+            return MonsterPatternKeyUtility.CreateFromKey(FallbackPatternKey);
         }
 
         public MonsterPatternData ResolvePattern(MonsterPatternDatabase database, string patternKey)
@@ -330,7 +339,7 @@ namespace GoldfishWalking.Battle
             {
                 int count = ExtractCount(effect.rawJson);
                 string label = SpecialBoxLabel(target);
-                if (IsStargazer(monster) && count == 1)
+                if (NormalizeLookup(effect.mode) == "append" && count == 1)
                     monster.AppendSpecialBoxDigit(value, label);
                 else
                     monster.SetSpecialBox(value, count, label);
@@ -428,8 +437,6 @@ namespace GoldfishWalking.Battle
             runContext.battleDamageTaken += actualDamage;
             runContext.AddPlayerDamageDebug("Pattern Damage", actualDamage);
 
-            if (actualDamage > 0 && IsVampire(monster))
-                monster.Heal(Mathf.FloorToInt(actualDamage * 0.3f));
         }
 
         private static int SelectPlayerFormulaNumber(BattleFormulaState playerFormula, RunContext runContext)
@@ -459,17 +466,9 @@ namespace GoldfishWalking.Battle
             }
         }
 
-        private static bool IsVampire(MonsterRuntime monster)
-        {
-            string dataName = monster != null && monster.Data != null ? monster.Data.dataName ?? string.Empty : string.Empty;
-            return dataName.Contains("Vampire");
-        }
 
-        private static bool IsStargazer(MonsterRuntime monster)
-        {
-            string dataName = monster != null && monster.Data != null ? monster.Data.dataName ?? string.Empty : string.Empty;
-            return dataName.Contains("Stargazer");
-        }
+
+
 
         private static void SetBuff(MonsterRuntime monster, RunContext runContext, string type, int value)
         {
@@ -670,7 +669,10 @@ namespace GoldfishWalking.Battle
                 case "damagedealt":
                     return Mathf.Max(0, damageDealt);
                 case "damagetaken":
-                    return runContext != null ? runContext.battleDamageDealt : 0f;
+                    return monster != null ? monster.DamageCapAccumulatedDamage
+                        : runContext != null ? runContext.battleDamageDealt : 0f;
+                case "damagecapbreakthreshold":
+                    return monster?.Data != null ? monster.Data.damageCapBreakThreshold : 0f;
                 case "fortunestack":
                     return monster != null ? monster.FortuneStack : 0f;
                 case "prophecystack":
@@ -757,10 +759,17 @@ namespace GoldfishWalking.Battle
             return result;
         }
 
-        private static bool UsesEditableHealBox(MonsterPatternData pattern)
+private static bool UsesEditableHealBox(MonsterPatternData pattern)
         {
-            string key = NormalizeLookup(!string.IsNullOrWhiteSpace(pattern.dataCode) ? pattern.dataCode : pattern.id);
-            return key == "giantratskill" || key == "cosmictreeheal";
+            if (pattern?.effects == null)
+                return false;
+            for (int i = 0; i < pattern.effects.Length; i++)
+            {
+                MonsterPatternEffectData effect = pattern.effects[i];
+                if (effect != null && effect.editable && NormalizeLookup(effect.action) == "heal")
+                    return true;
+            }
+            return false;
         }
 
         private static int ExtractCount(string rawJson)

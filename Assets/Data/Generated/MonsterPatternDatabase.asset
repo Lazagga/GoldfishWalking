@@ -44,9 +44,13 @@ MonoBehaviour:
       numericValue: 0
       duration: 1
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Timing":"NextTurn","Target":"Self","Action":"Split","Duration":1}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: MushroomLock
     sourceId: 0
     dataCode: MushroomLock
@@ -77,9 +81,13 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Timing":"NextTurn","Target":"Player","Action":"Lock"}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: Skip
     sourceId: 0
     dataCode: Skip
@@ -101,6 +109,8 @@ MonoBehaviour:
     effects: []
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: LittleWitchSkill
     sourceId: 0
     dataCode: LittleWitchSkill
@@ -118,8 +128,8 @@ MonoBehaviour:
     hitDigitCount: 0
     strengthDelta: 0
     condition: 
-    rawEffects: '{"Effects": [{"Target": "Player", "Action": "AddBuff", "Type": "MinusBox",
-      "Value": 1}]}'
+    rawEffects: '{"Attack": null, "Effects": [{"Target": "Player", "Action": "AddBuff",
+      "Type": "MinusBox", "Value": 1}]}'
     effects:
     - timing: 
       target: Player
@@ -131,9 +141,13 @@ MonoBehaviour:
       numericValue: 1
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Player","Action":"AddBuff","Type":"MinusBox","Value":1}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: HunterSingle
     sourceId: 0
     dataCode: HunterSingle
@@ -154,7 +168,7 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Player", "Action":
       "Split"}, {"Target": "Player", "Action": "AddBuff", "Type": "BoxLock", "Value":
-      1}]}'
+      1, "Duration": 1}]}'
     effects:
     - timing: 
       target: Player
@@ -166,6 +180,8 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Player","Action":"Split"}'
     - timing: 
       target: Player
@@ -175,11 +191,52 @@ MonoBehaviour:
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
-      duration: 0
+      duration: 1
       lockDamage: 0
-      rawJson: '{"Target":"Player","Action":"AddBuff","Type":"BoxLock","Value":1}'
+      mode: 
+      editable: 0
+      rawJson: '{"Target":"Player","Action":"AddBuff","Type":"BoxLock","Value":1,"Duration":1}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
+  - id: WitchSkill
+    sourceId: 0
+    dataCode: WitchSkill
+    devName: 
+    nameStringId: 
+    displayName: WitchSkill
+    description: 
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    condition: 
+    rawEffects: '{"Count":1, "Attack": null, "Effects": [{"Target": "Player", "Action":
+      "AddBuff", "Type": "DivideBox", "Value": 1}]}'
+    effects:
+    - timing: 
+      target: Player
+      action: AddBuff
+      type: DivideBox
+      condition: 
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      duration: 0
+      lockDamage: 0
+      mode: 
+      editable: 0
+      rawJson: '{"Target":"Player","Action":"AddBuff","Type":"DivideBox","Value":1}'
+    sprite: 
+    specialHandler: 
+    maxUses: 1
+    selfDestruct: 0
   - id: HeartQueenSkill
     sourceId: 0
     dataCode: HeartQueenSkill
@@ -210,9 +267,13 @@ MonoBehaviour:
       numericValue: 9999
       duration: 0
       lockDamage: 1
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Player","Action":"Damage","Value":9999,"Lock":true}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: GhostSingle
     sourceId: 0
     dataCode: GhostSingle
@@ -243,9 +304,13 @@ MonoBehaviour:
       numericValue: 0
       duration: 1
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Timing":"NextTurn","Target":"Player","Action":"Split","Duration":1}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: GhostMulti
     sourceId: 0
     dataCode: GhostMulti
@@ -276,9 +341,13 @@ MonoBehaviour:
       numericValue: 0
       duration: 1
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Timing":"NextTurn","Target":"Self","Action":"Split","Duration":1}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: AutomatonSingle
     sourceId: 0
     dataCode: AutomatonSingle
@@ -309,9 +378,13 @@ MonoBehaviour:
       numericValue: 1
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Self","Action":"AddBuff","Type":"Strength","Value":1}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: AutomatonSingleStun
     sourceId: 0
     dataCode: AutomatonSingleStun
@@ -344,6 +417,8 @@ MonoBehaviour:
       numericValue: 0
       duration: 1
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Self","Action":"AddBuff","Type":"Stun","Duration":1}'
     - timing: 
       target: Self
@@ -355,9 +430,13 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Self","Action":"SetBuff","Type":"Strength","Value":0}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: GiantRatSkill
     sourceId: 0
     dataCode: GiantRatSkill
@@ -389,6 +468,8 @@ MonoBehaviour:
       numericValue: 3
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 1
       rawJson: '{"Target":"Self","Action":"Heal","Value":3}'
     - timing: 
       target: Self
@@ -400,9 +481,13 @@ MonoBehaviour:
       numericValue: 1
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Self","Action":"AddBuff","Type":"Strength","Value":1}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: FortuneTellerSingle
     sourceId: 0
     dataCode: FortuneTellerSingle
@@ -435,9 +520,13 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Self","Action":"Addbuff","Type":"FortuneStack","Value":"DamageDealt"}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: FortuneTellerMulti
     sourceId: 0
     dataCode: FortuneTellerMulti
@@ -468,9 +557,13 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Self","Action":"Addbuff","Type":"FortuneStack","Value":"DamageDealt"}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: FortuneTellerExplode
     sourceId: 0
     dataCode: FortuneTellerExplode
@@ -501,9 +594,13 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Self","Action":"SetBuff","Type":"FortuneStack","Value":0}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: AlchemistSingle
     sourceId: 0
     dataCode: AlchemistSingle
@@ -535,9 +632,13 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Action":"AddBuff","Type":"Bleed","Value":"DamageDealt"}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: AlchemistSkill
     sourceId: 0
     dataCode: AlchemistSkill
@@ -569,9 +670,13 @@ MonoBehaviour:
       numericValue: 3
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Timing":"NextTurn","Target":"Player","Action":"MultiplyBuff","Type":"Bleed","Value":3}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: PlagueDoctorSkill
     sourceId: 0
     dataCode: PlagueDoctorSkill
@@ -603,9 +708,13 @@ MonoBehaviour:
       numericValue: 2
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Player","Action":"MultiplyBuff","Type":"Poison","Value":2}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: ProphetSingle
     sourceId: 0
     dataCode: ProphetSingle
@@ -638,9 +747,13 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Self","Action":"Addbuff","Type":"ProphetStack","Value":"DamageDealt"}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: ProphetMulti
     sourceId: 0
     dataCode: ProphetMulti
@@ -673,9 +786,13 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Self","Action":"Addbuff","Type":"ProphetStack","Value":"DamageDealt"}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: ProphetExplode
     sourceId: 0
     dataCode: ProphetExplode
@@ -707,9 +824,13 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Self","Action":"SetBuff","Type":"ProphetStack","Value":0}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: JellyfishSingle
     sourceId: 0
     dataCode: JellyfishSingle
@@ -742,6 +863,8 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Player","Action":"AddBuff","Type":"Bleed","Value":"DamageDealt*0.5"}'
     - timing: 
       target: Player
@@ -753,9 +876,13 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Player","Action":"AddBuff","Type":"Poison","Value":"DamageDealt*0.5"}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: JellyfishSkill
     sourceId: 0
     dataCode: JellyfishSkill
@@ -787,6 +914,8 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Self","Action":"Heal","Value":"PlayerBleed"}'
     - timing: 
       target: Self
@@ -798,9 +927,13 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Self","Action":"Heal","Value":"PlayerPoison"}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: OrbSkill
     sourceId: 0
     dataCode: OrbSkill
@@ -832,9 +965,13 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 1
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Player","Action":"Damage","Value":"PlayerHP*0.3","Lock":true}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 1
   - id: VampireSkill
     sourceId: 0
     dataCode: VampireSkill
@@ -866,9 +1003,13 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Player","Action":"Damage","Value":"PlayerHP_Multi_2"}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: KnightSkill
     sourceId: 0
     dataCode: KnightSkill
@@ -886,7 +1027,7 @@ MonoBehaviour:
     damageDigitCount: 0
     hitDigitCount: 0
     strengthDelta: 0
-    condition: DamageTaken>=400
+    condition: DamageTaken>=DamageCapBreakThreshold
     rawEffects: '{"Condition": "DamageTaken>=400", "Effects": [{"Action": "RemoveBuff",
       "Type": "Shield"}, {"Target": "Self", "Action": "AddBuff", "Type": "Strength",
       "Value": 1}]}'
@@ -901,6 +1042,8 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Action":"RemoveBuff","Type":"Shield"}'
     - timing: 
       target: Self
@@ -912,9 +1055,13 @@ MonoBehaviour:
       numericValue: 1
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Self","Action":"AddBuff","Type":"Strength","Value":1}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: StargazerSingle
     sourceId: 0
     dataCode: StargazerSingle
@@ -946,9 +1093,13 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: Append
+      editable: 0
       rawJson: '{"Target":"Self","Action":"AddBox","Value":"Random"}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: StargazerSkill
     sourceId: 0
     dataCode: StargazerSkill
@@ -979,9 +1130,13 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Player","Action":"Damage","Value":"Stargazing_Multi_3"}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: LibrarianSingle
     sourceId: 0
     dataCode: LibrarianSingle
@@ -1012,9 +1167,13 @@ MonoBehaviour:
       numericValue: 1
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Player","Action":"LibrarianSkill","Value":"1"}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: LibrarianMulti
     sourceId: 0
     dataCode: LibrarianMulti
@@ -1045,9 +1204,13 @@ MonoBehaviour:
       numericValue: 1
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Player","Action":"LibrarianSkill","Value":"1"}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: BanditSingle
     sourceId: 0
     dataCode: BanditSingle
@@ -1079,9 +1242,13 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Player","Action":"AddBuff","Type":"Bleed","Value":"DamageDealt"}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: RobberSingle
     sourceId: 0
     dataCode: RobberSingle
@@ -1113,9 +1280,13 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Player","Action":"AddBuff","Type":"Poison","Value":"DamageDealt*0.5"}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: PlagueDoctorSingle
     sourceId: 0
     dataCode: PlagueDoctorSingle
@@ -1147,9 +1318,13 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Player","Action":"AddBuff","Type":"Poison","Value":"DamageDealt"}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: CosmictreeSingle
     sourceId: 0
     dataCode: CosmictreeSingle
@@ -1180,9 +1355,13 @@ MonoBehaviour:
       numericValue: 1
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Self","Action":"AddBuff","Type":"Strength","Value":1}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: CosmictreeHeal
     sourceId: 0
     dataCode: CosmictreeHeal
@@ -1212,9 +1391,13 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 1
       rawJson: '{"Target":"Self","Action":"Heal","Value":"CosmictreeHeal"}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: WhaleSingle
     sourceId: 0
     dataCode: WhaleSingle
@@ -1246,9 +1429,13 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Timing":"NextTurn","Target":"WhaleBox","Action":"AddBox","Value":"Random","Count":2}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: WhaleMulti
     sourceId: 0
     dataCode: WhaleMulti
@@ -1280,9 +1467,13 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Timing":"NextTurn","Target":"WhaleBox","Action":"AddBox","Value":"Random","Count":2}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
   - id: WhalePhase2
     sourceId: 0
     dataCode: WhalePhase2
@@ -1317,6 +1508,8 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Self","Action":"RemoveBuff","Type":"WhaleBuff"}'
     - timing: 
       target: Self
@@ -1328,6 +1521,10 @@ MonoBehaviour:
       numericValue: 0
       duration: 0
       lockDamage: 0
+      mode: 
+      editable: 0
       rawJson: '{"Target":"Self","Action":"AddBuff","Type":"Phase2"}'
     sprite: 
     specialHandler: 
+    maxUses: -1
+    selfDestruct: 0

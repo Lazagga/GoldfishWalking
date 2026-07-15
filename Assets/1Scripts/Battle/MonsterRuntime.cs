@@ -22,16 +22,39 @@ namespace GoldfishWalking.Battle
         public string SpecialBoxLabel { get; private set; } = string.Empty;
         public List<ScheduledMonsterPatternEffect> ScheduledEffects { get; } = new List<ScheduledMonsterPatternEffect>();
         public List<TimedStrengthModifier> TimedStrengthModifiers { get; } = new List<TimedStrengthModifier>();
+        private readonly Dictionary<string, int> remainingPatternUses = new Dictionary<string, int>();
+        public int SelectedPatternTurn { get; private set; }
+        public MonsterPatternData SelectedPattern { get; private set; }
 
         public bool IsDead => CurrentHealth <= 0;
         public bool IsStunned => StunTurns > 0;
+
+        public bool CanUsePattern(MonsterPatternData pattern)
+        {
+            if (pattern == null || pattern.maxUses < 0)
+                return true;
+            return !remainingPatternUses.TryGetValue(pattern.id ?? string.Empty, out int remaining)
+                ? pattern.maxUses > 0
+                : remaining > 0;
+        }
+
+        public void SelectPatternForTurn(MonsterPatternData pattern, int turn)
+        {
+            SelectedPattern = pattern;
+            SelectedPatternTurn = turn;
+            if (pattern == null || pattern.maxUses < 0)
+                return;
+            string key = pattern.id ?? string.Empty;
+            int remaining = remainingPatternUses.TryGetValue(key, out int stored) ? stored : pattern.maxUses;
+            remainingPatternUses[key] = System.Math.Max(0, remaining - 1);
+        }
 
         public MonsterRuntime(MonsterData data)
         {
             Data = data;
             CurrentHealth = data != null ? data.baseHealth : 1;
             Strength = data != null ? data.baseStrength : 0;
-            DamageCapPerHit = InitialDamageCap(data);
+            DamageCapPerHit = data != null ? System.Math.Max(0, data.damageCap) : 0;
         }
 
         public int ApplyDamage(int amount)
@@ -131,7 +154,7 @@ namespace GoldfishWalking.Battle
 
         private void ApplyDamageCapBreakProgress(int damage)
         {
-            if (damage <= 0 || DamageCapPerHit <= 0 || !IsKnight(Data))
+            if (damage <= 0 || DamageCapPerHit <= 0 || Data == null || Data.damageCapBreakThreshold <= 0)
                 return;
 
             DamageCapAccumulatedDamage += damage;
@@ -207,27 +230,6 @@ namespace GoldfishWalking.Battle
                 StunTurns--;
         }
 
-        private static int InitialDamageCap(MonsterData data)
-        {
-            if (data == null)
-                return 0;
-
-            string dataName = data.dataName ?? string.Empty;
-            if (dataName.Contains("Guard"))
-                return 45;
-            if (IsKnight(data))
-                return 20;
-            return 0;
-        }
-
-        private static bool IsKnight(MonsterData data)
-        {
-            if (data == null)
-                return false;
-
-            string dataName = data.dataName ?? string.Empty;
-            return dataName.Contains("Knight");
-        }
     }
 
     public sealed class ScheduledMonsterPatternEffect

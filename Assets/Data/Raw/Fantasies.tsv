@@ -6,56 +6,56 @@ ID	DevName	DataCode	NameStringID	DescStringID	TriggerType	Effects	RARITY	Sprite
 5	싸인펜	fan_shop_pen		상점에서 이동 횟수 +1	Passive	`[{"Trigger":"Passive","Target":"Shop_Movement","Calc":"Add","Value":1,"Option":""}]`	White	
 6	쿠키	fan_shop_heal		상점에 들어갈 때마다, 체력 +200	Shop_Enter	`[{"Trigger":"Shop_Enter","Target":"HP","Calc":"Add","Value":300.0,"Option":""}]`	White	
 7	할인 쿠폰	fan_shop_discount		상점 품목 가격 30% 할인	Passive	`[{"Trigger":"Passive","Target":"Price","Calc":"Multiply","Value":0.85,"Option":""}]`	White	
-8	스텐실	fan_shop_stencil		상점에서 스텐실을 제외한, 보유중인 백색 등급 아이템을 추가로 한 개 얻을 수 있음(상점당 1회, 환상당 한 번씩만, 비용 2자리)	Passive	`[{"Trigger":"Passive","Target":"fan_shop_stencil","Calc":"Add","Value":1.0}]`	Blue	
+8	스텐실	fan_shop_stencil		상점에서 스텐실을 제외한, 보유중인 백색 등급 아이템을 추가로 한 개 얻을 수 있음(상점당 1회, 환상당 한 번씩만, 비용 2자리)	Passive	`[{"Trigger":"Passive","Target":"Shop_Extra_Fantasy_Slot","Calc":"Enable","Value":1.0,"Execution":"Capability"}]`	Blue	
 9	성냥갑	fan_start_match		전투 시작 시 임시 여분성냥 +1	Battle_Start	`[{"Trigger":"Battle_Start","Target":"Extra_Match","Calc":"Add","Value":1.0,"Option":""}]`	White	
 10	떡지우개	fan_start_eraser		전투 시작 시 임시 지우개 +1	Battle_Start	`[{"Trigger":"Battle_Start","Target":"Eraser","Calc":"Add","Value":1.0,"Option":""}]`	White	
 11	토끼발	fan_reward_rabbitfoot		전투 종료 이후 아이템을 얻을 확률 x2	Battle_Reward	`[{"Trigger":"Battle_Reward","Target":"Item_Chance","Calc":"Multiply","Value":2.0,"Option":""}]`	White	
 12	연필	fan_acquire_pencil		소모품을 얻을 때마다, 한 개씩 추가로 얻음	Acquire_Item	`[{"Trigger":"Acquire_Item","Target":"Item","Calc":"Add","Value":1.0,"Option":""}]`	White	
-13	8번 당구공	fan_end_8ball		내 턴이 끝날 때 모든 상자 속 8의 개수 x40의 피해를 추가로 입힘	Turn_End	`[{"Trigger":"Turn_End","Target":"Damage","Calc":"Add","Value":40.0,"Option":""}]`	White	
+13	8번 당구공	fan_end_8ball		내 턴이 끝날 때 모든 상자 속 8의 개수 x40의 피해를 추가로 입힘	Turn_End	`[{"Trigger":"Turn_End","Target":"Damage","Calc":"Add","Value":"BattleDigit8Count*40"}]`	White	
 14	파이프	fan_eventurn_pipe		매 짝수 턴마다 타수 +1	Turn_Even	`[{"Trigger":"Turn_Even","Target":"Attack_Count","Calc":"Add","Value":1.0,"Option":""}]`	White	
 15	닻	fan_damage_anchor		피해를 입을 때마다 항상 20씩 적게 받음	Take_Damage	`[{"Trigger":"Take_Damage","Target":"Damage_Taken","Calc":"Add","Value":-20.0,"Option":""}]`	White	
 16	돛	fan_reflect_sail		피해를 입을 때마다 받은 피해량의 50%를 반사	Take_Damage	`[{"Trigger":"Take_Damage","Target":"Damage_Reflect","Calc":"Multiply","Value":50.0,"Option":""}]`	White	
 17	장화	fan_turn_boots		매 턴 이동 횟수 +2	Turn_Start	`[{"Trigger":"Turn_Start","Target":"Movement","Calc":"Add","Value":2.0,"Option":""}]`	White	
-18	트럼프 카드	fan_end_trumpcard		내 턴이 끝날 때 남아있는 이동 횟수가 임시 이동횟수로 전환	Turn_End	`[{"Trigger":"Turn_End","Target":"Movement","Calc":"Set","Value":1.0,"Option":""}]`	White	
+18	트럼프 카드	fan_end_trumpcard		내 턴이 끝날 때 남아있는 이동 횟수가 임시 이동횟수로 전환	Turn_End	`[{"Trigger":"Turn_End","Target":"Temporary_Movement","Calc":"Add","Value":"RemainingMoves"},{"Trigger":"Turn_End","Target":"Movement","Calc":"Set","Value":0}]`	White	
 19	새총	fan_damage_slingshot		피해를 입힐 때 마다 항상 30씩 추가로 입힘	Deal_Damage	`[{"Trigger":"Deal_Damage","Target":"Additional_Damage","Calc":"Add","Value":30.0,"Option":""}]`	White	
 20	모래시계	fan_end_hourglass		내 턴이 끝날 때 적에게 50의 피해	Turn_End	`[{"Trigger":"Turn_End","Target":"Damage","Calc":"Add","Value":50.0,"Option":""}]`	White	
 21	종이학	fan_start_papercrane		전투 개시 3턴 뒤 힘 +1	Turn_4	`[{"Trigger":"Turn_4","Target":"Strength","Calc":"Add","Value":1.0,"Option":""}]`	White	
 22	종이개구리	fan_start_paperfrog		첫 턴동안 적의 힘 -1	Battle_Start	`[{"Trigger":"Battle_Start","Target":"Enemy_Strength","Calc":"Add","Value":-1.0,"Option":"","Duration":1}]`	White	
 23	수박	fan_acquire_watermelon		획득 시 체력 +150	On_Acquire	`[{"Trigger":"On_Acquire","Target":"HP","Calc":"Add","Value":200.0,"Option":""}]`	White	
 24	딸기	fan_end_strawberry		전투 종료 후 체력 +30	Battle_End	`[{"Trigger":"Battle_End","Target":"HP","Calc":"Add","Value":30.0,"Option":""}]`	White	
-25	포도	fan_end_grape		턴 종료 시 남은 이동 횟수마다 체력 +5	Turn_End	`[{"Trigger":"Turn_End","Target":"HP","Calc":"Add","Value":5,"Option":""}]`	White	
-26	도장	fan_start_stamp		전투 시작 시 보유 중인 환상의 임시 무작위 복사본 생성	Battle_Start	`[{"Trigger":"Battle_Start","Target":"Fantasy","Calc":"Add","Value":1.0,"Option":""}]`	White	
+25	포도	fan_end_grape		턴 종료 시 남은 이동 횟수마다 체력 +5	Turn_End	`[{"Trigger":"Turn_End","Target":"HP","Calc":"Add","Value":"RemainingMoves*5"}]`	White	
+26	도장	fan_start_stamp		전투 시작 시 보유 중인 환상의 임시 무작위 복사본 생성	Battle_Start	`[{"Trigger":"Battle_Start","Target":"Fantasy","Calc":"CopyTemporary","Value":1.0}]`	White	
 27	주사위	fan_end_dice		전투 종료 시 환상 1회 새로고침 가능	Battle_End	`[{"Trigger":"Battle_End","Target":"Fantasy_Reroll","Calc":"Add","Value":1.0,"Option":""}]`	White	
-28	커피	fan_rest_coffee		휴식 장소에서 휴식하는 대신 무작위 백색 환상 획득 가능	Passive	`[{"Trigger":"Passive","Target":"Fantasy","Calc":"Add","Value":1.0,"Option":""}]`	White	
+28	커피	fan_rest_coffee		휴식 장소에서 휴식하는 대신 무작위 백색 환상 획득 가능	Passive	`[{"Trigger":"Passive","Target":"Rest_Fantasy_Alternative","Calc":"Enable","Value":1.0,"Execution":"Capability"}]`	White	
 29	머그잔	fan_rest_mug		휴식 장소에서 휴식 상자의 힘 +1	Passive	`[{"Trigger":"Passive","Target":"Strength","Calc":"Add","Value":1.0,"Option":""}]`	Blue	
 30	베개	fan_rest_pillow		휴식 장소에서 휴식 시 체력 +70	Passive	`[{"Trigger":"Passive","Target":"HP","Calc":"Add","Value":70.0,"Option":""}]`	White	
-31	천칭자리	fan_damage_libra		내 기본 피해량 상자가 [00]이라면 200으로 취급, [00]이 아니라면 0으로 취급		`[{"Trigger":"","Target":"Base_Damage","Calc":"Set","Value":200.0,"Option":""}]`	Red	
-32	물고기자리	fan_turn_pisces		턴 시작 시 이동 횟수가 0이 되는 대신, 그만큼 임시 여분성냥과 지우개 획득	Turn_Start	`[{"Trigger":"Turn_Start","Target":"Item","Calc":"Add","Value":1.0,"Option":""}]`	Red	
-33	물병자리	fan_upgrade_aquarius		이동 횟수 -1, 연산 기호 상자를 고급 연산 기호 상자로 변경	Passive	`[{"Trigger":"Passive","Target":"Movement","Calc":"Add","Value":-1.0,"Option":""},{"Trigger":"Passive","Target":"Operator_Box","Calc":"Set","Value":1.0,"Option":""}]`	Red	
-34	동물친구들	fan_attack_animalfriends		타수+4	Attack	`[{"Trigger":"Attack","Target":"Additional_Damage","Calc":"Add","Value":4.0,"Option":""}]`	Red	
+31	천칭자리	fan_damage_libra		내 기본 피해량 수치가 0이라면 200으로 취급, 0이 아니라면 절반 취급		`[{"Trigger":"","Target":"Base_Damage","Calc":"Set","Value":200.0,"Condition":"CurrentValue==0","Execution":"Modifier"},{"Trigger":"","Target":"Base_Damage","Calc":"Multiply","Value":0.5,"Condition":"CurrentValue!=0","Execution":"Modifier"}]`	Red	
+32	물고기자리	fan_turn_pisces		턴 시작 시 이동 횟수가 0이 되는 대신, 그만큼 임시 여분성냥과 지우개 획득	Turn_Start	`[{"Trigger":"Turn_Start","Target":"Extra_Match","Calc":"Add","Value":"RemainingMoves","Lifetime":"Battle"},{"Trigger":"Turn_Start","Target":"Eraser","Calc":"Add","Value":"RemainingMoves","Lifetime":"Battle"},{"Trigger":"Turn_Start","Target":"Movement","Calc":"Set","Value":0}]`	Red	
+33	물병자리	fan_upgrade_aquarius		보유중인 소모품의 합 10개당 타수 +1	Passive	`[{"Trigger":"Passive","Target":"Attack_Count","Calc":"Add","Value":"ConsumableCount/10","Execution":"Modifier"}]`	Red	
+34	동물친구들	fan_attack_animalfriends		타수+4	Passive	`[{"Trigger":"Passive","Target":"Attack_Count","Calc":"Add","Value":4.0},{"Trigger":"On_Acquire","Target":"Collection","Calc":"Combine","Value":1,"Option":"fan_rabbit_head,fan_turtle_head,fan_cat_head,fan_parrot_head","Execution":"Capability"},{"Trigger":"Passive","Target":"Availability","Calc":"Exclude","Value":1,"Execution":"Capability"}]`	Red	
 35	염소자리	fan_start_capricorn		전투 시작 시 이동횟수, 임시 지우개, 임시 여분성냥 +1	Battle_Start	`[{"Trigger":"Battle_Start","Target":"Movement","Calc":"Add","Value":1.0,"Option":""},{"Trigger":"Battle_Start","Target":"Eraser","Calc":"Add","Value":1.0,"Option":""},{"Trigger":"Battle_Start","Target":"Extra_Match","Calc":"Add","Value":1.0,"Option":""}]`	Red	
-36	사수자리	fan_erase_sagittarius		모든 상자를 분리시키는 대신, 전투당 한 번 지우개로 상자를 지울 수 있음	Passive	`[{"Trigger":"Passive","Target":"Eraser","Calc":"Add","Value":1.0,"Option":""}]`	Red	
-37	쌍둥이자리	fan_odd_gemini		내 홀수의 수치 x2, 짝수는 0으로 취급	Passive	`[{"Trigger":"Passive","Target":"Value","Calc":"Multiply","Value":2.0,"Option":""}]`	Red	
+36	사수자리	fan_erase_sagittarius		모든 상자를 분리시키는 대신, 전투당 한 번 지우개로 상자를 지울 수 있음	Passive	`[{"Trigger":"Battle_Start","Target":"Eraser","Calc":"Add","Value":1.0,"Lifetime":"Battle"},{"Trigger":"Passive","Target":"Player_Boxes","Calc":"Split","Value":1,"Execution":"Capability"},{"Trigger":"Passive","Target":"Split_Digit_Erase","Calc":"Enable","Value":1,"Execution":"Capability"}]`	Red	
+37	쌍둥이자리	fan_odd_gemini		내 홀수의 수치 x2, 짝수는 0으로 취급	Passive	`[{"Trigger":"Passive","Target":"Player_Number","Calc":"Multiply","Value":2.0,"Condition":"CurrentValueIsOdd"},{"Trigger":"Passive","Target":"Player_Number","Calc":"Set","Value":0,"Condition":"CurrentValueIsEven"}]`	Red	
 38	끈끈이장갑	fan_shop_stickyglove		상점에서 소모품을 각각 1회 무료로 구매 가능	Passive	`[{"Trigger":"Passive","Target":"Item_Cost","Calc":"Add","Value":-100.0,"Option":""}]`	Blue	
-39	스탬프쿠폰	fan_shop_stampcoupon	턴 ㅈ	상점에서 체력 999 소모 시 매 턴 공격 횟수 +1의 환상으로 변경	Shop_Purchase	`[{"Trigger":"Shop_Purchase","Target":"HP","Calc":"Add","Value":-999.0,"Option":""}]`	Blue	
-40	주사기	fan_turn_syringe		매 턴 공격 횟수 +1	Passive	`[{"Trigger":"Passive","Target":"Attack_Count","Calc":"Add","Value":1.0,"Option":""}]`	Blue	
-41	종이 배	fan_defend_paperboat		적의 기본 피해량이 내 기본 피해량 이상인 경우, 받는 피해 절반	Passive	`[{"Trigger":"","Target":"Damage_Taken","Calc":"Multiply","Value":0.5,"Option":""}]`	Blue	
+39	스탬프쿠폰	fan_shop_stampcoupon		상점에서 체력 999 소모 시 매 턴 공격 횟수 +1의 환상으로 변경	Shop_Purchase	`[{"Trigger":"Shop_Purchase","Target":"Health_Spent","Calc":"Transform","Value":999,"Option":"fan_turn_syringe","Execution":"Capability"}]`	Blue	
+40	주사기	fan_turn_syringe		매 턴 공격 횟수 +1	Passive	`[{"Trigger":"Passive","Target":"Attack_Count","Calc":"Add","Value":1.0},{"Trigger":"Passive","Target":"Availability","Calc":"Exclude","Value":1,"Execution":"Capability"}]`	Blue	
+41	종이 배	fan_defend_paperboat		적의 기본 피해량이 내 기본 피해량 이상인 경우, 받는 피해 절반	Passive	`[{"Trigger":"Take_Damage","Target":"Damage_Taken","Calc":"Multiply","Value":0.5,"Condition":"MonsterBaseDamage>=PlayerBaseDamage","Execution":"Modifier"}]`	Blue	
 42	대역 인형	fan_turn1_doll		첫 턴동안 적의 힘 -2	Turn_1	`[{"Trigger":"Turn_1","Target":"Enemy_Strength","Calc":"Add","Value":-2.0,"Option":"", "Duration": 1}]`	Blue	
-43	오르골	fan_use_musicbox		소모품을 사용할 때마다, 50% 확률로 그 소모품의 복사본 생성	Use_Item	`[{"Trigger":"Use_Item","Target":"Item","Calc":"Add","Value":1.0,"Option":""}]`	Blue	
+43	오르골	fan_use_musicbox		소모품을 사용할 때마다, 50% 확률로 그 소모품의 복사본 생성	Use_Item	`[{"Trigger":"Use_Item","Target":"Last_Used_Item","Calc":"Add","Value":1.0,"Chance":0.5}]`	Blue	
 44	낫	fan_damage_scythe		피해를 입힐 때마다 체력 20씩 회복	Deal_Damage	`[{"Trigger":"Deal_Damage","Target":"HP","Calc":"Add","Value":20.0,"Option":""}]`	Blue	
-45	부채	fan_end_fan		턴 종료 시 내 현재 체력의 10%만큼 적에게 데미지	Turn_End	`[{"Trigger":"Turn_End","Target":"Damage","Calc":"Add","Value":10.0,"Option":""}]`	Blue	
-46	폭죽	fan_end_firecracker		턴 종료시 이번 전투에서 소모품을 사용한 횟수만큼 30의 피해	Turn_End	`[{"Trigger":"Turn_End","Target":"Damage","Calc":"Add","Value":30.0,"Option":""}]`	Blue	
-47	종이 비행기	fan_end_paperplane		턴 종료시 적과 나의 기본 피해량이 같을 경우, 가하는 피해량 두 배	Turn_End	`[{"Trigger":"Turn_End","Target":"Additional_Damage","Calc":"Multiply","Value":2.0,"Option":""}]`	Blue	
-48	큐대	fan_start_cuestick		전투 시작 시 내 기본 피해량과 힘 피해량 첫째 자리 숫자 8로 고정	Battle_Start	`[{"Trigger":"Battle_Start","Target":"Base_Damage","Calc":"Set","Value":8.0,"Option":""},{"Trigger":"Battle_Start","Target":"Strength_Damage","Calc":"Set","Value":8.0,"Option":""}]`	Blue	
-49	시계태엽	fan_turn4_clockwork		첫 턴에 힘 +1	Battle_Start	`[{"Trigger":"Battle_Start","Target":"Strength","Calc":"Add","Value":1.0,"Option":"","Duration":1}]`	Blue	
-50	청사진	fan_acquire_blueprint		획득시 보유하고 있는 환상 중 하나로 선택하여 그 복사본으로 영구히 변경됨	On_Acquire	`[{"Trigger":"On_Acquire","Target":"Change_Fantasy","Calc":"Execute","Value":1.0,"Option":""}]`	Blue	
+45	부채	fan_end_fan		턴 종료 시 내 현재 체력의 10%만큼 적에게 데미지	Turn_End	`[{"Trigger":"Turn_End","Target":"Damage","Calc":"Add","Value":"HP*0.1"}]`	Blue	
+46	폭죽	fan_end_firecracker		턴 종료시 이번 전투에서 소모품을 사용한 횟수만큼 30의 피해	Turn_End	`[{"Trigger":"Turn_End","Target":"Damage","Calc":"Add","Value":"ItemUseCount*30"}]`	Blue	
+47	종이 비행기	fan_end_paperplane		턴 종료시 적과 나의 기본 피해량이 같을 경우, 가하는 피해량 두 배	Turn_End	`[{"Trigger":"Turn_End","Target":"Additional_Damage","Calc":"Multiply","Value":2.0,"Condition":"PlayerBaseDamage==MonsterBaseDamage","Execution":"Modifier"}]`	Blue	
+48	큐대	fan_start_cuestick		전투 시작 시 내 기본 피해량과 힘 피해량 첫째 자리 숫자 8로 고정	Battle_Start	`[{"Trigger":"Battle_Start","Target":"Player_First_Digit","Calc":"SetFirstDigit","Value":8.0,"Execution":"Modifier"}]`	Blue	
+49	시계태엽	fan_turn4_clockwork		첫 턴에 공격 횟수 +1	Battle_Start	`[{"Trigger":"Battle_Start","Target":"Attack_Count","Calc":"Add","Value":1.0,"Option":"","Duration":1}]`	Blue	
+50	청사진	fan_acquire_blueprint		획득시 보유하고 있는 환상 중 하나로 선택하여 그 복사본으로 영구히 변경됨	On_Acquire	`[{"Trigger":"On_Acquire","Target":"Fantasy","Calc":"ReplaceWithCopy","Value":1.0}]`	Blue	
 51	수면안대	fan_rest_sleepmask		휴식으로 얻는 체력 x2	Rest	`[{"Trigger":"Rest","Target":"HP","Calc":"Multiply","Value":2.0,"Option":""}]`	Blue	
 52	마시멜로	fan_rest_marshmallow		휴식 버튼을 한 번 더 누를 수 있음	Passive	`[{"Trigger":"Passive","Target":"Rest_Count","Calc":"Add","Value":1.0,"Option":""}]`	Blue	
 53	포도탄	fan_damage_grapeshot		피해를 입힐 때 마다 항상 60씩 추가로 입힘	Deal_Damage	`[{"Trigger":"Deal_Damage","Target":"Additional_Damage","Calc":"Add","Value":60.0,"Option":""}]`	Blue	
 54	병 속의 배	fan_damage_Bottle		피해를 받을 때 마다 적에게 150 피해를 입힘	Take_Damage	`[{"Trigger":"Take_Damage","Target":"Damage_Reflect","Calc":"Add","Value":150.0,"Option":""}]`	Blue	
-55	도미노	fan_number_domino		내 5보다 작은 숫자가 모두 5로 취급됨	Passive	`[{"Trigger":"Passive","Target":"Value","Calc":"Set","Value":5.0,"Option":""}]`	Blue	
-56	사과파이	fan_number_applepie		적의 5보다 큰 숫자가 모두 5로 취급됨	Passive	`[{"Trigger":"Passive","Target":"Value","Calc":"Set","Value":5.0,"Option":""}]`	Blue	
-57	손거울	fan_damage_mirror		내 기본 피해량이 같은 숫자로만 이루어져 있을 경우, 타수 1회 추가	Turn_End	`[{"Trigger":"Turn_End","Target":"Attack_Count","Calc":"Add","Value":1.0,"Option":""}]`	Blue	
+55	도미노	fan_number_domino		내 5보다 작은 숫자가 모두 5로 취급됨	Passive	`[{"Trigger":"Passive","Target":"Player_Number","Calc":"DigitMin","Value":5.0}]`	Blue	
+56	사과파이	fan_number_applepie		적의 5보다 큰 숫자가 모두 5로 취급됨	Passive	`[{"Trigger":"Passive","Target":"Monster_Number","Calc":"DigitMax","Value":5.0}]`	Blue	
+57	손거울	fan_damage_mirror		내 기본 피해량이 같은 숫자로만 이루어져 있을 경우, 타수 1회 추가	Turn_End	`[{"Trigger":"Turn_End","Target":"Attack_Count","Calc":"Add","Value":1.0,"Condition":"PlayerBaseDamageSameDigits==1","Execution":"Modifier"}]`	Blue	
 58	캔디	fan_acquire_Candy		획득 시 현재 체력 +10%	Acquire	`[{"Trigger":"Acquire", "Target": "HP","Calc":"Add", "Value":"HP*0.1","Option":""}]`	White	
 59	주판	fan_damage_abacus		매 턴 이동 횟수 +3	Passive	`[{"Trigger":"Turn_Start","Target":"Movement","Calc":"Add","Value":3.0,"Option":""}]`	Blue	
 60	포인세티아	fan_damage_poinsettia		피해를 입을 때 마다 항상 30씩 적게 받음	Take_Damage	`[{"Trigger":"Take_Damage","Target":"Damage_Taken","Calc":"Add","Value":-30.0,"Option":""}]`	Blue	

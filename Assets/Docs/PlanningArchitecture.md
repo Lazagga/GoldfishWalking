@@ -5,18 +5,37 @@ It is intended as the implementation baseline before large code changes.
 
 ## Current Project Shape
 
-Last status refresh: 2026-07-13.
+Last status refresh: 2026-07-15.
 
-The old prototype ran mostly inside `Assets/Scenes/Game.unity`. During the
-rebuild, the user decided that scene was outdated and not Canvas-based enough.
-New full-game scene work should continue in:
+## 2026-07-15 Runtime Decisions
+
+- Battle resolution uses an explicit state machine and sequential hit queue.
+  Gameplay values, logs, and presentation events update after each state/hit.
+- Structural monster effects are formula metadata (`split`, `locked`, and
+  `lockedDigitCount`). Rebuilding a formula during an edit or reset must carry
+  this metadata forward; replaying the previous turn's pattern is not the reset
+  mechanism.
+- Whole-turn reset restores the current turn's edit snapshot, movement, and
+  committed edit-item state. It does not rewind combat or rerun prior triggers.
+- Split digits are independent matchstick domains: a match may move within one
+  digit but never between split digits. Locks override movement and item use.
+- Monster reflection is a per-incoming-hit response. It is logged and resolved
+  before the next monster hit, allowing a reflected kill to end the sequence.
+- Libra operates on the final transformed numeric result (`0 -> 200`, otherwise
+  `0`). Cue Stick is a post-random-generation first-turn transform. Sagittarius
+  owns the all-box split rule and one committed whole-digit eraser use per
+  battle.
+
+Earlier rebuild work used `Assets/Scenes/GumBwing_Er.unity` while the Canvas
+architecture was being established. The current main scene and integration
+target is:
 
 ```text
-Assets/Scenes/GumBwing_Er.unity
+Assets/Scenes/Game.unity
 ```
 
-`Game.unity` should be treated as old reference unless the user explicitly asks
-to modify it.
+`GumBwing_Er.unity` remains historical rebuild reference unless the user
+explicitly asks to modify it.
 
 The new rebuild direction uses one Canvas-based scene with multiple screen
 panels instead of loading separate scenes for each game state.
@@ -419,7 +438,8 @@ Known unimplemented fantasy/system gaps:
 - Blueprint currently copies a random owned fantasy on acquire; add explicit
   selection UI later if design requires player agency.
 - Aquarius is intentionally deferred because the effect is expected to change.
-- Sagittarius requires split boxes and whole-box erase behavior.
+- Sagittarius split boxes and its once-per-battle whole-digit eraser are
+  implemented; live UI regression and presentation polish remain.
 - Skipped source rows `62` through `73` require filled `DataCode` and
   `Effects` source data before import/runtime implementation.
 
@@ -546,7 +566,7 @@ Current runtime behavior:
   accumulated damage reaches the threshold.
 - Countdown outcomes run after normal turn resolution. White Rabbit escapes at
   that point, while Heart Queen invokes its actual doom pattern.
-- Still future/polish work: split boxes, locked segments/boxes, shield
+- Still future/polish work: split/lock presentation polish, shield
   presentation, lock damage presentation, stun polish, and final timing/visuals
   for status and fantasy damage.
 

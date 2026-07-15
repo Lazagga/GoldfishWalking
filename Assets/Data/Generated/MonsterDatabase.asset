@@ -32,6 +32,16 @@ MonoBehaviour:
     - 2_Multi_1
     rawPatternArray: 2_Single, 2_Multi_1
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_10102_WildDog
     sourceId: 10102
     act: 1
@@ -52,6 +62,16 @@ MonoBehaviour:
     - Str_1
     rawPatternArray: 2_Single, 2_Single, Str_1
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_10103_Slime
     sourceId: 10103
     act: 1
@@ -71,6 +91,16 @@ MonoBehaviour:
     - 2_Single
     rawPatternArray: SlimeSingle, 2_Single
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_10104_MushroomMan
     sourceId: 10104
     act: 1
@@ -92,6 +122,16 @@ MonoBehaviour:
     - 2_Multi_1
     rawPatternArray: MushroomLock, 2_Single, Str_1, 2_Multi_1
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_10105_Frog
     sourceId: 10105
     act: 1
@@ -113,6 +153,16 @@ MonoBehaviour:
     - 3_Single
     rawPatternArray: Skip, Skip, Skip, 3_Single
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_10106_GiantBird
     sourceId: 10106
     act: 1
@@ -133,6 +183,16 @@ MonoBehaviour:
     - 2_Single
     rawPatternArray: 2_Multi_1, Str_1, 2_Single
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_10107_Bandit
     sourceId: 10107
     act: 1
@@ -151,6 +211,16 @@ MonoBehaviour:
     - BanditSingle
     rawPatternArray: BanditSingle
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_10201_WhiteRabbit
     sourceId: 10201
     act: 1
@@ -173,6 +243,16 @@ MonoBehaviour:
     - Str_2
     rawPatternArray: 2_Multi_1, 2_Single, 2_Multi_1, 2_Single, Str_2
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: RABBIT
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: 3
+    countdownAction: Escape
+    countdownPattern: 
   - id: Mob_10202_LittleWitch
     sourceId: 10202
     act: 1
@@ -193,6 +273,16 @@ MonoBehaviour:
     - 2_Single
     rawPatternArray: LittleWitchSkill, 2_Single, 2_Single
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_10203_Hunter
     sourceId: 10203
     act: 1
@@ -215,6 +305,16 @@ MonoBehaviour:
     - Str_1
     rawPatternArray: HunterSingle, HunterSingle, 2_Single, 2_Single, Str_1
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_10301_HeartQueen
     sourceId: 10301
     act: 1
@@ -236,6 +336,16 @@ MonoBehaviour:
     - HeartQueenSkill
     rawPatternArray: 2_Single, 2_Multi_1, Str_1, HeartQueenSkill
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: HEART
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: 5
+    countdownAction: Pattern
+    countdownPattern: HeartQueenSkill
   - id: Mob_10302_Witch
     sourceId: 10302
     act: 1
@@ -251,11 +361,22 @@ MonoBehaviour:
     baseStrength: 0
     aiType: 0
     patternIds:
+    - WitchSkill
     - 2_Single
     - 2_Multi_1
     - Str_1
-    rawPatternArray: 2_Single, 2_Multi_1, Str_1
+    rawPatternArray: WitchSkill, 2_Single, 2_Multi_1, Str_1
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: /
+    specialBoxMin: 1
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_10303_Elf
     sourceId: 10303
     act: 1
@@ -275,6 +396,16 @@ MonoBehaviour:
     - 2_Multi_2
     rawPatternArray: 2_Single, 2_Multi_2
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_20101_Snowman
     sourceId: 20101
     act: 2
@@ -295,6 +426,16 @@ MonoBehaviour:
     - 3_Single
     rawPatternArray: 2_Multi_1, 2_Multi_2, 3_Single
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_20102_Robber
     sourceId: 20102
     act: 2
@@ -313,6 +454,16 @@ MonoBehaviour:
     - RobberSingle
     rawPatternArray: RobberSingle
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_20103_Ghost
     sourceId: 20103
     act: 2
@@ -332,6 +483,16 @@ MonoBehaviour:
     - GhostMulti
     rawPatternArray: GhostSingle, GhostMulti
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_20104_Magician
     sourceId: 20104
     act: 2
@@ -352,6 +513,16 @@ MonoBehaviour:
     - 2_Single
     rawPatternArray: 2_Multi_1, 2_Multi_2, 2_Single
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_20105_Automaton
     sourceId: 20105
     act: 2
@@ -373,6 +544,16 @@ MonoBehaviour:
     - AutomatonSingleStun
     rawPatternArray: AutomatonSingle, AutomatonSingle, AutomatonSingle, AutomatonSingleStun
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_20106_GiantRat
     sourceId: 20106
     act: 2
@@ -393,6 +574,16 @@ MonoBehaviour:
     - GiantRatSkill
     rawPatternArray: 2_Single, 2_Multi_1, GiantRatSkill
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_20107_Guard
     sourceId: 20107
     act: 2
@@ -411,6 +602,16 @@ MonoBehaviour:
     - 2_Single
     rawPatternArray: 2_Single
     sprite: 
+    damageCap: 45
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_20201_FortuneTeller
     sourceId: 20201
     act: 2
@@ -431,6 +632,16 @@ MonoBehaviour:
     - FortuneTellerExplode
     rawPatternArray: FortuneTellerSingle, FortuneTellerMulti, FortuneTellerExplode
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_20202_Alchemist
     sourceId: 20202
     act: 2
@@ -450,6 +661,16 @@ MonoBehaviour:
     - AlchemistSkill
     rawPatternArray: AlchemistSingle, AlchemistSkill
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_20203_Conductor
     sourceId: 20203
     act: 2
@@ -469,6 +690,16 @@ MonoBehaviour:
     - 2_Multi_2
     rawPatternArray: 2_Single, 2_Multi_2
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_20301_PiedPiper
     sourceId: 20301
     act: 2
@@ -489,6 +720,16 @@ MonoBehaviour:
     - 2_Multi_2
     rawPatternArray: Str_1, 2_Single, 2_Multi_2
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_20302_PlagueDoctor
     sourceId: 20302
     act: 2
@@ -508,6 +749,16 @@ MonoBehaviour:
     - PlagueDoctorSkill
     rawPatternArray: PlagueDoctorSingle, PlagueDoctorSkill
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_20303_Prophet
     sourceId: 20303
     act: 2
@@ -529,6 +780,16 @@ MonoBehaviour:
     - ProphetExplode
     rawPatternArray: ProphetSingle, ProphetMulti, ProphetSingle, ProphetExplode
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_30101_SteelScarecrow
     sourceId: 30101
     act: 3
@@ -549,6 +810,16 @@ MonoBehaviour:
     - 2_Multi_2
     rawPatternArray: Str_1, 2_Multi_1, 2_Multi_2
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 1
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_30102_Jellyfish
     sourceId: 30102
     act: 3
@@ -569,6 +840,16 @@ MonoBehaviour:
     - JellyfishSkill
     rawPatternArray: JellyfishSingle, JellyfishSingle, JellyfishSkill
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_30103_Orb
     sourceId: 30103
     act: 3
@@ -590,6 +871,16 @@ MonoBehaviour:
     - OrbSkill
     rawPatternArray: 2_Multi_1, 2_Multi_2, 2_Multi_3, OrbSkill
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_30104_Librarian
     sourceId: 30104
     act: 3
@@ -609,6 +900,16 @@ MonoBehaviour:
     - LibrarianMulti
     rawPatternArray: LibrarianSingle, LibrarianMulti
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_30105_Golem
     sourceId: 30105
     act: 3
@@ -627,6 +928,16 @@ MonoBehaviour:
     - 2_Single
     rawPatternArray: 2_Single
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_30106_Anglerfish
     sourceId: 30106
     act: 3
@@ -646,6 +957,16 @@ MonoBehaviour:
     - 2_Multi_3
     rawPatternArray: 2_Single, 2_Multi_3
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_30107_Shadow
     sourceId: 30107
     act: 3
@@ -666,6 +987,16 @@ MonoBehaviour:
     - 3_Multi_1
     rawPatternArray: 3_Single, 3_Single, 3_Multi_1
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_30201_Vampire
     sourceId: 30201
     act: 3
@@ -687,6 +1018,16 @@ MonoBehaviour:
     - VampireSkill
     rawPatternArray: 2_Single, 2_Single, 2_Multi_3, VampireSkill
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0.3
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_30202_Knight
     sourceId: 30202
     act: 3
@@ -708,6 +1049,16 @@ MonoBehaviour:
     - KnightSkill
     rawPatternArray: 2_Single, 2_Single, 2_Multi_3, KnightSkill
     sprite: 
+    damageCap: 20
+    damageCapBreakThreshold: 400
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_30203_Planetarium
     sourceId: 30203
     act: 3
@@ -729,6 +1080,16 @@ MonoBehaviour:
     - 3_Single
     rawPatternArray: 2_Multi_2, 3_Single, 2_Multi_3, 3_Single
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_30301_Stargazer
     sourceId: 30301
     act: 3
@@ -750,6 +1111,16 @@ MonoBehaviour:
     - StargazerSkill
     rawPatternArray: StargazerSingle, StargazerSingle, StargazerSingle, StargazerSkill
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_30302_CosmicTree
     sourceId: 30302
     act: 3
@@ -770,6 +1141,16 @@ MonoBehaviour:
     - CosmictreeHeal
     rawPatternArray: CosmictreeSingle, CosmictreeSingle, CosmictreeHeal
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 
   - id: Mob_30303_Whale
     sourceId: 30303
     act: 3
@@ -790,3 +1171,13 @@ MonoBehaviour:
     - WhaleMulti
     rawPatternArray: WhaleSingle, WhalePhase2, WhaleMulti
     sprite: 
+    damageCap: 0
+    damageCapBreakThreshold: 0
+    lifestealRate: 0
+    baseDamageLocked: 0
+    specialBoxLabel: 
+    specialBoxMin: 0
+    specialBoxMax: 9
+    specialBoxValue: -1
+    countdownAction: 
+    countdownPattern: 

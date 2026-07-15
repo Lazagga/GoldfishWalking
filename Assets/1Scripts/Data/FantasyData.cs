@@ -47,6 +47,10 @@ namespace GoldfishWalking.Data
         public bool hasNumericValue;
         public float numericValue;
         public string option;
+        public string condition;
+        public float chance = 1f;
+        public string lifetime;
+        public string execution;
         public int duration;
         [TextArea] public string rawJson;
     }

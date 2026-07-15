@@ -43,5 +43,15 @@ namespace GoldfishWalking.Data
         public string[] patternIds;
         public string rawPatternArray;
         public string sprite;
+        public int damageCap;
+        public int damageCapBreakThreshold;
+        public float lifestealRate;
+        public bool baseDamageLocked;
+        public string specialBoxLabel;
+        public int specialBoxMin;
+        public int specialBoxMax = 9;
+        public int specialBoxValue = -1;
+        public string countdownAction;
+        public string countdownPattern;
     }
 }

@@ -129,6 +129,10 @@ namespace GoldfishWalking.Editor.DataImport
                         calc = ReadString(obj, "Calc"),
                         valueExpression = ReadValueExpression(obj["Value"]),
                         option = ReadString(obj, "Option"),
+                        condition = ReadString(obj, "Condition"),
+                        chance = ParseChance(obj["Chance"]),
+                        lifetime = ReadString(obj, "Lifetime"),
+                        execution = ReadString(obj, "Execution"),
                         duration = ParseInt(ReadValueExpression(obj["Duration"]), 0),
                         rawJson = obj.ToString(Formatting.None)
                     };
@@ -329,6 +333,13 @@ namespace GoldfishWalking.Editor.DataImport
         private static bool TryParseFloat(string value, out float result)
         {
             return float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out result);
+        }
+
+        private static float ParseChance(JToken token)
+        {
+            if (!TryParseFloat(ReadValueExpression(token), out float value))
+                return 1f;
+            return Mathf.Clamp01(value > 1f ? value * 0.01f : value);
         }
 
         private static void WriteReport(FantasyImportReport report)

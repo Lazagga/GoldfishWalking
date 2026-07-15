@@ -51,7 +51,7 @@ namespace GoldfishWalking.Rest
             : null;
         public bool CanClaimCoffeeFantasy => bootstrap != null
             && bootstrap.RunContext != null
-            && bootstrap.RunContext.fantasyInventory.Contains(FantasyCollectionRules.CoffeeId)
+            && bootstrap.RunContext.fantasyInventory.HasEffect("Rest_Fantasy_Alternative", "Enable")
             && HasCoffeeFantasyCandidate();
 
         public void SetHealAmount(int amount)
