@@ -74,7 +74,17 @@ namespace GoldfishWalking.Battle
                 normalized = FallbackPatternKey;
 
             MonsterPatternData builtIn = MonsterPatternKeyUtility.CreateFromKey(normalized);
-            if (builtIn.patternType != MonsterPatternType.Special || normalized.Equals("Skip", StringComparison.OrdinalIgnoreCase))
+            if (normalized.Equals("Skip", StringComparison.OrdinalIgnoreCase))
+            {
+                MonsterPatternData authoredSkip = FindPattern(database, normalized);
+                if (authoredSkip == null)
+                    return builtIn;
+
+                MonsterPatternKeyUtility.ApplyPatternKey(authoredSkip, authoredSkip.attackKey);
+                return authoredSkip;
+            }
+
+            if (builtIn.patternType != MonsterPatternType.Special)
                 return builtIn;
 
             MonsterPatternData found = FindPattern(database, normalized);

@@ -111,11 +111,11 @@ MonoBehaviour:
     hitDigitCount: 0
     strengthDelta: 0
     condition: 
-    rawEffects: '{"Attack": null, "Effect": null}'
+    rawEffects: '{"Count":3, "Attack": null, "Effect": null}'
     effects: []
     sprite: 
     specialHandler: 
-    maxUses: -1
+    maxUses: 3
     selfDestruct: 0
   - id: LittleWitchSkill
     sourceId: 0

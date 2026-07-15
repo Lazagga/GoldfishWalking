@@ -1732,9 +1732,9 @@ MonoBehaviour:
     description: "\uB9E4 \uD134 \uB0B4 \uAE30\uBCF8 \uD53C\uD574\uB7C9\uACFC \uD798
       \uD53C\uD574\uB7C9 \uCCAB\uC9F8 \uC790\uB9AC \uC22B\uC790 8\uB85C \uACE0\uC815"
     sprite: 
-    rawEffects: '[{"Trigger":"Turn_Start","Target":"Player_Base_Damage","Calc":"SetFirstDigit","Value":8.0,"Execution":"Modifier"}]'
+    rawEffects: '[{"Trigger":"Battle_Start","Target":"Player_Base_Damage","Calc":"SetFirstDigit","Value":8.0,"Execution":"Modifier"}]'
     effects:
-    - trigger: Turn_Start
+    - trigger: Battle_Start
       target: Player_Base_Damage
       calc: SetFirstDigit
       valueExpression: 8
@@ -1746,7 +1746,7 @@ MonoBehaviour:
       lifetime: 
       execution: Modifier
       duration: 0
-      rawJson: '{"Trigger":"Turn_Start","Target":"Player_Base_Damage","Calc":"SetFirstDigit","Value":8.0,"Execution":"Modifier"}'
+      rawJson: '{"Trigger":"Battle_Start","Target":"Player_Base_Damage","Calc":"SetFirstDigit","Value":8.0,"Execution":"Modifier"}'
     isTemporary: 0
     trigger: 8
     target: 9
