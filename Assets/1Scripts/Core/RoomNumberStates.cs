@@ -120,6 +120,7 @@ namespace GoldfishWalking.Core
         public Dictionary<string, string> fantasyIds = new Dictionary<string, string>();
         public List<string> purchasedFantasyIds = new List<string>();
         public List<string> freePurchasedItemIds = new List<string>();
+        public int priceMovesConsumed;
         public bool shopEnterFantasyApplied;
 
         public void Clear()
@@ -129,6 +130,7 @@ namespace GoldfishWalking.Core
             fantasyIds.Clear();
             purchasedFantasyIds.Clear();
             freePurchasedItemIds.Clear();
+            priceMovesConsumed = 0;
             shopEnterFantasyApplied = false;
         }
     }

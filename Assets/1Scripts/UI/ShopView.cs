@@ -260,7 +260,6 @@ namespace GoldfishWalking.UI
 
                 shopController.AddItem(itemType, 1);
                 shopController.RefreshConsumablePrice(item.id);
-                priceMoveDifferences.Remove(item.id);
                 price = freePurchase ? 0 : price;
             }
             else
@@ -268,6 +267,7 @@ namespace GoldfishWalking.UI
                 return;
             }
 
+            CommitPriceMoves(item.id);
             if (boughtFantasy)
                 button.interactable = false;
             Refresh();
@@ -376,7 +376,8 @@ namespace GoldfishWalking.UI
 
         private bool CanCommitPriceMoveDifference(string itemId, int proposedDifference)
         {
-            int total = Mathf.Max(0, proposedDifference);
+            int total = shopController != null ? shopController.ConsumedPriceMoves : 0;
+            total += Mathf.Max(0, proposedDifference);
             foreach (KeyValuePair<string, int> pair in priceMoveDifferences)
             {
                 if (pair.Key != itemId)
@@ -394,8 +395,19 @@ namespace GoldfishWalking.UI
             int used = 0;
             foreach (int difference in priceMoveDifferences.Values)
                 used += Mathf.Max(0, difference);
+            if (shopController != null)
+                used += shopController.ConsumedPriceMoves;
             int limit = shopController != null ? shopController.CurrentMoveLimit : 2;
             moveCountText.text = $"{Mathf.Max(0, limit - used)} / {limit}";
+        }
+
+        private void CommitPriceMoves(string itemId)
+        {
+            if (!priceMoveDifferences.TryGetValue(itemId, out int difference))
+                return;
+
+            shopController?.CommitPriceMoves(Mathf.Max(0, difference));
+            priceMoveDifferences.Remove(itemId);
         }
 
         private void RefreshItemTitles()

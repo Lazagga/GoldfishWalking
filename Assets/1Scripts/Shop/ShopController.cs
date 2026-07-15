@@ -73,6 +73,22 @@ public bool IsFreeConsumablePurchaseAvailable(string itemId)
         public int CurrentMoveLimit => bootstrap != null && bootstrap.RunContext != null
             ? Mathf.Max(0, fantasyEffectRunner.ModifyValue(bootstrap.RunContext, 2, "Passive", "Shop_Movement", "Movement"))
             : 2;
+        public int ConsumedPriceMoves => bootstrap != null
+            && bootstrap.RunContext != null
+            && bootstrap.RunContext.currentShop != null
+                ? Mathf.Max(0, bootstrap.RunContext.currentShop.priceMovesConsumed)
+                : 0;
+
+        public void CommitPriceMoves(int count)
+        {
+            if (count <= 0 || bootstrap == null || bootstrap.RunContext == null)
+                return;
+
+            if (bootstrap.RunContext.currentShop == null)
+                bootstrap.RunContext.currentShop = new ShopNumberState();
+
+            bootstrap.RunContext.currentShop.priceMovesConsumed += count;
+        }
 
         public int GetPrice(string itemId, int minInclusive, int maxInclusive)
         {
