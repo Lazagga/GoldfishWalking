@@ -17,7 +17,10 @@ namespace GoldfishWalking.Match
     {
         [SerializeField] private int value;
         [SerializeField] private int minDigitCount;
-        [SerializeField] private bool locked;
+        [SerializeField] private bool split;
+        [SerializeField] private int lockedDigitCount;
+        
+[SerializeField] private bool locked;
         [SerializeField] private Color matchColor = new Color(1f, 0.74f, 0.33f, 1f);
         [SerializeField] private Color addedMatchColor = new Color(0.38f, 0.82f, 1f, 1f);
         [SerializeField] private Color lockedMatchColor = new Color(0.05f, 0.05f, 0.055f, 1f);
@@ -39,7 +42,11 @@ namespace GoldfishWalking.Match
         public int OriginalValue => originalValue;
         public int MinDigitCount => minDigitCount;
         public int DifferenceFromOriginal => CountMoveDifference(originalDisplaySlots, displaySlots);
-        public bool Locked => locked;
+        public bool Split => split;
+        public int LockedDigitCount => lockedDigitCount;
+        internal bool IsDigitLocked(int digitIndex) => locked || (lockedDigitCount > 0 && digitIndex >= 0 && digitIndex < lockedDigitCount);
+        
+public bool Locked => locked;
         public Color MatchColor => matchColor;
         public Color AddedMatchColor => addedMatchColor;
         public Color LockedMatchColor => lockedMatchColor;
@@ -53,13 +60,15 @@ namespace GoldfishWalking.Match
             Redraw();
         }
 
-        public void Configure(int initialValue, int minimumDigits, Color segmentColor, UnityAction<int> onValueChanged = null, bool isLocked = false, UnityAction<int> onDifferenceChanged = null, string savedSegmentState = null, Func<int, bool> onMoveCommitValidated = null, Func<bool> canInteract = null)
+public void Configure(int initialValue, int minimumDigits, Color segmentColor, UnityAction<int> onValueChanged = null, bool isLocked = false, UnityAction<int> onDifferenceChanged = null, string savedSegmentState = null, Func<int, bool> onMoveCommitValidated = null, Func<bool> canInteract = null, bool isSplit = false, int structurallyLockedDigitCount = 0)
         {
             value = Mathf.Max(0, initialValue);
             originalValue = value;
             minDigitCount = Mathf.Max(0, minimumDigits);
             matchColor = segmentColor;
             locked = isLocked;
+            split = isSplit;
+            lockedDigitCount = Mathf.Max(0, structurallyLockedDigitCount);
             moveCommitValidator = onMoveCommitValidated;
             interactionValidator = canInteract;
             committedItemErasedOriginalAddresses.Clear();
@@ -256,7 +265,7 @@ namespace GoldfishWalking.Match
 
             float height = Mathf.Max(1f, rectTransform.rect.height);
             float digitWidth = Mathf.Max(34f, height * 0.62f);
-            float gap = Mathf.Max(8f, height * 0.12f);
+            float gap = split ? Mathf.Max(18f, height * 0.24f) : Mathf.Max(8f, height * 0.12f);
             float totalWidth = visibleDigitIndices.Count * digitWidth + Mathf.Max(0, visibleDigitIndices.Count - 1) * gap;
             float startX = -totalWidth * 0.5f + digitWidth * 0.5f;
 
@@ -282,7 +291,7 @@ namespace GoldfishWalking.Match
                 Color color = matchColor;
                 if (slot.piece.kind == MatchPieceKind.Added)
                     color = addedMatchColor;
-                else if (slot.piece.kind == MatchPieceKind.Locked)
+                else if (slot.piece.kind == MatchPieceKind.Locked || IsDigitLocked(digitIndex))
                     color = lockedMatchColor;
 
                 SevenSegmentUI.CreateDisplaySegment(digitRoot, slot.segmentIndex, color);
@@ -627,6 +636,8 @@ namespace GoldfishWalking.Match
             heldOriginDigit = -1;
             heldOriginSegment = -1;
             editingBox = FormulaBox.Number("seven_segment_popup", owner.Value, false);
+            editingBox.split = owner.Split;
+            editingBox.lockedDigitCount = owner.LockedDigitCount;
             session.Open(editingBox);
             PopulateSlotsFromOwner();
             StoreOriginalShape();
@@ -682,7 +693,12 @@ namespace GoldfishWalking.Match
             session.slots.Clear();
             List<MatchSlot> slots = owner.CopyDisplaySlots();
             for (int i = 0; i < slots.Count; i++)
-                session.slots.Add(slots[i]);
+            {
+                MatchSlot slot = slots[i];
+                if (slot?.piece != null && owner.IsDigitLocked(slot.digitIndex))
+                    slot.piece.kind = MatchPieceKind.Locked;
+                session.slots.Add(slot);
+            }
         }
 
         private void EnsureLayout()
@@ -839,19 +855,38 @@ namespace GoldfishWalking.Match
             RefreshItemCounts();
         }
 
-        private void OnSlotClicked(SevenSegmentPopupSlot view)
+private void OnSlotClicked(SevenSegmentPopupSlot view)
         {
             if (view == null)
                 return;
 
             if (itemMode != ItemEditMode.None)
             {
+                if (owner != null && owner.IsDigitLocked(view.DigitIndex))
+                {
+                    ShowMessage("That split box is locked.");
+                    return;
+                }
                 HandleItemSlotClick(view);
                 return;
             }
 
             bool wasHoldingPiece = session.IsHoldingPiece;
-            MatchEditResult result = session.IsHoldingPiece
+            if (wasHoldingPiece && owner != null)
+            {
+                if (owner.IsDigitLocked(view.DigitIndex))
+                {
+                    ShowMessage("That split box is locked.");
+                    return;
+                }
+                if (owner.Split && heldOriginDigit >= 0 && heldOriginDigit != view.DigitIndex)
+                {
+                    ShowMessage("Matches cannot move between split boxes.");
+                    return;
+                }
+            }
+
+            MatchEditResult result = wasHoldingPiece
                 ? session.TryPlace(view.DigitIndex, view.SegmentIndex)
                 : session.TryPickUp(view.DigitIndex, view.SegmentIndex);
 
@@ -881,7 +916,7 @@ namespace GoldfishWalking.Match
             RefreshSlots();
         }
 
-        private void CommitPopup()
+private void CommitPopup()
         {
             int proposedDifference = CountCurrentMoveDifference();
             if (owner != null && !owner.CanCommitMoveDifference(proposedDifference))
@@ -897,6 +932,7 @@ namespace GoldfishWalking.Match
                 return;
             }
 
+            NormalizeStructuralLocksBeforeCommit();
             owner.SetValueFromPopup(editingBox.numberValue, session.slots, CurrentDigitCount(), proposedDifference);
             owner.SetCommittedItemErasures(itemErasedOriginalAddresses);
             RegisterCommittedItemSpend(spentExtraMatches, spentTemporaryExtraMatches, spentErasers, spentTemporaryErasers);
@@ -1423,7 +1459,21 @@ namespace GoldfishWalking.Match
             rect.anchoredPosition = anchoredPosition;
             rect.sizeDelta = sizeDelta;
         }
-    }
+    
+
+private void NormalizeStructuralLocksBeforeCommit()
+        {
+            if (owner == null || owner.LockedDigitCount <= 0)
+                return;
+
+            for (int i = 0; i < session.slots.Count; i++)
+            {
+                MatchSlot slot = session.slots[i];
+                if (slot?.piece != null && owner.IsDigitLocked(slot.digitIndex))
+                    slot.piece.kind = MatchPieceKind.Normal;
+            }
+        }
+}
 
     public sealed class SevenSegmentPopupSlot : MonoBehaviour, IPointerClickHandler
     {

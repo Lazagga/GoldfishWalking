@@ -201,7 +201,7 @@ namespace GoldfishWalking.Battle
                 if (scheduled == null || scheduled.effect == null || scheduled.triggerTurn > turn)
                     continue;
 
-                ApplyEffect(monster, runContext, scheduled.effect, playerFormula, monsterFormula, 0, -1);
+                ApplyEffect(monster, runContext, scheduled.effect, playerFormula, monsterFormula, 0, -1, true);
                 monster.ScheduledEffects.RemoveAt(i);
             }
         }
@@ -237,7 +237,8 @@ namespace GoldfishWalking.Battle
             BattleFormulaState playerFormula,
             BattleFormulaState monsterFormula,
             int damageDealt,
-            int editableHealValue)
+            int editableHealValue,
+            bool isScheduled = false)
         {
             string action = NormalizeLookup(effect.action);
             string type = NormalizeLookup(effect.type);
@@ -250,7 +251,7 @@ namespace GoldfishWalking.Battle
 
             if (action == "split")
             {
-                if (damageDealt > 0 && runContext != null)
+                if (!isScheduled && runContext != null)
                 {
                     monster.ScheduledEffects.Add(new ScheduledMonsterPatternEffect
                     {
@@ -266,7 +267,7 @@ namespace GoldfishWalking.Battle
 
             if (action == "lock")
             {
-                if (damageDealt > 0 && runContext != null)
+                if (!isScheduled && runContext != null)
                 {
                     monster.ScheduledEffects.Add(new ScheduledMonsterPatternEffect
                     {
@@ -348,7 +349,17 @@ namespace GoldfishWalking.Battle
             {
                 if (type == "boxlock")
                 {
-                    ApplyBoxFlag(target, playerFormula, monsterFormula, split: false, locked: true);
+                    if (!isScheduled && runContext != null)
+                    {
+                        monster.ScheduledEffects.Add(new ScheduledMonsterPatternEffect
+                        {
+                            effect = effect,
+                            triggerTurn = Mathf.Max(1, runContext.battleTurnNumber) + 1
+                        });
+                        return;
+                    }
+
+                    ApplyDigitLock(target, playerFormula, monsterFormula, Mathf.Max(1, value));
                     return;
                 }
 
@@ -795,5 +806,23 @@ namespace GoldfishWalking.Battle
         {
             return (value ?? string.Empty).Trim().Replace("_", string.Empty).Replace("-", string.Empty).Replace(" ", string.Empty).ToLowerInvariant();
         }
-    }
+    
+        private static void ApplyDigitLock(string target, BattleFormulaState playerFormula, BattleFormulaState monsterFormula, int digitCount)
+        {
+            BattleFormulaState targetFormula = target == "self" ? monsterFormula : playerFormula;
+            if (targetFormula?.damageExpression?.boxes == null)
+                return;
+
+            for (int i = 0; i < targetFormula.damageExpression.boxes.Count; i++)
+            {
+                FormulaBox box = targetFormula.damageExpression.boxes[i];
+                if (box == null || box.boxType != FormulaBoxType.Number)
+                    continue;
+
+                box.split = true;
+                box.lockedDigitCount = Mathf.Max(box.lockedDigitCount, digitCount);
+                return;
+            }
+        }
+}
 }

@@ -8,7 +8,9 @@ namespace GoldfishWalking.Formula
         public string id;
         public FormulaBoxType boxType;
         public bool locked;
-        public bool split;
+        public int lockedDigitCount;
+        
+public bool split;
         public int numberValue;
         public int digitCount;
         public FormulaOperator operatorValue;

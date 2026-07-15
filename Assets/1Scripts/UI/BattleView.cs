@@ -472,11 +472,26 @@ private void OnBattlePresentationChanged()
         private void RefreshFormulaValues()
         {
             if (playerDamageBox != null)
-                playerDamageBox.Configure(GetPlayerBaseDamage(), GetPlayerDamageDigitCount(), healthColor, OnPlayerDamageEdited, false, OnPlayerDamageDifferenceChanged, battleController != null ? battleController.PlayerBaseDamageSegmentState : string.Empty, CanCommitPlayerDamageDifference);
+                playerDamageBox.Configure(GetPlayerBaseDamage(), GetPlayerDamageDigitCount(), healthColor, OnPlayerDamageEdited,
+                    battleController != null && battleController.PlayerBaseDamageLocked, OnPlayerDamageDifferenceChanged,
+                    battleController != null ? battleController.PlayerBaseDamageSegmentState : string.Empty,
+                    CanCommitPlayerDamageDifference, null,
+                    battleController != null && battleController.PlayerBaseDamageSplit,
+                    battleController != null ? battleController.PlayerBaseDamageLockedDigitCount : 0);
             if (monsterDamageBox != null)
-                monsterDamageBox.Configure(GetMonsterBaseDamage(), battleController != null ? battleController.MonsterBaseDamageDigitCount : 1, healthColor, OnMonsterDamageEdited, battleController != null && battleController.MonsterBaseDamageLocked, OnMonsterDamageDifferenceChanged, battleController != null ? battleController.MonsterBaseDamageSegmentState : string.Empty, CanCommitMonsterDamageDifference);
+                monsterDamageBox.Configure(GetMonsterBaseDamage(), battleController != null ? battleController.MonsterBaseDamageDigitCount : 1,
+                    healthColor, OnMonsterDamageEdited, battleController != null && battleController.MonsterBaseDamageLocked,
+                    OnMonsterDamageDifferenceChanged, battleController != null ? battleController.MonsterBaseDamageSegmentState : string.Empty,
+                    CanCommitMonsterDamageDifference, null,
+                    battleController != null && battleController.MonsterBaseDamageSplit,
+                    battleController != null ? battleController.MonsterBaseDamageLockedDigitCount : 0);
             if (monsterHitCountBox != null)
-                monsterHitCountBox.Configure(GetMonsterHitCount(), 0, healthColor, OnMonsterHitCountEdited, false, OnMonsterHitDifferenceChanged, battleController != null ? battleController.MonsterHitCountSegmentState : string.Empty, CanCommitMonsterHitDifference);
+                monsterHitCountBox.Configure(GetMonsterHitCount(), 0, healthColor, OnMonsterHitCountEdited,
+                    battleController != null && battleController.MonsterHitCountLocked, OnMonsterHitDifferenceChanged,
+                    battleController != null ? battleController.MonsterHitCountSegmentState : string.Empty,
+                    CanCommitMonsterHitDifference, null,
+                    battleController != null && battleController.MonsterHitCountSplit,
+                    battleController != null ? battleController.MonsterHitCountLockedDigitCount : 0);
             RefreshMonsterSpecialBox();
         }
 

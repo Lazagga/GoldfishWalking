@@ -56,7 +56,17 @@ namespace GoldfishWalking.Battle
             ? bootstrap.RunContext.currentBattle.monsterHitCount
             : 1;
 
-        public bool MonsterBaseDamageLocked => context != null && context.monster != null && IsSteelScarecrow(context.monster.Data);
+        public bool PlayerBaseDamageSplit => GetFirstNumberBox(context?.playerFormula?.damageExpression)?.split == true;
+        public bool PlayerBaseDamageLocked => GetFirstNumberBox(context?.playerFormula?.damageExpression)?.locked == true;
+        public int PlayerBaseDamageLockedDigitCount => GetFirstNumberBox(context?.playerFormula?.damageExpression)?.lockedDigitCount ?? 0;
+        public bool MonsterBaseDamageSplit => GetFirstNumberBox(context?.monsterFormula?.damageExpression)?.split == true;
+        public int MonsterBaseDamageLockedDigitCount => GetFirstNumberBox(context?.monsterFormula?.damageExpression)?.lockedDigitCount ?? 0;
+        public bool MonsterHitCountSplit => GetFirstNumberBox(context?.monsterFormula?.hitCountExpression)?.split == true;
+        public bool MonsterHitCountLocked => GetFirstNumberBox(context?.monsterFormula?.hitCountExpression)?.locked == true;
+        public int MonsterHitCountLockedDigitCount => GetFirstNumberBox(context?.monsterFormula?.hitCountExpression)?.lockedDigitCount ?? 0;
+
+        public bool MonsterBaseDamageLocked => GetFirstNumberBox(context?.monsterFormula?.damageExpression)?.locked == true
+            || (context != null && context.monster != null && IsSteelScarecrow(context.monster.Data));
 
         public string PlayerBaseDamageSegmentState => bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.currentBattle != null
             ? bootstrap.RunContext.currentBattle.playerBaseDamageSegmentState
@@ -1260,6 +1270,22 @@ private int ApplyMonsterHitToPlayer(int damagePerHit)
                     context.playerFormula, context.monsterFormula, "Immediate", 0, editableHeal);
             }
             monsterPatternRunner.AdvanceTurnDurations(context.monster);
+        }
+
+
+private static FormulaBox GetFirstNumberBox(FormulaState state)
+        {
+            if (state?.boxes == null)
+                return null;
+
+            for (int i = 0; i < state.boxes.Count; i++)
+            {
+                FormulaBox box = state.boxes[i];
+                if (box != null && box.boxType == FormulaBoxType.Number)
+                    return box;
+            }
+
+            return null;
         }
 }
 }
