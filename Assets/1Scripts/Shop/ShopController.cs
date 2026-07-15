@@ -47,17 +47,24 @@ namespace GoldfishWalking.Shop
             return true;
         }
 
-        public bool TryUseFreeConsumablePurchase(string itemId)
+public bool TryUseFreeConsumablePurchase(string itemId)
         {
-            if (bootstrap == null || bootstrap.RunContext == null || bootstrap.RunContext.currentShop == null)
-                return false;
-
-            if (!HasStickyGlove() || bootstrap.RunContext.currentShop.freePurchasedItemIds.Contains(itemId))
+            if (!IsFreeConsumablePurchaseAvailable(itemId))
                 return false;
 
             bootstrap.RunContext.currentShop.freePurchasedItemIds.Add(itemId);
             return true;
         }
+
+public bool IsFreeConsumablePurchaseAvailable(string itemId)
+        {
+            return bootstrap != null
+                && bootstrap.RunContext != null
+                && bootstrap.RunContext.currentShop != null
+                && HasStickyGlove()
+                && !bootstrap.RunContext.currentShop.freePurchasedItemIds.Contains(itemId);
+        }
+
 
         public int CurrentHealth => bootstrap != null && bootstrap.RunContext != null ? bootstrap.RunContext.health : 0;
         public IReadOnlyList<FantasyData> OwnedFantasies => bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.fantasyInventory != null

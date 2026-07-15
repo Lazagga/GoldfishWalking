@@ -276,15 +276,30 @@ private IEnumerator ResolveBattleRoutine()
                     if (attackStepDelay > 0f)
                         yield return new WaitForSeconds(attackStepDelay);
 
-                    totalDamage += ApplyMonsterHitToPlayer(damagePerHit);
+                    int damageTaken = ApplyMonsterHitToPlayer(damagePerHit);
+                    totalDamage += damageTaken;
+                    context.run.lastDamageTaken = damageTaken;
+
+                    if (damageTaken > 0)
+                    {
+                        fantasyEffectRunner.ApplyTrigger(context.run, "Take_Damage");
+                        ApplyPendingMonsterDamage();
+                    }
+
                     BattlePresentationChanged?.Invoke();
+                    if ((context.monster != null && context.monster.IsDead) || context.run.health <= 0)
+                    {
+                        if (CompleteBattleResolution())
+                        {
+                            resolutionCoroutine = null;
+                            yield break;
+                        }
+                    }
                 }
 
                 SetResolutionPhase(BattleState.MonsterEffects);
                 context.run.lastDamageTaken = totalDamage;
                 ApplyVampireHeal(totalDamage);
-                fantasyEffectRunner.ApplyTrigger(context.run, "Take_Damage");
-                ApplyPendingMonsterDamage();
                 monsterPatternRunner.ApplyPatternEffects(context.monster, context.run, context.monsterPattern,
                     context.playerFormula, context.monsterFormula, "Immediate", totalDamage);
                 BattlePresentationChanged?.Invoke();
@@ -538,6 +553,7 @@ private IEnumerator ResolveBattleRoutine()
             BattleNumberState numbers = context.run.EnsureBattleNumbers(MonsterHitCount);
             EnsurePlayerBaseDamageDigitCount(numbers);
             EnsurePlayerTurnDamage(numbers);
+            ApplyCueStickToGeneratedDamage(numbers);
             context.playerFormula = formulaBuilder.BuildPlayerFormula(context.run, numbers.playerBaseDamage);
             PrepareMonsterPatternFormula(numbers);
             monsterPatternRunner.ApplyScheduledEffects(context.monster, context.run, context.playerFormula, context.monsterFormula);
@@ -655,6 +671,31 @@ private IEnumerator ResolveBattleRoutine()
             numbers.playerBaseDamageTurn = turnNumber;
             numbers.playerBaseDamageSegmentState = string.Empty;
         }
+
+private void ApplyCueStickToGeneratedDamage(BattleNumberState numbers)
+        {
+            if (numbers == null
+                || context == null
+                || context.run == null
+                || context.run.battleTurnNumber != 1
+                || context.run.fantasyInventory == null
+                || !context.run.fantasyInventory.Contains("fan_start_cuestick"))
+            {
+                return;
+            }
+
+            int value = Mathf.Max(0, numbers.playerBaseDamage);
+            int placeValue = 1;
+            while (value >= 10)
+            {
+                value /= 10;
+                placeValue *= 10;
+            }
+
+            numbers.playerBaseDamage = 8 * placeValue + numbers.playerBaseDamage % placeValue;
+            numbers.playerBaseDamageSegmentState = string.Empty;
+        }
+
 
         private static int GetPlayerDamageDigitCount(RunContext runContext)
         {

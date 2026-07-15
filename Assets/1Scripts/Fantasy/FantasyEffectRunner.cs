@@ -174,12 +174,8 @@ namespace GoldfishWalking.Fantasy
                         return true;
                     break;
                 case "fanstartcuestick":
-                    if (normalizedTrigger == NormalizeTrigger("Battle_Start") && runContext.currentBattle != null)
-                    {
-                        int digit = Mathf.FloorToInt(GetEffectValue(fantasy, "Battle_Start", "Base_Damage", 8f, runContext));
-                        runContext.currentBattle.playerBaseDamage = SetFirstDigit(runContext.currentBattle.playerBaseDamage, digit);
+                    if (normalizedTrigger == NormalizeTrigger("Battle_Start"))
                         return true;
-                    }
                     break;
                 case "fanendtrumpcard":
                     if (normalizedTrigger == NormalizeTrigger("Turn_End"))

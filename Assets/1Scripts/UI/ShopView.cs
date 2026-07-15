@@ -409,11 +409,18 @@ namespace GoldfishWalking.UI
             }
         }
 
-        private int GetCurrentPrice(ShopItem item)
+private int GetCurrentPrice(ShopItem item)
         {
-            return shopController != null
-                ? shopController.GetPrice(item.id, GetMinPrice(item), GetMaxPrice(item))
-                : item.price;
+            if (shopController == null)
+                return item.price;
+
+            if (TryGetPurchasedItemType(item.id, out _)
+                && shopController.IsFreeConsumablePurchaseAvailable(item.id))
+            {
+                return 0;
+            }
+
+            return shopController.GetPrice(item.id, GetMinPrice(item), GetMaxPrice(item));
         }
 
         private void OnPriceEdited(string itemId, int newValue)
