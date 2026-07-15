@@ -217,7 +217,10 @@ namespace GoldfishWalking.Fantasy
                     {
                         FantasyData copied = SelectOwnedFantasyCopy(runContext, fantasy);
                         if (copied != null)
+                        {
                             runContext.fantasyInventory.AddDuplicate(copied);
+                            Apply(copied, runContext, "Battle_Start");
+                        }
                         return true;
                     }
                     break;
