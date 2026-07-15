@@ -32,6 +32,27 @@ namespace GoldfishWalking.Battle
             if (patterns.Count == 0)
                 return MonsterPatternKeyUtility.CreateFromKey(FallbackPatternKey);
 
+            if (monster.Data.aiType == MonsterAiType.Random)
+            {
+                List<MonsterPatternData> candidates = new List<MonsterPatternData>();
+                for (int i = 0; i < patterns.Count; i++)
+                {
+                    MonsterPatternData candidate = patterns[i];
+                    if (monster.CanUsePattern(candidate) && EvaluateCondition(candidate.condition, monster, runContext))
+                        candidates.Add(candidate);
+                }
+
+                if (candidates.Count > 0)
+                {
+                    int index = runContext != null
+                        ? runContext.RollValue($"monster.pattern.random.{monster.Data.id}.turn.{turn}", 0, candidates.Count - 1)
+                        : 0;
+                    MonsterPatternData selected = candidates[Mathf.Clamp(index, 0, candidates.Count - 1)];
+                    monster.SelectPatternForTurn(selected, turn);
+                    return selected;
+                }
+            }
+
             int startIndex = Math.Max(0, turn - 1) % patterns.Count;
             for (int offset = 0; offset < patterns.Count; offset++)
             {
@@ -210,7 +231,7 @@ namespace GoldfishWalking.Battle
                 if (scheduled == null || scheduled.effect == null || scheduled.triggerTurn > turn)
                     continue;
 
-                ApplyEffect(monster, runContext, scheduled.effect, playerFormula, monsterFormula, 0, -1, true);
+                ApplyEffect(monster, runContext, scheduled.effect, playerFormula, monsterFormula, 0, -1);
                 monster.ScheduledEffects.RemoveAt(i);
             }
         }
@@ -246,8 +267,7 @@ namespace GoldfishWalking.Battle
             BattleFormulaState playerFormula,
             BattleFormulaState monsterFormula,
             int damageDealt,
-            int editableHealValue,
-            bool isScheduled = false)
+            int editableHealValue)
         {
             string action = NormalizeLookup(effect.action);
             string type = NormalizeLookup(effect.type);
@@ -256,36 +276,16 @@ namespace GoldfishWalking.Battle
             if (string.IsNullOrWhiteSpace(effect.valueExpression) && effect.duration > 0)
                 value = effect.duration;
             if (action == "addbox")
-                value = BuildSpecialBoxValue(effect.valueExpression, effect.rawJson, runContext);
+                value = BuildSpecialBoxValue(effect.valueExpression, effect.count, runContext);
 
             if (action == "split")
             {
-                if (!isScheduled && runContext != null)
-                {
-                    monster.ScheduledEffects.Add(new ScheduledMonsterPatternEffect
-                    {
-                        effect = effect,
-                        triggerTurn = Mathf.Max(1, runContext.battleTurnNumber) + 1
-                    });
-                    return;
-                }
-
                 ApplyBoxFlag(target, playerFormula, monsterFormula, split: true, locked: false);
                 return;
             }
 
             if (action == "lock")
             {
-                if (!isScheduled && runContext != null)
-                {
-                    monster.ScheduledEffects.Add(new ScheduledMonsterPatternEffect
-                    {
-                        effect = effect,
-                        triggerTurn = Mathf.Max(1, runContext.battleTurnNumber) + 1
-                    });
-                    return;
-                }
-
                 ApplyBoxFlag(target, playerFormula, monsterFormula, split: false, locked: true);
                 return;
             }
@@ -304,22 +304,16 @@ namespace GoldfishWalking.Battle
 
             if (action == "damage")
             {
+                if (NormalizeLookup(effect.valueExpression) == "playerformularandomnumber")
+                    value = SelectPlayerFormulaNumber(playerFormula, runContext);
+
                 if (target == "self")
                     monster.ApplyDamage(value);
-                else if (NormalizeLookup(effect.valueExpression) == "stargazingmulti3")
+                else
                 {
-                    for (int hitIndex = 0; hitIndex < 3; hitIndex++)
+                    for (int hitIndex = 0; hitIndex < Mathf.Max(1, effect.hitCount); hitIndex++)
                         ApplyMonsterDamageToPlayer(monster, runContext, value);
                 }
-                else
-                    ApplyMonsterDamageToPlayer(monster, runContext, value);
-                return;
-            }
-
-            if (action == "librarianskill")
-            {
-                int damage = SelectPlayerFormulaNumber(playerFormula, runContext);
-                ApplyMonsterDamageToPlayer(monster, runContext, damage);
                 return;
             }
 
@@ -337,12 +331,16 @@ namespace GoldfishWalking.Battle
 
             if (action == "addbox")
             {
-                int count = ExtractCount(effect.rawJson);
-                string label = SpecialBoxLabel(target);
-                if (NormalizeLookup(effect.mode) == "append" && count == 1)
-                    monster.AppendSpecialBoxDigit(value, label);
+                if (NormalizeLookup(effect.mode) == "append" && effect.count == 1)
+                    monster.AppendSpecialBoxDigit(value, effect.label);
                 else
-                    monster.SetSpecialBox(value, count, label);
+                    monster.SetSpecialBox(value, effect.count, effect.label);
+                return;
+            }
+
+            if (action == "clearbox")
+            {
+                monster.ClearSpecialBox();
                 return;
             }
 
@@ -358,16 +356,6 @@ namespace GoldfishWalking.Battle
             {
                 if (type == "boxlock")
                 {
-                    if (!isScheduled && runContext != null)
-                    {
-                        monster.ScheduledEffects.Add(new ScheduledMonsterPatternEffect
-                        {
-                            effect = effect,
-                            triggerTurn = Mathf.Max(1, runContext.battleTurnNumber) + 1
-                        });
-                        return;
-                    }
-
                     ApplyDigitLock(target, playerFormula, monsterFormula, Mathf.Max(1, value));
                     return;
                 }
@@ -503,9 +491,6 @@ namespace GoldfishWalking.Battle
                 case "phase":
                 case "phase2":
                     monster.SetPhase(Mathf.Max(1, value));
-                    break;
-                case "whalebuff":
-                    monster.ClearSpecialBox();
                     break;
             }
         }
@@ -686,18 +671,10 @@ namespace GoldfishWalking.Battle
                 case "playerhp":
                 case "hp":
                     return runContext != null ? runContext.health : 0f;
-                case "heartqueenbox":
+                case "specialboxvalue":
                     return monster != null && monster.HasSpecialBox ? monster.SpecialBoxValue : 0f;
-                case "playerhpmulti2":
-                    return runContext != null ? Mathf.Floor(runContext.health * 0.2f) : 0f;
-                case "stargazingmulti3":
-                    if (monster != null && monster.HasSpecialBox)
-                        return monster.SpecialBoxValue;
-                    return runContext != null ? runContext.RollValue("monster.stargazing.multi3", 100, 999) : 333f;
                 case "strength":
                     return monster != null ? monster.Strength : 0f;
-                case "cosmictreeheal":
-                    return monster != null ? DigitCount(monster.Strength) : 0f;
                 case "hprate":
                     return monster != null && monster.Data != null && monster.Data.baseHealth > 0
                         ? (float)monster.CurrentHealth / monster.Data.baseHealth
@@ -707,6 +684,9 @@ namespace GoldfishWalking.Battle
                 case "random":
                     return runContext != null ? runContext.RollValue("monster.pattern.random_digit", 0, 9) : 0f;
             }
+
+            if (text.StartsWith("DigitCount(", StringComparison.OrdinalIgnoreCase) && text.EndsWith(")", StringComparison.Ordinal))
+                return DigitCount(Mathf.FloorToInt(EvaluateValue(text.Substring(11, text.Length - 12), monster, runContext, damageDealt)));
 
             return 0f;
         }
@@ -744,9 +724,8 @@ namespace GoldfishWalking.Battle
             return value > 1f ? value / 100f : value;
         }
 
-        private static int BuildSpecialBoxValue(string valueExpression, string rawJson, RunContext runContext)
+        private static int BuildSpecialBoxValue(string valueExpression, int count, RunContext runContext)
         {
-            int count = ExtractCount(rawJson);
             int result = 0;
             for (int i = 0; i < Mathf.Max(1, count); i++)
             {
@@ -770,39 +749,6 @@ private static bool UsesEditableHealBox(MonsterPatternData pattern)
                     return true;
             }
             return false;
-        }
-
-        private static int ExtractCount(string rawJson)
-        {
-            if (string.IsNullOrWhiteSpace(rawJson))
-                return 1;
-
-            const string key = "\"Count\":";
-            int index = rawJson.IndexOf(key, StringComparison.OrdinalIgnoreCase);
-            if (index < 0)
-                return 1;
-
-            int start = index + key.Length;
-            while (start < rawJson.Length && char.IsWhiteSpace(rawJson[start]))
-                start++;
-
-            int end = start;
-            while (end < rawJson.Length && char.IsDigit(rawJson[end]))
-                end++;
-
-            return int.TryParse(rawJson.Substring(start, end - start), NumberStyles.Integer, CultureInfo.InvariantCulture, out int count)
-                ? Mathf.Max(1, count)
-                : 1;
-        }
-
-        private static string SpecialBoxLabel(string target)
-        {
-            string normalized = NormalizeLookup(target);
-            if (normalized == "whalebox")
-                return "WHALE";
-            if (normalized == "stargazerbox" || normalized == "starbox" || normalized == "self")
-                return "STAR";
-            return "SPECIAL";
         }
 
         private static string NormalizeTiming(string value)

@@ -22,8 +22,9 @@ namespace GoldfishWalking.Formula
         {
             BattleFormulaState formula = new BattleFormulaState();
             int strength = runContext != null && runContext.strength > 0 ? runContext.strength : 0;
-            int transformedBaseDamage = FantasyEffectRunner.TransformBattleNumber(runContext, baseDamage, true);
+            int transformedBaseDamage = fantasyEffectRunner.ModifyValue(runContext, baseDamage, "Passive", "Player_Number");
             transformedBaseDamage = fantasyEffectRunner.ModifyValue(runContext, transformedBaseDamage, string.Empty, "Base_Damage");
+            transformedBaseDamage = System.Math.Max(0, transformedBaseDamage);
             bool split = ShouldSplitBoxes(runContext);
 
             BuildPlayerDamageExpression(formula.damageExpression, strength, transformedBaseDamage, split);
@@ -35,8 +36,12 @@ namespace GoldfishWalking.Formula
         public BattleFormulaState BuildMonsterFormula(int damage, int hitCount = BaseMultiplier, bool hitCountEditable = false, RunContext runContext = null)
         {
             BattleFormulaState formula = new BattleFormulaState();
-            int monsterDamage = damage > 0 ? FantasyEffectRunner.TransformBattleNumber(runContext, damage, false) : 0;
-            int monsterHitCount = hitCount > 0 ? FantasyEffectRunner.TransformBattleNumber(runContext, hitCount, false) : 0;
+            int monsterDamage = damage > 0
+                ? System.Math.Max(0, fantasyEffectRunner.ModifyValue(runContext, damage, "Passive", "Monster_Number"))
+                : 0;
+            int monsterHitCount = hitCount > 0
+                ? System.Math.Max(0, fantasyEffectRunner.ModifyValue(runContext, hitCount, "Passive", "Monster_Number"))
+                : 0;
             bool split = ShouldSplitBoxes(runContext);
 
             formula.damageExpression.Clear();

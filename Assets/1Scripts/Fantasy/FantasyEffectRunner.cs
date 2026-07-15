@@ -22,9 +22,10 @@ namespace GoldfishWalking.Fantasy
 
             foreach (FantasyEffectData effect in fantasy.effects)
             {
-                if (effect == null || Normalize(effect.execution) == "action"
+                if (effect == null || !IsValueModifier(effect)
                     || !TriggerMatches(effect.trigger, trigger) || !TargetMatches(effect.target, targets)
-                    || !EvaluateCondition(effect.condition, runContext, conditionValue))
+                    || !EvaluateCondition(effect.condition, runContext, conditionValue)
+                    || !PassesChance(fantasy, effect, runContext))
                     continue;
 
                 value = ApplyCalculation(value, Normalize(effect.calc), EvaluateEffectValue(effect, runContext, value));
@@ -77,10 +78,7 @@ namespace GoldfishWalking.Fantasy
                 return;
 
             if (fantasy.effects == null || fantasy.effects.Length == 0)
-            {
-                ApplyLegacyEffect(fantasy, runContext);
                 return;
-            }
 
             foreach (FantasyEffectData effect in fantasy.effects)
             {
@@ -112,13 +110,15 @@ namespace GoldfishWalking.Fantasy
                 int conditionValue = value;
                 foreach (FantasyEffectData effect in fantasy.effects)
                 {
-                    if (effect == null || Normalize(effect.execution) == "action")
+                    if (effect == null || !IsValueModifier(effect))
                         continue;
                     if (!TriggerMatches(effect.trigger, trigger))
                         continue;
                     if (!TargetMatches(effect.target, targets))
                         continue;
                     if (!EvaluateCondition(effect.condition, runContext, conditionValue))
+                        continue;
+                    if (!PassesChance(fantasy, effect, runContext))
                         continue;
 
                     value = ApplyCalculation(value, Normalize(effect.calc), EvaluateEffectValue(effect, runContext, value));
@@ -208,43 +208,6 @@ namespace GoldfishWalking.Fantasy
             }
         }
 
-        public static int TransformBattleNumber(RunContext runContext, int value, bool isPlayerNumber)
-        {
-            if (runContext == null || runContext.fantasyInventory == null)
-                return value;
-
-            int transformed = value;
-            string target = isPlayerNumber ? "Player_Number" : "Monster_Number";
-            foreach (FantasyData fantasy in runContext.fantasyInventory.ownedFantasies)
-            {
-                if (fantasy?.effects == null)
-                    continue;
-                int conditionValue = transformed;
-                foreach (FantasyEffectData effect in fantasy.effects)
-                {
-                    if (effect == null || !TargetMatches(effect.target, new[] { target })
-                        || !EvaluateCondition(effect.condition, runContext, conditionValue))
-                        continue;
-                    transformed = ApplyCalculation(transformed, Normalize(effect.calc), EvaluateEffectValue(effect, runContext, transformed));
-                }
-            }
-
-            return Mathf.Max(0, transformed);
-        }
-
-        private void ApplyLegacyEffect(FantasyData fantasy, RunContext runContext)
-        {
-            switch (fantasy.target)
-            {
-                case FantasyTarget.Health:
-                    runContext.health += fantasy.value;
-                    break;
-                case FantasyTarget.Strength:
-                    runContext.strength += fantasy.value;
-                    break;
-            }
-        }
-
         private static bool TriggerMatches(string effectTrigger, string requestedTrigger)
         {
             return NormalizeTrigger(effectTrigger) == NormalizeTrigger(requestedTrigger);
@@ -307,6 +270,12 @@ namespace GoldfishWalking.Fantasy
             return normalized == NormalizeTrigger("Battle_Start")
                 || normalized == NormalizeTrigger("Turn_Start")
                 || normalized.StartsWith("turn");
+        }
+
+        private static bool IsValueModifier(FantasyEffectData effect)
+        {
+            string execution = Normalize(effect?.execution);
+            return string.IsNullOrEmpty(execution) || execution == "modifier";
         }
 
         private static string Normalize(string value)

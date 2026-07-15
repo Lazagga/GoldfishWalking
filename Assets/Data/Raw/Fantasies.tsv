@@ -46,7 +46,7 @@ ID	DevName	DataCode	NameStringID	DescStringID	TriggerType	Effects	RARITY	Sprite
 45	부채	fan_end_fan		턴 종료 시 내 현재 체력의 10%만큼 적에게 데미지	Turn_End	`[{"Trigger":"Turn_End","Target":"Damage","Calc":"Add","Value":"HP*0.1"}]`	Blue	
 46	폭죽	fan_end_firecracker		턴 종료시 이번 전투에서 소모품을 사용한 횟수만큼 30의 피해	Turn_End	`[{"Trigger":"Turn_End","Target":"Damage","Calc":"Add","Value":"ItemUseCount*30"}]`	Blue	
 47	종이 비행기	fan_end_paperplane		턴 종료시 적과 나의 기본 피해량이 같을 경우, 가하는 피해량 두 배	Turn_End	`[{"Trigger":"Turn_End","Target":"Additional_Damage","Calc":"Multiply","Value":2.0,"Condition":"PlayerBaseDamage==MonsterBaseDamage","Execution":"Modifier"}]`	Blue	
-48	큐대	fan_start_cuestick		전투 시작 시 내 기본 피해량과 힘 피해량 첫째 자리 숫자 8로 고정	Battle_Start	`[{"Trigger":"Battle_Start","Target":"Player_First_Digit","Calc":"SetFirstDigit","Value":8.0,"Execution":"Modifier"}]`	Blue	
+48	큐대	fan_start_cuestick		매 턴 내 기본 피해량과 힘 피해량 첫째 자리 숫자 8로 고정	Turn_Start	`[{"Trigger":"Turn_Start","Target":"Player_Base_Damage","Calc":"SetFirstDigit","Value":8.0,"Execution":"Modifier"}]`	Blue
 49	시계태엽	fan_turn4_clockwork		첫 턴에 공격 횟수 +1	Battle_Start	`[{"Trigger":"Battle_Start","Target":"Attack_Count","Calc":"Add","Value":1.0,"Option":"","Duration":1}]`	Blue	
 50	청사진	fan_acquire_blueprint		획득시 보유하고 있는 환상 중 하나로 선택하여 그 복사본으로 영구히 변경됨	On_Acquire	`[{"Trigger":"On_Acquire","Target":"Fantasy","Calc":"ReplaceWithCopy","Value":1.0}]`	Blue	
 51	수면안대	fan_rest_sleepmask		휴식으로 얻는 체력 x2	Rest	`[{"Trigger":"Rest","Target":"HP","Calc":"Multiply","Value":2.0,"Option":""}]`	Blue	

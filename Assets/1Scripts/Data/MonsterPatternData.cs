@@ -55,8 +55,11 @@ namespace GoldfishWalking.Data
         public bool hasNumericValue;
         public float numericValue;
         public int duration;
+        public int count = 1;
+        public int hitCount = 1;
         public bool lockDamage;
         public string mode;
+        public string label;
         public bool editable;
         public string rawJson;
     }

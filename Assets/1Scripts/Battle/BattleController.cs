@@ -567,7 +567,7 @@ numbers.battleStartFantasyApplied = true;
             BattleNumberState numbers = context.run.EnsureBattleNumbers(MonsterHitCount);
             EnsurePlayerBaseDamageDigitCount(numbers);
             EnsurePlayerTurnDamage(numbers);
-            ApplyCueStickToGeneratedDamage(numbers);
+            ApplyGeneratedNumberModifiers(numbers, "Turn_Start");
             context.playerFormula = formulaBuilder.BuildPlayerFormula(context.run, numbers.playerBaseDamage);
             PrepareMonsterPatternFormula(numbers);
             monsterPatternRunner.ApplyScheduledEffects(context.monster, context.run, context.playerFormula, context.monsterFormula);
@@ -725,18 +725,17 @@ private static void RestoreFormulaStateStructure(FormulaState source, FormulaSta
             numbers.playerBaseDamageSegmentState = string.Empty;
         }
 
-private void ApplyCueStickToGeneratedDamage(BattleNumberState numbers)
+private void ApplyGeneratedNumberModifiers(BattleNumberState numbers, string trigger)
         {
             if (numbers == null
                 || context == null
-                || context.run == null
-                || context.run.battleTurnNumber != 1)
+                || context.run == null)
             {
                 return;
             }
 
             numbers.playerBaseDamage = fantasyEffectRunner.ModifyValue(
-                context.run, numbers.playerBaseDamage, "Battle_Start", "Player_First_Digit");
+                context.run, numbers.playerBaseDamage, trigger, "Player_Base_Damage");
             numbers.playerBaseDamageSegmentState = string.Empty;
         }
 

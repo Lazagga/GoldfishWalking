@@ -16,7 +16,6 @@ namespace GoldfishWalking.Editor.DataImport
         private const string MonsterSourcePath = "Assets/Data/Raw/Monster.tsv";
         private const string MonsterRulesSourcePath = "Assets/Data/Raw/MonsterRules.tsv";
         private const string PatternSourcePath = "Assets/Data/Raw/Pattern.tsv";
-        private const string PatternRulesSourcePath = "Assets/Data/Raw/PatternRules.tsv";
         private const string MonsterDatabasePath = "Assets/Data/Generated/MonsterDatabase.asset";
         private const string PatternDatabasePath = "Assets/Data/Generated/MonsterPatternDatabase.asset";
         private const string ReportPath = "Assets/Data/Generated/MonsterImportReport.json";
@@ -57,7 +56,6 @@ namespace GoldfishWalking.Editor.DataImport
             }
 
             List<Dictionary<string, string>> rows = ReadTsv(PatternSourcePath);
-            Dictionary<string, Dictionary<string, string>> rulesByPattern = LoadRules(PatternRulesSourcePath, "DataCode");
             HashSet<string> ids = new HashSet<string>();
             for (int i = 0; i < rows.Count; i++)
             {
@@ -89,8 +87,6 @@ namespace GoldfishWalking.Editor.DataImport
                     report.warnings.Add($"Pattern row {rowNumber}: duplicate pattern id '{pattern.id}'.");
 
                 ParsePatternJson(pattern, report, rowNumber);
-                if (rulesByPattern.TryGetValue(pattern.dataCode, out Dictionary<string, string> rule))
-                    ApplyPatternRules(pattern, rule);
                 patterns.Add(pattern);
             }
 
@@ -211,8 +207,11 @@ namespace GoldfishWalking.Editor.DataImport
                         condition = ReadString(obj, "Condition"),
                         valueExpression = ReadValueExpression(obj["Value"]),
                         duration = ParseInt(ReadValueExpression(obj["Duration"]), 0),
+                        count = Mathf.Max(1, ParseInt(ReadValueExpression(obj["Count"]), 1)),
+                        hitCount = Mathf.Max(1, ParseInt(ReadValueExpression(obj["HitCount"]), 1)),
                         lockDamage = ParseBool(ReadValueExpression(obj["Lock"])),
                         mode = ReadString(obj, "Mode"),
+                        label = ReadString(obj, "Label"),
                         editable = ParseBool(ReadValueExpression(obj["Editable"])),
                         rawJson = obj.ToString(Formatting.None)
                     };
@@ -285,42 +284,6 @@ namespace GoldfishWalking.Editor.DataImport
                     result[dataName] = row;
             }
             return result;
-        }
-
-        private static Dictionary<string, Dictionary<string, string>> LoadRules(string path, string keyColumn)
-        {
-            Dictionary<string, Dictionary<string, string>> result = new Dictionary<string, Dictionary<string, string>>();
-            if (!File.Exists(path))
-                return result;
-            foreach (Dictionary<string, string> row in ReadTsv(path))
-            {
-                string key = Get(row, keyColumn);
-                if (!string.IsNullOrWhiteSpace(key))
-                    result[key] = row;
-            }
-            return result;
-        }
-
-        private static void ApplyPatternRules(MonsterPatternData pattern, Dictionary<string, string> rule)
-        {
-            pattern.selfDestruct = ParseBool(Get(rule, "SelfDestruct"));
-            string condition = Get(rule, "Condition");
-            if (!string.IsNullOrWhiteSpace(condition))
-                pattern.condition = condition;
-            if (pattern.effects == null)
-                return;
-            string addBoxMode = Get(rule, "AddBoxMode");
-            bool editableHeal = ParseBool(Get(rule, "EditableHeal"));
-            for (int i = 0; i < pattern.effects.Length; i++)
-            {
-                MonsterPatternEffectData effect = pattern.effects[i];
-                if (effect == null)
-                    continue;
-                if (!string.IsNullOrWhiteSpace(addBoxMode) && string.Equals(effect.action, "AddBox", StringComparison.OrdinalIgnoreCase))
-                    effect.mode = addBoxMode;
-                if (editableHeal && string.Equals(effect.action, "Heal", StringComparison.OrdinalIgnoreCase))
-                    effect.editable = true;
-            }
         }
 
         private static List<Dictionary<string, string>> ReadTsv(string path)

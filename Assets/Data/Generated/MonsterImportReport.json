@@ -3,7 +3,7 @@
   "patternSourcePath": "Assets/Data/Raw/Pattern.tsv",
   "monsterDatabasePath": "Assets/Data/Generated/MonsterDatabase.asset",
   "patternDatabasePath": "Assets/Data/Generated/MonsterPatternDatabase.asset",
-  "generatedAt": "2026-07-15 19:31:00",
+  "generatedAt": "2026-07-15 20:31:22",
   "importedMonsterCount": 39,
   "importedPatternCount": 38,
   "warnings": [],
