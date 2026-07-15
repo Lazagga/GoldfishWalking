@@ -238,7 +238,7 @@ private IEnumerator ResolveBattleRoutine()
                 if (attackStepDelay > 0f)
                     yield return new WaitForSeconds(attackStepDelay);
 
-                ApplyPlayerHit(playerResult, hit.damage);
+                ApplyPlayerHit(playerResult, hit);
                 BattlePresentationChanged?.Invoke();
                 if (context.monster != null && context.monster.IsDead)
                     break;
@@ -1206,9 +1206,9 @@ private IEnumerator ResolveBattleRoutine()
                 hits.Add(new BattleHitStep { hitIndex = hits.Count, damage = damage, sourceFantasy = fantasy });
         }
 
-        private void ApplyPlayerHit(BattleFormulaResult result, int damagePerHit)
+private void ApplyPlayerHit(BattleFormulaResult result, BattleHitStep hit)
         {
-            if (context?.monster == null)
+            if (context?.monster == null || hit == null)
                 return;
             if (!result.countsAsHit)
             {
@@ -1216,15 +1216,28 @@ private IEnumerator ResolveBattleRoutine()
                 return;
             }
 
-            int modifiedDamage = fantasyEffectRunner.ModifyValue(context.run, damagePerHit, "Turn_End", "Additional_Damage");
+            int modifiedDamage = fantasyEffectRunner.ModifyValue(context.run, hit.damage, "Turn_End", "Additional_Damage");
             int dealt = context.monster.ApplyDamage(modifiedDamage);
-            context.run.AddBattleDamageDebug("Direct", dealt);
+            context.run.AddBattleDamageDebug(GetHitLogLabel(hit.sourceFantasy), dealt);
             context.run.lastDamageDealt = dealt;
             context.run.battleDamageDealt += dealt;
             fantasyEffectRunner.ApplyTrigger(context.run, "Attack");
             fantasyEffectRunner.ApplyTrigger(context.run, "Deal_Damage");
             fantasyEffectRunner.ApplyTrigger(context.run, "On_Hit");
             ApplyPendingMonsterDamage();
+        }
+
+        private static string GetHitLogLabel(FantasyData fantasy)
+        {
+            if (fantasy == null)
+                return "Direct";
+            if (!string.IsNullOrWhiteSpace(fantasy.displayName))
+                return fantasy.displayName;
+            if (!string.IsNullOrWhiteSpace(fantasy.devName))
+                return fantasy.devName;
+            if (!string.IsNullOrWhiteSpace(fantasy.id))
+                return fantasy.id;
+            return "Fantasy";
         }
 
 private int ApplyMonsterHitToPlayer(int damagePerHit)
