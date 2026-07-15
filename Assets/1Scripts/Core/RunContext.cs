@@ -38,6 +38,8 @@ namespace GoldfishWalking.Core
         public int remainingMoveCount;
         public int temporaryMoveBonus;
         public int passiveAttackCountBonus;
+
+        public int sagittariusWholeBoxEraseTurn;
         public int itemUseCountThisBattle;
         public int committedBattleEditExtraMatches;
         public int committedBattleEditErasers;
@@ -116,6 +118,8 @@ namespace GoldfishWalking.Core
             currentTurnMoveLimit = 0;
             remainingMoveCount = 0;
             temporaryMoveBonus = 0;
+
+            sagittariusWholeBoxEraseTurn = 0;
             itemUseCountThisBattle = 0;
             committedBattleEditExtraMatches = 0;
             committedBattleEditErasers = 0;

@@ -8,6 +8,7 @@ namespace GoldfishWalking.Formula
         private const int BaseDamage = 10;
         private const int BaseDamageDigitCount = 2;
         private const int BaseMultiplier = 1;
+        private readonly FantasyEffectRunner fantasyEffectRunner = new FantasyEffectRunner();
 
         public BattleFormulaState BuildPlayerFormula(RunContext runContext)
         {
@@ -21,9 +22,12 @@ namespace GoldfishWalking.Formula
         {
             BattleFormulaState formula = new BattleFormulaState();
             int strength = runContext != null && runContext.strength > 0 ? runContext.strength : 0;
+            int transformedBaseDamage = FantasyEffectRunner.TransformBattleNumber(runContext, baseDamage, true);
+            transformedBaseDamage = fantasyEffectRunner.ModifyValue(runContext, transformedBaseDamage, string.Empty, "Base_Damage");
+            bool split = ShouldSplitBoxes(runContext);
 
-            BuildPlayerDamageExpression(formula.damageExpression, strength, FantasyEffectRunner.TransformBattleNumber(runContext, baseDamage, true), ShouldSplitPlayerBoxes(runContext));
-            BuildPlayerHitCountExpression(formula.hitCountExpression, ShouldSplitPlayerBoxes(runContext));
+            BuildPlayerDamageExpression(formula.damageExpression, strength, transformedBaseDamage, split);
+            BuildPlayerHitCountExpression(formula.hitCountExpression, split);
 
             return formula;
         }
@@ -33,12 +37,17 @@ namespace GoldfishWalking.Formula
             BattleFormulaState formula = new BattleFormulaState();
             int monsterDamage = damage > 0 ? FantasyEffectRunner.TransformBattleNumber(runContext, damage, false) : 0;
             int monsterHitCount = hitCount > 0 ? FantasyEffectRunner.TransformBattleNumber(runContext, hitCount, false) : 0;
+            bool split = ShouldSplitBoxes(runContext);
 
             formula.damageExpression.Clear();
-            formula.damageExpression.boxes.Add(FormulaBox.Number("monster_damage", monsterDamage));
+            FormulaBox damageBox = FormulaBox.Number("monster_damage", monsterDamage);
+            damageBox.split = split;
+            formula.damageExpression.boxes.Add(damageBox);
 
             formula.hitCountExpression.Clear();
-            formula.hitCountExpression.boxes.Add(FormulaBox.Number("monster_hit_count", monsterHitCount, locked: !hitCountEditable));
+            FormulaBox hitCountBox = FormulaBox.Number("monster_hit_count", monsterHitCount, locked: !hitCountEditable);
+            hitCountBox.split = split;
+            formula.hitCountExpression.boxes.Add(hitCountBox);
 
             return formula;
         }
@@ -60,7 +69,7 @@ namespace GoldfishWalking.Formula
             expression.boxes.Add(box);
         }
 
-        private static bool ShouldSplitPlayerBoxes(RunContext runContext)
+        private static bool ShouldSplitBoxes(RunContext runContext)
         {
             return runContext != null
                 && runContext.fantasyInventory != null

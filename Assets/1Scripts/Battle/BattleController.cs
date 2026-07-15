@@ -80,6 +80,12 @@ namespace GoldfishWalking.Battle
             ? bootstrap.RunContext.currentBattle.monsterHitCountSegmentState
             : string.Empty;
 
+
+
+        public bool AllFormulaBoxesSplit => context != null
+            && context.run != null
+            && context.run.fantasyInventory != null
+            && context.run.fantasyInventory.Contains("fan_erase_sagittarius");
         public bool MonsterSpecialBoxVisible => context != null && context.monster != null && context.monster.HasSpecialBox;
 
         public int MonsterSpecialBoxValue => context != null && context.monster != null && context.monster.HasSpecialBox
@@ -475,10 +481,11 @@ private IEnumerator ResolveBattleRoutine()
             numbers.monsterId = selectedMonster != null ? selectedMonster.id : string.Empty;
             if (!numbers.battleStartFantasyApplied)
             {
+
+                GrantSagittariusBattleEraser();
                 ApplyFantasyTrigger("Battle_Start");
                 EnsurePlayerBaseDamageDigitCount(numbers);
-                numbers.playerBaseDamage = fantasyEffectRunner.ModifyValue(bootstrap.RunContext, numbers.playerBaseDamage, string.Empty, "Base_Damage");
-                numbers.battleStartFantasyApplied = true;
+numbers.battleStartFantasyApplied = true;
             }
 
             PrepareTurn(1, true);
@@ -571,6 +578,21 @@ private IEnumerator ResolveBattleRoutine()
             ApplyPendingEnemyStrengthModifiers();
         }
 
+private void GrantSagittariusBattleEraser()
+        {
+            if (context == null
+                || context.run == null
+                || context.run.fantasyInventory == null
+                || !context.run.fantasyInventory.Contains("fan_erase_sagittarius"))
+            {
+                return;
+            }
+
+            context.run.itemInventory.AddTemporary(ItemType.Eraser, 1);
+            GameEventHub.RaiseItemInventoryChanged();
+        }
+
+
         private void ApplyPendingEnemyStrengthModifiers()
         {
             if (context == null || context.run == null || context.monster == null || context.run.pendingEnemyStrengthModifiers == null)
@@ -618,12 +640,17 @@ private IEnumerator ResolveBattleRoutine()
             context.monster?.AdvanceStrengthModifierDurations();
         }
 
-        private void ResetCurrentBattleEdit()
+private void ResetCurrentBattleEdit()
         {
             if (context == null || context.run == null || context.run.currentBattle == null)
                 return;
 
+            BattleFormulaState playerStructure = context.playerFormula;
+            BattleFormulaState monsterStructure = context.monsterFormula;
             BattleNumberState numbers = context.run.currentBattle;
+
+            if (context.run.sagittariusWholeBoxEraseTurn == context.run.battleTurnNumber)
+                context.run.sagittariusWholeBoxEraseTurn = 0;
             numbers.RestoreEditSnapshot();
             RestoreSpecialBoxFromNumbers(numbers);
             context.run.RefundCommittedBattleEditItems();
@@ -633,8 +660,42 @@ private IEnumerator ResolveBattleRoutine()
             context.playerFormula = formulaBuilder.BuildPlayerFormula(context.run, numbers.playerBaseDamage);
             bool hitCountEditable = context.monsterPattern != null && context.monsterPattern.patternType == MonsterPatternType.MultiHit;
             context.monsterFormula = formulaBuilder.BuildMonsterFormula(numbers.monsterBaseDamage, numbers.monsterHitCount, hitCountEditable, context.run);
+            RestoreFormulaStructure(playerStructure, context.playerFormula);
+            RestoreFormulaStructure(monsterStructure, context.monsterFormula);
             context.state = BattleState.Editing;
         }
+
+private static void RestoreFormulaStructure(BattleFormulaState source, BattleFormulaState target)
+        {
+            if (source == null || target == null)
+                return;
+
+            RestoreFormulaStateStructure(source.damageExpression, target.damageExpression);
+            RestoreFormulaStateStructure(source.hitCountExpression, target.hitCountExpression);
+        }
+
+private static void RestoreFormulaStateStructure(FormulaState source, FormulaState target)
+        {
+            if (source?.boxes == null || target?.boxes == null)
+                return;
+
+            for (int i = 0; i < target.boxes.Count; i++)
+            {
+                FormulaBox targetBox = target.boxes[i];
+                if (targetBox == null)
+                    continue;
+
+                FormulaBox sourceBox = source.boxes.Find(box => box != null && box.id == targetBox.id);
+                if (sourceBox == null)
+                    continue;
+
+                targetBox.split |= sourceBox.split;
+                targetBox.locked |= sourceBox.locked;
+                targetBox.lockedDigitCount = Mathf.Max(targetBox.lockedDigitCount, sourceBox.lockedDigitCount);
+            }
+        }
+
+
 
         private void EnsurePlayerBaseDamageDigitCount(BattleNumberState numbers)
         {

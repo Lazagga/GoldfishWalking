@@ -521,7 +521,9 @@ private void OnBattlePresentationChanged()
                     false,
                     OnMonsterSpecialBoxDifferenceChanged,
                     battleController.MonsterSpecialBoxSegmentState,
-                    CanCommitMonsterSpecialBoxDifference);
+                    CanCommitMonsterSpecialBoxDifference,
+                    null,
+                    battleController.AllFormulaBoxesSplit);
         }
 
         private void RefreshMoveCounter()

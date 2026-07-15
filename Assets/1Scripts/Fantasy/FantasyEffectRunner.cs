@@ -255,7 +255,7 @@ namespace GoldfishWalking.Fantasy
                     if (TargetMatches("Base_Damage", targets) && runContext.currentBattle != null)
                     {
                         int replacement = Mathf.FloorToInt(GetEffectValue(fantasy, string.Empty, "Base_Damage", 200f, runContext));
-                        value = runContext.currentBattle.playerBaseDamage == 0 ? replacement : 0;
+                        value = value == 0 ? replacement : 0;
                         return true;
                     }
                     break;

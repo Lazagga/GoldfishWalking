@@ -528,6 +528,8 @@ public void Configure(int initialValue, int minimumDigits, Color segmentColor, U
         private readonly HashSet<string> itemErasedOriginalAddresses = new HashSet<string>();
         private readonly HashSet<string> originalShape = new HashSet<string>();
         private EditableSevenSegmentBox owner;
+
+        private RunContext runContext;
         private ItemInventory inventory;
         private ItemEditMode itemMode;
         private FormulaBox editingBox;
@@ -542,6 +544,8 @@ public void Configure(int initialValue, int minimumDigits, Color segmentColor, U
         private int spentExtraMatches;
         private int spentErasers;
         private int spentTemporaryExtraMatches;
+
+        private bool usedSagittariusWholeBoxErase;
         private int spentTemporaryErasers;
         private int heldOriginDigit = -1;
         private int heldOriginSegment = -1;
@@ -627,6 +631,9 @@ public void Configure(int initialValue, int minimumDigits, Color segmentColor, U
             owner = source;
             canvas = owner.GetComponentInParent<Canvas>();
             GameBootstrap bootstrap = FindFirstObjectByType<GameBootstrap>(FindObjectsInactive.Include);
+
+            runContext = bootstrap != null ? bootstrap.RunContext : null;
+            usedSagittariusWholeBoxErase = false;
             inventory = bootstrap != null && bootstrap.RunContext != null ? bootstrap.RunContext.itemInventory : null;
             itemMode = ItemEditMode.None;
             spentExtraMatches = 0;
@@ -934,6 +941,9 @@ private void CommitPopup()
 
             NormalizeStructuralLocksBeforeCommit();
             owner.SetValueFromPopup(editingBox.numberValue, session.slots, CurrentDigitCount(), proposedDifference);
+
+            if (usedSagittariusWholeBoxErase && runContext != null)
+                runContext.sagittariusWholeBoxEraseTurn = Mathf.Max(1, runContext.battleTurnNumber);
             owner.SetCommittedItemErasures(itemErasedOriginalAddresses);
             RegisterCommittedItemSpend(spentExtraMatches, spentTemporaryExtraMatches, spentErasers, spentTemporaryErasers);
             spentExtraMatches = 0;
@@ -951,6 +961,8 @@ private void CommitPopup()
             session.Open(editingBox);
             PopulateSlotsFromOwner();
             StoreOriginalShape();
+
+            usedSagittariusWholeBoxErase = false;
             owner.CopyCommittedItemErasuresTo(itemErasedOriginalAddresses);
             itemMode = ItemEditMode.None;
             HideHeldPreview();
@@ -960,6 +972,8 @@ private void CommitPopup()
 
         private void ClosePopup()
         {
+
+            usedSagittariusWholeBoxErase = false;
             RefundSpentItems();
             HideHeldPreview();
             itemMode = ItemEditMode.None;
@@ -1163,11 +1177,17 @@ private void CommitPopup()
             RefreshSlots();
         }
 
-        private void UseEraser(SevenSegmentPopupSlot view)
+private void UseEraser(SevenSegmentPopupSlot view)
         {
             if (inventory == null || inventory.GetCount(ItemType.Eraser) <= 0)
             {
                 ShowMessage("No erasers left.");
+                return;
+            }
+
+            if (CanUseSagittariusWholeBoxErase())
+            {
+                UseSagittariusWholeBoxEraser(view.DigitIndex);
                 return;
             }
 
@@ -1203,31 +1223,99 @@ private void CommitPopup()
             TrackSpentEraser(consumedTemporary);
             if (!erasingAddedMatch)
                 itemErasedOriginalAddresses.Add(Address(view.DigitIndex, view.SegmentIndex));
+            else
+                RefundErasedAddedMatch();
+
             RegisterBattleItemUse();
             ApplyItemUseEffects(ItemType.Eraser);
-            if (erasingAddedMatch)
-            {
-                if (spentTemporaryExtraMatches > 0)
-                {
-                    spentTemporaryExtraMatches--;
-                    inventory.AddTemporary(ItemType.ExtraMatch, 1);
-                }
-                else if (spentExtraMatches > 0)
-                {
-                    spentExtraMatches--;
-                    inventory.Add(ItemType.ExtraMatch, 1);
-                }
-                else
-                {
-                    inventory.Add(ItemType.ExtraMatch, 1);
-                }
-            }
-
             itemMode = ItemEditMode.None;
             ShowMessage(string.Empty);
             GameEventHub.RaiseItemInventoryChanged();
             RefreshSlots();
         }
+
+private bool CanUseSagittariusWholeBoxErase()
+        {
+            return !usedSagittariusWholeBoxErase
+                && owner != null
+                && owner.Split
+                && runContext != null
+                && runContext.sagittariusWholeBoxEraseTurn <= 0
+                && runContext.fantasyInventory != null
+                && runContext.fantasyInventory.Contains("fan_erase_sagittarius");
+        }
+
+private void UseSagittariusWholeBoxEraser(int digitIndex)
+        {
+            List<MatchSlot> targets = session.slots.FindAll(slot => slot != null && slot.digitIndex == digitIndex && slot.piece != null);
+            if (targets.Count == 0)
+            {
+                ShowMessage("That split box is already empty.");
+                return;
+            }
+
+            for (int i = 0; i < targets.Count; i++)
+            {
+                if (!targets[i].piece.CanErase)
+                {
+                    ShowMessage("Locked matches cannot be erased.");
+                    return;
+                }
+            }
+
+            if (!inventory.TryConsume(ItemType.Eraser, out bool consumedTemporary))
+            {
+                ShowMessage("No erasers left.");
+                return;
+            }
+
+            for (int i = 0; i < targets.Count; i++)
+            {
+                MatchSlot slot = targets[i];
+                bool erasingAddedMatch = slot.piece.IsAdded;
+                MatchEditResult result = session.TryErase(slot.digitIndex, slot.segmentIndex);
+                if (!result.success)
+                    continue;
+
+                if (erasingAddedMatch)
+                    RefundErasedAddedMatch();
+                else
+                    itemErasedOriginalAddresses.Add(Address(slot.digitIndex, slot.segmentIndex));
+            }
+
+            TrackSpentEraser(consumedTemporary);
+            usedSagittariusWholeBoxErase = true;
+            RegisterBattleItemUse();
+            ApplyItemUseEffects(ItemType.Eraser);
+            itemMode = ItemEditMode.None;
+            ShowMessage("The split box was erased.");
+            GameEventHub.RaiseItemInventoryChanged();
+            RefreshSlots();
+        }
+
+private void RefundErasedAddedMatch()
+        {
+            if (inventory == null)
+                return;
+
+            if (spentTemporaryExtraMatches > 0)
+            {
+                spentTemporaryExtraMatches--;
+                inventory.AddTemporary(ItemType.ExtraMatch, 1);
+            }
+            else if (spentExtraMatches > 0)
+            {
+                spentExtraMatches--;
+                inventory.Add(ItemType.ExtraMatch, 1);
+            }
+            else
+            {
+                inventory.Add(ItemType.ExtraMatch, 1);
+            }
+        }
+
+
+
 
         private void RefundSpentItems()
         {
