@@ -96,8 +96,15 @@ namespace GoldfishWalking.Data
             pattern.hasDynamicDamageValue = false;
             pattern.damageValueExpression = string.Empty;
 
-            if (string.IsNullOrWhiteSpace(normalized) || normalized.Equals("Skip", StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrWhiteSpace(normalized))
                 return;
+
+            if (normalized.Equals("Skip", StringComparison.OrdinalIgnoreCase))
+            {
+                pattern.patternType = MonsterPatternType.Special;
+                pattern.specialHandler = normalized;
+                return;
+            }
 
             System.Text.RegularExpressions.Match single = SingleRegex.Match(normalized);
             if (single.Success)
