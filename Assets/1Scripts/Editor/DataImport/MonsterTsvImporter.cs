@@ -148,7 +148,8 @@ namespace GoldfishWalking.Editor.DataImport
                     specialBoxMax = ParseInt(Get(rule, "SpecialBoxMax"), 9),
                     specialBoxValue = ParseInt(Get(rule, "SpecialBoxValue"), -1),
                     countdownAction = Get(rule, "CountdownAction"),
-                    countdownPattern = Get(rule, "CountdownPattern")
+                    countdownPattern = Get(rule, "CountdownPattern"),
+                    aimedShotMultiplier = Mathf.Max(1, ParseInt(Get(rule, "AimedShotMultiplier"), 1))
                 };
 
                 if (!ids.Add(monster.id))

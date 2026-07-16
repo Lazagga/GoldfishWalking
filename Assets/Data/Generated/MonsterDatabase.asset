@@ -42,6 +42,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_10102_WildDog
     sourceId: 10102
     act: 1
@@ -72,6 +73,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_10103_Slime
     sourceId: 10103
     act: 1
@@ -101,6 +103,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_10104_MushroomMan
     sourceId: 10104
     act: 1
@@ -132,6 +135,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_10105_Frog
     sourceId: 10105
     act: 1
@@ -163,6 +167,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_10106_GiantBird
     sourceId: 10106
     act: 1
@@ -193,6 +198,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_10107_Bandit
     sourceId: 10107
     act: 1
@@ -221,6 +227,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_10201_WhiteRabbit
     sourceId: 10201
     act: 1
@@ -253,6 +260,7 @@ MonoBehaviour:
     specialBoxValue: 3
     countdownAction: Escape
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_10202_LittleWitch
     sourceId: 10202
     act: 1
@@ -283,6 +291,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_10203_Hunter
     sourceId: 10203
     act: 1
@@ -315,6 +324,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_10301_HeartQueen
     sourceId: 10301
     act: 1
@@ -346,6 +356,7 @@ MonoBehaviour:
     specialBoxValue: 5
     countdownAction: Pattern
     countdownPattern: HeartQueenSkill
+    aimedShotMultiplier: 1
   - id: Mob_10302_Witch
     sourceId: 10302
     act: 1
@@ -377,6 +388,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_10303_Elf
     sourceId: 10303
     act: 1
@@ -406,6 +418,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 3
   - id: Mob_20101_Snowman
     sourceId: 20101
     act: 2
@@ -436,6 +449,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_20102_Robber
     sourceId: 20102
     act: 2
@@ -464,6 +478,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_20103_Ghost
     sourceId: 20103
     act: 2
@@ -493,6 +508,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_20104_Magician
     sourceId: 20104
     act: 2
@@ -523,6 +539,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_20105_Automaton
     sourceId: 20105
     act: 2
@@ -554,6 +571,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_20106_GiantRat
     sourceId: 20106
     act: 2
@@ -584,6 +602,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_20107_Guard
     sourceId: 20107
     act: 2
@@ -612,6 +631,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_20201_FortuneTeller
     sourceId: 20201
     act: 2
@@ -642,6 +662,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_20202_Alchemist
     sourceId: 20202
     act: 2
@@ -671,6 +692,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_20203_Conductor
     sourceId: 20203
     act: 2
@@ -700,6 +722,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_20301_PiedPiper
     sourceId: 20301
     act: 2
@@ -730,6 +753,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_20302_PlagueDoctor
     sourceId: 20302
     act: 2
@@ -759,6 +783,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_20303_Prophet
     sourceId: 20303
     act: 2
@@ -790,6 +815,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_30101_SteelScarecrow
     sourceId: 30101
     act: 3
@@ -820,6 +846,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_30102_Jellyfish
     sourceId: 30102
     act: 3
@@ -850,6 +877,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_30103_Orb
     sourceId: 30103
     act: 3
@@ -881,6 +909,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_30104_Librarian
     sourceId: 30104
     act: 3
@@ -910,6 +939,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_30105_Golem
     sourceId: 30105
     act: 3
@@ -938,6 +968,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_30106_Anglerfish
     sourceId: 30106
     act: 3
@@ -967,6 +998,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_30107_Shadow
     sourceId: 30107
     act: 3
@@ -997,6 +1029,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_30201_Vampire
     sourceId: 30201
     act: 3
@@ -1028,6 +1061,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_30202_Knight
     sourceId: 30202
     act: 3
@@ -1059,6 +1093,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_30203_Planetarium
     sourceId: 30203
     act: 3
@@ -1090,6 +1125,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_30301_Stargazer
     sourceId: 30301
     act: 3
@@ -1121,6 +1157,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_30302_CosmicTree
     sourceId: 30302
     act: 3
@@ -1151,6 +1188,7 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1
   - id: Mob_30303_Whale
     sourceId: 30303
     act: 3
@@ -1181,3 +1219,4 @@ MonoBehaviour:
     specialBoxValue: -1
     countdownAction: 
     countdownPattern: 
+    aimedShotMultiplier: 1

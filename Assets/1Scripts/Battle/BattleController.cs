@@ -148,7 +148,14 @@ namespace GoldfishWalking.Battle
                 AppendStatus(builder, "CAP", context.monster.DamageCapPerHit);
                 AppendStatus(builder, "CAPDMG", context.monster.DamageCapAccumulatedDamage);
                 AppendStatus(builder, "FORTUNE", context.monster.FortuneStack);
-                AppendStatus(builder, "PROPHECY", context.monster.ProphecyStack);
+                
+                if (context.monster.Data != null && context.monster.Data.aimedShotMultiplier > 1)
+                {
+                    if (builder.Length > 0)
+                        builder.Append("  ");
+                    builder.Append("AIM ").Append(context.run?.currentBattle?.aimedShotValue ?? 0);
+                }
+AppendStatus(builder, "PROPHECY", context.monster.ProphecyStack);
 
                 return builder.Length > 0 ? builder.ToString() : "-";
             }
@@ -242,6 +249,7 @@ private IEnumerator ResolveBattleRoutine()
             BattleFormulaResult playerResult = formulaEvaluator.EvaluateBattleFormula(context.playerFormula);
             playerResult = ApplyPlayerDebuff(playerResult);
             BattleFormulaResult monsterResult = formulaEvaluator.EvaluateBattleFormula(context.monsterFormula);
+            monsterResult = ApplyAimedShot(monsterResult);
             if (!playerResult.isValid || !monsterResult.isValid)
             {
                 string error = !playerResult.isValid ? playerResult.error : monsterResult.error;
@@ -586,7 +594,9 @@ public void SetPlayerDebuffValue(int value, string segmentState)
 
             BattleNumberState numbers = context.run.EnsureBattleNumbers(MonsterHitCount);
             EnsurePlayerBaseDamageDigitCount(numbers);
-            RefreshPlayerDebuffForTurn(numbers);
+            
+            RefreshAimedShotForTurn(numbers);
+RefreshPlayerDebuffForTurn(numbers);
             EnsurePlayerTurnDamage(numbers);
             context.playerFormula = formulaBuilder.BuildPlayerFormula(context.run, numbers.playerBaseDamage);
             PrepareMonsterPatternFormula(numbers);
@@ -1373,6 +1383,72 @@ private BattleFormulaResult ApplyPlayerDebuff(BattleFormulaResult result)
             }
 
             return BattleFormulaResult.Success(result.damagePerHit - value, result.hitCount);
+        }
+
+
+private void RefreshAimedShotForTurn(BattleNumberState numbers)
+        {
+            if (numbers == null || context?.monster?.Data == null || context.monster.Data.aimedShotMultiplier <= 1)
+                return;
+
+            int turn = Mathf.Max(1, context.run.battleTurnNumber);
+            if (numbers.aimedShotRollTurn == turn)
+                return;
+
+            numbers.aimedShotValue = context.run.RollValue($"battle.monster.aimed_shot.turn.{turn}", 0, 9);
+            numbers.aimedShotRollTurn = turn;
+        }
+
+        private BattleFormulaResult ApplyAimedShot(BattleFormulaResult result)
+        {
+            if (!result.isValid || context?.monster?.Data == null || context.monster.Data.aimedShotMultiplier <= 1)
+                return result;
+
+            int target = context.run?.currentBattle?.aimedShotValue ?? -1;
+            if (target < 0 || !PlayerBoxesContainDigit(target))
+                return result;
+
+            return BattleFormulaResult.Success(result.damagePerHit * context.monster.Data.aimedShotMultiplier, result.hitCount);
+        }
+
+        private bool PlayerBoxesContainDigit(int target)
+        {
+            if (FormulaContainsDigit(context.playerFormula?.damageExpression, target) ||
+                FormulaContainsDigit(context.playerFormula?.hitCountExpression, target))
+                return true;
+
+            BattleNumberState numbers = context.run?.currentBattle;
+            return numbers != null && !string.IsNullOrWhiteSpace(numbers.playerDebuffOperator) &&
+                ValueContainsDigit(numbers.playerDebuffValue, target, numbers.playerDebuffDigitCount);
+        }
+
+        private static bool FormulaContainsDigit(FormulaState formula, int target)
+        {
+            if (formula?.boxes == null)
+                return false;
+
+            for (int i = 0; i < formula.boxes.Count; i++)
+            {
+                FormulaBox box = formula.boxes[i];
+                if (box != null && box.boxType == FormulaBoxType.Number && ValueContainsDigit(box.numberValue, target, box.digitCount))
+                    return true;
+            }
+            return false;
+        }
+
+private static bool ValueContainsDigit(int value, int target, int displayDigitCount)
+        {
+            value = Mathf.Abs(value);
+            int naturalDigitCount = value == 0 ? 1 : Mathf.FloorToInt(Mathf.Log10(value)) + 1;
+            int digitsToCheck = Mathf.Max(naturalDigitCount, displayDigitCount);
+
+            for (int i = 0; i < digitsToCheck; i++)
+            {
+                if (value % 10 == target)
+                    return true;
+                value /= 10;
+            }
+            return false;
         }
 }
 }

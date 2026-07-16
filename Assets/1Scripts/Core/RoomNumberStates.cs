@@ -51,6 +51,8 @@ namespace GoldfishWalking.Core
         public bool rewardExtraMatch;
         public bool rewardEraser;
         public bool battleStartFantasyApplied;
+        public int aimedShotValue;
+        public int aimedShotRollTurn;
 
         public int EnsureMonsterPatternDamage(string key, Func<int> roll)
         {

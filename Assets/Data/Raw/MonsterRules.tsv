@@ -1,4 +1,4 @@
-DataName	DamageCap	DamageCapBreak	Lifesteal	BaseDamageLocked	SpecialBoxLabel	SpecialBoxMin	SpecialBoxMax	SpecialBoxValue	CountdownAction	CountdownPattern
+DataName	DamageCap	DamageCapBreak	Lifesteal	BaseDamageLocked	SpecialBoxLabel	SpecialBoxMin	SpecialBoxMax	SpecialBoxValue	CountdownAction	CountdownPattern	AimedShotMultiplier
 Mob_10201_WhiteRabbit	0	0	0	false	RABBIT	0	9	3	Escape	
 Mob_10301_HeartQueen	0	0	0	false	HEART	0	9	5	Pattern	HeartQueenSkill
 Mob_10302_Witch	0	0	0	false		0	9	-1		
@@ -6,3 +6,4 @@ Mob_20107_Guard	45	0	0	false		0	9	-1
 Mob_30101_SteelScarecrow	0	0	0	true		0	9	-1		
 Mob_30201_Vampire	0	0	0.3	false		0	9	-1		
 Mob_30202_Knight	20	400	0	false		0	9	-1		
+Mob_10303_Elf	0	0	0	false		0	9	-1			3

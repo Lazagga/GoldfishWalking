@@ -53,5 +53,6 @@ namespace GoldfishWalking.Data
         public int specialBoxValue = -1;
         public string countdownAction;
         public string countdownPattern;
+        public int aimedShotMultiplier = 1;
     }
 }
