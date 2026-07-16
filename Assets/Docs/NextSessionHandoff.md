@@ -1,6 +1,65 @@
 ﻿# Next Session Handoff
 
-Last updated: 2026-07-16
+Last updated: 2026-07-17
+
+## Latest 2026-07-17 Monster Mechanics And Data-Driven Handoff
+
+This section supersedes older monster-progress, active-task, and data-authoring
+notes below.
+
+### Required programming direction
+
+- Monster, fantasy, and pattern mechanics must minimize checks against content
+  IDs, data names, and display names.
+- Prefer JSON-authored generic operations and parsers for timing, target,
+  action/type, conditions, count, value/range, operator choices, duration,
+  editability, locking, splitting, and special-box presentation.
+- A designer changing an already supported behavior in JSON should not require
+  a C# change. Add C# only for a new reusable operation/subsystem, then expose
+  it through the common schema.
+- `MonsterRules.tsv` is for persistent identity-independent properties or JSON
+  configuration outside one selected turn pattern. Reimport generated data
+  before runtime testing.
+
+### Recent completed work
+
+- Little Witch and Witch attach editable player debuff boxes outside the player
+  formula. Little Witch subtract lasts two turns; Witch divide persists. Values
+  reroll deterministically each turn. Division by zero keeps the popup open.
+- Player debuff UI is a scene panel beside `PlayerFormulaPanel`. Witch's old
+  monster special divide rule was removed to prevent duplicate panels.
+- Elf rolls one seeded `AIM` digit every turn. Matching a digit in player-owned
+  number boxes, including displayed leading zeroes, applies the configured
+  base-damage multiplier.
+- Magician reads `FormulaDecoyDigitCount`. Monster number boxes split and one
+  seeded added digit is removed during calculation. Singles can present as a
+  three-digit single or a two-digit attack with fake hit count. Distinct fake
+  digit coloring remains presentation follow-up.
+- Conductor and Pied Piper read `PlayerAttackCondition` JSON and reuse
+  `MonsterSpecialBoxPanel`. Conductor count is editable; Pied Piper threshold
+  is locked and uses `<` or `>` only. Failed conditions set player base damage
+  to zero.
+- Hunter `BoxLock` timing is `NextTurn`, so Cue Stick no longer causes the lock
+  to disappear immediately.
+- Monster generated damage is clamped to its authored digit range before
+  display. Singles reset hit value/display width to one digit, preventing
+  invalid initial `05`, `078`, and stale `01` presentation.
+- Reward item rolls are cached per battle for same-seed stability. Movement
+  modifiers no longer execute twice, fixing Boots `6/4`.
+
+### Current caveats and next verification
+
+- Live regression-check Conductor count editing/condition results, Pied Piper
+  `<`/`>` thresholds, Cue Stick plus Hunter lock persistence, and Pied Piper
+  leading-zero/hit-count initialization.
+- Magician calculation is connected, but its fake digit lacks dedicated visual
+  treatment.
+- Keep `Assets/1Scripts` as gameplay source of truth and
+  `Assets/Scenes/Game.unity` as the main scene per `AGENTS.md`.
+
+Latest validation: monster import reports `39` monsters and `38` patterns.
+Command-line build passes with `0` errors; two known MCP reference warnings
+remain. Unity console error/warning query reports `0` entries.
 
 ## Latest 2026-07-16 Data-Driven Runtime And Inspector Handoff
 

@@ -382,11 +382,31 @@ Examples:
 
 `MonsterRules.tsv` contains identity-independent monster properties that do
 not belong to a turn pattern: damage caps, lifesteal, locked base damage,
-special-box setup, and countdown outcome. `PatternRules.tsv` contains pattern
+special-box setup, countdown outcome, aimed-shot multiplier, formula decoy
+digit count, and persistent player-attack-condition JSON. `PatternRules.tsv` contains pattern
 metadata that the current sheet JSON did not previously expose: self-destruct,
 append-mode special boxes, and editable healing. These tables are keyed by
 stable data keys and are imported into generated data; runtime code never
 checks monster or pattern names.
+
+`PlayerAttackCondition` JSON currently supports:
+
+- `Type`: `DigitCount` or `CompareBaseDamage`.
+- `ValueMin`, `ValueMax`: seeded condition-number range.
+- `CountMin`, `CountMax`: seeded required-count range for `DigitCount`.
+- `CountEditable`: whether the displayed count special box is editable.
+- `Operators`: comparison choices such as `["<", ">"]`.
+
+Examples:
+
+```json
+{"Type":"DigitCount","ValueMin":0,"ValueMax":9,"CountMin":0,"CountMax":9,"CountEditable":true}
+{"Type":"CompareBaseDamage","ValueMin":10,"ValueMax":99,"Operators":["<",">"]}
+```
+
+Prefer extending these shared JSON schemas and generic runners over adding
+content-ID/name branches. A supported timing/value/range/operator/count change
+must remain a data-only edit.
 
 Fantasy effect `Trigger` values observed:
 

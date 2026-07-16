@@ -1595,7 +1595,9 @@ private void RefreshPlayerAttackConditionForTurn(BattleNumberState numbers)
             if (numbers.playerAttackConditionTurn == turn)
                 return;
 
-            numbers.playerAttackConditionType = data.playerAttackConditionType;
+            
+            numbers.playerAttackConditionSegmentState = string.Empty;
+numbers.playerAttackConditionType = data.playerAttackConditionType;
             numbers.playerAttackConditionValue = context.run.RollValue($"battle.player_attack_condition.value.turn.{turn}", data.conditionValueMin, Mathf.Max(data.conditionValueMin, data.conditionValueMax));
             numbers.playerAttackConditionCount = context.run.RollValue($"battle.player_attack_condition.count.turn.{turn}", data.conditionCountMin, Mathf.Max(data.conditionCountMin, data.conditionCountMax));
             if (data.conditionOperators != null && data.conditionOperators.Length > 0)

@@ -1,6 +1,40 @@
 # Progress Checkpoint
 
-Last updated: 2026-07-15
+Last updated: 2026-07-17
+
+## 2026-07-17 Monster Pattern Checkpoint
+
+- Little Witch and Witch use editable player debuff scene UI beside the player
+  formula. Little Witch subtract lasts two turns; Witch divide persists.
+  Values reroll deterministically each turn. Divide-by-zero blocks popup close.
+- Elf has one seeded `AIM` digit per turn. A match in player-owned number
+  boxes, including a displayed leading zero, multiplies Elf base damage by the
+  data-authored amount (`3`).
+- Magician reads `FormulaDecoyDigitCount`: monster number boxes split and one
+  seeded extra digit is excluded from calculation. Singles may look like a
+  three-digit single or a two-digit attack with fake hit count. The fake digit
+  does not yet have a distinct visual color.
+- Conductor and Pied Piper read generic `PlayerAttackCondition` JSON and use
+  `MonsterSpecialBoxPanel`. Conductor shows `[digit] x [editable count]`, with
+  both values generated from `0..9`; condition boxes are excluded from the
+  count. Pied Piper shows a locked two-digit threshold using only `<` or `>`.
+  Failed conditions set player base damage to `0`.
+- Hunter partial lock is now `NextTurn`, preventing Cue Stick formula rebuilds
+  from immediately discarding it.
+- Generated monster attacks are revalidated against their digit range
+  (`10..99`, `100..999`, etc.). Singles reset hit value/display width to `1`,
+  preventing stale `01`.
+- Same-seed reward item rolls are cached per battle. Movement modifiers no
+  longer apply twice, fixing Boots displaying `6/4`.
+
+Permanent authoring rule: minimize ID/name hardcoding for monsters, fantasies,
+and patterns. Prefer JSON parsing and reusable operations so designers can
+change supported timing, values, ranges, counts, operators, duration, targets,
+and flags without C# edits.
+
+Latest validation: monster import reports `39` monsters and `38` patterns;
+command-line build reports `0` errors. Two existing Unity/MCP reference
+warnings remain, and the Unity console reports `0` errors/warnings.
 
 ## 2026-07-15 Battle Structure And Fantasy Checkpoint
 

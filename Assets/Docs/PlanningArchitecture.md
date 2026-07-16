@@ -1,5 +1,31 @@
 # GoldfishWalking Planning Architecture
 
+## 2026-07-17 Data-Driven Content Policy
+
+Monster, fantasy, and pattern programming must be data-driven by default.
+Avoid branching on content ID, data name, or display name when behavior can be
+expressed as a reusable operation. Author timing, target, action/type,
+value/range, operator choices, count, duration, condition, lock/split flags,
+and editability in JSON, then parse them into generic runtime data.
+
+```text
+TSV/Inspector JSON
+  -> validated import/parser
+  -> generated structured data
+  -> generic runtime runner
+  -> formula/UI state
+```
+
+Changing a supported mechanic should normally require only JSON/data changes.
+C# changes are reserved for a genuinely new reusable action, condition type,
+expression, UI subsystem, or state transition. New operations must be exposed
+through the shared schema instead of a one-off monster/fantasy branch.
+
+Current identity-independent examples include player debuff boxes, aimed-shot
+multipliers, formula decoy digits, and player-attack condition JSON.
+`MonsterRules.tsv` carries persistent identity-independent monster properties
+or JSON configuration that does not belong to one selected turn pattern.
+
 ## 2026-07-16 Data Authoring Boundary
 
 The generated fantasy and monster-pattern Inspectors expose one visible JSON
@@ -34,7 +60,7 @@ It is intended as the implementation baseline before large code changes.
 
 ## Current Project Shape
 
-Last status refresh: 2026-07-16.
+Last status refresh: 2026-07-17.
 
 ## 2026-07-15 Runtime Decisions
 

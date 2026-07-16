@@ -23,6 +23,14 @@ C:\Users\USER\Documents\GitHub\GoldfishWalking
 - Remove temporary alias-heavy code once legacy global type conflicts are gone.
 - Main Unity scene: `Assets/Scenes/Game.unity`.
 
+## Data-Driven Gameplay Rule
+
+- Monster, fantasy, and pattern behavior must minimize monster/fantasy ID or display-name checks.
+- Prefer authored JSON plus generic parsers/runners for timing, targets, conditions, counts, values, ranges, operators, duration, locking, splitting, and special boxes.
+- A designer changing an existing supported mechanic in JSON should not require a C# change.
+- Add C# only for a genuinely new reusable operation or subsystem, then expose it through the common JSON schema.
+- TSV rule columns may carry JSON configuration, but generated assets and parsed runtime fields remain the runtime source after import.
+
 ## Confirmed Formula And Match Rules
 
 - Formula operators are limited to `+`, `-`, `*`, and `/`.
@@ -45,4 +53,4 @@ Before continuing, read:
 - `Assets/Docs/NextSessionHandoff.md`
 - `Assets/Docs/PlanningArchitecture.md`
 
-The immediate next task after user cleanup is to simplify and compile-check `Assets/1Scripts` only.
+Continue from the latest handoff and regression-check recently implemented monster patterns before adding the next content pass.
