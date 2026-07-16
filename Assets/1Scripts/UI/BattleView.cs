@@ -41,6 +41,7 @@ namespace GoldfishWalking.UI
         private Text monsterHealthText;
         private Text monsterBuffText;
         private Text playerBuffText;
+        private RectTransform playerDebuffPanel;
         private RectTransform monsterSpecialBoxPanel;
         private Text monsterSpecialBoxLabel;
         private Text moveCountText;
@@ -52,10 +53,13 @@ namespace GoldfishWalking.UI
         private Text fantasyTooltipEffect;
         private FantasyTooltipView fantasyTooltipView;
         private FantasyListView fantasyListView;
+        private EditableSevenSegmentBox playerDebuffBox;
+        private Text playerDebuffOperatorText;
         private EditableSevenSegmentBox playerDamageBox;
         private EditableSevenSegmentBox monsterDamageBox;
         private EditableSevenSegmentBox monsterHitCountBox;
         private EditableSevenSegmentBox monsterSpecialBox;
+        private int playerDebuffDifference;
         private int playerDamageDifference;
         private int monsterDamageDifference;
         private int monsterHitDifference;
@@ -233,6 +237,7 @@ private void OnBattlePresentationChanged()
             fantasyListView = fantasyContent != null ? fantasyContent.GetComponent<FantasyListView>() : null;
             if (fantasyListView != null)
                 fantasyListView.Bind(fantasyContent, fantasyTooltipView, 10);
+            EnsurePlayerDebuffUI();
             playerDamageBox = FindComponent<EditableSevenSegmentBox>("PlayerFormulaPanel/PlayerDamage");
             monsterDamageBox = FindComponent<EditableSevenSegmentBox>("MonsterFormulaPanel/FormulaContent/MonsterDamage");
             monsterHitCountBox = FindComponent<EditableSevenSegmentBox>("MonsterFormulaPanel/FormulaContent/MonsterHitCount");
@@ -242,6 +247,17 @@ private void OnBattlePresentationChanged()
             debugConsoleButton = FindComponent<Button>("DebugFantasyConsole/AddButton");
             SetButtonLabel(resolveBattleButton, "턴\n종료", 26);
         }
+
+private void EnsurePlayerDebuffUI()
+        {
+            playerDebuffPanel = FindRect("PlayerDebuffPanel");
+            playerDebuffBox = FindComponent<EditableSevenSegmentBox>("PlayerDebuffPanel/PlayerDebuff");
+            playerDebuffOperatorText = FindComponent<Text>("PlayerDebuffPanel/PlayerDebuffOperator");
+
+            if (playerDebuffPanel == null || playerDebuffBox == null || playerDebuffOperatorText == null)
+                Debug.LogError("[BattleView] Missing prebuilt PlayerDebuffPanel UI.");
+        }
+
 
         private void EnsureDevelopmentDebugUI()
         {
@@ -478,6 +494,7 @@ private void OnBattlePresentationChanged()
                     CanCommitPlayerDamageDifference, null,
                     battleController != null && battleController.PlayerBaseDamageSplit,
                     battleController != null ? battleController.PlayerBaseDamageLockedDigitCount : 0);
+            RefreshPlayerDebuffBox();
             if (monsterDamageBox != null)
                 monsterDamageBox.Configure(GetMonsterBaseDamage(), battleController != null ? battleController.MonsterBaseDamageDigitCount : 1,
                     healthColor, OnMonsterDamageEdited, battleController != null && battleController.MonsterBaseDamageLocked,
@@ -494,6 +511,32 @@ private void OnBattlePresentationChanged()
                     battleController != null ? battleController.MonsterHitCountLockedDigitCount : 0);
             RefreshMonsterSpecialBox();
         }
+
+private void RefreshPlayerDebuffBox()
+        {
+            bool visible = battleController != null && battleController.PlayerDebuffVisible;
+            if (playerDebuffPanel != null)
+                playerDebuffPanel.gameObject.SetActive(visible);
+            if (playerDebuffBox != null)
+                playerDebuffBox.gameObject.SetActive(visible);
+            if (playerDebuffOperatorText != null)
+            {
+                playerDebuffOperatorText.gameObject.SetActive(visible);
+                playerDebuffOperatorText.text = battleController != null && battleController.PlayerDebuffOperator == "Divide" ? "/" : "-";
+            }
+
+            if (!visible)
+            {
+                playerDebuffDifference = 0;
+                return;
+            }
+
+            playerDebuffBox.Configure(battleController.PlayerDebuffValue, battleController.PlayerDebuffDigitCount,
+                healthColor, OnPlayerDebuffEdited, false, OnPlayerDebuffDifferenceChanged,
+                battleController.PlayerDebuffSegmentState, CanCommitPlayerDebuffDifference,
+                null, false, 0, IsValidPlayerDebuffValue, "Division by zero is not allowed.");
+        }
+
 
         private void RefreshMonsterSpecialBox()
         {
@@ -563,6 +606,30 @@ private void OnBattlePresentationChanged()
                 battleController.SetPlayerBaseDamage(value, playerDamageBox != null ? playerDamageBox.SegmentState : string.Empty);
         }
 
+private void OnPlayerDebuffEdited(int value)
+        {
+            if (battleController != null)
+                battleController.SetPlayerDebuffValue(value, playerDebuffBox != null ? playerDebuffBox.SegmentState : string.Empty);
+        }
+
+        private void OnPlayerDebuffDifferenceChanged(int difference)
+        {
+            playerDebuffDifference = difference;
+            RefreshMoveCounter();
+        }
+
+        private bool CanCommitPlayerDebuffDifference(int proposedDifference)
+        {
+            return CanCommitMoveDifference(playerDamageDifference, proposedDifference, monsterDamageDifference, monsterHitDifference, monsterSpecialBoxDifference);
+        }
+
+private bool IsValidPlayerDebuffValue(int value)
+        {
+            return battleController == null || battleController.PlayerDebuffOperator != "Divide" || value != 0;
+        }
+
+
+
         private void OnMonsterDamageEdited(int value)
         {
             if (battleController != null)
@@ -607,27 +674,28 @@ private void OnBattlePresentationChanged()
 
         private bool CanCommitPlayerDamageDifference(int proposedDifference)
         {
-            return CanCommitMoveDifference(proposedDifference, monsterDamageDifference, monsterHitDifference, monsterSpecialBoxDifference);
+            return CanCommitMoveDifference(proposedDifference, playerDebuffDifference, monsterDamageDifference, monsterHitDifference, monsterSpecialBoxDifference);
         }
 
         private bool CanCommitMonsterDamageDifference(int proposedDifference)
         {
-            return CanCommitMoveDifference(playerDamageDifference, proposedDifference, monsterHitDifference, monsterSpecialBoxDifference);
+            return CanCommitMoveDifference(playerDamageDifference, playerDebuffDifference, proposedDifference, monsterHitDifference, monsterSpecialBoxDifference);
         }
 
         private bool CanCommitMonsterHitDifference(int proposedDifference)
         {
-            return CanCommitMoveDifference(playerDamageDifference, monsterDamageDifference, proposedDifference, monsterSpecialBoxDifference);
+            return CanCommitMoveDifference(playerDamageDifference, playerDebuffDifference, monsterDamageDifference, proposedDifference, monsterSpecialBoxDifference);
         }
 
         private bool CanCommitMonsterSpecialBoxDifference(int proposedDifference)
         {
-            return CanCommitMoveDifference(playerDamageDifference, monsterDamageDifference, monsterHitDifference, proposedDifference);
+            return CanCommitMoveDifference(playerDamageDifference, playerDebuffDifference, monsterDamageDifference, monsterHitDifference, proposedDifference);
         }
 
-        private bool CanCommitMoveDifference(int playerDifference, int monsterDamageDifferenceValue, int monsterHitDifferenceValue, int monsterSpecialDifferenceValue)
+        private bool CanCommitMoveDifference(int playerDifference, int playerDebuffDifferenceValue, int monsterDamageDifferenceValue, int monsterHitDifferenceValue, int monsterSpecialDifferenceValue)
         {
             int totalDifference = Mathf.Max(0, playerDifference)
+                + Mathf.Max(0, playerDebuffDifferenceValue)
                 + Mathf.Max(0, monsterDamageDifferenceValue)
                 + Mathf.Max(0, monsterHitDifferenceValue)
                 + Mathf.Max(0, monsterSpecialDifferenceValue);
@@ -638,6 +706,7 @@ private void OnBattlePresentationChanged()
         private int CurrentTotalMoveDifference()
         {
             return Mathf.Max(0, playerDamageDifference)
+                + Mathf.Max(0, playerDebuffDifference)
                 + Mathf.Max(0, monsterDamageDifference)
                 + Mathf.Max(0, monsterHitDifference)
                 + Mathf.Max(0, monsterSpecialBoxDifference);

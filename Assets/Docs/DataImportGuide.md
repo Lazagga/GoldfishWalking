@@ -1,5 +1,51 @@
 # Data Import Guide
 
+## 2026-07-16 Runtime Authoring Update
+
+This section supersedes conflicting older notes in this guide.
+
+TSV remains an import source and reimporting can overwrite generated assets.
+For direct Unity balancing, the generated database Inspectors are also a
+supported runtime-authoring path:
+
+```text
+Effects JSON (Runtime Source)
+  -> immediate validation/parsing
+  -> structured runtime definition
+  -> gameplay
+```
+
+Invalid JSON displays an Inspector error and preserves the last valid runtime
+definition. Parsed fields are read-only previews; `rawJson` and legacy fantasy
+fields are not independent authoring sources. `MonsterDatabase` has a searchable
+inspector grouped into encounter data, battle stats, pattern AI, special rules,
+and read-only import metadata.
+
+Top-level monster-pattern `Count` rules:
+
+- omitted: unlimited uses;
+- `0`: unavailable;
+- positive: maximum selections per battle;
+- usage is keyed by pattern ID, so duplicate IDs share one counter.
+
+Effect-level `Count` is an action-specific quantity (currently used for box
+construction), not pattern usage. `HitCount` is damage application count.
+
+`Skip` is an authored special pattern resolved from
+`MonsterPatternDatabase`, so its Count, Condition, and effects come from JSON:
+
+```json
+{"Attack":"Skip","Count":3,"Effect":null}
+```
+
+Formula keys such as `3_Single`, `2_Multi_2`, and `Str_1` still use the generic
+key parser. Missing or unusable references fall back to `2_Single`.
+
+`AIType` is active: `Static` cycles in order while skipping ineligible entries;
+`Random` deterministically chooses among Count/Condition-eligible entries.
+
+Current generated import status: 39 monsters, 38 patterns, 60 fantasies.
+
 Google Sheets/Excel is the authoring source of truth for monster, pattern, and
 fantasy data. Runtime systems should read generated Unity data, not raw sheet
 cells.

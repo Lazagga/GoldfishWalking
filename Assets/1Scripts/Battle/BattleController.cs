@@ -58,6 +58,11 @@ namespace GoldfishWalking.Battle
 
         public bool PlayerBaseDamageSplit => GetFirstNumberBox(context?.playerFormula?.damageExpression)?.split == true;
         public bool PlayerBaseDamageLocked => GetFirstNumberBox(context?.playerFormula?.damageExpression)?.locked == true;
+        public bool PlayerDebuffVisible => bootstrap?.RunContext?.currentBattle != null && !string.IsNullOrWhiteSpace(bootstrap.RunContext.currentBattle.playerDebuffOperator);
+        public string PlayerDebuffOperator => bootstrap?.RunContext?.currentBattle?.playerDebuffOperator ?? string.Empty;
+        public int PlayerDebuffValue => bootstrap?.RunContext?.currentBattle?.playerDebuffValue ?? 0;
+        public int PlayerDebuffDigitCount => bootstrap?.RunContext?.currentBattle?.playerDebuffDigitCount ?? 1;
+        public string PlayerDebuffSegmentState => bootstrap?.RunContext?.currentBattle?.playerDebuffSegmentState ?? string.Empty;
         public int PlayerBaseDamageLockedDigitCount => GetFirstNumberBox(context?.playerFormula?.damageExpression)?.lockedDigitCount ?? 0;
         public bool MonsterBaseDamageSplit => GetFirstNumberBox(context?.monsterFormula?.damageExpression)?.split == true;
         public int MonsterBaseDamageLockedDigitCount => GetFirstNumberBox(context?.monsterFormula?.damageExpression)?.lockedDigitCount ?? 0;
@@ -235,6 +240,7 @@ private IEnumerator ResolveBattleRoutine()
             SetResolutionPhase(BattleState.Validating);
             context.run.battleDamageDebugLines.Clear();
             BattleFormulaResult playerResult = formulaEvaluator.EvaluateBattleFormula(context.playerFormula);
+            playerResult = ApplyPlayerDebuff(playerResult);
             BattleFormulaResult monsterResult = formulaEvaluator.EvaluateBattleFormula(context.monsterFormula);
             if (!playerResult.isValid || !monsterResult.isValid)
             {
@@ -496,6 +502,20 @@ numbers.battleStartFantasyApplied = true;
             SetPlayerBaseDamage(value, string.Empty);
         }
 
+public void SetPlayerDebuffValue(int value, string segmentState)
+        {
+            BattleNumberState numbers = bootstrap?.RunContext?.currentBattle;
+            if (numbers == null)
+                return;
+
+            numbers.playerDebuffValue = Mathf.Max(0, value);
+            numbers.playerDebuffSegmentState = segmentState;
+            numbers.playerDebuffDigitCount = DigitCountFromSegmentState(segmentState, numbers.playerDebuffDigitCount);
+            if (context != null)
+                context.playerFormula = formulaBuilder.BuildPlayerFormula(bootstrap.RunContext, numbers.playerBaseDamage);
+        }
+
+
         private static int DigitCountFromSegmentState(string segmentState, int fallback)
         {
             if (!string.IsNullOrWhiteSpace(segmentState))
@@ -566,6 +586,7 @@ numbers.battleStartFantasyApplied = true;
 
             BattleNumberState numbers = context.run.EnsureBattleNumbers(MonsterHitCount);
             EnsurePlayerBaseDamageDigitCount(numbers);
+            RefreshPlayerDebuffForTurn(numbers);
             EnsurePlayerTurnDamage(numbers);
             context.playerFormula = formulaBuilder.BuildPlayerFormula(context.run, numbers.playerBaseDamage);
             PrepareMonsterPatternFormula(numbers);
@@ -1307,6 +1328,51 @@ private static FormulaBox GetFirstNumberBox(FormulaState state)
             }
 
             return null;
+        }
+
+
+private void RefreshPlayerDebuffForTurn(BattleNumberState numbers)
+        {
+            if (numbers == null || string.IsNullOrWhiteSpace(numbers.playerDebuffOperator))
+                return;
+
+            int turn = Mathf.Max(1, context.run.battleTurnNumber);
+            if (numbers.playerDebuffExpiresAfterTurn >= 0 && turn > numbers.playerDebuffExpiresAfterTurn)
+            {
+                numbers.playerDebuffOperator = string.Empty;
+                numbers.playerDebuffValue = 0;
+                numbers.playerDebuffSegmentState = string.Empty;
+                numbers.playerDebuffRollTurn = 0;
+                return;
+            }
+
+            if (numbers.playerDebuffRollTurn == turn)
+                return;
+
+            int digitCount = Mathf.Max(1, numbers.playerDebuffDigitCount);
+            int minimum = digitCount == 1 ? 1 : (int)Mathf.Pow(10, digitCount - 1);
+            int maximum = (int)Mathf.Pow(10, digitCount) - 1;
+            numbers.playerDebuffValue = context.run.RollValue(
+                $"battle.player.debuff.{numbers.playerDebuffOperator}.turn.{turn}", minimum, maximum);
+            numbers.playerDebuffSegmentState = string.Empty;
+            numbers.playerDebuffRollTurn = turn;
+        }
+
+
+private BattleFormulaResult ApplyPlayerDebuff(BattleFormulaResult result)
+        {
+            if (!result.isValid || !PlayerDebuffVisible)
+                return result;
+
+            int value = Mathf.Max(0, PlayerDebuffValue);
+            if (PlayerDebuffOperator == "Divide")
+            {
+                if (value == 0)
+                    return BattleFormulaResult.Failure("Division by zero is not allowed.");
+                return BattleFormulaResult.Success(Mathf.FloorToInt((float)result.damagePerHit / value), result.hitCount);
+            }
+
+            return BattleFormulaResult.Success(result.damagePerHit - value, result.hitCount);
         }
 }
 }

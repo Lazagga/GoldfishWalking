@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using GoldfishWalking.Core;
 using GoldfishWalking.Data;
 using GoldfishWalking.Fantasy;
@@ -201,19 +201,34 @@ namespace GoldfishWalking.UI
             }
         }
 
-        private void PrepareRewardList()
+private void PrepareRewardList()
         {
             hasFantasyReward = true;
             if (bootstrap != null && bootstrap.RunContext != null)
             {
+                BattleNumberState numbers = bootstrap.RunContext.currentBattle;
                 int itemChance = Mathf.Clamp(fantasyEffectRunner.ModifyValue(bootstrap.RunContext, 50, "Battle_Reward", "Item_Chance"), 0, 100);
-                hasExtraMatchReward = bootstrap.RunContext.RollValue("reward.extra_match", 0, 99) < itemChance;
-                hasEraserReward = bootstrap.RunContext.RollValue("reward.eraser", 0, 99) < itemChance;
+                if (numbers == null)
+                {
+                    hasExtraMatchReward = bootstrap.RunContext.RollValue("reward.extra_match", 0, 99) < itemChance;
+                    hasEraserReward = bootstrap.RunContext.RollValue("reward.eraser", 0, 99) < itemChance;
+                    return;
+                }
+
+                if (!numbers.rewardItemsRolled)
+                {
+                    numbers.rewardExtraMatch = bootstrap.RunContext.RollValue("reward.extra_match", 0, 99) < itemChance;
+                    numbers.rewardEraser = bootstrap.RunContext.RollValue("reward.eraser", 0, 99) < itemChance;
+                    numbers.rewardItemsRolled = true;
+                }
+
+                hasExtraMatchReward = numbers.rewardExtraMatch;
+                hasEraserReward = numbers.rewardEraser;
                 return;
             }
 
-            hasExtraMatchReward = Random.value < 0.5f;
-            hasEraserReward = Random.value < 0.5f;
+            hasExtraMatchReward = false;
+            hasEraserReward = false;
         }
 
         private void RebuildRewardList()

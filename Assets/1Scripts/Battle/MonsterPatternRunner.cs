@@ -351,9 +351,13 @@ namespace GoldfishWalking.Battle
                     monster.ClearDamageCap();
                 return;
             }
-
             if (action == "addbuff")
             {
+                if (type == "minusbox" || type == "dividebox")
+                {
+                    AddPlayerDebuffBox(runContext, type, Mathf.Max(1, value), effect.duration);
+                    return;
+                }
                 if (type == "boxlock")
                 {
                     ApplyDigitLock(target, playerFormula, monsterFormula, Mathf.Max(1, value));
@@ -778,6 +782,27 @@ private static bool UsesEditableHealBox(MonsterPatternData pattern)
                 box.lockedDigitCount = Mathf.Max(box.lockedDigitCount, digitCount);
                 return;
             }
+        }
+
+
+private static void AddPlayerDebuffBox(RunContext runContext, string type, int digitCount, int duration)
+        {
+            BattleNumberState numbers = runContext?.currentBattle;
+            if (numbers == null)
+                return;
+
+            string debuffOperator = type == "dividebox" ? "Divide" : "Subtract";
+            if (string.IsNullOrWhiteSpace(numbers.playerDebuffOperator))
+                numbers.playerDebuffOperator = debuffOperator;
+            else if (numbers.playerDebuffOperator != debuffOperator)
+                return;
+
+            numbers.playerDebuffDigitCount = Mathf.Max(1, digitCount);
+            numbers.playerDebuffExpiresAfterTurn = duration > 0
+                ? Mathf.Max(1, runContext.battleTurnNumber) + duration
+                : -1;
+            numbers.playerDebuffRollTurn = 0;
+            numbers.playerDebuffSegmentState = string.Empty;
         }
 }
 }

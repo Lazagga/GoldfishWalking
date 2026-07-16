@@ -36,12 +36,23 @@ namespace GoldfishWalking.Match
         private int displayDigitCount;
         private string segmentState;
         private Func<int, bool> moveCommitValidator;
+        private Func<int, bool> valueCommitValidator;
+        private string valueValidationMessage;
         private Func<bool> interactionValidator;
 
         public int Value => value;
         public int OriginalValue => originalValue;
         public int MinDigitCount => minDigitCount;
         public int DifferenceFromOriginal => CountMoveDifference(originalDisplaySlots, displaySlots);
+
+        internal bool IsValidCommitValue(int candidateValue)
+        {
+            return valueCommitValidator == null || valueCommitValidator(candidateValue);
+        }
+
+        internal string ValueValidationMessage => string.IsNullOrWhiteSpace(valueValidationMessage)
+            ? "Invalid value."
+            : valueValidationMessage;
         public bool Split => split;
         public int LockedDigitCount => lockedDigitCount;
         internal bool IsDigitLocked(int digitIndex) => locked || (lockedDigitCount > 0 && digitIndex >= 0 && digitIndex < lockedDigitCount);
@@ -60,7 +71,7 @@ public bool Locked => locked;
             Redraw();
         }
 
-public void Configure(int initialValue, int minimumDigits, Color segmentColor, UnityAction<int> onValueChanged = null, bool isLocked = false, UnityAction<int> onDifferenceChanged = null, string savedSegmentState = null, Func<int, bool> onMoveCommitValidated = null, Func<bool> canInteract = null, bool isSplit = false, int structurallyLockedDigitCount = 0)
+public void Configure(int initialValue, int minimumDigits, Color segmentColor, UnityAction<int> onValueChanged = null, bool isLocked = false, UnityAction<int> onDifferenceChanged = null, string savedSegmentState = null, Func<int, bool> onMoveCommitValidated = null, Func<bool> canInteract = null, bool isSplit = false, int structurallyLockedDigitCount = 0, Func<int, bool> onValueCommitValidated = null, string invalidValueMessage = null)
         {
             value = Mathf.Max(0, initialValue);
             originalValue = value;
@@ -70,6 +81,8 @@ public void Configure(int initialValue, int minimumDigits, Color segmentColor, U
             split = isSplit;
             lockedDigitCount = Mathf.Max(0, structurallyLockedDigitCount);
             moveCommitValidator = onMoveCommitValidated;
+            valueCommitValidator = onValueCommitValidated;
+            valueValidationMessage = invalidValueMessage;
             interactionValidator = canInteract;
             committedItemErasedOriginalAddresses.Clear();
             if (!TryApplySegmentState(savedSegmentState))
@@ -929,6 +942,18 @@ private void CommitPopup()
             if (owner != null && !owner.CanCommitMoveDifference(proposedDifference))
             {
                 ShowMessage("Not enough moves.");
+                return;
+            }
+
+            MatchEditResult valueValidation = session.ValidateClose();
+            if (!valueValidation.success)
+            {
+                ShowMessage(valueValidation.message);
+                return;
+            }
+            if (owner != null && !owner.IsValidCommitValue(session.currentValue))
+            {
+                ShowMessage(owner.ValueValidationMessage);
                 return;
             }
 

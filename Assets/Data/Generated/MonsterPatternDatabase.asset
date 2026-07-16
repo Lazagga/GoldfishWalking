@@ -111,11 +111,11 @@ MonoBehaviour:
     hitDigitCount: 0
     strengthDelta: 0
     condition: 
-    rawEffects: '{"Count":3, "Attack": null, "Effect": null}'
+    rawEffects: '{"Attack": null, "Effect": null}'
     effects: []
     sprite: 
     specialHandler: 
-    maxUses: 3
+    maxUses: -1
     selfDestruct: 0
   - id: LittleWitchSkill
     sourceId: 0
@@ -135,7 +135,7 @@ MonoBehaviour:
     strengthDelta: 0
     condition: 
     rawEffects: '{"Attack": null, "Effects": [{"Target": "Player", "Action": "AddBuff",
-      "Type": "MinusBox", "Value": 1}]}'
+      "Type": "MinusBox", "Value": 1, "Duration": 2}]}'
     effects:
     - timing: 
       target: Player
@@ -145,14 +145,14 @@ MonoBehaviour:
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
-      duration: 0
+      duration: 2
       count: 1
       hitCount: 1
       lockDamage: 0
       mode: 
       label: 
       editable: 0
-      rawJson: '{"Target":"Player","Action":"AddBuff","Type":"MinusBox","Value":1}'
+      rawJson: '{"Target":"Player","Action":"AddBuff","Type":"MinusBox","Value":1,"Duration":2}'
     sprite: 
     specialHandler: 
     maxUses: -1
@@ -176,8 +176,8 @@ MonoBehaviour:
     strengthDelta: 0
     condition: 
     rawEffects: '{"Attack": "2_Single", "Effects": [{"Timing": "NextTurn", "Target":
-      "Player", "Action": "Split"}, {"Timing": "NextTurn", "Target": "Player", "Action":
-      "AddBuff", "Type": "BoxLock", "Value": 1, "Duration": 1}]}'
+      "Player", "Action": "Split"}, {"Target": "Player", "Action": "AddBuff", "Type":
+      "BoxLock", "Value": 1, "Duration": 1}]}'
     effects:
     - timing: NextTurn
       target: Player
@@ -195,7 +195,7 @@ MonoBehaviour:
       label: 
       editable: 0
       rawJson: '{"Timing":"NextTurn","Target":"Player","Action":"Split"}'
-    - timing: NextTurn
+    - timing: 
       target: Player
       action: AddBuff
       type: BoxLock
@@ -210,7 +210,7 @@ MonoBehaviour:
       mode: 
       label: 
       editable: 0
-      rawJson: '{"Timing":"NextTurn","Target":"Player","Action":"AddBuff","Type":"BoxLock","Value":1,"Duration":1}'
+      rawJson: '{"Target":"Player","Action":"AddBuff","Type":"BoxLock","Value":1,"Duration":1}'
     sprite: 
     specialHandler: 
     maxUses: -1
@@ -271,8 +271,8 @@ MonoBehaviour:
     damageDigitCount: 0
     hitDigitCount: 0
     strengthDelta: 0
-    condition: SpecialBoxValue==0
-    rawEffects: '{"Condition": "SpecialBoxValue==0", "Effects": [{"Target": "Player",
+    condition: HeartQueenBox==0
+    rawEffects: '{"Condition": "HeartQueenBox==0", "Effects": [{"Target": "Player",
       "Action": "Damage", "Value": 9999, "Lock": true}]}'
     effects:
     - timing: 
@@ -491,9 +491,8 @@ MonoBehaviour:
     hitDigitCount: 0
     strengthDelta: 0
     condition: 
-    rawEffects: '{"Effects": [{"Target": "Self", "Action": "Heal", "Value": 3, "Editable":
-      true}, {"Target": "Self", "Action": "AddBuff", "Type": "Strength", "Value":
-      1}]}'
+    rawEffects: '{"Effects": [{"Target": "Self", "Action": "Heal", "Value": 3}, {"Target":
+      "Self", "Action": "AddBuff", "Type": "Strength", "Value": 1}]}'
     effects:
     - timing: 
       target: Self
@@ -509,8 +508,8 @@ MonoBehaviour:
       lockDamage: 0
       mode: 
       label: 
-      editable: 1
-      rawJson: '{"Target":"Self","Action":"Heal","Value":3,"Editable":true}'
+      editable: 0
+      rawJson: '{"Target":"Self","Action":"Heal","Value":3}'
     - timing: 
       target: Self
       action: AddBuff
@@ -629,8 +628,8 @@ MonoBehaviour:
     damageDigitCount: 1
     hitDigitCount: 0
     strengthDelta: 0
-    condition: HPRate<=0.2
-    rawEffects: '{"Condition": "HPRate<=0.2", "Attack": "FortuneStack_Single", "Effects":
+    condition: HPRate<=0.4
+    rawEffects: '{"Condition": "HPRate<=0.4", "Attack": "FortuneStack_Single", "Effects":
       [{"Target": "Self", "Action": "SetBuff", "Type": "FortuneStack", "Value": 0}]}'
     effects:
     - timing: 
@@ -1034,8 +1033,8 @@ MonoBehaviour:
     hitDigitCount: 0
     strengthDelta: 0
     condition: 
-    rawEffects: '{"SelfDestruct": true, "Effects": [{"Target": "Player", "Action":
-      "Damage", "Value": "PlayerHP*0.3", "Lock": true}]}'
+    rawEffects: '{"Effects": [{"Target": "Player", "Action": "Damage", "Value": "PlayerHP*0.3",
+      "Lock": true}]}'
     effects:
     - timing: 
       target: Player
@@ -1056,7 +1055,7 @@ MonoBehaviour:
     sprite: 
     specialHandler: 
     maxUses: -1
-    selfDestruct: 1
+    selfDestruct: 0
   - id: VampireSkill
     sourceId: 0
     dataCode: VampireSkill
@@ -1076,14 +1075,14 @@ MonoBehaviour:
     strengthDelta: 0
     condition: HPRate<=0.5
     rawEffects: '{"Condition": "HPRate<=0.5", "Effects": [{"Target": "Player", "Action":
-      "Damage", "Value": "PlayerHP*0.2"}]}'
+      "Damage", "Value": "PlayerHP_Multi_2"}]}'
     effects:
     - timing: 
       target: Player
       action: Damage
       type: 
       condition: 
-      valueExpression: PlayerHP*0.2
+      valueExpression: PlayerHP_Multi_2
       hasNumericValue: 0
       numericValue: 0
       duration: 0
@@ -1093,7 +1092,7 @@ MonoBehaviour:
       mode: 
       label: 
       editable: 0
-      rawJson: '{"Target":"Player","Action":"Damage","Value":"PlayerHP*0.2"}'
+      rawJson: '{"Target":"Player","Action":"Damage","Value":"PlayerHP_Multi_2"}'
     sprite: 
     specialHandler: 
     maxUses: -1
@@ -1115,10 +1114,10 @@ MonoBehaviour:
     damageDigitCount: 0
     hitDigitCount: 0
     strengthDelta: 0
-    condition: DamageTaken>=DamageCapBreakThreshold
-    rawEffects: '{"Condition": "DamageTaken>=DamageCapBreakThreshold", "Effects":
-      [{"Action": "RemoveBuff", "Type": "Shield"}, {"Target": "Self", "Action": "AddBuff",
-      "Type": "Strength", "Value": 1}]}'
+    condition: DamageTaken>=400
+    rawEffects: '{"Condition": "DamageTaken>=400", "Effects": [{"Action": "RemoveBuff",
+      "Type": "Shield"}, {"Target": "Self", "Action": "AddBuff", "Type": "Strength",
+      "Value": 1}]}'
     effects:
     - timing: 
       target: 
@@ -1175,7 +1174,7 @@ MonoBehaviour:
     strengthDelta: 0
     condition: 
     rawEffects: '{"Attack": "3_Single", "Effects": [{"Target": "Self", "Action":
-      "AddBox", "Value": "Random", "Count": 1, "Mode": "Append", "Label": "STAR"}]}'
+      "AddBox", "Value": "Random"}]}'
     effects:
     - timing: 
       target: Self
@@ -1189,10 +1188,10 @@ MonoBehaviour:
       count: 1
       hitCount: 1
       lockDamage: 0
-      mode: Append
-      label: STAR
+      mode: 
+      label: 
       editable: 0
-      rawJson: '{"Target":"Self","Action":"AddBox","Value":"Random","Count":1,"Mode":"Append","Label":"STAR"}'
+      rawJson: '{"Target":"Self","Action":"AddBox","Value":"Random"}'
     sprite: 
     specialHandler: 
     maxUses: -1
@@ -1215,25 +1214,24 @@ MonoBehaviour:
     hitDigitCount: 0
     strengthDelta: 0
     condition: 
-    rawEffects: '{"Effects": [{"Target": "Player", "Action": "Damage", "Value": "SpecialBoxValue",
-      "HitCount": 3}]}'
+    rawEffects: '{"Effects": [{"Target": "Player", "Action": "Damage", "Value": "Stargazing_Multi_3"}]}'
     effects:
     - timing: 
       target: Player
       action: Damage
       type: 
       condition: 
-      valueExpression: SpecialBoxValue
+      valueExpression: Stargazing_Multi_3
       hasNumericValue: 0
       numericValue: 0
       duration: 0
       count: 1
-      hitCount: 3
+      hitCount: 1
       lockDamage: 0
       mode: 
       label: 
       editable: 0
-      rawJson: '{"Target":"Player","Action":"Damage","Value":"SpecialBoxValue","HitCount":3}'
+      rawJson: '{"Target":"Player","Action":"Damage","Value":"Stargazing_Multi_3"}'
     sprite: 
     specialHandler: 
     maxUses: -1
@@ -1256,16 +1254,16 @@ MonoBehaviour:
     strengthDelta: 0
     condition: 
     rawEffects: '{"Attack": "3_Single", "Effects": [{"Target": "Player", "Action":
-      "Damage", "Value": "PlayerFormulaRandomNumber"}]}'
+      "LibrarianSkill", "Value": "1"}]}'
     effects:
     - timing: 
       target: Player
-      action: Damage
+      action: LibrarianSkill
       type: 
       condition: 
-      valueExpression: PlayerFormulaRandomNumber
-      hasNumericValue: 0
-      numericValue: 0
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
       duration: 0
       count: 1
       hitCount: 1
@@ -1273,7 +1271,7 @@ MonoBehaviour:
       mode: 
       label: 
       editable: 0
-      rawJson: '{"Target":"Player","Action":"Damage","Value":"PlayerFormulaRandomNumber"}'
+      rawJson: '{"Target":"Player","Action":"LibrarianSkill","Value":"1"}'
     sprite: 
     specialHandler: 
     maxUses: -1
@@ -1296,16 +1294,16 @@ MonoBehaviour:
     strengthDelta: 0
     condition: 
     rawEffects: '{"Attack": "2_Multi_2", "Effects": [{"Target": "Player", "Action":
-      "Damage", "Value": "PlayerFormulaRandomNumber"}]}'
+      "LibrarianSkill", "Value": "1"}]}'
     effects:
     - timing: 
       target: Player
-      action: Damage
+      action: LibrarianSkill
       type: 
       condition: 
-      valueExpression: PlayerFormulaRandomNumber
-      hasNumericValue: 0
-      numericValue: 0
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
       duration: 0
       count: 1
       hitCount: 1
@@ -1313,7 +1311,7 @@ MonoBehaviour:
       mode: 
       label: 
       editable: 0
-      rawJson: '{"Target":"Player","Action":"Damage","Value":"PlayerFormulaRandomNumber"}'
+      rawJson: '{"Target":"Player","Action":"LibrarianSkill","Value":"1"}'
     sprite: 
     specialHandler: 
     maxUses: -1
@@ -1498,15 +1496,14 @@ MonoBehaviour:
     hitDigitCount: 0
     strengthDelta: 0
     condition: 
-    rawEffects: '{"Effects": [{"Target": "Self", "Action": "Heal", "Value": "DigitCount(Strength)",
-      "Editable": true}]}'
+    rawEffects: '{"Effects": [{"Target": "Self", "Action": "Heal", "Value": "CosmictreeHeal"}]}'
     effects:
     - timing: 
       target: Self
       action: Heal
       type: 
       condition: 
-      valueExpression: DigitCount(Strength)
+      valueExpression: CosmictreeHeal
       hasNumericValue: 0
       numericValue: 0
       duration: 0
@@ -1515,8 +1512,8 @@ MonoBehaviour:
       lockDamage: 0
       mode: 
       label: 
-      editable: 1
-      rawJson: '{"Target":"Self","Action":"Heal","Value":"DigitCount(Strength)","Editable":true}'
+      editable: 0
+      rawJson: '{"Target":"Self","Action":"Heal","Value":"CosmictreeHeal"}'
     sprite: 
     specialHandler: 
     maxUses: -1
@@ -1540,10 +1537,10 @@ MonoBehaviour:
     strengthDelta: 0
     condition: 
     rawEffects: '{"Attack": "3_Single", "Effects": [{"Timing": "NextTurn", "Target":
-      "Self", "Action": "AddBox", "Value": "Random", "Count": 2, "Label": "WHALE"}]}'
+      "WhaleBox", "Action": "AddBox", "Value": "Random", "Count": 2}]}'
     effects:
     - timing: NextTurn
-      target: Self
+      target: WhaleBox
       action: AddBox
       type: 
       condition: 
@@ -1555,9 +1552,9 @@ MonoBehaviour:
       hitCount: 1
       lockDamage: 0
       mode: 
-      label: WHALE
+      label: 
       editable: 0
-      rawJson: '{"Timing":"NextTurn","Target":"Self","Action":"AddBox","Value":"Random","Count":2,"Label":"WHALE"}'
+      rawJson: '{"Timing":"NextTurn","Target":"WhaleBox","Action":"AddBox","Value":"Random","Count":2}'
     sprite: 
     specialHandler: 
     maxUses: -1
@@ -1581,10 +1578,10 @@ MonoBehaviour:
     strengthDelta: 0
     condition: 
     rawEffects: '{"Attack": "2_Multi_3", "Effects": [{"Timing": "NextTurn", "Target":
-      "Self", "Action": "AddBox", "Value": "Random", "Count": 2, "Label": "WHALE"}]}'
+      "WhaleBox", "Action": "AddBox", "Value": "Random", "Count": 2}]}'
     effects:
     - timing: NextTurn
-      target: Self
+      target: WhaleBox
       action: AddBox
       type: 
       condition: 
@@ -1596,9 +1593,9 @@ MonoBehaviour:
       hitCount: 1
       lockDamage: 0
       mode: 
-      label: WHALE
+      label: 
       editable: 0
-      rawJson: '{"Timing":"NextTurn","Target":"Self","Action":"AddBox","Value":"Random","Count":2,"Label":"WHALE"}'
+      rawJson: '{"Timing":"NextTurn","Target":"WhaleBox","Action":"AddBox","Value":"Random","Count":2}'
     sprite: 
     specialHandler: 
     maxUses: -1
@@ -1624,13 +1621,13 @@ MonoBehaviour:
     strengthDelta: 0
     condition: HPRate<=0.5 && Phase==1
     rawEffects: '{"Condition": "HPRate<=0.5 && Phase==1", "Effects": [{"Target":
-      "Self", "Action": "ClearBox"}, {"Target": "Self", "Action": "AddBuff", "Type":
-      "Phase2"}]}'
+      "Self", "Action": "RemoveBuff", "Type": "WhaleBuff"}, {"Target": "Self", "Action":
+      "AddBuff", "Type": "Phase2"}]}'
     effects:
     - timing: 
       target: Self
-      action: ClearBox
-      type: 
+      action: RemoveBuff
+      type: WhaleBuff
       condition: 
       valueExpression: 
       hasNumericValue: 0
@@ -1642,7 +1639,7 @@ MonoBehaviour:
       mode: 
       label: 
       editable: 0
-      rawJson: '{"Target":"Self","Action":"ClearBox"}'
+      rawJson: '{"Target":"Self","Action":"RemoveBuff","Type":"WhaleBuff"}'
     - timing: 
       target: Self
       action: AddBuff

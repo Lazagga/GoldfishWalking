@@ -1,6 +1,50 @@
 ﻿# Next Session Handoff
 
-Last updated: 2026-07-15
+Last updated: 2026-07-16
+
+## Latest 2026-07-16 Data-Driven Runtime And Inspector Handoff
+
+This section supersedes older data-pipeline and monster-pattern notes below.
+
+- Generated `FantasyDatabase`, `MonsterPatternDatabase`, and `MonsterDatabase`
+  assets now have dedicated searchable inspectors under `Assets/1Scripts/Editor`.
+- Fantasy and monster-pattern inspectors treat `rawEffects` as the visible
+  **Effects JSON (Runtime Source)**. Valid edits are parsed immediately into
+  the structured fields used by gameplay. Invalid JSON keeps the last valid
+  runtime data and displays an Inspector error.
+- Parsed effect fields are read-only runtime previews. Do not edit `rawJson`,
+  legacy fantasy fields, or imported raw pattern strings as alternate sources.
+- Fantasy JSON supports `Trigger`, `Target`, `Calc`, `Value`, `Option`,
+  `Condition`, `Chance`, `Lifetime`, `Execution`, and `Duration`.
+- Pattern JSON supports top-level `Attack`, `Condition`, `Count`, and
+  `SelfDestruct`; `Effect`/`Effects` entries support `Timing`, `Target`,
+  `Action`, `Type`, `Condition`, `Value`, `Duration`, `Count`, `HitCount`,
+  `Lock`, `Mode`, `Label`, and `Editable`.
+- Top-level pattern `Count` is the per-battle maximum selection count for that
+  pattern ID. Missing means unlimited; zero means unavailable. Duplicate slots
+  with the same ID share one counter.
+- `Skip` is now an authored special pattern resolved through
+  `MonsterPatternDatabase`; its JSON Count, Condition, and effects are honored.
+  For `Skip, Skip, Skip, 3_Single` with three total skips, use:
+
+  ```json
+  {"Attack":"Skip","Count":3,"Effect":null}
+  ```
+
+- `Static` AI cycles in order and skips exhausted/condition-failing patterns.
+  `Random` AI deterministically selects among eligible patterns.
+- Fantasy generated-number timing supports `Passive`, first-turn-only
+  `Battle_Start`, every-turn `Turn_Start`, exact `Turn_N`, and `Turn_Even`.
+  Cue Stick uses this generic path; changing its Trigger changes its schedule.
+- Current monster effects include JSON-driven Stargazer hit count, Librarian
+  formula-number damage, box creation/clearing, digit-count expressions,
+  conditions, timing, and generic multi-hit execution.
+- Shop edited-price purchases preserve consumed shop movement instead of
+  resetting the movement counter.
+
+Latest validation: command-line build passes with zero errors and Unity reports
+zero console errors/warnings. The known `System.Net.Http` and
+`System.IO.Compression` reference warnings remain unchanged.
 
 ## Latest 2026-07-15 Battle FSM, Patterns, And Fantasy Handoff
 

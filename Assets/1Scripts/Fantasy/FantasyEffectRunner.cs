@@ -85,6 +85,8 @@ namespace GoldfishWalking.Fantasy
                 if (effect == null)
                     continue;
 
+                if (NormalizeTarget(effect.target) == "movement" && IsValueModifier(effect))
+                    continue;
                 if (!string.IsNullOrWhiteSpace(trigger) && !TriggerMatches(effect.trigger, trigger))
                     continue;
                 if (!EvaluateCondition(effect.condition, runContext, 0))

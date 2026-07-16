@@ -371,8 +371,8 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
-    specialBoxLabel: /
-    specialBoxMin: 1
+    specialBoxLabel: 
+    specialBoxMin: 0
     specialBoxMax: 9
     specialBoxValue: -1
     countdownAction: 

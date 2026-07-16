@@ -80,5 +80,8 @@ namespace GoldfishWalking.Formula
                 && runContext.fantasyInventory != null
                 && runContext.fantasyInventory.HasEffect("Player_Boxes", "Split");
         }
-    }
+    
+
+
+}
 }

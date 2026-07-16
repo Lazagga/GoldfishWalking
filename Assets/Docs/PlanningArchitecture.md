@@ -1,11 +1,40 @@
 # GoldfishWalking Planning Architecture
 
+## 2026-07-16 Data Authoring Boundary
+
+The generated fantasy and monster-pattern Inspectors expose one visible JSON
+source per entry. Editing it reparses the structured runtime data immediately;
+the structured fields are previews, not a second editable source.
+
+```text
+Inspector Effects JSON
+  -> validated parser
+  -> structured runtime definition
+  -> action/state snapshot
+  -> battle FSM execution
+```
+
+Content IDs must not decide mechanics. Runtime code owns generic operations,
+targets, timing rules, expressions, and FSM transitions. Changing an existing
+effect's timing, value, condition, count, target, or operation should require
+JSON changes only. Code changes are reserved for genuinely new generic game
+operations.
+
+Top-level pattern `Count` is a per-battle usage maximum keyed by pattern ID.
+`Skip` is an authored special pattern read from `MonsterPatternDatabase` and
+must not regain a separate built-in execution path. Both `Static` and `Random`
+AI filter candidates by Condition and remaining Count.
+
+During play-mode authoring, an already prepared FSM action retains its
+snapshot. Newly prepared actions read the updated definition, preventing edits
+from mutating an attack halfway through its hit sequence.
+
 This document maps the current Unity prototype to the uploaded design notes.
 It is intended as the implementation baseline before large code changes.
 
 ## Current Project Shape
 
-Last status refresh: 2026-07-15.
+Last status refresh: 2026-07-16.
 
 ## 2026-07-15 Runtime Decisions
 
