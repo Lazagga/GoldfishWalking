@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+
+using System.Linq;
 using System.IO;
 using System.Text;
 using GoldfishWalking.Data;
@@ -149,10 +151,15 @@ namespace GoldfishWalking.Editor.DataImport
                     specialBoxValue = ParseInt(Get(rule, "SpecialBoxValue"), -1),
                     countdownAction = Get(rule, "CountdownAction"),
                     countdownPattern = Get(rule, "CountdownPattern"),
-                    aimedShotMultiplier = Mathf.Max(1, ParseInt(Get(rule, "AimedShotMultiplier"), 1))
+                    aimedShotMultiplier = Mathf.Max(1, ParseInt(Get(rule, "AimedShotMultiplier"), 1)),
+                    formulaDecoyDigitCount = Mathf.Max(0, ParseInt(Get(rule, "FormulaDecoyDigitCount"), 0)),
+                    playerAttackConditionJson = Get(rule, "PlayerAttackCondition")
                 };
 
-                if (!ids.Add(monster.id))
+                ParsePlayerAttackCondition(monster, report, rowNumber);
+
+                
+if (!ids.Add(monster.id))
                     report.warnings.Add($"Monster row {rowNumber}: duplicate monster id '{monster.id}'.");
                 if (monster.patternIds == null || monster.patternIds.Length == 0)
                     report.warnings.Add($"Monster row {rowNumber} ({monster.id}): empty PatternArray, runtime will use 2_Single.");
@@ -474,5 +481,28 @@ namespace GoldfishWalking.Editor.DataImport
             public List<string> skippedMonsterRows = new List<string>();
             public List<string> skippedPatternRows = new List<string>();
         }
-    }
+    
+
+private static void ParsePlayerAttackCondition(MonsterData monster, MonsterImportReport report, int rowNumber)
+        {
+            if (monster == null || string.IsNullOrWhiteSpace(monster.playerAttackConditionJson))
+                return;
+            try
+            {
+                JObject root = JObject.Parse(monster.playerAttackConditionJson.Trim().Trim('`'));
+                monster.playerAttackConditionType = ReadString(root, "Type");
+                monster.conditionValueMin = root["ValueMin"]?.Value<int>() ?? 0;
+                monster.conditionValueMax = root["ValueMax"]?.Value<int>() ?? monster.conditionValueMin;
+                monster.conditionCountMin = root["CountMin"]?.Value<int>() ?? 0;
+                monster.conditionCountMax = root["CountMax"]?.Value<int>() ?? monster.conditionCountMin;
+                monster.conditionCountEditable = root["CountEditable"]?.Value<bool>() ?? false;
+                JArray operators = root["Operators"] as JArray;
+                monster.conditionOperators = operators != null ? operators.Values<string>().ToArray() : Array.Empty<string>();
+            }
+            catch (Exception ex)
+            {
+                report.warnings.Add($"Monster row {rowNumber}: invalid PlayerAttackCondition JSON ({ex.Message}).");
+            }
+        }
+}
 }

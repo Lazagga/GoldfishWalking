@@ -41,7 +41,11 @@ namespace GoldfishWalking.UI
         private Text monsterHealthText;
         private Text monsterBuffText;
         private Text playerBuffText;
-        private RectTransform playerDebuffPanel;
+        
+        private RectTransform playerConditionPanel;
+        private Text playerConditionLabel;
+        private EditableSevenSegmentBox playerConditionBox;
+private RectTransform playerDebuffPanel;
         private RectTransform monsterSpecialBoxPanel;
         private Text monsterSpecialBoxLabel;
         private Text moveCountText;
@@ -250,7 +254,11 @@ private void OnBattlePresentationChanged()
 
 private void EnsurePlayerDebuffUI()
         {
-            playerDebuffPanel = FindRect("PlayerDebuffPanel");
+            
+            playerConditionPanel = FindRect("PlayerConditionPanel");
+            playerConditionLabel = FindComponent<Text>("PlayerConditionPanel/PlayerDebuffOperator");
+            playerConditionBox = FindComponent<EditableSevenSegmentBox>("PlayerConditionPanel/PlayerDebuff");
+playerDebuffPanel = FindRect("PlayerDebuffPanel");
             playerDebuffBox = FindComponent<EditableSevenSegmentBox>("PlayerDebuffPanel/PlayerDebuff");
             playerDebuffOperatorText = FindComponent<Text>("PlayerDebuffPanel/PlayerDebuffOperator");
 
@@ -436,6 +444,18 @@ private void EnsurePlayerDebuffUI()
                 playerBuffText.text = battleController != null ? battleController.PlayerStatusSummary : "-";
         }
 
+private string BuildPlayerConditionStatus()
+        {
+            if (battleController == null)
+                return "-";
+            string status = battleController.PlayerStatusSummary;
+            string condition = battleController.PlayerAttackConditionSummary;
+            if (string.IsNullOrWhiteSpace(condition))
+                return status;
+            return status == "-" ? $"RULE {condition}" : $"{status}  RULE {condition}";
+        }
+
+
         private void RefreshFantasySlots()
         {
             if (fantasyListView != null)
@@ -494,7 +514,7 @@ private void EnsurePlayerDebuffUI()
                     CanCommitPlayerDamageDifference, null,
                     battleController != null && battleController.PlayerBaseDamageSplit,
                     battleController != null ? battleController.PlayerBaseDamageLockedDigitCount : 0);
-            RefreshPlayerDebuffBox();
+RefreshPlayerDebuffBox();
             if (monsterDamageBox != null)
                 monsterDamageBox.Configure(GetMonsterBaseDamage(), battleController != null ? battleController.MonsterBaseDamageDigitCount : 1,
                     healthColor, OnMonsterDamageEdited, battleController != null && battleController.MonsterBaseDamageLocked,
@@ -503,7 +523,7 @@ private void EnsurePlayerDebuffUI()
                     battleController != null && battleController.MonsterBaseDamageSplit,
                     battleController != null ? battleController.MonsterBaseDamageLockedDigitCount : 0);
             if (monsterHitCountBox != null)
-                monsterHitCountBox.Configure(GetMonsterHitCount(), 0, healthColor, OnMonsterHitCountEdited,
+                monsterHitCountBox.Configure(GetMonsterHitCount(), battleController != null ? battleController.MonsterHitCountDigitCount : 1, healthColor, OnMonsterHitCountEdited,
                     battleController != null && battleController.MonsterHitCountLocked, OnMonsterHitDifferenceChanged,
                     battleController != null ? battleController.MonsterHitCountSegmentState : string.Empty,
                     CanCommitMonsterHitDifference, null,
@@ -537,6 +557,27 @@ private void RefreshPlayerDebuffBox()
                 null, false, 0, IsValidPlayerDebuffValue, "Division by zero is not allowed.");
         }
 
+private void RefreshPlayerConditionBox()
+        {
+            bool visible = battleController != null && battleController.PlayerAttackConditionVisible;
+            if (playerConditionPanel != null)
+                playerConditionPanel.gameObject.SetActive(visible);
+            if (!visible)
+                return;
+
+            if (playerConditionLabel != null)
+                playerConditionLabel.text = battleController.PlayerAttackConditionLabel;
+            if (playerConditionBox != null)
+                playerConditionBox.Configure(battleController.PlayerAttackConditionBoxValue, 1, healthColor,
+                    OnPlayerConditionEdited, !battleController.PlayerAttackConditionEditable);
+        }
+
+        private void OnPlayerConditionEdited(int value)
+        {
+            battleController?.SetPlayerAttackConditionBoxValue(value);
+        }
+
+
 
         private void RefreshMonsterSpecialBox()
         {
@@ -561,7 +602,7 @@ private void RefreshPlayerDebuffBox()
                     battleController.MonsterSpecialBoxDigitCount,
                     healthColor,
                     OnMonsterSpecialBoxEdited,
-                    false,
+                    battleController.MonsterSpecialBoxLocked,
                     OnMonsterSpecialBoxDifferenceChanged,
                     battleController.MonsterSpecialBoxSegmentState,
                     CanCommitMonsterSpecialBoxDifference,

@@ -54,5 +54,14 @@ namespace GoldfishWalking.Data
         public string countdownAction;
         public string countdownPattern;
         public int aimedShotMultiplier = 1;
+        public int formulaDecoyDigitCount;
+        public string playerAttackConditionJson;
+        public string playerAttackConditionType;
+        public int conditionValueMin;
+        public int conditionValueMax;
+        public int conditionCountMin;
+        public int conditionCountMax;
+        public string[] conditionOperators;
+        public bool conditionCountEditable;
     }
 }

@@ -1,4 +1,4 @@
-DataName	DamageCap	DamageCapBreak	Lifesteal	BaseDamageLocked	SpecialBoxLabel	SpecialBoxMin	SpecialBoxMax	SpecialBoxValue	CountdownAction	CountdownPattern	AimedShotMultiplier
+DataName	DamageCap	DamageCapBreak	Lifesteal	BaseDamageLocked	SpecialBoxLabel	SpecialBoxMin	SpecialBoxMax	SpecialBoxValue	CountdownAction	CountdownPattern	AimedShotMultiplier	FormulaDecoyDigitCount	PlayerAttackCondition
 Mob_10201_WhiteRabbit	0	0	0	false	RABBIT	0	9	3	Escape	
 Mob_10301_HeartQueen	0	0	0	false	HEART	0	9	5	Pattern	HeartQueenSkill
 Mob_10302_Witch	0	0	0	false		0	9	-1		
@@ -7,3 +7,6 @@ Mob_30101_SteelScarecrow	0	0	0	true		0	9	-1
 Mob_30201_Vampire	0	0	0.3	false		0	9	-1		
 Mob_30202_Knight	20	400	0	false		0	9	-1		
 Mob_10303_Elf	0	0	0	false		0	9	-1			3
+Mob_20104_Magician	0	0	0	false		0	9	-1			1	1
+Mob_20203_Conductor	0	0	0	false		0	9	-1			1	0	`{"Type":"DigitCount","ValueMin":0,"ValueMax":9,"CountMin":0,"CountMax":9,"CountEditable":true}`
+Mob_20301_PiedPiper	0	0	0	false		0	9	-1			1	0	`{"Type":"CompareBaseDamage","ValueMin":10,"ValueMax":99,"Operators":["<",">"]}`

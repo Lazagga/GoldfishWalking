@@ -11,7 +11,9 @@ namespace GoldfishWalking.Core
         public int playerBaseDamageTurn;
         public int monsterBaseDamage;
         public int monsterBaseDamageDigitCount = 1;
-        public int monsterHitCount = 1;
+        
+        public int monsterHitCountDigitCount = 1;
+public int monsterHitCount = 1;
         public bool monsterSpecialBoxVisible;
         public int monsterSpecialBoxValue;
         public int monsterSpecialBoxDigitCount;
@@ -34,6 +36,7 @@ namespace GoldfishWalking.Core
         public int editSnapshotMonsterBaseDamage;
         public int editSnapshotMonsterBaseDamageDigitCount;
         public int editSnapshotMonsterHitCount;
+        public int editSnapshotMonsterHitCountDigitCount;
         public bool editSnapshotMonsterSpecialBoxVisible;
         public int editSnapshotMonsterSpecialBoxValue;
         public int editSnapshotMonsterSpecialBoxDigitCount;
@@ -43,7 +46,10 @@ namespace GoldfishWalking.Core
         public string editSnapshotMonsterHitCountSegmentState;
         public int editSnapshotPlayerDebuffValue;
         public string editSnapshotPlayerDebuffSegmentState;
-        public string editSnapshotMonsterSpecialBoxSegmentState;
+        
+        public int editSnapshotPlayerAttackConditionCount;
+        public string editSnapshotPlayerAttackConditionSegmentState;
+public string editSnapshotMonsterSpecialBoxSegmentState;
         public Dictionary<string, int> playerTurnDamageValues = new Dictionary<string, int>();
         public Dictionary<string, int> monsterPatternDamageValues = new Dictionary<string, int>();
         public Dictionary<string, int> monsterPatternHitCountValues = new Dictionary<string, int>();
@@ -52,7 +58,20 @@ namespace GoldfishWalking.Core
         public bool rewardEraser;
         public bool battleStartFantasyApplied;
         public int aimedShotValue;
-        public int aimedShotRollTurn;
+        
+        public int monsterDecoyTurn;
+        public string monsterDecoyBox;
+        public int monsterDecoyDigitIndex = -1;
+        public int monsterActualDamageDigitCount;
+        
+        public int playerAttackConditionTurn;
+        public string playerAttackConditionType;
+        public string playerAttackConditionOperator;
+        public int playerAttackConditionValue;
+        public int playerAttackConditionCount;
+        public string playerAttackConditionSegmentState;
+public int monsterActualHitDigitCount;
+public int aimedShotRollTurn;
 
         public int EnsureMonsterPatternDamage(string key, Func<int> roll)
         {
@@ -81,6 +100,7 @@ namespace GoldfishWalking.Core
             editSnapshotMonsterBaseDamage = monsterBaseDamage;
             editSnapshotMonsterBaseDamageDigitCount = monsterBaseDamageDigitCount;
             editSnapshotMonsterHitCount = monsterHitCount;
+            editSnapshotMonsterHitCountDigitCount = monsterHitCountDigitCount;
             editSnapshotMonsterSpecialBoxVisible = monsterSpecialBoxVisible;
             editSnapshotMonsterSpecialBoxValue = monsterSpecialBoxValue;
             editSnapshotMonsterSpecialBoxDigitCount = monsterSpecialBoxDigitCount;
@@ -90,7 +110,10 @@ namespace GoldfishWalking.Core
             editSnapshotMonsterHitCountSegmentState = monsterHitCountSegmentState;
             editSnapshotPlayerDebuffValue = playerDebuffValue;
             editSnapshotPlayerDebuffSegmentState = playerDebuffSegmentState;
-            editSnapshotMonsterSpecialBoxSegmentState = monsterSpecialBoxSegmentState;
+            
+            editSnapshotPlayerAttackConditionCount = playerAttackConditionCount;
+            editSnapshotPlayerAttackConditionSegmentState = playerAttackConditionSegmentState;
+editSnapshotMonsterSpecialBoxSegmentState = monsterSpecialBoxSegmentState;
         }
 
         public void RestoreEditSnapshot()
@@ -99,6 +122,7 @@ namespace GoldfishWalking.Core
             monsterBaseDamage = editSnapshotMonsterBaseDamage;
             monsterBaseDamageDigitCount = editSnapshotMonsterBaseDamageDigitCount;
             monsterHitCount = editSnapshotMonsterHitCount;
+            monsterHitCountDigitCount = editSnapshotMonsterHitCountDigitCount;
             monsterSpecialBoxVisible = editSnapshotMonsterSpecialBoxVisible;
             monsterSpecialBoxValue = editSnapshotMonsterSpecialBoxValue;
             monsterSpecialBoxDigitCount = editSnapshotMonsterSpecialBoxDigitCount;
@@ -108,7 +132,10 @@ namespace GoldfishWalking.Core
             monsterHitCountSegmentState = editSnapshotMonsterHitCountSegmentState;
             playerDebuffValue = editSnapshotPlayerDebuffValue;
             playerDebuffSegmentState = editSnapshotPlayerDebuffSegmentState;
-            monsterSpecialBoxSegmentState = editSnapshotMonsterSpecialBoxSegmentState;
+            
+            playerAttackConditionCount = editSnapshotPlayerAttackConditionCount;
+            playerAttackConditionSegmentState = editSnapshotPlayerAttackConditionSegmentState;
+monsterSpecialBoxSegmentState = editSnapshotMonsterSpecialBoxSegmentState;
         }
     }
 

@@ -176,8 +176,8 @@ MonoBehaviour:
     strengthDelta: 0
     condition: 
     rawEffects: '{"Attack": "2_Single", "Effects": [{"Timing": "NextTurn", "Target":
-      "Player", "Action": "Split"}, {"Target": "Player", "Action": "AddBuff", "Type":
-      "BoxLock", "Value": 1, "Duration": 1}]}'
+      "Player", "Action": "Split"}, {"Timing": "NextTurn", "Target": "Player", "Action":
+      "AddBuff", "Type": "BoxLock", "Value": 1, "Duration": 1}]}'
     effects:
     - timing: NextTurn
       target: Player
@@ -195,7 +195,7 @@ MonoBehaviour:
       label: 
       editable: 0
       rawJson: '{"Timing":"NextTurn","Target":"Player","Action":"Split"}'
-    - timing: 
+    - timing: NextTurn
       target: Player
       action: AddBuff
       type: BoxLock
@@ -210,7 +210,7 @@ MonoBehaviour:
       mode: 
       label: 
       editable: 0
-      rawJson: '{"Target":"Player","Action":"AddBuff","Type":"BoxLock","Value":1,"Duration":1}'
+      rawJson: '{"Timing":"NextTurn","Target":"Player","Action":"AddBuff","Type":"BoxLock","Value":1,"Duration":1}'
     sprite: 
     specialHandler: 
     maxUses: -1

@@ -52,7 +52,11 @@ namespace GoldfishWalking.Battle
             ? Mathf.Max(1, bootstrap.RunContext.currentBattle.monsterBaseDamageDigitCount)
             : 1;
 
-        public int MonsterHitCount => bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.currentBattle != null
+        
+        public int MonsterHitCountDigitCount => bootstrap?.RunContext?.currentBattle != null
+            ? Mathf.Max(1, bootstrap.RunContext.currentBattle.monsterHitCountDigitCount)
+            : 1;
+public int MonsterHitCount => bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.currentBattle != null
             ? bootstrap.RunContext.currentBattle.monsterHitCount
             : 1;
 
@@ -91,23 +95,25 @@ namespace GoldfishWalking.Battle
             && context.run != null
             && context.run.fantasyInventory != null
             && context.run.fantasyInventory.HasEffect("Player_Boxes", "Split");
-        public bool MonsterSpecialBoxVisible => context != null && context.monster != null && context.monster.HasSpecialBox;
+        public bool MonsterSpecialBoxVisible => PlayerAttackConditionVisible || (context != null && context.monster != null && context.monster.HasSpecialBox);
 
-        public int MonsterSpecialBoxValue => context != null && context.monster != null && context.monster.HasSpecialBox
-            ? context.monster.SpecialBoxValue
-            : 0;
+        public int MonsterSpecialBoxValue => PlayerAttackConditionVisible
+            ? PlayerAttackConditionBoxValue
+            : context != null && context.monster != null && context.monster.HasSpecialBox ? context.monster.SpecialBoxValue : 0;
 
-        public int MonsterSpecialBoxDigitCount => context != null && context.monster != null && context.monster.HasSpecialBox
-            ? Mathf.Max(1, context.monster.SpecialBoxDigitCount)
-            : 1;
+        public int MonsterSpecialBoxDigitCount => PlayerAttackConditionVisible
+            ? (PlayerAttackConditionEditable ? 1 : Mathf.Max(1, context.monster.Data.conditionValueMax.ToString().Length))
+            : context != null && context.monster != null && context.monster.HasSpecialBox ? Mathf.Max(1, context.monster.SpecialBoxDigitCount) : 1;
 
-        public string MonsterSpecialBoxLabel => context != null && context.monster != null && context.monster.HasSpecialBox
-            ? context.monster.SpecialBoxLabel
-            : string.Empty;
+        public string MonsterSpecialBoxLabel => PlayerAttackConditionVisible
+            ? PlayerAttackConditionLabel
+            : context != null && context.monster != null && context.monster.HasSpecialBox ? context.monster.SpecialBoxLabel : string.Empty;
 
-        public string MonsterSpecialBoxSegmentState => bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.currentBattle != null
-            ? bootstrap.RunContext.currentBattle.monsterSpecialBoxSegmentState
-            : string.Empty;
+        public string MonsterSpecialBoxSegmentState => PlayerAttackConditionVisible
+            ? context?.run?.currentBattle?.playerAttackConditionSegmentState ?? string.Empty
+            : bootstrap?.RunContext?.currentBattle?.monsterSpecialBoxSegmentState ?? string.Empty;
+
+        public bool MonsterSpecialBoxLocked => PlayerAttackConditionVisible && !PlayerAttackConditionEditable;
 
         public string MonsterDisplayName
         {
@@ -175,7 +181,35 @@ AppendStatus(builder, "PROPHECY", context.monster.ProphecyStack);
             }
         }
 
-        public string DamageDebugSummary
+        public bool PlayerAttackConditionVisible => !string.IsNullOrWhiteSpace(context?.run?.currentBattle?.playerAttackConditionType);
+        public bool PlayerAttackConditionEditable => context?.monster?.Data?.conditionCountEditable == true;
+        public int PlayerAttackConditionBoxValue => PlayerAttackConditionEditable ? context.run.currentBattle.playerAttackConditionCount : context?.run?.currentBattle?.playerAttackConditionValue ?? 0;
+        public string PlayerAttackConditionLabel => context?.run?.currentBattle?.playerAttackConditionType == "DigitCount"
+            ? $"{context.run.currentBattle.playerAttackConditionValue} ×"
+            : context?.run?.currentBattle?.playerAttackConditionOperator ?? string.Empty;
+
+        public void SetPlayerAttackConditionBoxValue(int value)
+        {
+            if (PlayerAttackConditionEditable && context?.run?.currentBattle != null)
+                context.run.currentBattle.playerAttackConditionCount = Mathf.Max(0, value);
+        }
+
+        
+public string PlayerAttackConditionSummary
+        {
+            get
+            {
+                BattleNumberState numbers = context?.run?.currentBattle;
+                if (numbers == null || string.IsNullOrWhiteSpace(numbers.playerAttackConditionType))
+                    return string.Empty;
+                if (numbers.playerAttackConditionType == "DigitCount")
+                    return $"[{numbers.playerAttackConditionValue}] × [{numbers.playerAttackConditionCount}]";
+                return $"[{numbers.playerAttackConditionOperator}] [{numbers.playerAttackConditionValue}]";
+            }
+        }
+
+        
+public string DamageDebugSummary
         {
             get
             {
@@ -248,7 +282,9 @@ private IEnumerator ResolveBattleRoutine()
             context.run.battleDamageDebugLines.Clear();
             BattleFormulaResult playerResult = formulaEvaluator.EvaluateBattleFormula(context.playerFormula);
             playerResult = ApplyPlayerDebuff(playerResult);
+            playerResult = ApplyPlayerAttackCondition(playerResult);
             BattleFormulaResult monsterResult = formulaEvaluator.EvaluateBattleFormula(context.monsterFormula);
+            monsterResult = ApplyMonsterFormulaDecoy(monsterResult);
             monsterResult = ApplyAimedShot(monsterResult);
             if (!playerResult.isValid || !monsterResult.isValid)
             {
@@ -595,7 +631,9 @@ public void SetPlayerDebuffValue(int value, string segmentState)
             BattleNumberState numbers = context.run.EnsureBattleNumbers(MonsterHitCount);
             EnsurePlayerBaseDamageDigitCount(numbers);
             
-            RefreshAimedShotForTurn(numbers);
+            
+            RefreshPlayerAttackConditionForTurn(numbers);
+RefreshAimedShotForTurn(numbers);
 RefreshPlayerDebuffForTurn(numbers);
             EnsurePlayerTurnDamage(numbers);
             context.playerFormula = formulaBuilder.BuildPlayerFormula(context.run, numbers.playerBaseDamage);
@@ -793,6 +831,7 @@ private static void RestoreFormulaStateStructure(FormulaState source, FormulaSta
                 numbers.monsterBaseDamage = 0;
                 numbers.monsterBaseDamageDigitCount = 1;
                 numbers.monsterHitCount = 1;
+                numbers.monsterHitCountDigitCount = 1;
                 numbers.monsterBaseDamageSegmentState = string.Empty;
                 numbers.monsterHitCountSegmentState = string.Empty;
                 context.monsterFormula = formulaBuilder.BuildMonsterFormula(0, 1, false, context.run);
@@ -810,6 +849,7 @@ private static void RestoreFormulaStateStructure(FormulaState source, FormulaSta
                 numbers.monsterBaseDamage = Mathf.Max(0, healValue);
                 numbers.monsterBaseDamageDigitCount = Mathf.Max(1, healDigitCount);
                 numbers.monsterHitCount = 1;
+                numbers.monsterHitCountDigitCount = 1;
                 numbers.monsterBaseDamageSegmentState = string.Empty;
                 numbers.monsterHitCountSegmentState = string.Empty;
                 context.monsterFormula = formulaBuilder.BuildMonsterFormula(numbers.monsterBaseDamage, 1, false, context.run);
@@ -822,6 +862,7 @@ private static void RestoreFormulaStateStructure(FormulaState source, FormulaSta
                 numbers.monsterBaseDamage = 0;
                 numbers.monsterBaseDamageDigitCount = 1;
                 numbers.monsterHitCount = 1;
+                numbers.monsterHitCountDigitCount = 1;
                 numbers.monsterBaseDamageSegmentState = string.Empty;
                 numbers.monsterHitCountSegmentState = string.Empty;
                 context.monsterFormula = formulaBuilder.BuildMonsterFormula(0, 1, false, context.run);
@@ -845,23 +886,37 @@ private static void RestoreFormulaStateStructure(FormulaState source, FormulaSta
                 int damageMax = MonsterPatternKeyUtility.MaxForDigits(damageDigits);
                 baseDamage = numbers.EnsureMonsterPatternDamage(turnKey, () =>
                     context.run.RollValue($"battle.monster.base_damage.{patternId}.{context.run.battleTurnNumber}", damageMin, damageMax));
+                baseDamage = Mathf.Clamp(baseDamage, damageMin, damageMax);
             }
 
             int hitCount = 1;
-            bool hitCountEditable = pattern.patternType == MonsterPatternType.MultiHit;
-            if (hitCountEditable)
+            bool hitCountEditable = pattern.patternType == MonsterPatternType.MultiHit || context.monster?.Data?.formulaDecoyDigitCount > 0;
+            if (pattern.patternType == MonsterPatternType.MultiHit)
             {
                 int hitDigits = Mathf.Max(1, pattern.hitDigitCount);
                 int hitMin = MonsterPatternKeyUtility.MinForDigits(hitDigits);
                 int hitMax = MonsterPatternKeyUtility.MaxForDigits(hitDigits);
                 hitCount = numbers.EnsureMonsterPatternHitCount(turnKey, () =>
                     context.run.RollValue($"battle.monster.hit_count.{patternId}.{context.run.battleTurnNumber}", hitMin, hitMax));
+                hitCount = Mathf.Clamp(hitCount, hitMin, hitMax);
             }
 
             numbers.monsterBaseDamage = Mathf.Max(0, baseDamage);
             numbers.monsterBaseDamageDigitCount = Mathf.Max(1, baseDamageDigitCount);
             numbers.monsterHitCount = Mathf.Max(0, hitCount);
+            if (pattern.patternType != MonsterPatternType.MultiHit && context.monster?.Data?.formulaDecoyDigitCount <= 0)
+                numbers.monsterHitCount = 1;
+            numbers.monsterHitCountDigitCount = pattern.patternType == MonsterPatternType.MultiHit ? Mathf.Max(1, pattern.hitDigitCount) : 1;
+            ApplyMonsterFormulaDecoyPresentation(numbers, pattern);
+
             context.monsterFormula = formulaBuilder.BuildMonsterFormula(numbers.monsterBaseDamage, numbers.monsterHitCount, hitCountEditable, context.run);
+            if (context.monster?.Data?.formulaDecoyDigitCount > 0)
+            {
+                FormulaBox damageNumberBox = GetFirstNumberBox(context.monsterFormula.damageExpression);
+                FormulaBox hitNumberBox = GetFirstNumberBox(context.monsterFormula.hitCountExpression);
+                if (damageNumberBox != null) damageNumberBox.split = true;
+                if (hitNumberBox != null) hitNumberBox.split = true;
+            }
             EnsureMonsterIdentitySpecialBox(numbers);
         }
 
@@ -877,7 +932,9 @@ private static void RestoreFormulaStateStructure(FormulaState source, FormulaSta
 
             BattleNumberState numbers = bootstrap.RunContext.EnsureBattleNumbers(monsterHitCount: MonsterHitCount);
             numbers.monsterHitCount = Mathf.Max(0, value);
-            numbers.monsterHitCountSegmentState = segmentState;
+            
+            numbers.monsterHitCountDigitCount = DigitCountFromSegmentState(segmentState, numbers.monsterHitCountDigitCount);
+numbers.monsterHitCountSegmentState = segmentState;
             if (context != null)
             {
                 BattleFormulaState previousStructure = context.monsterFormula;
@@ -888,9 +945,15 @@ private static void RestoreFormulaStateStructure(FormulaState source, FormulaSta
 
         public void SetMonsterSpecialBoxValue(int value, string segmentState)
         {
+            if (PlayerAttackConditionVisible)
+            {
+                SetPlayerAttackConditionBoxValue(value);
+                if (context?.run?.currentBattle != null)
+                    context.run.currentBattle.playerAttackConditionSegmentState = segmentState;
+                return;
+            }
             if (context == null || context.monster == null || bootstrap == null || bootstrap.RunContext == null)
                 return;
-
             context.monster.SetSpecialBoxValue(value);
             BattleNumberState numbers = bootstrap.RunContext.EnsureBattleNumbers(monsterHitCount: MonsterHitCount);
             numbers.monsterSpecialBoxVisible = context.monster.HasSpecialBox;
@@ -1449,6 +1512,154 @@ private static bool ValueContainsDigit(int value, int target, int displayDigitCo
                 value /= 10;
             }
             return false;
+        }
+
+
+private void ApplyMonsterFormulaDecoyPresentation(BattleNumberState numbers, MonsterPatternData pattern)
+        {
+            if (numbers == null || pattern == null || context?.monster?.Data == null || context.monster.Data.formulaDecoyDigitCount <= 0)
+                return;
+
+            int turn = Mathf.Max(1, context.run.battleTurnNumber);
+            int damageDigits = Mathf.Max(1, numbers.monsterBaseDamageDigitCount);
+            int hitDigits = pattern.patternType == MonsterPatternType.MultiHit ? Mathf.Max(1, pattern.hitDigitCount) : 0;
+            numbers.monsterActualDamageDigitCount = damageDigits;
+            numbers.monsterActualHitDigitCount = hitDigits;
+
+            if (numbers.monsterDecoyTurn != turn)
+            {
+                int slot = context.run.RollValue($"battle.monster.formula_decoy.slot.turn.{turn}", 0, damageDigits + hitDigits + 1);
+                numbers.monsterDecoyBox = slot <= damageDigits ? "Damage" : "Hit";
+                numbers.monsterDecoyDigitIndex = numbers.monsterDecoyBox == "Damage" ? slot : slot - damageDigits - 1;
+                numbers.monsterDecoyTurn = turn;
+            }
+
+            int digit = context.run.RollValue($"battle.monster.formula_decoy.value.turn.{turn}", 0, 9);
+            if (numbers.monsterDecoyBox == "Damage")
+            {
+                numbers.monsterBaseDamage = InsertDigit(numbers.monsterBaseDamage, damageDigits, numbers.monsterDecoyDigitIndex, digit);
+                numbers.monsterBaseDamageDigitCount = damageDigits + 1;
+            }
+            else if (hitDigits == 0)
+            {
+                numbers.monsterHitCount = digit;
+                numbers.monsterHitCountDigitCount = 1;
+                numbers.monsterDecoyDigitIndex = 0;
+            }
+            else
+            {
+                numbers.monsterHitCount = InsertDigit(numbers.monsterHitCount, hitDigits, numbers.monsterDecoyDigitIndex, digit);
+                numbers.monsterHitCountDigitCount = hitDigits + 1;
+            }
+        }
+
+        private BattleFormulaResult ApplyMonsterFormulaDecoy(BattleFormulaResult result)
+        {
+            BattleNumberState numbers = context.run?.currentBattle;
+            if (!result.isValid || numbers == null || context?.monster?.Data?.formulaDecoyDigitCount <= 0)
+                return result;
+
+            int damage = result.damagePerHit;
+            int hits = result.hitCount;
+            if (numbers.monsterDecoyBox == "Damage")
+                damage = RemoveDigit(numbers.monsterBaseDamage, numbers.monsterBaseDamageDigitCount, numbers.monsterDecoyDigitIndex);
+            else if (numbers.monsterActualHitDigitCount == 0)
+                hits = 1;
+            else
+                hits = RemoveDigit(numbers.monsterHitCount, numbers.monsterHitCountDigitCount, numbers.monsterDecoyDigitIndex);
+            return BattleFormulaResult.Success(damage, hits);
+        }
+
+        private static int InsertDigit(int value, int digitCount, int index, int digit)
+        {
+            string text = Mathf.Max(0, value).ToString().PadLeft(Mathf.Max(1, digitCount), '0');
+            index = Mathf.Clamp(index, 0, text.Length);
+            return int.Parse(text.Insert(index, Mathf.Clamp(digit, 0, 9).ToString()));
+        }
+
+        private static int RemoveDigit(int value, int digitCount, int index)
+        {
+            string text = Mathf.Max(0, value).ToString().PadLeft(Mathf.Max(1, digitCount), '0');
+            index = Mathf.Clamp(index, 0, text.Length - 1);
+            string remaining = text.Remove(index, 1);
+            return string.IsNullOrEmpty(remaining) ? 0 : int.Parse(remaining);
+        }
+
+
+private void RefreshPlayerAttackConditionForTurn(BattleNumberState numbers)
+        {
+            MonsterData data = context?.monster?.Data;
+            if (numbers == null || data == null || string.IsNullOrWhiteSpace(data.playerAttackConditionType))
+                return;
+            int turn = Mathf.Max(1, context.run.battleTurnNumber);
+            if (numbers.playerAttackConditionTurn == turn)
+                return;
+
+            numbers.playerAttackConditionType = data.playerAttackConditionType;
+            numbers.playerAttackConditionValue = context.run.RollValue($"battle.player_attack_condition.value.turn.{turn}", data.conditionValueMin, Mathf.Max(data.conditionValueMin, data.conditionValueMax));
+            numbers.playerAttackConditionCount = context.run.RollValue($"battle.player_attack_condition.count.turn.{turn}", data.conditionCountMin, Mathf.Max(data.conditionCountMin, data.conditionCountMax));
+            if (data.conditionOperators != null && data.conditionOperators.Length > 0)
+            {
+                int index = context.run.RollValue($"battle.player_attack_condition.operator.turn.{turn}", 0, data.conditionOperators.Length - 1);
+                numbers.playerAttackConditionOperator = data.conditionOperators[index];
+            }
+            numbers.playerAttackConditionTurn = turn;
+        }
+
+        private BattleFormulaResult ApplyPlayerAttackCondition(BattleFormulaResult result)
+        {
+            BattleNumberState numbers = context?.run?.currentBattle;
+            if (!result.isValid || numbers == null || string.IsNullOrWhiteSpace(numbers.playerAttackConditionType))
+                return result;
+
+            bool matched;
+            if (numbers.playerAttackConditionType == "DigitCount")
+                matched = CountPlayerDigit(numbers.playerAttackConditionValue) == numbers.playerAttackConditionCount;
+            else
+            {
+                BattleFormulaResult baseFormula = formulaEvaluator.EvaluateBattleFormula(context.playerFormula);
+                int baseDamage = baseFormula.isValid ? baseFormula.damagePerHit : result.damagePerHit;
+                matched = numbers.playerAttackConditionOperator == "<" ? baseDamage < numbers.playerAttackConditionValue
+                    : numbers.playerAttackConditionOperator == ">" ? baseDamage > numbers.playerAttackConditionValue
+                    : baseDamage == numbers.playerAttackConditionValue;
+            }
+            return matched ? result : BattleFormulaResult.Success(0, result.hitCount);
+        }
+
+        private int CountPlayerDigit(int target)
+        {
+            int count = CountDigitInFormula(context.playerFormula?.damageExpression, target) + CountDigitInFormula(context.playerFormula?.hitCountExpression, target);
+            BattleNumberState numbers = context.run?.currentBattle;
+            if (numbers != null && !string.IsNullOrWhiteSpace(numbers.playerDebuffOperator))
+                count += CountDigitInValue(numbers.playerDebuffValue, numbers.playerDebuffDigitCount, target);
+            return count;
+        }
+
+        private static int CountDigitInFormula(FormulaState formula, int target)
+        {
+            int count = 0;
+            if (formula?.boxes == null) return count;
+            for (int i = 0; i < formula.boxes.Count; i++)
+            {
+                FormulaBox box = formula.boxes[i];
+                if (box != null && box.boxType == FormulaBoxType.Number)
+                    count += CountDigitInValue(box.numberValue, box.digitCount, target);
+            }
+            return count;
+        }
+
+        private static int CountDigitInValue(int value, int displayDigitCount, int target)
+        {
+            value = Mathf.Abs(value);
+            int naturalDigits = value == 0 ? 1 : Mathf.FloorToInt(Mathf.Log10(value)) + 1;
+            int digits = Mathf.Max(naturalDigits, displayDigitCount);
+            int count = 0;
+            for (int i = 0; i < digits; i++)
+            {
+                if (value % 10 == target) count++;
+                value /= 10;
+            }
+            return count;
         }
 }
 }
