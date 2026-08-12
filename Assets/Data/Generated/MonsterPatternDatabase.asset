@@ -33,7 +33,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":"2_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"bleed","Condition":"","Value":"DamageDealt","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 1
+      operationKind: 6
+      timing: immediate
       target: self
       action: AddBuff
       type: bleed
@@ -73,7 +76,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":null,"Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"next_turn","Target":"player","Action":"MultiplyBuff","Type":"bleed","Condition":"","Value":3.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: next_turn
+    - timingKind: 2
+      targetKind: 2
+      operationKind: 9
+      timing: next_turn
       target: player
       action: MultiplyBuff
       type: bleed
@@ -112,7 +118,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":"1_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"strength","Condition":"","Value":1.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 1
+      operationKind: 6
+      timing: immediate
       target: self
       action: AddBuff
       type: strength
@@ -152,7 +161,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":"1_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"stun","Condition":"","Value":"","Duration":1,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false},{"Timing":"immediate","Target":"self","Action":"SetBuff","Type":"strength","Condition":"","Value":0.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 1
+      operationKind: 6
+      timing: immediate
       target: self
       action: AddBuff
       type: stun
@@ -168,7 +180,10 @@ MonoBehaviour:
       label: 
       editable: 0
       rawJson: '{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"stun","Condition":"","Value":"","Duration":1,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 1
+      operationKind: 7
+      timing: immediate
       target: self
       action: SetBuff
       type: strength
@@ -208,7 +223,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":"2_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"player","Action":"AddBuff","Type":"bleed","Condition":"","Value":"DamageDealt","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 2
+      operationKind: 6
+      timing: immediate
       target: player
       action: AddBuff
       type: bleed
@@ -247,7 +265,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":null,"Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"heal","Type":"","Condition":"","Value":"CosmictreeHeal","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":true}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 1
+      operationKind: 5
+      timing: immediate
       target: self
       action: heal
       type: 
@@ -286,7 +307,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":"2_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"strength","Condition":"","Value":1.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 1
+      operationKind: 6
+      timing: immediate
       target: self
       action: AddBuff
       type: strength
@@ -325,7 +349,10 @@ MonoBehaviour:
     condition: hprate<=0.4
     rawEffects: '{"Attack":"FortuneStack_Single","Condition":"hprate<=0.4","Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"SetBuff","Type":"fortune_stack","Condition":"","Value":0.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 1
+      operationKind: 7
+      timing: immediate
       target: self
       action: SetBuff
       type: fortune_stack
@@ -364,7 +391,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":"2_Multi_1","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"fortune_stack","Condition":"","Value":"DamageDealt","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 1
+      operationKind: 6
+      timing: immediate
       target: self
       action: AddBuff
       type: fortune_stack
@@ -405,7 +435,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":"2_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"fortune_stack","Condition":"","Value":"DamageDealt","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 1
+      operationKind: 6
+      timing: immediate
       target: self
       action: AddBuff
       type: fortune_stack
@@ -444,7 +477,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":"2_Multi_1","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"next_turn","Target":"self","Action":"Split","Type":"","Condition":"","Value":"","Duration":1,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: next_turn
+    - timingKind: 2
+      targetKind: 1
+      operationKind: 11
+      timing: next_turn
       target: self
       action: Split
       type: 
@@ -483,7 +519,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":"2_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"next_turn","Target":"player","Action":"Split","Type":"","Condition":"","Value":"","Duration":1,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: next_turn
+    - timingKind: 2
+      targetKind: 2
+      operationKind: 11
+      timing: next_turn
       target: player
       action: Split
       type: 
@@ -523,7 +562,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":null,"Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"heal","Type":"","Condition":"","Value":3.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":true},{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"strength","Condition":"","Value":1.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 1
+      operationKind: 5
+      timing: immediate
       target: self
       action: heal
       type: 
@@ -539,7 +581,10 @@ MonoBehaviour:
       label: 
       editable: 1
       rawJson: '{"Timing":"immediate","Target":"self","Action":"heal","Type":"","Condition":"","Value":3.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":true}'
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 1
+      operationKind: 6
+      timing: immediate
       target: self
       action: AddBuff
       type: strength
@@ -578,7 +623,10 @@ MonoBehaviour:
     condition: heartqueenbox==0
     rawEffects: '{"Attack":null,"Condition":"heartqueenbox==0","Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"player","Action":"Damage","Type":"","Condition":"","Value":9999.0,"Duration":0,"Count":1,"HitCount":1,"Lock":true,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 2
+      operationKind: 4
+      timing: immediate
       target: player
       action: Damage
       type: 
@@ -618,7 +666,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":"2_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"next_turn","Target":"player","Action":"Split","Type":"","Condition":"","Value":"","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false},{"Timing":"next_turn","Target":"player","Action":"AddBuff","Type":"box_lock","Condition":"","Value":1.0,"Duration":1,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: next_turn
+    - timingKind: 2
+      targetKind: 2
+      operationKind: 11
+      timing: next_turn
       target: player
       action: Split
       type: 
@@ -634,7 +685,10 @@ MonoBehaviour:
       label: 
       editable: 0
       rawJson: '{"Timing":"next_turn","Target":"player","Action":"Split","Type":"","Condition":"","Value":"","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
-    - timing: next_turn
+    - timingKind: 2
+      targetKind: 2
+      operationKind: 6
+      timing: next_turn
       target: player
       action: AddBuff
       type: box_lock
@@ -674,7 +728,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":"2_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"player","Action":"AddBuff","Type":"bleed","Condition":"","Value":"DamageDealt*0.5","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false},{"Timing":"immediate","Target":"player","Action":"AddBuff","Type":"poison","Condition":"","Value":"DamageDealt*0.5","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 2
+      operationKind: 6
+      timing: immediate
       target: player
       action: AddBuff
       type: bleed
@@ -690,7 +747,10 @@ MonoBehaviour:
       label: 
       editable: 0
       rawJson: '{"Timing":"immediate","Target":"player","Action":"AddBuff","Type":"bleed","Condition":"","Value":"DamageDealt*0.5","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 2
+      operationKind: 6
+      timing: immediate
       target: player
       action: AddBuff
       type: poison
@@ -730,7 +790,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":null,"Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"heal","Type":"","Condition":"","Value":"PlayerBleed","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false},{"Timing":"immediate","Target":"self","Action":"heal","Type":"","Condition":"","Value":"PlayerPoison","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 1
+      operationKind: 5
+      timing: immediate
       target: self
       action: heal
       type: 
@@ -746,7 +809,10 @@ MonoBehaviour:
       label: 
       editable: 0
       rawJson: '{"Timing":"immediate","Target":"self","Action":"heal","Type":"","Condition":"","Value":"PlayerBleed","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 1
+      operationKind: 5
+      timing: immediate
       target: self
       action: heal
       type: 
@@ -786,7 +852,10 @@ MonoBehaviour:
     condition: damagetaken>=400
     rawEffects: '{"Attack":null,"Condition":"damagetaken>=400","Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"RemoveBuff","Type":"shield","Condition":"","Value":"","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false},{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"strength","Condition":"","Value":1.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 1
+      operationKind: 8
+      timing: immediate
       target: self
       action: RemoveBuff
       type: shield
@@ -802,7 +871,10 @@ MonoBehaviour:
       label: 
       editable: 0
       rawJson: '{"Timing":"immediate","Target":"self","Action":"RemoveBuff","Type":"shield","Condition":"","Value":"","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 1
+      operationKind: 6
+      timing: immediate
       target: self
       action: AddBuff
       type: strength
@@ -841,7 +913,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":"2_Multi_2","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"player","Action":"librarianskill","Type":"","Condition":"","Value":1.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 2
+      operationKind: 0
+      timing: immediate
       target: player
       action: librarianskill
       type: 
@@ -880,7 +955,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":"3_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"player","Action":"librarianskill","Type":"","Condition":"","Value":1.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 2
+      operationKind: 0
+      timing: immediate
       target: player
       action: librarianskill
       type: 
@@ -919,7 +997,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":null,"Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"player","Action":"AddBuff","Type":"minus_box","Condition":"","Value":1.0,"Duration":2,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 2
+      operationKind: 6
+      timing: immediate
       target: player
       action: AddBuff
       type: minus_box
@@ -958,7 +1039,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":null,"Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"next_turn","Target":"player","Action":"Lock","Type":"","Condition":"","Value":"","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: next_turn
+    - timingKind: 2
+      targetKind: 2
+      operationKind: 12
+      timing: next_turn
       target: player
       action: Lock
       type: 
@@ -998,7 +1082,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":null,"Condition":null,"Count":null,"SelfDestruct":true,"Effects":[{"Timing":"immediate","Target":"player","Action":"Damage","Type":"","Condition":"","Value":"PlayerHP*0.3","Duration":0,"Count":1,"HitCount":1,"Lock":true,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 2
+      operationKind: 4
+      timing: immediate
       target: player
       action: Damage
       type: 
@@ -1038,7 +1125,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":"2_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"player","Action":"AddBuff","Type":"poison","Condition":"","Value":"DamageDealt","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 2
+      operationKind: 6
+      timing: immediate
       target: player
       action: AddBuff
       type: poison
@@ -1078,7 +1168,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":null,"Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"player","Action":"MultiplyBuff","Type":"poison","Condition":"","Value":2.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 2
+      operationKind: 9
+      timing: immediate
       target: player
       action: MultiplyBuff
       type: poison
@@ -1118,7 +1211,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":"ProphetStack_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"SetBuff","Type":"prophet_stack","Condition":"","Value":0.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 1
+      operationKind: 7
+      timing: immediate
       target: self
       action: SetBuff
       type: prophet_stack
@@ -1159,7 +1255,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":"2_Multi_1","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"prophet_stack","Condition":"","Value":"DamageDealt","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 1
+      operationKind: 6
+      timing: immediate
       target: self
       action: AddBuff
       type: prophet_stack
@@ -1200,7 +1299,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":"2_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"prophet_stack","Condition":"","Value":"DamageDealt","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 1
+      operationKind: 6
+      timing: immediate
       target: self
       action: AddBuff
       type: prophet_stack
@@ -1240,7 +1342,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":"2_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"player","Action":"AddBuff","Type":"poison","Condition":"","Value":"DamageDealt*0.5","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 2
+      operationKind: 6
+      timing: immediate
       target: player
       action: AddBuff
       type: poison
@@ -1303,7 +1408,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":"2_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"next_turn","Target":"self","Action":"Split","Type":"","Condition":"","Value":"","Duration":1,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: next_turn
+    - timingKind: 2
+      targetKind: 1
+      operationKind: 11
+      timing: next_turn
       target: self
       action: Split
       type: 
@@ -1343,7 +1451,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":"3_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"AddBox","Type":"","Condition":"","Value":"Random","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"append","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 1
+      operationKind: 13
+      timing: immediate
       target: self
       action: AddBox
       type: 
@@ -1383,7 +1494,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":null,"Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"player","Action":"Damage","Type":"","Condition":"","Value":"Stargazing_Multi_3","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 2
+      operationKind: 4
+      timing: immediate
       target: player
       action: Damage
       type: 
@@ -1423,7 +1537,10 @@ MonoBehaviour:
     condition: hprate<=0.5
     rawEffects: '{"Attack":null,"Condition":"hprate<=0.5","Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"player","Action":"Damage","Type":"","Condition":"","Value":"PlayerHP_Multi_2","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 2
+      operationKind: 4
+      timing: immediate
       target: player
       action: Damage
       type: 
@@ -1463,7 +1580,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":"2_Multi_3","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"next_turn","Target":"whale_box","Action":"AddBox","Type":"","Condition":"","Value":"Random","Duration":0,"Count":2,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: next_turn
+    - timingKind: 2
+      targetKind: 16
+      operationKind: 13
+      timing: next_turn
       target: whale_box
       action: AddBox
       type: 
@@ -1505,7 +1625,10 @@ MonoBehaviour:
     condition: HPRate<=0.5 && Phase==1
     rawEffects: '{"Attack":null,"Condition":"HPRate<=0.5 && Phase==1","Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"RemoveBuff","Type":"whale_buff","Condition":"","Value":"","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false},{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"phase2","Condition":"","Value":"","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 1
+      operationKind: 8
+      timing: immediate
       target: self
       action: RemoveBuff
       type: whale_buff
@@ -1521,7 +1644,10 @@ MonoBehaviour:
       label: 
       editable: 0
       rawJson: '{"Timing":"immediate","Target":"self","Action":"RemoveBuff","Type":"whale_buff","Condition":"","Value":"","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 1
+      operationKind: 6
+      timing: immediate
       target: self
       action: AddBuff
       type: phase2
@@ -1561,7 +1687,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":"3_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"next_turn","Target":"whale_box","Action":"AddBox","Type":"","Condition":"","Value":"Random","Duration":0,"Count":2,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: next_turn
+    - timingKind: 2
+      targetKind: 16
+      operationKind: 13
+      timing: next_turn
       target: whale_box
       action: AddBox
       type: 
@@ -1600,7 +1729,10 @@ MonoBehaviour:
     condition: 
     rawEffects: '{"Attack":null,"Condition":null,"Count":1,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"player","Action":"AddBuff","Type":"divide_box","Condition":"","Value":1.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: immediate
+    - timingKind: 1
+      targetKind: 2
+      operationKind: 6
+      timing: immediate
       target: player
       action: AddBuff
       type: divide_box

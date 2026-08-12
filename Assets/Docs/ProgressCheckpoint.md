@@ -39,7 +39,7 @@ warnings remain, and the Unity console reports `0` errors/warnings.
 ## 2026-07-15 Battle Structure And Fantasy Checkpoint
 
 - Current gameplay source: `Assets/1Scripts`; current main scene:
-  `Assets/Scenes/Game.unity`. References below to `GumBwing_Er.unity` describe
+  `Assets/Scenes/GumBwing_Er.unity`. References below to `Game.unity` describe
   earlier rebuild history.
 
 - Added state-driven turn resolution with per-hit player/monster processing,

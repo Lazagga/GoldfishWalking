@@ -22,6 +22,7 @@ namespace GoldfishWalking.Battle
         private readonly FormulaEvaluator formulaEvaluator = new FormulaEvaluator();
         private readonly BattleFormulaBuilder formulaBuilder = new BattleFormulaBuilder();
         private readonly FantasyEffectRunner fantasyEffectRunner = new FantasyEffectRunner();
+        private readonly BattleOutcomeService outcomeService = new BattleOutcomeService();
         private BattleContext context;
         private Coroutine resolutionCoroutine;
 
@@ -1089,14 +1090,13 @@ private void EnsureMonsterIdentitySpecialBox(BattleNumberState numbers)
 
 private bool ProcessMonsterEscapeCountdown()
         {
-            if (context == null || context.monster == null || context.monster.Data == null
-                || !string.Equals(context.monster.Data.countdownAction, "Escape", System.StringComparison.OrdinalIgnoreCase)
-                || !context.monster.HasSpecialBox)
+            if (context?.monster?.Data == null
+                || !string.Equals(context.monster.Data.countdownAction, "Escape", System.StringComparison.OrdinalIgnoreCase))
                 return false;
-
-            context.monster.SetSpecialBoxValue(context.monster.SpecialBoxValue - 1);
-            SyncSpecialBoxToNumbers(context.run?.currentBattle);
-            if (context.monster.SpecialBoxValue > 0)
+            BattleOutcome outcome = outcomeService.TickCountdown(context);
+            if (context?.monster != null && context.monster.HasSpecialBox)
+                SyncSpecialBoxToNumbers(context.run?.currentBattle);
+            if (outcome != BattleOutcome.MonsterEscaped)
                 return false;
 
             CleanupBattleTemporaryState();
@@ -1107,14 +1107,12 @@ private bool ProcessMonsterEscapeCountdown()
 
 private bool ProcessHeartQueenDoomCountdown()
         {
-            if (context == null || context.monster == null || context.monster.Data == null
-                || !string.Equals(context.monster.Data.countdownAction, "Pattern", System.StringComparison.OrdinalIgnoreCase)
-                || !context.monster.HasSpecialBox)
+            if (context?.monster?.Data == null
+                || !string.Equals(context.monster.Data.countdownAction, "Pattern", System.StringComparison.OrdinalIgnoreCase))
                 return false;
-
-            context.monster.SetSpecialBoxValue(context.monster.SpecialBoxValue - 1);
+            BattleOutcome outcome = outcomeService.TickCountdown(context);
             SyncSpecialBoxToNumbers(context.run?.currentBattle);
-            if (context.monster.SpecialBoxValue > 0)
+            if (outcome != BattleOutcome.ExecuteCountdownPattern)
                 return false;
 
             MonsterPatternData pattern = monsterPatternRunner.ResolvePattern(monsterPatternDatabase, context.monster.Data.countdownPattern);
@@ -1231,8 +1229,8 @@ private static bool IsSelfDestructPattern(MonsterPatternData pattern)
         {
             if (context == null)
                 return true;
-
-            if (context.run != null && context.run.health <= 0)
+            BattleOutcome outcome = outcomeService.EvaluateCombatants(context);
+            if (outcome == BattleOutcome.PlayerLost)
             {
                 CleanupBattleTemporaryState();
                 context.state = BattleState.Lost;
@@ -1240,7 +1238,7 @@ private static bool IsSelfDestructPattern(MonsterPatternData pattern)
                 return true;
             }
 
-            if (context.monster != null && context.monster.IsDead)
+            if (outcome == BattleOutcome.MonsterDefeated)
             {
                 if (context.run != null)
                     fantasyEffectRunner.ApplyTrigger(context.run, "Battle_End");

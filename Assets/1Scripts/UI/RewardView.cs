@@ -88,7 +88,7 @@ namespace GoldfishWalking.UI
         private void ResolveReferences()
         {
             if (bootstrap == null)
-                bootstrap = FindFirstObjectByType<GameBootstrap>(FindObjectsInactive.Include);
+                Debug.LogError("[RewardView] GameBootstrap must be assigned in GumBwing_Er.unity.", this);
         }
 
         private void HideScenePlaceholders()
@@ -477,7 +477,7 @@ private void PrepareRewardList()
         private void Refresh()
         {
             if (rerollButton != null)
-                rerollButton.interactable = bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.rewardRerolls > 0 && rewardCardRoot != null && rewardCardRoot.gameObject.activeSelf;
+                rerollButton.interactable = bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.rewardSession.rerolls > 0 && rewardCardRoot != null && rewardCardRoot.gameObject.activeSelf;
             RefreshFantasySlots();
         }
 
@@ -504,7 +504,7 @@ private void PrepareRewardList()
 
         private void RerollFantasyChoices()
         {
-            if (bootstrap == null || bootstrap.RunContext == null || bootstrap.RunContext.rewardRerolls <= 0)
+            if (bootstrap == null || bootstrap.RunContext == null || bootstrap.RunContext.rewardSession.rerolls <= 0)
                 return;
             if (rewardCardRoot == null || !rewardCardRoot.gameObject.activeSelf)
                 return;
@@ -517,8 +517,8 @@ private void PrepareRewardList()
                     previousRewardIds.Add(fantasy.id);
             }
 
-            bootstrap.RunContext.rewardRerolls--;
-            bootstrap.RunContext.rewardChoiceRollIndex++;
+            bootstrap.RunContext.rewardSession.rerolls--;
+            bootstrap.RunContext.rewardSession.choiceRollIndex++;
             PrepareFantasyChoices(previousRewardIds);
             Refresh();
         }

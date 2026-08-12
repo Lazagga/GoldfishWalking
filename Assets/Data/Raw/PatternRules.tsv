@@ -1,6 +1,0 @@
-DataCode	SelfDestruct	AddBoxMode	EditableHeal	Condition
-OrbSkill	true		false
-StargazerSingle	false	Append	false
-GiantRatSkill	false		true
-CosmictreeHeal	false		true	
-KnightSkill	false		false	DamageTaken>=DamageCapBreakThreshold

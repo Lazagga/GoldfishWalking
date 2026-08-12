@@ -6,8 +6,8 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Game.unity
-    guid: d683c9dfbce05b54ba50cc1915819924
+    path: Assets/Scenes/GumBwing_Er.unity
+    guid: 53ee97b8d829cf14183dbfec6bd26ad9
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

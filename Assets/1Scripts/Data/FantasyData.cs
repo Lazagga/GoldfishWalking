@@ -40,6 +40,9 @@ namespace GoldfishWalking.Data
     [Serializable]
     public sealed class FantasyEffectData
     {
+        public GameplayEffectTiming timingKind;
+        public GameplayEffectTarget targetKind;
+        public GameplayEffectOperation operationKind;
         public string trigger;
         public string target;
         public string calc;

@@ -91,7 +91,7 @@ namespace GoldfishWalking.Fantasy
         private static Random CreateRewardRandom(RunContext runContext)
         {
             int seed = runContext != null
-                ? runContext.RollValue($"reward.fantasy.choices.{runContext.rewardChoiceRollIndex}", 0, int.MaxValue - 1)
+                ? runContext.RollValue($"reward.fantasy.choices.{runContext.rewardSession.choiceRollIndex}", 0, int.MaxValue - 1)
                 : Environment.TickCount;
 
             return new Random(seed);

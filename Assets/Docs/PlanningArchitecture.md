@@ -1,5 +1,38 @@
 # GoldfishWalking Planning Architecture
 
+## 2026-08-12 Refactoring Baseline
+
+The runtime boundary is now the `GoldfishWalking.Runtime` assembly under
+`Assets/1Scripts`. Editor import/inspection code and regression tests are
+separate assemblies. The main scene is `Assets/Scenes/GumBwing_Er.unity`.
+
+Mutable run data is being separated by lifetime: permanent run progression
+remains in `RunContext`, battle-only values live in `BattleSessionState`, and
+reward rerolls live in `RewardSessionState`. Existing forwarding properties
+are temporary migration compatibility and should be removed only after all
+callers use the scoped state objects directly.
+
+Effect execution follows this boundary:
+
+```text
+JSON string fields -> typed imported enums -> generic runner -> focused executor
+```
+
+`FormulaStructuralEffectExecutor` is the first focused executor. Additional
+executors should be split by reusable operation family, not monster or fantasy
+identity. UI must pass edits through `MatchEditSession`; locked/split rules are
+domain rules and cannot rely solely on button or drag-handler checks.
+
+`MonsterEffectExpressionEvaluator` owns reusable monster condition and value
+expressions. The pattern runner should coordinate execution order rather than
+grow new parsing responsibilities. Fantasy and monster sequencing may remain
+separate, while operation-family executors and expression concepts should be
+shared where their semantics genuinely match.
+
+Designer authoring uses the source-JSON EditorWindow, not Generated asset
+editing. The legacy scenes under `Assets/Legacy/Scenes` are temporary reference
+material and must not receive new dependencies.
+
 ## 2026-07-17 Data-Driven Content Policy
 
 Monster, fantasy, and pattern programming must be data-driven by default.
@@ -9,7 +42,7 @@ value/range, operator choices, count, duration, condition, lock/split flags,
 and editability in JSON, then parse them into generic runtime data.
 
 ```text
-TSV/Inspector JSON
+Source JSON
   -> validated import/parser
   -> generated structured data
   -> generic runtime runner
@@ -23,17 +56,16 @@ through the shared schema instead of a one-off monster/fantasy branch.
 
 Current identity-independent examples include player debuff boxes, aimed-shot
 multipliers, formula decoy digits, and player-attack condition JSON.
-`MonsterRules.tsv` carries persistent identity-independent monster properties
-or JSON configuration that does not belong to one selected turn pattern.
+Persistent identity-independent monster properties are authored in each
+monster JSON file under `passives`.
 
 ## 2026-07-16 Data Authoring Boundary
 
-The generated fantasy and monster-pattern Inspectors expose one visible JSON
-source per entry. Editing it reparses the structured runtime data immediately;
-the structured fields are previews, not a second editable source.
+The JSON files under `Assets/Data/Json` are the authoring source. Generated
+database Inspectors are read-only runtime previews, not a second editable source.
 
 ```text
-Inspector Effects JSON
+Source JSON
   -> validated parser
   -> structured runtime definition
   -> action/state snapshot
@@ -81,16 +113,14 @@ Last status refresh: 2026-07-17.
   owns the all-box split rule and one committed whole-digit eraser use per
   battle.
 
-Earlier rebuild work used `Assets/Scenes/GumBwing_Er.unity` while the Canvas
-architecture was being established. The current main scene and integration
-target is:
+The Canvas-based rebuild scene is the current main scene and integration target:
 
 ```text
-Assets/Scenes/Game.unity
+Assets/Scenes/GumBwing_Er.unity
 ```
 
-`GumBwing_Er.unity` remains historical rebuild reference unless the user
-explicitly asks to modify it.
+`Game.unity` remains an older reference scene and is not the current integration
+target unless the user explicitly changes direction.
 
 The new rebuild direction uses one Canvas-based scene with multiple screen
 panels instead of loading separate scenes for each game state.

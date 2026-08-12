@@ -72,7 +72,7 @@ namespace GoldfishWalking.UI
         private void ResolveReferences()
         {
             if (restController == null)
-                restController = FindFirstObjectByType<RestController>(FindObjectsInactive.Include);
+                Debug.LogError("[RestView] RestController must be assigned in GumBwing_Er.unity.", this);
         }
 
         private void HideScenePlaceholders()

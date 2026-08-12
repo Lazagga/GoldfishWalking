@@ -40,10 +40,10 @@ namespace GoldfishWalking.Fantasy
                 return;
 
             runContext.itemInventory.Add(itemType, count);
-            runContext.lastAcquiredItemType = itemType;
-            runContext.lastAcquiredItemCount = count;
+            runContext.battleSession.lastAcquiredItemType = itemType;
+            runContext.battleSession.lastAcquiredItemCount = count;
             ApplyTrigger(runContext, "Acquire_Item");
-            runContext.lastAcquiredItemCount = 0;
+            runContext.battleSession.lastAcquiredItemCount = 0;
             GameEventHub.RaiseItemInventoryChanged();
         }
 
@@ -52,7 +52,7 @@ namespace GoldfishWalking.Fantasy
             if (runContext == null)
                 return;
 
-            runContext.lastUsedItemType = itemType;
+            runContext.battleSession.lastUsedItemType = itemType;
             ApplyTrigger(runContext, "Use_Item");
             GameEventHub.RaiseItemInventoryChanged();
         }
@@ -135,7 +135,7 @@ namespace GoldfishWalking.Fantasy
             if (runContext == null)
                 return baseValue;
 
-            int turnNumber = Mathf.Max(1, runContext.battleTurnNumber);
+            int turnNumber = Mathf.Max(1, runContext.battleSession.turnNumber);
             int value = ModifyValue(runContext, baseValue, "Passive", targets);
             if (turnNumber == 1)
                 value = ModifyValue(runContext, value, "Battle_Start", targets);
@@ -151,19 +151,19 @@ namespace GoldfishWalking.Fantasy
             string target = NormalizeTarget(effect.target);
             string calc = Normalize(effect.calc);
             float value = EvaluateEffectValue(effect, runContext);
-            int pendingBefore = runContext.pendingMonsterDamage;
+            int pendingBefore = runContext.battleSession.pendingMonsterDamage;
 
             switch (target)
             {
                 case "hp":
                     if (TriggerMatches(effect.trigger, "Deal_Damage") && calc == "add")
-                        value = runContext.lastDamageDealt * NormalizePercent(value);
+                        value = runContext.battleSession.lastDamageDealt * NormalizePercent(value);
                     runContext.health = ApplyCalculation(runContext.health, calc, value);
                     break;
                 case "item":
                     int itemCount = Mathf.FloorToInt(value);
-                    if (TriggerMatches(effect.trigger, "Acquire_Item") && runContext.lastAcquiredItemCount > 0)
-                        runContext.itemInventory.Add(runContext.lastAcquiredItemType, itemCount * runContext.lastAcquiredItemCount);
+                    if (TriggerMatches(effect.trigger, "Acquire_Item") && runContext.battleSession.lastAcquiredItemCount > 0)
+                        runContext.itemInventory.Add(runContext.battleSession.lastAcquiredItemType, itemCount * runContext.battleSession.lastAcquiredItemCount);
                     else if (IsTemporaryItemGrant(effect.trigger))
                     {
                         runContext.itemInventory.AddTemporary(ItemType.ExtraMatch, itemCount);
@@ -200,24 +200,24 @@ namespace GoldfishWalking.Fantasy
                     break;
                 case "damage":
                 case "additionaldamage":
-                    runContext.pendingMonsterDamage = ApplyCalculation(runContext.pendingMonsterDamage, calc, value);
+                    runContext.battleSession.pendingMonsterDamage = ApplyCalculation(runContext.battleSession.pendingMonsterDamage, calc, value);
                     LogPendingDamageDelta(fantasy, runContext, pendingBefore);
                     break;
                 case "damagereflect":
-                    runContext.pendingMonsterDamage += CalculateReflectDamage(runContext, calc, value);
+                    runContext.battleSession.pendingMonsterDamage += CalculateReflectDamage(runContext, calc, value);
                     LogPendingDamageDelta(fantasy, runContext, pendingBefore);
                     break;
                 case "fantasyreroll":
-                    runContext.rewardRerolls += Mathf.FloorToInt(value);
+                    runContext.rewardSession.rerolls += Mathf.FloorToInt(value);
                     break;
                 case "movement":
-                    runContext.remainingMoveCount = ApplyCalculation(runContext.remainingMoveCount, calc, value);
+                    runContext.battleSession.remainingMoves = ApplyCalculation(runContext.battleSession.remainingMoves, calc, value);
                     break;
                 case "temporarymovement":
-                    runContext.temporaryMoveBonus = ApplyCalculation(runContext.temporaryMoveBonus, calc, value);
+                    runContext.battleSession.temporaryMoveBonus = ApplyCalculation(runContext.battleSession.temporaryMoveBonus, calc, value);
                     break;
                 case "lastuseditem":
-                    runContext.itemInventory.Add(runContext.lastUsedItemType, Mathf.FloorToInt(value));
+                    runContext.itemInventory.Add(runContext.battleSession.lastUsedItemType, Mathf.FloorToInt(value));
                     GameEventHub.RaiseItemInventoryChanged();
                     break;
                 case "fantasy":
@@ -261,7 +261,7 @@ namespace GoldfishWalking.Fantasy
             if (effect.chance <= 0f || runContext == null)
                 return false;
             int threshold = Mathf.FloorToInt(effect.chance * 10000f);
-            string key = $"fantasy.effect.{fantasy?.id}.{effect.trigger}.{effect.target}.{runContext.battleTurnNumber}.{runContext.itemUseCountThisBattle}";
+            string key = $"fantasy.effect.{fantasy?.id}.{effect.trigger}.{effect.target}.{runContext.battleSession.turnNumber}.{runContext.battleSession.itemUseCount}";
             return runContext.RollValue(key, 0, 9999) < threshold;
         }
 
@@ -421,7 +421,7 @@ namespace GoldfishWalking.Fantasy
             switch (calc)
             {
                 case "multiply":
-                    return Mathf.FloorToInt(runContext.lastDamageTaken * NormalizePercent(value));
+                    return Mathf.FloorToInt(runContext.battleSession.lastDamageTaken * NormalizePercent(value));
                 case "set":
                     return Mathf.FloorToInt(value);
                 case "add":
@@ -435,7 +435,7 @@ namespace GoldfishWalking.Fantasy
             if (fantasy == null || runContext == null)
                 return;
 
-            int delta = runContext.pendingMonsterDamage - pendingBefore;
+            int delta = runContext.battleSession.pendingMonsterDamage - pendingBefore;
             if (delta <= 0)
                 return;
 
@@ -546,20 +546,20 @@ namespace GoldfishWalking.Fantasy
                     return runContext != null ? runContext.health : 0f;
                 case "damagedealt":
                 case "lastdamagedealt":
-                    return runContext != null ? runContext.lastDamageDealt : 0f;
+                    return runContext != null ? runContext.battleSession.lastDamageDealt : 0f;
                 case "totaldamagedealt":
-                    return runContext != null ? runContext.battleDamageDealt : 0f;
+                    return runContext != null ? runContext.battleSession.totalDamageDealt : 0f;
                 case "damagetaken":
                 case "lastdamagetaken":
-                    return runContext != null ? runContext.lastDamageTaken : 0f;
+                    return runContext != null ? runContext.battleSession.lastDamageTaken : 0f;
                 case "totaldamagetaken":
-                    return runContext != null ? runContext.battleDamageTaken : 0f;
+                    return runContext != null ? runContext.battleSession.totalDamageTaken : 0f;
                 case "battledigit8count":
                     return CountDigitInBattleNumbers(runContext, 8);
                 case "remainingmoves":
-                    return runContext != null ? runContext.remainingMoveCount : 0f;
+                    return runContext != null ? runContext.battleSession.remainingMoves : 0f;
                 case "itemusecount":
-                    return runContext != null ? runContext.itemUseCountThisBattle : 0f;
+                    return runContext != null ? runContext.battleSession.itemUseCount : 0f;
                 case "consumablecount":
                     return runContext != null ? runContext.itemInventory.GetCount(ItemType.ExtraMatch) + runContext.itemInventory.GetCount(ItemType.Eraser) : 0f;
                 case "playerbasedamage":

@@ -1,0 +1,22 @@
+{
+  "name": "GoldfishWalking.Editor.Tests",
+  "rootNamespace": "GoldfishWalking.Editor.Tests",
+  "references": [
+    "GoldfishWalking.Runtime",
+    "GoldfishWalking.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

@@ -9,7 +9,7 @@ namespace GoldfishWalking.Editor
     {
         private int selectedIndex;
         private Vector2 scroll;
-        private string jsonError;
+        private string jsonError = string.Empty;
 
         public override void OnInspectorGUI()
         {

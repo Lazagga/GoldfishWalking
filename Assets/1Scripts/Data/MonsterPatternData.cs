@@ -46,6 +46,9 @@ namespace GoldfishWalking.Data
     [Serializable]
     public sealed class MonsterPatternEffectData
     {
+        public GameplayEffectTiming timingKind;
+        public GameplayEffectTarget targetKind;
+        public GameplayEffectOperation operationKind;
         public string timing;
         public string target;
         public string action;

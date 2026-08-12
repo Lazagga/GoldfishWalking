@@ -659,6 +659,7 @@ public void Configure(int initialValue, int minimumDigits, Color segmentColor, U
             editingBox.split = owner.Split;
             editingBox.lockedDigitCount = owner.LockedDigitCount;
             session.Open(editingBox);
+            session.ConfigureStructuralRules(owner.Split, owner.IsDigitLocked);
             PopulateSlotsFromOwner();
             StoreOriginalShape();
             owner.CopyCommittedItemErasuresTo(itemErasedOriginalAddresses);
@@ -984,6 +985,7 @@ private void CommitPopup()
             RefundSpentItems();
             session.slots.Clear();
             session.Open(editingBox);
+            session.ConfigureStructuralRules(owner != null && owner.Split, owner != null ? owner.IsDigitLocked : null);
             PopulateSlotsFromOwner();
             StoreOriginalShape();
 

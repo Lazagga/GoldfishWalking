@@ -22,39 +22,37 @@ namespace GoldfishWalking.Core
         public BattleNumberState currentBattle;
         public RestNumberState currentRest;
         public ShopNumberState currentShop = new ShopNumberState();
-        public int lastDamageDealt;
-        public int lastDamageTaken;
-        public int battleDamageDealt;
-        public int battleDamageTaken;
-        public int pendingMonsterDamage;
-        public List<string> battleDamageDebugLines = new List<string>();
-        public int playerBleed;
-        public int playerPoison;
-        public int pendingPlayerBleed;
-        public int pendingPlayerPoison;
-        public int prophecyStack;
-        public int battleTurnNumber;
-        public int currentTurnMoveLimit;
-        public int remainingMoveCount;
-        public int temporaryMoveBonus;
+        public BattleSessionState battleSession = new BattleSessionState();
+        public RewardSessionState rewardSession = new RewardSessionState();
         public int passiveAttackCountBonus;
-
-        public int sagittariusWholeBoxEraseTurn;
-        public int itemUseCountThisBattle;
-        public int committedBattleEditExtraMatches;
-        public int committedBattleEditErasers;
-        public int committedBattleEditTemporaryExtraMatches;
-        public int committedBattleEditTemporaryErasers;
-        public ItemType lastAcquiredItemType;
-        public int lastAcquiredItemCount;
-        public ItemType lastUsedItemType;
         public int lastShopPurchaseCost;
         public int stampCouponHealthSpent;
-        public int rewardRerolls;
-        public int rewardChoiceRollIndex;
         public string debugForcedMonsterId;
-        public List<TimedStrengthModifier> timedPlayerStrengthModifiers = new List<TimedStrengthModifier>();
-        public List<TimedStrengthModifier> pendingEnemyStrengthModifiers = new List<TimedStrengthModifier>();
+
+        // Compatibility surface while callers migrate to battleSession/rewardSession.
+        public int lastDamageDealt { get => battleSession.lastDamageDealt; set => battleSession.lastDamageDealt = value; }
+        public int lastDamageTaken { get => battleSession.lastDamageTaken; set => battleSession.lastDamageTaken = value; }
+        public int battleDamageDealt { get => battleSession.totalDamageDealt; set => battleSession.totalDamageDealt = value; }
+        public int battleDamageTaken { get => battleSession.totalDamageTaken; set => battleSession.totalDamageTaken = value; }
+        public int pendingMonsterDamage { get => battleSession.pendingMonsterDamage; set => battleSession.pendingMonsterDamage = value; }
+        public List<string> battleDamageDebugLines => battleSession.damageDebugLines;
+        public int playerBleed { get => battleSession.playerBleed; set => battleSession.playerBleed = value; }
+        public int playerPoison { get => battleSession.playerPoison; set => battleSession.playerPoison = value; }
+        public int pendingPlayerBleed { get => battleSession.pendingPlayerBleed; set => battleSession.pendingPlayerBleed = value; }
+        public int pendingPlayerPoison { get => battleSession.pendingPlayerPoison; set => battleSession.pendingPlayerPoison = value; }
+        public int prophecyStack { get => battleSession.prophecyStack; set => battleSession.prophecyStack = value; }
+        public int battleTurnNumber { get => battleSession.turnNumber; set => battleSession.turnNumber = value; }
+        public int currentTurnMoveLimit { get => battleSession.moveLimit; set => battleSession.moveLimit = value; }
+        public int remainingMoveCount { get => battleSession.remainingMoves; set => battleSession.remainingMoves = value; }
+        public int temporaryMoveBonus { get => battleSession.temporaryMoveBonus; set => battleSession.temporaryMoveBonus = value; }
+        public int sagittariusWholeBoxEraseTurn { get => battleSession.sagittariusWholeBoxEraseTurn; set => battleSession.sagittariusWholeBoxEraseTurn = value; }
+        public int itemUseCountThisBattle { get => battleSession.itemUseCount; set => battleSession.itemUseCount = value; }
+        public int committedBattleEditExtraMatches { get => battleSession.committedExtraMatches; set => battleSession.committedExtraMatches = value; }
+        public int committedBattleEditErasers { get => battleSession.committedErasers; set => battleSession.committedErasers = value; }
+        public int committedBattleEditTemporaryExtraMatches { get => battleSession.committedTemporaryExtraMatches; set => battleSession.committedTemporaryExtraMatches = value; }
+        public int committedBattleEditTemporaryErasers { get => battleSession.committedTemporaryErasers; set => battleSession.committedTemporaryErasers = value; }
+        public List<TimedStrengthModifier> timedPlayerStrengthModifiers => battleSession.timedPlayerStrengthModifiers;
+        public List<TimedStrengthModifier> pendingEnemyStrengthModifiers => battleSession.pendingEnemyStrengthModifiers;
 
         public void StartNewRun(int newSeed, int startingHealth)
         {
@@ -103,35 +101,9 @@ namespace GoldfishWalking.Core
 
         public void ClearBattleRuntimeValues()
         {
-            lastDamageDealt = 0;
-            lastDamageTaken = 0;
-            battleDamageDealt = 0;
-            battleDamageTaken = 0;
-            pendingMonsterDamage = 0;
-            battleDamageDebugLines.Clear();
-            playerBleed = 0;
-            playerPoison = 0;
-            pendingPlayerBleed = 0;
-            pendingPlayerPoison = 0;
-            prophecyStack = 0;
-            battleTurnNumber = 0;
-            currentTurnMoveLimit = 0;
-            remainingMoveCount = 0;
-            temporaryMoveBonus = 0;
-
-            sagittariusWholeBoxEraseTurn = 0;
-            itemUseCountThisBattle = 0;
-            committedBattleEditExtraMatches = 0;
-            committedBattleEditErasers = 0;
-            committedBattleEditTemporaryExtraMatches = 0;
-            committedBattleEditTemporaryErasers = 0;
-            lastAcquiredItemCount = 0;
+            battleSession.Clear(itemInventory);
             lastShopPurchaseCost = 0;
-            rewardRerolls = 0;
-            rewardChoiceRollIndex = 0;
-            timedPlayerStrengthModifiers.Clear();
-            pendingEnemyStrengthModifiers.Clear();
-            itemInventory.ClearTemporary();
+            rewardSession.Clear();
         }
 
         public void AddTimedPlayerStrength(int amount, int duration)

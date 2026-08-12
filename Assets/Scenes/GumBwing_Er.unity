@@ -408,7 +408,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &19398938
 MonoBehaviour:
@@ -497,7 +497,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &19434495
 MonoBehaviour:
@@ -587,7 +587,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d43856d8991325341890a6c7180a6ac3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.EditableSevenSegmentBox
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.EditableSevenSegmentBox
   value: 0
   minDigitCount: 1
   split: 0
@@ -689,7 +689,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &47665372
 MonoBehaviour:
@@ -778,7 +778,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &52538857
 MonoBehaviour:
@@ -829,7 +829,6 @@ GameObject:
   - component: {fileID: 54924032}
   - component: {fileID: 54924035}
   - component: {fileID: 54924034}
-  - component: {fileID: 54924033}
   m_Layer: 0
   m_Name: SevenSegmentEditPopup
   m_TagString: Untagged
@@ -857,18 +856,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &54924033
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 54924031}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 93935551}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.SevenSegmentEditPopup
 --- !u!114 &54924034
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1229,7 +1216,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2304448608aa52a48962dd428db6884c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Map.MapController
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Map.MapController
 --- !u!1 &92314729
 GameObject:
   m_ObjectHideFlags: 0
@@ -1543,7 +1530,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0e74280020d72bc4fb4baf0f70fca8dd, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.UI.RewardView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.UI.RewardView
   bootstrap: {fileID: 1957234495}
   fantasyDatabase: {fileID: 11400000, guid: c71817e51da7ac5408dd10799b06995a, type: 2}
 --- !u!1 &118333516
@@ -1957,7 +1944,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &169706143
 MonoBehaviour:
@@ -2040,7 +2027,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 744ecfd3f060af547bd105ac049d121e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Rest.RestController
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Rest.RestController
   bootstrap: {fileID: 1957234495}
   fantasyDatabase: {fileID: 11400000, guid: c71817e51da7ac5408dd10799b06995a, type: 2}
 --- !u!1 &193395434
@@ -2169,7 +2156,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &196827449
 MonoBehaviour:
@@ -2493,7 +2480,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &223952003
 MonoBehaviour:
@@ -2620,7 +2607,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &238303043
 MonoBehaviour:
@@ -2709,7 +2696,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &245052680
 MonoBehaviour:
@@ -2798,7 +2785,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &246551212
 MonoBehaviour:
@@ -2963,7 +2950,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &252750278
 MonoBehaviour:
@@ -3092,7 +3079,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d43856d8991325341890a6c7180a6ac3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.EditableSevenSegmentBox
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.EditableSevenSegmentBox
   value: 1
   minDigitCount: 0
   split: 0
@@ -3194,7 +3181,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &262116576
 MonoBehaviour:
@@ -3283,7 +3270,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &273544081
 MonoBehaviour:
@@ -3451,7 +3438,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &278195542
 MonoBehaviour:
@@ -3815,7 +3802,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &288781125
 MonoBehaviour:
@@ -4176,7 +4163,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &322929456
 MonoBehaviour:
@@ -4457,7 +4444,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &362805313
 MonoBehaviour:
@@ -4708,7 +4695,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &410784831
 MonoBehaviour:
@@ -4798,7 +4785,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d43856d8991325341890a6c7180a6ac3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.EditableSevenSegmentBox
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.EditableSevenSegmentBox
   value: 0
   minDigitCount: 0
   split: 0
@@ -4938,7 +4925,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d43856d8991325341890a6c7180a6ac3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.EditableSevenSegmentBox
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.EditableSevenSegmentBox
   value: 91
   minDigitCount: 0
   split: 0
@@ -5159,7 +5146,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &432611949
 MonoBehaviour:
@@ -5248,7 +5235,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &447815389
 MonoBehaviour:
@@ -5768,7 +5755,6 @@ GameObject:
   - component: {fileID: 487440835}
   - component: {fileID: 487440834}
   - component: {fileID: 487440833}
-  - component: {fileID: 487440832}
   m_Layer: 0
   m_Name: IconPanel
   m_TagString: Untagged
@@ -5796,18 +5782,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -92}
   m_SizeDelta: {x: 216, y: 216}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &487440832
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 487440830}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 843422029}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.UI.ShopView/ShopTooltipTrigger
 --- !u!114 &487440833
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5939,7 +5913,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &489739073
 MonoBehaviour:
@@ -6067,7 +6041,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3203c16f715f80f4899cf4b5b10882e8, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.UI.ShopView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.UI.ShopView
   shopController: {fileID: 1686471810}
 --- !u!1 &495838624
 GameObject:
@@ -6235,7 +6209,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &505829226
 MonoBehaviour:
@@ -6324,7 +6298,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &507456685
 MonoBehaviour:
@@ -6450,7 +6424,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &512128302
 MonoBehaviour:
@@ -6539,7 +6513,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &518577339
 MonoBehaviour:
@@ -6707,7 +6681,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &533304535
 MonoBehaviour:
@@ -7031,7 +7005,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &541732652
 MonoBehaviour:
@@ -7120,7 +7094,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &546745452
 MonoBehaviour:
@@ -7511,7 +7485,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &566328767
 MonoBehaviour:
@@ -7651,7 +7625,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &573904241
 MonoBehaviour:
@@ -7739,7 +7713,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 567dac3e5e8977343b77583bc07b7007, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.UI.SeedDisplayView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.UI.SeedDisplayView
   bootstrap: {fileID: 1957234495}
   seedText: {fileID: 1356097604}
   labelFont: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
@@ -7833,7 +7807,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b4dfd708c9121641a570f6dbdbcca48, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.UI.FantasyTooltipView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.UI.FantasyTooltipView
   titleText: {fileID: 1587585070}
   descriptionText: {fileID: 772006037}
   effectText: {fileID: 700827842}
@@ -7887,7 +7861,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &602777131
 MonoBehaviour:
@@ -8016,7 +7990,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d43856d8991325341890a6c7180a6ac3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.EditableSevenSegmentBox
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.EditableSevenSegmentBox
   value: 26
   minDigitCount: 0
   split: 0
@@ -8410,7 +8384,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &641252460
 MonoBehaviour:
@@ -8540,7 +8514,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 57c9b01298a45e04dadfbb191102fb55, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.UI.TitleSeedInputView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.UI.TitleSeedInputView
   bootstrap: {fileID: 1957234495}
   layoutRoot: {fileID: 508382493}
   seedInput: {fileID: 665488580}
@@ -8594,7 +8568,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &656195032
 MonoBehaviour:
@@ -9109,7 +9083,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &702834448
 MonoBehaviour:
@@ -9198,7 +9172,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &714976529
 MonoBehaviour:
@@ -9757,7 +9731,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &761775747
 MonoBehaviour:
@@ -10245,7 +10219,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &781016378
 MonoBehaviour:
@@ -10575,7 +10549,6 @@ GameObject:
   - component: {fileID: 835165160}
   - component: {fileID: 835165159}
   - component: {fileID: 835165158}
-  - component: {fileID: 835165157}
   m_Layer: 0
   m_Name: IconPanel
   m_TagString: Untagged
@@ -10603,18 +10576,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -92}
   m_SizeDelta: {x: 216, y: 216}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &835165157
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 835165155}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 843422029}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.UI.ShopView/ShopTooltipTrigger
 --- !u!114 &835165158
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10800,7 +10761,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &845378807
 MonoBehaviour:
@@ -11171,7 +11132,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &885793662
 MonoBehaviour:
@@ -11318,7 +11279,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dccdba6a787957149a3cec4b18528d5d, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Battle.BattleController
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Battle.BattleController
   bootstrap: {fileID: 1957234495}
   monsterDatabase: {fileID: 11400000, guid: 20fd1f87d57201b438ddeab9e8ab650c, type: 2}
   monsterPatternDatabase: {fileID: 11400000, guid: a0459bc139be9ab4faeffdd3f31f5fca, type: 2}
@@ -11388,7 +11349,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &919011015
 MonoBehaviour:
@@ -11477,7 +11438,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &944529990
 MonoBehaviour:
@@ -11606,7 +11567,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &955704514
 MonoBehaviour:
@@ -11693,7 +11654,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c11da70330b3add469300be70327c8e9, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.UI.FantasyListView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.UI.FantasyListView
   contentRoot: {fileID: 959262276}
   tooltipView: {fileID: 600753196}
 --- !u!1 &969750540
@@ -11745,7 +11706,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &969750543
 MonoBehaviour:
@@ -12036,7 +11997,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d43856d8991325341890a6c7180a6ac3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.EditableSevenSegmentBox
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.EditableSevenSegmentBox
   value: 25
   minDigitCount: 2
   split: 0
@@ -12260,7 +12221,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1031166299
 MonoBehaviour:
@@ -12349,7 +12310,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1043212134
 MonoBehaviour:
@@ -12438,7 +12399,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1044179496
 MonoBehaviour:
@@ -12764,7 +12725,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1061736553
 MonoBehaviour:
@@ -12853,7 +12814,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1076708659
 MonoBehaviour:
@@ -12942,7 +12903,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1078160408
 MonoBehaviour:
@@ -13031,7 +12992,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1078701163
 MonoBehaviour:
@@ -13197,7 +13158,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c11da70330b3add469300be70327c8e9, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.UI.FantasyListView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.UI.FantasyListView
   contentRoot: {fileID: 1103151136}
   tooltipView: {fileID: 1194912025}
 --- !u!1 &1110867133
@@ -13370,7 +13331,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d43856d8991325341890a6c7180a6ac3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.EditableSevenSegmentBox
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.EditableSevenSegmentBox
   value: 3409
   minDigitCount: 4
   split: 0
@@ -13434,7 +13395,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1120671085
 MonoBehaviour:
@@ -13916,7 +13877,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1139054153
 MonoBehaviour:
@@ -14006,7 +13967,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d43856d8991325341890a6c7180a6ac3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.EditableSevenSegmentBox
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.EditableSevenSegmentBox
   value: 0
   minDigitCount: 1
   split: 0
@@ -14108,7 +14069,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1150273357
 MonoBehaviour:
@@ -14273,7 +14234,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1161040391
 MonoBehaviour:
@@ -14444,7 +14405,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1175131757
 MonoBehaviour:
@@ -14533,7 +14494,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1190773640
 MonoBehaviour:
@@ -14625,7 +14586,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b4dfd708c9121641a570f6dbdbcca48, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.UI.FantasyTooltipView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.UI.FantasyTooltipView
   titleText: {fileID: 1869745016}
   descriptionText: {fileID: 1323857488}
   effectText: {fileID: 724456702}
@@ -14717,7 +14678,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1197871386
 MonoBehaviour:
@@ -15046,7 +15007,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1261778404
 MonoBehaviour:
@@ -15214,7 +15175,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1267766399
 MonoBehaviour:
@@ -15537,7 +15498,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1292406336
 MonoBehaviour:
@@ -15626,7 +15587,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1301946182
 MonoBehaviour:
@@ -15715,7 +15676,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1315072572
 MonoBehaviour:
@@ -15883,7 +15844,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1329708796
 MonoBehaviour:
@@ -15972,7 +15933,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1333828141
 MonoBehaviour:
@@ -16024,7 +15985,6 @@ GameObject:
   - component: {fileID: 1346820953}
   - component: {fileID: 1346820952}
   - component: {fileID: 1346820951}
-  - component: {fileID: 1346820950}
   m_Layer: 0
   m_Name: IconPanel
   m_TagString: Untagged
@@ -16052,18 +16012,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -92}
   m_SizeDelta: {x: 216, y: 216}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1346820950
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1346820948}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 843422029}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.UI.ShopView/ShopTooltipTrigger
 --- !u!114 &1346820951
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16730,7 +16678,6 @@ GameObject:
   - component: {fileID: 1405247926}
   - component: {fileID: 1405247925}
   - component: {fileID: 1405247924}
-  - component: {fileID: 1405247923}
   m_Layer: 0
   m_Name: IconPanel
   m_TagString: Untagged
@@ -16758,18 +16705,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -92}
   m_SizeDelta: {x: 216, y: 216}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1405247923
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1405247921}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 843422029}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.UI.ShopView/ShopTooltipTrigger
 --- !u!114 &1405247924
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16901,7 +16836,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1406703618
 MonoBehaviour:
@@ -16990,7 +16925,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1409574232
 MonoBehaviour:
@@ -17158,7 +17093,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1415017730
 MonoBehaviour:
@@ -17247,7 +17182,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1419291059
 MonoBehaviour:
@@ -17336,7 +17271,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1421417105
 MonoBehaviour:
@@ -17662,7 +17597,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1449477519
 MonoBehaviour:
@@ -17941,7 +17876,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 11015a87717ab424d8b420ff9f2bfb95, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.UI.BattleView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.UI.BattleView
   battleController: {fileID: 905325249}
   bootstrap: {fileID: 1957234495}
   fantasyDatabase: {fileID: 11400000, guid: c71817e51da7ac5408dd10799b06995a, type: 2}
@@ -18114,7 +18049,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1480984069
 MonoBehaviour:
@@ -18203,7 +18138,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1485171916
 MonoBehaviour:
@@ -18331,7 +18266,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4c08d9e054b44334585c1210ba7fdfc0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.UI.GameOverDamageLogView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.UI.GameOverDamageLogView
 --- !u!1 &1493723467
 GameObject:
   m_ObjectHideFlags: 0
@@ -18420,7 +18355,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7eea2d08f906e7d46ba7bf8116977da9, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.UI.MapView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.UI.MapView
   mapController: {fileID: 76997666}
   gameBootstrap: {fileID: 1957234495}
   layoutRoot: {fileID: 562268882}
@@ -18477,7 +18412,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1499510748
 MonoBehaviour:
@@ -18566,7 +18501,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1508331595
 MonoBehaviour:
@@ -18655,7 +18590,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1519554068
 MonoBehaviour:
@@ -18900,7 +18835,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1535997780
 MonoBehaviour:
@@ -18989,7 +18924,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1540214767
 MonoBehaviour:
@@ -19078,7 +19013,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1543166537
 MonoBehaviour:
@@ -19246,7 +19181,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1551023661
 MonoBehaviour:
@@ -19495,7 +19430,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 822be777578016a489534e558c594d44, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.UI.RestView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.UI.RestView
   restController: {fileID: 189781746}
   healAmount: 91
 --- !u!1 &1585097430
@@ -19780,7 +19715,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1590583662
 MonoBehaviour:
@@ -19869,7 +19804,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1607390496
 MonoBehaviour:
@@ -20037,7 +19972,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1629418049
 MonoBehaviour:
@@ -20126,7 +20061,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1646232437
 MonoBehaviour:
@@ -20218,7 +20153,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b4dfd708c9121641a570f6dbdbcca48, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.UI.FantasyTooltipView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.UI.FantasyTooltipView
   titleText: {fileID: 1138377820}
   descriptionText: {fileID: 1125436302}
   effectText: {fileID: 130322753}
@@ -20527,7 +20462,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 69d7d0a39c675c54d9a5bfc45b2af1ef, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Shop.ShopController
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Shop.ShopController
   bootstrap: {fileID: 1957234495}
   fantasyDatabase: {fileID: 11400000, guid: c71817e51da7ac5408dd10799b06995a, type: 2}
 --- !u!1 &1686896021
@@ -20697,7 +20632,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d43856d8991325341890a6c7180a6ac3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.EditableSevenSegmentBox
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.EditableSevenSegmentBox
   value: 52
   minDigitCount: 0
   split: 0
@@ -20958,7 +20893,6 @@ GameObject:
   - component: {fileID: 1741089021}
   - component: {fileID: 1741089020}
   - component: {fileID: 1741089019}
-  - component: {fileID: 1741089018}
   m_Layer: 0
   m_Name: IconPanel
   m_TagString: Untagged
@@ -20986,18 +20920,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -92}
   m_SizeDelta: {x: 216, y: 216}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1741089018
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1741089016}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 843422029}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.UI.ShopView/ShopTooltipTrigger
 --- !u!114 &1741089019
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21129,7 +21051,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1755981264
 MonoBehaviour:
@@ -21300,7 +21222,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1762356320
 MonoBehaviour:
@@ -21389,7 +21311,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1765206992
 MonoBehaviour:
@@ -21675,7 +21597,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d43856d8991325341890a6c7180a6ac3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.EditableSevenSegmentBox
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.EditableSevenSegmentBox
   value: 556
   minDigitCount: 0
   split: 0
@@ -21739,7 +21661,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1796155071
 MonoBehaviour:
@@ -21907,7 +21829,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1808462040
 MonoBehaviour:
@@ -21996,7 +21918,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1816459017
 MonoBehaviour:
@@ -22085,7 +22007,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1818821514
 MonoBehaviour:
@@ -22174,7 +22096,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1821982543
 MonoBehaviour:
@@ -22298,7 +22220,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1843978498
 MonoBehaviour:
@@ -22350,7 +22272,6 @@ GameObject:
   - component: {fileID: 1858383863}
   - component: {fileID: 1858383862}
   - component: {fileID: 1858383861}
-  - component: {fileID: 1858383860}
   m_Layer: 0
   m_Name: IconPanel
   m_TagString: Untagged
@@ -22378,18 +22299,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -92}
   m_SizeDelta: {x: 216, y: 216}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1858383860
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1858383858}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 843422029}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.UI.ShopView/ShopTooltipTrigger
 --- !u!114 &1858383861
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22562,7 +22471,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1866626457
 MonoBehaviour:
@@ -22651,7 +22560,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1867526908
 MonoBehaviour:
@@ -22819,7 +22728,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1877521565
 MonoBehaviour:
@@ -22958,7 +22867,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e59c5cf00ab0ce641a182c030945ddb5, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.UI.GameScreenRouter
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.UI.GameScreenRouter
   titleScreen: {fileID: 649671563}
   mapScreen: {fileID: 1493723467}
   battleScreen: {fileID: 1464373722}
@@ -23236,7 +23145,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1919074324
 MonoBehaviour:
@@ -23325,7 +23234,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1919202037
 MonoBehaviour:
@@ -23414,7 +23323,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1921163955
 MonoBehaviour:
@@ -23543,7 +23452,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1931828829
 MonoBehaviour:
@@ -23611,7 +23520,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 98122a52cdd74c7488cf252df6704fe8, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Core.GameBootstrap
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Core.GameBootstrap
   startingHealth: 150
   mapSeed: 0
   useFixedSeed: 0
@@ -23916,7 +23825,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d43856d8991325341890a6c7180a6ac3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.EditableSevenSegmentBox
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.EditableSevenSegmentBox
   value: 47
   minDigitCount: 0
   split: 0
@@ -23980,7 +23889,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &1993614412
 MonoBehaviour:
@@ -24185,7 +24094,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d43856d8991325341890a6c7180a6ac3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.EditableSevenSegmentBox
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.EditableSevenSegmentBox
   value: 62
   minDigitCount: 0
   split: 0
@@ -24389,7 +24298,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &2054888875
 MonoBehaviour:
@@ -24556,7 +24465,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &2070245049
 MonoBehaviour:
@@ -24682,7 +24591,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &2074125520
 MonoBehaviour:
@@ -24769,7 +24678,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c11da70330b3add469300be70327c8e9, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.UI.FantasyListView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.UI.FantasyListView
   contentRoot: {fileID: 2080053319}
   tooltipView: {fileID: 1655308673}
 --- !u!1 &2096706803
@@ -24821,7 +24730,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &2096706806
 MonoBehaviour:
@@ -24910,7 +24819,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &2122017263
 MonoBehaviour:
@@ -24999,7 +24908,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a86ccc4037087574fa677c1b6dd558df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Match.MatchstickView
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Match.MatchstickView
   locked: 0
 --- !u!114 &2136255979
 MonoBehaviour:

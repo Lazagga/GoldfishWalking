@@ -158,9 +158,9 @@ private void OnBattlePresentationChanged()
         private void ResolveReferences()
         {
             if (battleController == null)
-                battleController = FindFirstObjectByType<BattleController>(FindObjectsInactive.Include);
+                Debug.LogError("[BattleView] BattleController must be assigned in GumBwing_Er.unity.", this);
             if (bootstrap == null)
-                bootstrap = FindFirstObjectByType<GameBootstrap>(FindObjectsInactive.Include);
+                Debug.LogError("[BattleView] GameBootstrap must be assigned in GumBwing_Er.unity.", this);
             if (fantasyDatabase == null)
                 fantasyDatabase = FindFirstFantasyDatabase();
         }

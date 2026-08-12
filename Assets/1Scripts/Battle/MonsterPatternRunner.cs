@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using GoldfishWalking.Data;
 using GoldfishWalking.Core;
 using GoldfishWalking.Formula;
@@ -11,6 +10,8 @@ namespace GoldfishWalking.Battle
     public sealed class MonsterPatternRunner
     {
         private const string FallbackPatternKey = "2_Single";
+        private readonly FormulaStructuralEffectExecutor structuralEffects = new FormulaStructuralEffectExecutor();
+        private readonly MonsterEffectExpressionEvaluator effectValues = new MonsterEffectExpressionEvaluator();
 
         public MonsterPatternData SelectPattern(MonsterRuntime monster, MonsterPatternDatabase database, RunContext runContext)
         {
@@ -38,7 +39,7 @@ namespace GoldfishWalking.Battle
                 for (int i = 0; i < patterns.Count; i++)
                 {
                     MonsterPatternData candidate = patterns[i];
-                    if (monster.CanUsePattern(candidate) && EvaluateCondition(candidate.condition, monster, runContext))
+                    if (monster.CanUsePattern(candidate) && effectValues.EvaluateCondition(candidate.condition, monster, runContext))
                         candidates.Add(candidate);
                 }
 
@@ -57,7 +58,7 @@ namespace GoldfishWalking.Battle
             for (int offset = 0; offset < patterns.Count; offset++)
             {
                 MonsterPatternData candidate = patterns[(startIndex + offset) % patterns.Count];
-                if (!monster.CanUsePattern(candidate) || !EvaluateCondition(candidate.condition, monster, runContext))
+                if (!monster.CanUsePattern(candidate) || !effectValues.EvaluateCondition(candidate.condition, monster, runContext))
                     continue;
 
                 monster.SelectPatternForTurn(candidate, turn);
@@ -113,11 +114,11 @@ namespace GoldfishWalking.Battle
             {
                 MonsterPatternEffectData effect = pattern.effects[i];
                 if (effect == null
-                    || NormalizeLookup(effect.action) != "heal"
+                    || ResolveAction(effect) != "heal"
                     || NormalizeLookup(effect.target) == "player")
                     continue;
 
-                digitCount = Mathf.Max(1, Mathf.FloorToInt(EvaluateValue(effect.valueExpression, monster, runContext, 0)));
+                digitCount = Mathf.Max(1, Mathf.FloorToInt(effectValues.EvaluateValue(effect.valueExpression, monster, runContext, 0)));
                 return true;
             }
 
@@ -152,7 +153,7 @@ namespace GoldfishWalking.Battle
 
         public int EvaluateValueExpression(string expression, MonsterRuntime monster, RunContext runContext)
         {
-            return Mathf.FloorToInt(EvaluateValue(expression, monster, runContext, 0));
+            return Mathf.FloorToInt(effectValues.EvaluateValue(expression, monster, runContext, 0));
         }
 
         public void ApplyImmediateNonAttack(MonsterRuntime monster, MonsterPatternData pattern)
@@ -198,7 +199,7 @@ namespace GoldfishWalking.Battle
                 if (effectTiming != normalizedTiming && !(normalizedTiming == "immediate" && effectTiming == "nextturn"))
                     continue;
 
-                if (!EvaluateCondition(effect.condition, monster, runContext))
+                if (!effectValues.EvaluateCondition(effect.condition, monster, runContext))
                     continue;
 
                 if (effectTiming == "nextturn")
@@ -260,7 +261,7 @@ namespace GoldfishWalking.Battle
             return null;
         }
 
-        private static void ApplyEffect(
+        private void ApplyEffect(
             MonsterRuntime monster,
             RunContext runContext,
             MonsterPatternEffectData effect,
@@ -269,10 +270,10 @@ namespace GoldfishWalking.Battle
             int damageDealt,
             int editableHealValue)
         {
-            string action = NormalizeLookup(effect.action);
+            string action = ResolveAction(effect);
             string type = NormalizeLookup(effect.type);
             string target = NormalizeLookup(effect.target);
-            int value = Mathf.FloorToInt(EvaluateValue(effect.valueExpression, monster, runContext, damageDealt));
+            int value = Mathf.FloorToInt(effectValues.EvaluateValue(effect.valueExpression, monster, runContext, damageDealt));
             if (string.IsNullOrWhiteSpace(effect.valueExpression) && effect.duration > 0)
                 value = effect.duration;
             if (action == "addbox")
@@ -280,13 +281,13 @@ namespace GoldfishWalking.Battle
 
             if (action == "split")
             {
-                ApplyBoxFlag(target, playerFormula, monsterFormula, split: true, locked: false);
+                structuralEffects.SetSplit(target, playerFormula, monsterFormula);
                 return;
             }
 
             if (action == "lock")
             {
-                ApplyBoxFlag(target, playerFormula, monsterFormula, split: false, locked: true);
+                structuralEffects.SetLocked(target, playerFormula, monsterFormula);
                 return;
             }
 
@@ -360,7 +361,7 @@ namespace GoldfishWalking.Battle
                 }
                 if (type == "boxlock")
                 {
-                    ApplyDigitLock(target, playerFormula, monsterFormula, Mathf.Max(1, value));
+                    structuralEffects.LockLeadingDigits(target, playerFormula, monsterFormula, Mathf.Max(1, value));
                     return;
                 }
 
@@ -560,182 +561,15 @@ namespace GoldfishWalking.Battle
                 runContext.prophecyStack = monster.ProphecyStack;
         }
 
-        private static void ApplyBoxFlag(string target, BattleFormulaState playerFormula, BattleFormulaState monsterFormula, bool split, bool locked)
-        {
-            BattleFormulaState targetFormula = target == "self" ? monsterFormula : playerFormula;
-            if (targetFormula == null)
-                return;
 
-            ApplyBoxFlag(targetFormula.damageExpression, split, locked);
-            ApplyBoxFlag(targetFormula.hitCountExpression, split, locked);
-        }
-
-        private static void ApplyBoxFlag(FormulaState state, bool split, bool locked)
-        {
-            if (state == null || state.boxes == null)
-                return;
-
-            for (int i = 0; i < state.boxes.Count; i++)
-            {
-                FormulaBox box = state.boxes[i];
-                if (box == null || box.boxType != FormulaBoxType.Number)
-                    continue;
-
-                if (split)
-                    box.split = true;
-                if (locked)
-                    box.locked = true;
-            }
-        }
-
-        private static bool EvaluateCondition(string expression, MonsterRuntime monster, RunContext runContext)
-        {
-            string text = (expression ?? string.Empty).Trim();
-            if (string.IsNullOrWhiteSpace(text))
-                return true;
-
-            string[] andParts = text.Split(new[] { "&&" }, StringSplitOptions.None);
-            if (andParts.Length > 1)
-            {
-                for (int i = 0; i < andParts.Length; i++)
-                {
-                    if (!EvaluateCondition(andParts[i], monster, runContext))
-                        return false;
-                }
-
-                return true;
-            }
-
-            string[] operators = { ">=", "<=", "==", "!=", ">", "<" };
-            for (int i = 0; i < operators.Length; i++)
-            {
-                string op = operators[i];
-                int index = text.IndexOf(op, StringComparison.Ordinal);
-                if (index < 0)
-                    continue;
-
-                float left = EvaluateValue(text.Substring(0, index), monster, runContext, 0);
-                float right = EvaluateValue(text.Substring(index + op.Length), monster, runContext, 0);
-                switch (op)
-                {
-                    case ">=": return left >= right;
-                    case "<=": return left <= right;
-                    case "==": return Mathf.Approximately(left, right);
-                    case "!=": return !Mathf.Approximately(left, right);
-                    case ">": return left > right;
-                    case "<": return left < right;
-                }
-            }
-
-            return EvaluateValue(text, monster, runContext, 0) > 0f;
-        }
-
-        private static float EvaluateValue(string expression, MonsterRuntime monster, RunContext runContext, int damageDealt)
-        {
-            string text = (expression ?? string.Empty).Trim();
-            if (string.IsNullOrWhiteSpace(text))
-                return 0f;
-
-            if (float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out float literal))
-                return literal;
-
-            int opIndex = FindArithmeticOperator(text);
-            if (opIndex > 0)
-            {
-                float left = EvaluateValue(text.Substring(0, opIndex), monster, runContext, damageDealt);
-                float right = EvaluateValue(text.Substring(opIndex + 1), monster, runContext, damageDealt);
-                switch (text[opIndex])
-                {
-                    case '+': return left + right;
-                    case '-': return left - right;
-                    case '*': return left * NormalizePercent(right);
-                    case '/': return Mathf.Approximately(right, 0f) ? 0f : Mathf.Floor(left / right);
-                }
-            }
-
-            switch (NormalizeLookup(text))
-            {
-                case "damagedealt":
-                    return Mathf.Max(0, damageDealt);
-                case "damagetaken":
-                    return monster != null ? monster.DamageCapAccumulatedDamage
-                        : runContext != null ? runContext.battleDamageDealt : 0f;
-                case "damagecapbreakthreshold":
-                    return monster?.Data != null ? monster.Data.damageCapBreakThreshold : 0f;
-                case "fortunestack":
-                    return monster != null ? monster.FortuneStack : 0f;
-                case "prophecystack":
-                case "prophetstack":
-                    return monster != null ? monster.ProphecyStack : (runContext != null ? runContext.prophecyStack : 0f);
-                case "playerbleed":
-                    return runContext != null ? runContext.playerBleed : 0f;
-                case "playerpoison":
-                case "playerpoision":
-                    return runContext != null ? runContext.playerPoison : 0f;
-                case "playerhp":
-                case "hp":
-                    return runContext != null ? runContext.health : 0f;
-                case "specialboxvalue":
-                    return monster != null && monster.HasSpecialBox ? monster.SpecialBoxValue : 0f;
-                case "strength":
-                    return monster != null ? monster.Strength : 0f;
-                case "hprate":
-                    return monster != null && monster.Data != null && monster.Data.baseHealth > 0
-                        ? (float)monster.CurrentHealth / monster.Data.baseHealth
-                        : 1f;
-                case "phase":
-                    return monster != null ? monster.Phase : 1f;
-                case "random":
-                    return runContext != null ? runContext.RollValue("monster.pattern.random_digit", 0, 9) : 0f;
-            }
-
-            if (text.StartsWith("DigitCount(", StringComparison.OrdinalIgnoreCase) && text.EndsWith(")", StringComparison.Ordinal))
-                return DigitCount(Mathf.FloorToInt(EvaluateValue(text.Substring(11, text.Length - 12), monster, runContext, damageDealt)));
-
-            return 0f;
-        }
-
-        private static int DigitCount(int value)
-        {
-            int absolute = Mathf.Abs(value);
-            if (absolute == 0)
-                return 1;
-
-            int digits = 0;
-            while (absolute > 0)
-            {
-                digits++;
-                absolute /= 10;
-            }
-
-            return digits;
-        }
-
-        private static int FindArithmeticOperator(string text)
-        {
-            for (int i = 1; i < text.Length; i++)
-            {
-                char c = text[i];
-                if (c == '+' || c == '-' || c == '*' || c == '/')
-                    return i;
-            }
-
-            return -1;
-        }
-
-        private static float NormalizePercent(float value)
-        {
-            return value > 1f ? value / 100f : value;
-        }
-
-        private static int BuildSpecialBoxValue(string valueExpression, int count, RunContext runContext)
+        private int BuildSpecialBoxValue(string valueExpression, int count, RunContext runContext)
         {
             int result = 0;
             for (int i = 0; i < Mathf.Max(1, count); i++)
             {
                 int digit = NormalizeLookup(valueExpression) == "random" && runContext != null
                     ? runContext.RollValue($"monster.special_box.{runContext.battleTurnNumber}.{i}", 0, 9)
-                    : Mathf.FloorToInt(EvaluateValue(valueExpression, null, runContext, 0));
+                    : Mathf.FloorToInt(effectValues.EvaluateValue(valueExpression, null, runContext, 0));
                 result = result * 10 + Mathf.Clamp(digit, 0, 9);
             }
 
@@ -749,7 +583,7 @@ private static bool UsesEditableHealBox(MonsterPatternData pattern)
             for (int i = 0; i < pattern.effects.Length; i++)
             {
                 MonsterPatternEffectData effect = pattern.effects[i];
-                if (effect != null && effect.editable && NormalizeLookup(effect.action) == "heal")
+                if (effect != null && effect.editable && ResolveAction(effect) == "heal")
                     return true;
             }
             return false;
@@ -765,26 +599,29 @@ private static bool UsesEditableHealBox(MonsterPatternData pattern)
         {
             return (value ?? string.Empty).Trim().Replace("_", string.Empty).Replace("-", string.Empty).Replace(" ", string.Empty).ToLowerInvariant();
         }
-    
-        private static void ApplyDigitLock(string target, BattleFormulaState playerFormula, BattleFormulaState monsterFormula, int digitCount)
+
+        private static string ResolveAction(MonsterPatternEffectData effect)
         {
-            BattleFormulaState targetFormula = target == "self" ? monsterFormula : playerFormula;
-            if (targetFormula?.damageExpression?.boxes == null)
-                return;
+            if (effect == null)
+                return string.Empty;
 
-            for (int i = 0; i < targetFormula.damageExpression.boxes.Count; i++)
+            switch (effect.operationKind)
             {
-                FormulaBox box = targetFormula.damageExpression.boxes[i];
-                if (box == null || box.boxType != FormulaBoxType.Number)
-                    continue;
-
-                box.split = true;
-                box.lockedDigitCount = Mathf.Max(box.lockedDigitCount, digitCount);
-                return;
+                case GameplayEffectOperation.DealDamage: return "damage";
+                case GameplayEffectOperation.Heal: return "heal";
+                case GameplayEffectOperation.AddStatus: return "addbuff";
+                case GameplayEffectOperation.SetStatus: return "setbuff";
+                case GameplayEffectOperation.RemoveStatus: return "removebuff";
+                case GameplayEffectOperation.MultiplyStat: return "multiplybuff";
+                case GameplayEffectOperation.AddStack: return "addstack";
+                case GameplayEffectOperation.SplitBox: return "split";
+                case GameplayEffectOperation.LockBox: return "lock";
+                case GameplayEffectOperation.CreateFormulaBox: return "addbox";
+                case GameplayEffectOperation.SetFormulaValue: return "setvalue";
+                default: return NormalizeLookup(effect.action);
             }
         }
-
-
+    
 private static void AddPlayerDebuffBox(RunContext runContext, string type, int digitCount, int duration)
         {
             BattleNumberState numbers = runContext?.currentBattle;

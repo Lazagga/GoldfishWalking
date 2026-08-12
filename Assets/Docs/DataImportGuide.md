@@ -540,3 +540,13 @@ PATTERN_001,PATTERN_002
 PATTERN_001;PATTERN_002
 PATTERN_001|PATTERN_002
 ```
+# 현재 데이터 제작 방식 안내 (2026-08-12)
+
+이 문서 아래쪽의 TSV 설명은 이전 제작 과정의 기록입니다. 현재 게임 데이터의
+유일한 원본은 `Assets/Data/Json`이며 TSV 파일은 프로젝트에서 제거되었습니다.
+
+- 기획자는 Unity 메뉴 `GoldfishWalking > Data > 기획자 JSON 편집기`를 사용합니다.
+- 편집기는 JSON 원본을 직접 저장하고 저장 전에 기본 구조를 검증합니다.
+- 저장 후 `GameplayJsonImporter`가 Generated 데이터베이스와 검증 보고서를 갱신합니다.
+- Generated 에셋은 실행용 결과물이므로 직접 편집하지 않습니다.
+- 이전 TSV 절차를 다시 활성화하지 않습니다.

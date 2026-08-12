@@ -83,7 +83,7 @@ namespace GoldfishWalking.UI
         private void ResolveReferences()
         {
             if (shopController == null)
-                shopController = FindFirstObjectByType<ShopController>(FindObjectsInactive.Include);
+                Debug.LogError("[ShopView] ShopController must be assigned in GumBwing_Er.unity.", this);
         }
 
         private void HideScenePlaceholders()

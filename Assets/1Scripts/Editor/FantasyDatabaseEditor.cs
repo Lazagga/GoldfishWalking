@@ -12,7 +12,7 @@ namespace GoldfishWalking.Editor
         private int selectedIndex;
         private Vector2 listScroll;
         private bool showAdvanced;
-        private string jsonError;
+        private string jsonError = string.Empty;
 
         private void OnEnable()
         {
@@ -23,7 +23,7 @@ namespace GoldfishWalking.Editor
         {
             serializedObject.Update();
 
-            DrawHeader();
+            DrawDatabaseHeader();
             EditorGUILayout.Space(6f);
             DrawFantasyList();
             EditorGUILayout.Space(8f);
@@ -32,7 +32,7 @@ namespace GoldfishWalking.Editor
             serializedObject.ApplyModifiedProperties();
         }
 
-        private void DrawHeader()
+        private void DrawDatabaseHeader()
         {
             EditorGUILayout.LabelField("Fantasy Database", EditorStyles.boldLabel);
             EditorGUILayout.LabelField("Generated from Assets/Data/Json/fantasies. Edit the source JSON, not this asset.", EditorStyles.miniLabel);

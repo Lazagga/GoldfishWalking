@@ -127,10 +127,10 @@ namespace GoldfishWalking.UI
         private void ResolveReferences()
         {
             if (mapController == null)
-                mapController = Object.FindFirstObjectByType<MapController>();
+                Debug.LogError("[MapView] MapController must be assigned in GumBwing_Er.unity.", this);
 
             if (gameBootstrap == null)
-                gameBootstrap = Object.FindFirstObjectByType<GameBootstrap>();
+                Debug.LogError("[MapView] GameBootstrap must be assigned in GumBwing_Er.unity.", this);
 
             if (labelFont == null)
                 labelFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");

@@ -17,6 +17,10 @@ namespace GoldfishWalking.Match
         public MatchPiece heldPiece;
         public int returnedAddedMatches;
 
+        [NonSerialized] private bool splitDigits;
+        [NonSerialized] private Func<int, bool> isDigitLocked;
+        private int heldOriginDigit = -1;
+
         private readonly MatchPatternInterpreter interpreter = new MatchPatternInterpreter();
 
         public bool IsOpen => targetBox != null;
@@ -32,6 +36,13 @@ namespace GoldfishWalking.Match
             movesUsed = 0;
             heldPiece = null;
             returnedAddedMatches = 0;
+            heldOriginDigit = -1;
+        }
+
+        public void ConfigureStructuralRules(bool split, Func<int, bool> digitLocked)
+        {
+            splitDigits = split;
+            isDigitLocked = digitLocked;
         }
 
         public void SetValue(int value)
@@ -72,6 +83,9 @@ namespace GoldfishWalking.Match
             if (IsHoldingPiece)
                 return MatchEditResult.Fail("Already holding a match.");
 
+            if (isDigitLocked?.Invoke(digitIndex) == true)
+                return MatchEditResult.Fail("That digit is locked.");
+
             MatchSlot slot = FindSlot(digitIndex, segmentIndex);
             if (slot == null || slot.piece == null)
                 return MatchEditResult.Fail("No match exists in that slot.");
@@ -81,6 +95,7 @@ namespace GoldfishWalking.Match
 
             heldPiece = slot.piece;
             slot.piece = null;
+            heldOriginDigit = digitIndex;
             return MatchEditResult.Ok();
         }
 
@@ -92,12 +107,19 @@ namespace GoldfishWalking.Match
             if (!IsHoldingPiece)
                 return MatchEditResult.Fail("No match is being held.");
 
+            if (isDigitLocked?.Invoke(digitIndex) == true)
+                return MatchEditResult.Fail("That digit is locked.");
+
+            if (splitDigits && heldOriginDigit >= 0 && heldOriginDigit != digitIndex)
+                return MatchEditResult.Fail("Matches cannot move between split digits.");
+
             MatchSlot slot = FindOrCreateSlot(digitIndex, segmentIndex);
             if (slot.piece != null)
                 return MatchEditResult.Fail("That slot already has a match.");
 
             slot.piece = heldPiece;
             heldPiece = null;
+            heldOriginDigit = -1;
             movesUsed++;
             return MatchEditResult.Ok();
         }
@@ -106,6 +128,9 @@ namespace GoldfishWalking.Match
         {
             if (!IsOpen)
                 return MatchEditResult.Fail("No formula box is open.");
+
+            if (isDigitLocked?.Invoke(digitIndex) == true)
+                return MatchEditResult.Fail("That digit is locked.");
 
             MatchSlot slot = FindSlot(digitIndex, segmentIndex);
             if (slot == null || slot.piece == null)
@@ -133,6 +158,7 @@ namespace GoldfishWalking.Match
 
             addedPiece.kind = MatchPieceKind.Added;
             heldPiece = addedPiece;
+            heldOriginDigit = -1;
             return MatchEditResult.Ok();
         }
 
@@ -143,6 +169,7 @@ namespace GoldfishWalking.Match
 
             ReturnIfAdded(heldPiece);
             heldPiece = null;
+            heldOriginDigit = -1;
             movesUsed++;
             return MatchEditResult.Ok();
         }
@@ -153,6 +180,7 @@ namespace GoldfishWalking.Match
             currentOperator = originalOperator;
             movesUsed = 0;
             heldPiece = null;
+            heldOriginDigit = -1;
             returnedAddedMatches = 0;
         }
 
@@ -160,6 +188,7 @@ namespace GoldfishWalking.Match
         {
             targetBox = null;
             heldPiece = null;
+            heldOriginDigit = -1;
         }
 
         public MatchEditResult ValidateClose()

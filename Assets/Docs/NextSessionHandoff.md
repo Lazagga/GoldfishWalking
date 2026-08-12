@@ -1,6 +1,57 @@
 ﻿# Next Session Handoff
 
-Last updated: 2026-07-17
+Last updated: 2026-08-12
+
+## Latest 2026-08-12 Architecture Refactor Handoff
+
+### Recommended follow-up decisions applied
+
+- Fantasy and Reward callers now access `battleSession` and `rewardSession`
+  directly. Their obsolete RunContext forwarding properties were removed.
+  Battle-controller compatibility properties remain for the next system-sized
+  migration rather than a risky whole-project rename.
+- Monster pattern condition/value parsing moved to
+  `MonsterEffectExpressionEvaluator`; operation execution remains divided by
+  reusable behavior family, beginning with formula structural effects.
+- The designer JSON window is available at
+  `GoldfishWalking > Data > 기획자 JSON 편집기`. It edits source JSON, exposes
+  common effect choices as dropdowns, validates before save, and regenerates
+  runtime databases.
+- TSV source files and obsolete TSV import reports were removed after a clean
+  JSON import of 39 monsters, 38 patterns, and 60 fantasies.
+- Previous `Game.unity` and `BattleUILayout.unity` scenes are temporarily kept
+  under `Assets/Legacy/Scenes`. They are not included in Build Settings.
+
+- Main scene and Build Settings source are `Assets/Scenes/GumBwing_Er.unity`.
+- Runtime, editor tooling, and EditMode tests now use separate asmdefs:
+  `GoldfishWalking.Runtime`, `GoldfishWalking.Editor`, and
+  `GoldfishWalking.Editor.Tests`.
+- The Gum scene's serialized custom-type identifiers were migrated from
+  `Assembly-CSharp` to `GoldfishWalking.Runtime`. This restores nested
+  `ShopTooltipTrigger` and `SevenSegmentEditPopup` components after the asmdef
+  split without deleting scene components.
+- `RunContext` delegates battle-only and reward-only mutable values to
+  `BattleSessionState` and `RewardSessionState`; compatibility properties keep
+  current callers stable during the migration.
+- JSON effects now import typed timing, target, and operation enums while
+  retaining raw compatibility fields. Structural formula operations are
+  delegated to `FormulaStructuralEffectExecutor`.
+- Battle win/loss and countdown decisions are delegated to
+  `BattleOutcomeService`.
+- Locked and split matchstick movement is enforced inside `MatchEditSession`,
+  so UI checks are no longer the only protection.
+- Scene views no longer discover controllers with `FindFirstObjectByType`;
+  missing Inspector bindings now fail visibly.
+- EditMode regression coverage currently has 11 passing tests for formulas,
+  deterministic RNG, match rules, generated database counts, and battle
+  outcomes.
+
+Validation on 2026-08-12: `dotnet build GoldfishWalking.sln --no-restore`
+passes with 0 warnings and 0 errors. Unity EditMode regression tests pass 11/11.
+The `GumBwing_Er.unity` play-mode smoke test reports 0 errors and 0 warnings.
+Seven stale scene components left by the asmdef migration were removed; their
+shop-tooltip and edit-popup behaviors are attached by their owning views when
+those interfaces are initialized.
 
 ## Latest 2026-07-17 Monster Mechanics And Data-Driven Handoff
 
@@ -17,9 +68,9 @@ notes below.
 - A designer changing an already supported behavior in JSON should not require
   a C# change. Add C# only for a new reusable operation/subsystem, then expose
   it through the common schema.
-- `MonsterRules.tsv` is for persistent identity-independent properties or JSON
-  configuration outside one selected turn pattern. Reimport generated data
-  before runtime testing.
+- Persistent monster rules and pattern configuration are authored in JSON under
+  `Assets/Data/Json`. Saving JSON regenerates the runtime databases; TSV is no
+  longer an import or runtime source.
 
 ### Recent completed work
 
@@ -55,7 +106,7 @@ notes below.
 - Magician calculation is connected, but its fake digit lacks dedicated visual
   treatment.
 - Keep `Assets/1Scripts` as gameplay source of truth and
-  `Assets/Scenes/Game.unity` as the main scene per `AGENTS.md`.
+  `Assets/Scenes/GumBwing_Er.unity` as the main scene per `AGENTS.md`.
 
 Latest validation: monster import reports `39` monsters and `38` patterns.
 Command-line build passes with `0` errors; two known MCP reference warnings

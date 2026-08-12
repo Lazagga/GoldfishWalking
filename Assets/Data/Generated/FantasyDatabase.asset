@@ -27,7 +27,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"passive","Target":"cosmetic","Calc":"add","Value":0.0,"Option":"Rabbit","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: passive
+    - timingKind: 3
+      targetKind: 16
+      operationKind: 1
+      trigger: passive
       target: cosmetic
       calc: add
       valueExpression: 0
@@ -59,7 +62,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"passive","Target":"cosmetic","Calc":"add","Value":0.0,"Option":"Turtle","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: passive
+    - timingKind: 3
+      targetKind: 16
+      operationKind: 1
+      trigger: passive
       target: cosmetic
       calc: add
       valueExpression: 0
@@ -91,7 +97,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"passive","Target":"cosmetic","Calc":"add","Value":0.0,"Option":"Cat","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: passive
+    - timingKind: 3
+      targetKind: 16
+      operationKind: 1
+      trigger: passive
       target: cosmetic
       calc: add
       valueExpression: 0
@@ -123,7 +132,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"passive","Target":"cosmetic","Calc":"add","Value":0.0,"Option":"Parrot","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: passive
+    - timingKind: 3
+      targetKind: 16
+      operationKind: 1
+      trigger: passive
       target: cosmetic
       calc: add
       valueExpression: 0
@@ -154,7 +166,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"passive","Target":"Shop_Movement","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: passive
+    - timingKind: 3
+      targetKind: 10
+      operationKind: 1
+      trigger: passive
       target: Shop_Movement
       calc: add
       valueExpression: 1
@@ -186,7 +201,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"shop_enter","Target":"HP","Calc":"add","Value":300.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: shop_enter
+    - timingKind: 10
+      targetKind: 4
+      operationKind: 1
+      trigger: shop_enter
       target: HP
       calc: add
       valueExpression: 300
@@ -217,7 +235,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"passive","Target":"Price","Calc":"multiply","Value":0.85,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: passive
+    - timingKind: 3
+      targetKind: 10
+      operationKind: 9
+      trigger: passive
       target: Price
       calc: multiply
       valueExpression: 0.85
@@ -251,7 +272,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"passive","Target":"shop_extra_fantasy_slot","Calc":"enable","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0}]'
     effects:
-    - trigger: passive
+    - timingKind: 3
+      targetKind: 16
+      operationKind: 0
+      trigger: passive
       target: shop_extra_fantasy_slot
       calc: enable
       valueExpression: 1
@@ -283,7 +307,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"battle_start","Target":"extra_match","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: battle_start
+    - timingKind: 4
+      targetKind: 13
+      operationKind: 1
+      trigger: battle_start
       target: extra_match
       calc: add
       valueExpression: 1
@@ -315,7 +342,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"battle_start","Target":"eraser","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: battle_start
+    - timingKind: 4
+      targetKind: 13
+      operationKind: 1
+      trigger: battle_start
       target: eraser
       calc: add
       valueExpression: 1
@@ -347,7 +377,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"battle_reward","Target":"Item_Chance","Calc":"multiply","Value":2.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: battle_reward
+    - timingKind: 10
+      targetKind: 12
+      operationKind: 9
+      trigger: battle_reward
       target: Item_Chance
       calc: multiply
       valueExpression: 2
@@ -379,7 +412,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"acquire_item","Target":"item","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: acquire_item
+    - timingKind: 10
+      targetKind: 13
+      operationKind: 1
+      trigger: acquire_item
       target: item
       calc: add
       valueExpression: 1
@@ -412,7 +448,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"turn_end","Target":"damage","Calc":"add","Value":"BattleDigit8Count*40","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: turn_end
+    - timingKind: 6
+      targetKind: 16
+      operationKind: 1
+      trigger: turn_end
       target: damage
       calc: add
       valueExpression: BattleDigit8Count*40
@@ -443,7 +482,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"turn_even","Target":"Attack_Count","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: turn_even
+    - timingKind: 10
+      targetKind: 8
+      operationKind: 1
+      trigger: turn_even
       target: Attack_Count
       calc: add
       valueExpression: 1
@@ -475,7 +517,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"take_damage","Target":"Damage_Taken","Calc":"add","Value":-20.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: take_damage
+    - timingKind: 8
+      targetKind: 16
+      operationKind: 1
+      trigger: take_damage
       target: Damage_Taken
       calc: add
       valueExpression: -20
@@ -507,7 +552,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"take_damage","Target":"Damage_Reflect","Calc":"multiply","Value":50.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: take_damage
+    - timingKind: 8
+      targetKind: 16
+      operationKind: 9
+      trigger: take_damage
       target: Damage_Reflect
       calc: multiply
       valueExpression: 50
@@ -538,7 +586,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"turn_start","Target":"Movement","Calc":"add","Value":2.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: turn_start
+    - timingKind: 5
+      targetKind: 16
+      operationKind: 1
+      trigger: turn_start
       target: Movement
       calc: add
       valueExpression: 2
@@ -571,7 +622,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"turn_end","Target":"temporary_movement","Calc":"add","Value":"RemainingMoves","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0},{"Trigger":"turn_end","Target":"Movement","Calc":"set","Value":0.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: turn_end
+    - timingKind: 6
+      targetKind: 16
+      operationKind: 1
+      trigger: turn_end
       target: temporary_movement
       calc: add
       valueExpression: RemainingMoves
@@ -584,7 +638,10 @@ MonoBehaviour:
       execution: 
       duration: 0
       rawJson: '{"Trigger":"turn_end","Target":"temporary_movement","Calc":"add","Value":"RemainingMoves","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
-    - trigger: turn_end
+    - timingKind: 6
+      targetKind: 16
+      operationKind: 2
+      trigger: turn_end
       target: Movement
       calc: set
       valueExpression: 0
@@ -616,7 +673,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"deal_damage","Target":"Additional_Damage","Calc":"add","Value":30.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: deal_damage
+    - timingKind: 7
+      targetKind: 16
+      operationKind: 1
+      trigger: deal_damage
       target: Additional_Damage
       calc: add
       valueExpression: 30
@@ -648,7 +708,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"turn_end","Target":"damage","Calc":"add","Value":50.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: turn_end
+    - timingKind: 6
+      targetKind: 16
+      operationKind: 1
+      trigger: turn_end
       target: damage
       calc: add
       valueExpression: 50
@@ -679,7 +742,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"turn_4","Target":"Strength","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: turn_4
+    - timingKind: 10
+      targetKind: 5
+      operationKind: 1
+      trigger: turn_4
       target: Strength
       calc: add
       valueExpression: 1
@@ -710,7 +776,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"battle_start","Target":"Enemy_Strength","Calc":"add","Value":-1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":1}]'
     effects:
-    - trigger: battle_start
+    - timingKind: 4
+      targetKind: 6
+      operationKind: 1
+      trigger: battle_start
       target: Enemy_Strength
       calc: add
       valueExpression: -1
@@ -741,7 +810,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"on_acquire","Target":"HP","Calc":"add","Value":200.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: on_acquire
+    - timingKind: 10
+      targetKind: 4
+      operationKind: 1
+      trigger: on_acquire
       target: HP
       calc: add
       valueExpression: 200
@@ -772,7 +844,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"battle_end","Target":"HP","Calc":"add","Value":30.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: battle_end
+    - timingKind: 9
+      targetKind: 4
+      operationKind: 1
+      trigger: battle_end
       target: HP
       calc: add
       valueExpression: 30
@@ -804,7 +879,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"turn_end","Target":"HP","Calc":"add","Value":"RemainingMoves*5","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: turn_end
+    - timingKind: 6
+      targetKind: 4
+      operationKind: 1
+      trigger: turn_end
       target: HP
       calc: add
       valueExpression: RemainingMoves*5
@@ -836,7 +914,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"battle_start","Target":"fantasy","Calc":"copy_temporary","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: battle_start
+    - timingKind: 4
+      targetKind: 14
+      operationKind: 0
+      trigger: battle_start
       target: fantasy
       calc: copy_temporary
       valueExpression: 1
@@ -868,7 +949,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"battle_end","Target":"Fantasy_Reroll","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: battle_end
+    - timingKind: 9
+      targetKind: 12
+      operationKind: 1
+      trigger: battle_end
       target: Fantasy_Reroll
       calc: add
       valueExpression: 1
@@ -900,7 +984,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"passive","Target":"rest_fantasy_alternative","Calc":"enable","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0}]'
     effects:
-    - trigger: passive
+    - timingKind: 3
+      targetKind: 11
+      operationKind: 0
+      trigger: passive
       target: rest_fantasy_alternative
       calc: enable
       valueExpression: 1
@@ -932,7 +1019,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"passive","Target":"Strength","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: passive
+    - timingKind: 3
+      targetKind: 5
+      operationKind: 1
+      trigger: passive
       target: Strength
       calc: add
       valueExpression: 1
@@ -964,7 +1054,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"passive","Target":"HP","Calc":"add","Value":70.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: passive
+    - timingKind: 3
+      targetKind: 4
+      operationKind: 1
+      trigger: passive
       target: HP
       calc: add
       valueExpression: 70
@@ -997,7 +1090,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"","Target":"Base_Damage","Calc":"set","Value":200.0,"Option":"","Condition":"currentvalue==0","Chance":1.0,"Lifetime":"","Execution":"modifier","Duration":0},{"Trigger":"","Target":"Base_Damage","Calc":"multiply","Value":0.5,"Option":"","Condition":"currentvalue!=0","Chance":1.0,"Lifetime":"","Execution":"modifier","Duration":0}]'
     effects:
-    - trigger: 
+    - timingKind: 0
+      targetKind: 7
+      operationKind: 2
+      trigger: 
       target: Base_Damage
       calc: set
       valueExpression: 200
@@ -1010,7 +1106,10 @@ MonoBehaviour:
       execution: modifier
       duration: 0
       rawJson: '{"Trigger":"","Target":"Base_Damage","Calc":"set","Value":200.0,"Option":"","Condition":"currentvalue==0","Chance":1.0,"Lifetime":"","Execution":"modifier","Duration":0}'
-    - trigger: 
+    - timingKind: 0
+      targetKind: 7
+      operationKind: 9
+      trigger: 
       target: Base_Damage
       calc: multiply
       valueExpression: 0.5
@@ -1043,7 +1142,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"turn_start","Target":"extra_match","Calc":"add","Value":"RemainingMoves","Option":"","Condition":"","Chance":1.0,"Lifetime":"battle","Execution":"","Duration":0},{"Trigger":"turn_start","Target":"eraser","Calc":"add","Value":"RemainingMoves","Option":"","Condition":"","Chance":1.0,"Lifetime":"battle","Execution":"","Duration":0},{"Trigger":"turn_start","Target":"Movement","Calc":"set","Value":0.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: turn_start
+    - timingKind: 5
+      targetKind: 13
+      operationKind: 1
+      trigger: turn_start
       target: extra_match
       calc: add
       valueExpression: RemainingMoves
@@ -1056,7 +1158,10 @@ MonoBehaviour:
       execution: 
       duration: 0
       rawJson: '{"Trigger":"turn_start","Target":"extra_match","Calc":"add","Value":"RemainingMoves","Option":"","Condition":"","Chance":1.0,"Lifetime":"battle","Execution":"","Duration":0}'
-    - trigger: turn_start
+    - timingKind: 5
+      targetKind: 13
+      operationKind: 1
+      trigger: turn_start
       target: eraser
       calc: add
       valueExpression: RemainingMoves
@@ -1069,7 +1174,10 @@ MonoBehaviour:
       execution: 
       duration: 0
       rawJson: '{"Trigger":"turn_start","Target":"eraser","Calc":"add","Value":"RemainingMoves","Option":"","Condition":"","Chance":1.0,"Lifetime":"battle","Execution":"","Duration":0}'
-    - trigger: turn_start
+    - timingKind: 5
+      targetKind: 16
+      operationKind: 2
+      trigger: turn_start
       target: Movement
       calc: set
       valueExpression: 0
@@ -1101,7 +1209,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"passive","Target":"Attack_Count","Calc":"add","Value":"ConsumableCount/10","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"modifier","Duration":0}]'
     effects:
-    - trigger: passive
+    - timingKind: 3
+      targetKind: 8
+      operationKind: 1
+      trigger: passive
       target: Attack_Count
       calc: add
       valueExpression: ConsumableCount/10
@@ -1132,7 +1243,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"passive","Target":"Attack_Count","Calc":"add","Value":4.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0},{"Trigger":"on_acquire","Target":"collection","Calc":"combine","Value":1.0,"Option":"fan_rabbit_head,fan_turtle_head,fan_cat_head,fan_parrot_head","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0},{"Trigger":"passive","Target":"availability","Calc":"exclude","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0}]'
     effects:
-    - trigger: passive
+    - timingKind: 3
+      targetKind: 8
+      operationKind: 1
+      trigger: passive
       target: Attack_Count
       calc: add
       valueExpression: 4
@@ -1145,7 +1259,10 @@ MonoBehaviour:
       execution: 
       duration: 0
       rawJson: '{"Trigger":"passive","Target":"Attack_Count","Calc":"add","Value":4.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
-    - trigger: on_acquire
+    - timingKind: 10
+      targetKind: 14
+      operationKind: 15
+      trigger: on_acquire
       target: collection
       calc: combine
       valueExpression: 1
@@ -1158,7 +1275,10 @@ MonoBehaviour:
       execution: capability
       duration: 0
       rawJson: '{"Trigger":"on_acquire","Target":"collection","Calc":"combine","Value":1.0,"Option":"fan_rabbit_head,fan_turtle_head,fan_cat_head,fan_parrot_head","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0}'
-    - trigger: passive
+    - timingKind: 3
+      targetKind: 16
+      operationKind: 0
+      trigger: passive
       target: availability
       calc: exclude
       valueExpression: 1
@@ -1190,7 +1310,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"battle_start","Target":"Movement","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0},{"Trigger":"battle_start","Target":"eraser","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0},{"Trigger":"battle_start","Target":"extra_match","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: battle_start
+    - timingKind: 4
+      targetKind: 16
+      operationKind: 1
+      trigger: battle_start
       target: Movement
       calc: add
       valueExpression: 1
@@ -1203,7 +1326,10 @@ MonoBehaviour:
       execution: 
       duration: 0
       rawJson: '{"Trigger":"battle_start","Target":"Movement","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
-    - trigger: battle_start
+    - timingKind: 4
+      targetKind: 13
+      operationKind: 1
+      trigger: battle_start
       target: eraser
       calc: add
       valueExpression: 1
@@ -1216,7 +1342,10 @@ MonoBehaviour:
       execution: 
       duration: 0
       rawJson: '{"Trigger":"battle_start","Target":"eraser","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
-    - trigger: battle_start
+    - timingKind: 4
+      targetKind: 13
+      operationKind: 1
+      trigger: battle_start
       target: extra_match
       calc: add
       valueExpression: 1
@@ -1249,7 +1378,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"battle_start","Target":"eraser","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"battle","Execution":"","Duration":0},{"Trigger":"passive","Target":"player_boxes","Calc":"split","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0},{"Trigger":"passive","Target":"split_digit_erase","Calc":"enable","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0}]'
     effects:
-    - trigger: battle_start
+    - timingKind: 4
+      targetKind: 13
+      operationKind: 1
+      trigger: battle_start
       target: eraser
       calc: add
       valueExpression: 1
@@ -1262,7 +1394,10 @@ MonoBehaviour:
       execution: 
       duration: 0
       rawJson: '{"Trigger":"battle_start","Target":"eraser","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"battle","Execution":"","Duration":0}'
-    - trigger: passive
+    - timingKind: 3
+      targetKind: 16
+      operationKind: 11
+      trigger: passive
       target: player_boxes
       calc: split
       valueExpression: 1
@@ -1275,7 +1410,10 @@ MonoBehaviour:
       execution: capability
       duration: 0
       rawJson: '{"Trigger":"passive","Target":"player_boxes","Calc":"split","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0}'
-    - trigger: passive
+    - timingKind: 3
+      targetKind: 16
+      operationKind: 0
+      trigger: passive
       target: split_digit_erase
       calc: enable
       valueExpression: 1
@@ -1307,7 +1445,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"passive","Target":"player_number","Calc":"multiply","Value":2.0,"Option":"","Condition":"CurrentValueIsOdd","Chance":1.0,"Lifetime":"","Execution":"","Duration":0},{"Trigger":"passive","Target":"player_number","Calc":"set","Value":0.0,"Option":"","Condition":"CurrentValueIsEven","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: passive
+    - timingKind: 3
+      targetKind: 16
+      operationKind: 9
+      trigger: passive
       target: player_number
       calc: multiply
       valueExpression: 2
@@ -1320,7 +1461,10 @@ MonoBehaviour:
       execution: 
       duration: 0
       rawJson: '{"Trigger":"passive","Target":"player_number","Calc":"multiply","Value":2.0,"Option":"","Condition":"CurrentValueIsOdd","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
-    - trigger: passive
+    - timingKind: 3
+      targetKind: 16
+      operationKind: 2
+      trigger: passive
       target: player_number
       calc: set
       valueExpression: 0
@@ -1352,7 +1496,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"passive","Target":"item_cost","Calc":"add","Value":-100.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: passive
+    - timingKind: 3
+      targetKind: 10
+      operationKind: 1
+      trigger: passive
       target: item_cost
       calc: add
       valueExpression: -100
@@ -1384,7 +1531,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"shop_purchase","Target":"health_spent","Calc":"transform","Value":999.0,"Option":"fan_turn_syringe","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0}]'
     effects:
-    - trigger: shop_purchase
+    - timingKind: 10
+      targetKind: 16
+      operationKind: 3
+      trigger: shop_purchase
       target: health_spent
       calc: transform
       valueExpression: 999
@@ -1415,7 +1565,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"passive","Target":"Attack_Count","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0},{"Trigger":"passive","Target":"availability","Calc":"exclude","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0}]'
     effects:
-    - trigger: passive
+    - timingKind: 3
+      targetKind: 8
+      operationKind: 1
+      trigger: passive
       target: Attack_Count
       calc: add
       valueExpression: 1
@@ -1428,7 +1581,10 @@ MonoBehaviour:
       execution: 
       duration: 0
       rawJson: '{"Trigger":"passive","Target":"Attack_Count","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
-    - trigger: passive
+    - timingKind: 3
+      targetKind: 16
+      operationKind: 0
+      trigger: passive
       target: availability
       calc: exclude
       valueExpression: 1
@@ -1461,7 +1617,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"take_damage","Target":"Damage_Taken","Calc":"multiply","Value":0.5,"Option":"","Condition":"monsterbasedamage>=playerbasedamage","Chance":1.0,"Lifetime":"","Execution":"modifier","Duration":0}]'
     effects:
-    - trigger: take_damage
+    - timingKind: 8
+      targetKind: 16
+      operationKind: 9
+      trigger: take_damage
       target: Damage_Taken
       calc: multiply
       valueExpression: 0.5
@@ -1492,7 +1651,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"turn_1","Target":"Enemy_Strength","Calc":"add","Value":-2.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":1}]'
     effects:
-    - trigger: turn_1
+    - timingKind: 10
+      targetKind: 6
+      operationKind: 1
+      trigger: turn_1
       target: Enemy_Strength
       calc: add
       valueExpression: -2
@@ -1524,7 +1686,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"use_item","Target":"last_used_item","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":0.5,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: use_item
+    - timingKind: 10
+      targetKind: 16
+      operationKind: 1
+      trigger: use_item
       target: last_used_item
       calc: add
       valueExpression: 1
@@ -1556,7 +1721,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"deal_damage","Target":"HP","Calc":"add","Value":20.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: deal_damage
+    - timingKind: 7
+      targetKind: 4
+      operationKind: 1
+      trigger: deal_damage
       target: HP
       calc: add
       valueExpression: 20
@@ -1588,7 +1756,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"turn_end","Target":"damage","Calc":"add","Value":"HP*0.1","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: turn_end
+    - timingKind: 6
+      targetKind: 16
+      operationKind: 1
+      trigger: turn_end
       target: damage
       calc: add
       valueExpression: HP*0.1
@@ -1621,7 +1792,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"turn_end","Target":"damage","Calc":"add","Value":"ItemUseCount*30","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: turn_end
+    - timingKind: 6
+      targetKind: 16
+      operationKind: 1
+      trigger: turn_end
       target: damage
       calc: add
       valueExpression: ItemUseCount*30
@@ -1654,7 +1828,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"turn_end","Target":"Additional_Damage","Calc":"multiply","Value":2.0,"Option":"","Condition":"playerbasedamage==monsterbasedamage","Chance":1.0,"Lifetime":"","Execution":"modifier","Duration":0}]'
     effects:
-    - trigger: turn_end
+    - timingKind: 6
+      targetKind: 16
+      operationKind: 9
+      trigger: turn_end
       target: Additional_Damage
       calc: multiply
       valueExpression: 2
@@ -1686,7 +1863,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"turn_start","Target":"player_base_damage","Calc":"set_first_digit","Value":8.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"modifier","Duration":0}]'
     effects:
-    - trigger: turn_start
+    - timingKind: 5
+      targetKind: 7
+      operationKind: 0
+      trigger: turn_start
       target: player_base_damage
       calc: set_first_digit
       valueExpression: 8
@@ -1717,7 +1897,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"battle_start","Target":"Attack_Count","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":1}]'
     effects:
-    - trigger: battle_start
+    - timingKind: 4
+      targetKind: 8
+      operationKind: 1
+      trigger: battle_start
       target: Attack_Count
       calc: add
       valueExpression: 1
@@ -1750,7 +1933,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"on_acquire","Target":"fantasy","Calc":"replace_with_copy","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: on_acquire
+    - timingKind: 10
+      targetKind: 14
+      operationKind: 0
+      trigger: on_acquire
       target: fantasy
       calc: replace_with_copy
       valueExpression: 1
@@ -1781,7 +1967,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"rest","Target":"HP","Calc":"multiply","Value":2.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: rest
+    - timingKind: 10
+      targetKind: 4
+      operationKind: 9
+      trigger: rest
       target: HP
       calc: multiply
       valueExpression: 2
@@ -1813,7 +2002,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"passive","Target":"Rest_Count","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: passive
+    - timingKind: 3
+      targetKind: 11
+      operationKind: 1
+      trigger: passive
       target: Rest_Count
       calc: add
       valueExpression: 1
@@ -1845,7 +2037,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"deal_damage","Target":"Additional_Damage","Calc":"add","Value":60.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: deal_damage
+    - timingKind: 7
+      targetKind: 16
+      operationKind: 1
+      trigger: deal_damage
       target: Additional_Damage
       calc: add
       valueExpression: 60
@@ -1877,7 +2072,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"take_damage","Target":"Damage_Reflect","Calc":"add","Value":150.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: take_damage
+    - timingKind: 8
+      targetKind: 16
+      operationKind: 1
+      trigger: take_damage
       target: Damage_Reflect
       calc: add
       valueExpression: 150
@@ -1909,7 +2107,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"passive","Target":"player_number","Calc":"digit_min","Value":5.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: passive
+    - timingKind: 3
+      targetKind: 16
+      operationKind: 0
+      trigger: passive
       target: player_number
       calc: digit_min
       valueExpression: 5
@@ -1941,7 +2142,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"passive","Target":"monster_number","Calc":"digit_max","Value":5.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: passive
+    - timingKind: 3
+      targetKind: 16
+      operationKind: 0
+      trigger: passive
       target: monster_number
       calc: digit_max
       valueExpression: 5
@@ -1973,7 +2177,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"turn_end","Target":"Attack_Count","Calc":"add","Value":1.0,"Option":"","Condition":"playerbasedamagesamedigits==1","Chance":1.0,"Lifetime":"","Execution":"modifier","Duration":0}]'
     effects:
-    - trigger: turn_end
+    - timingKind: 6
+      targetKind: 8
+      operationKind: 1
+      trigger: turn_end
       target: Attack_Count
       calc: add
       valueExpression: 1
@@ -2004,7 +2211,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"acquire","Target":"HP","Calc":"add","Value":"HP*0.1","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: acquire
+    - timingKind: 10
+      targetKind: 4
+      operationKind: 1
+      trigger: acquire
       target: HP
       calc: add
       valueExpression: HP*0.1
@@ -2035,7 +2245,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"turn_start","Target":"Movement","Calc":"add","Value":3.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: turn_start
+    - timingKind: 5
+      targetKind: 16
+      operationKind: 1
+      trigger: turn_start
       target: Movement
       calc: add
       valueExpression: 3
@@ -2067,7 +2280,10 @@ MonoBehaviour:
     sprite: 
     rawEffects: '[{"Trigger":"take_damage","Target":"Damage_Taken","Calc":"add","Value":-30.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: take_damage
+    - timingKind: 8
+      targetKind: 16
+      operationKind: 1
+      trigger: take_damage
       target: Damage_Taken
       calc: add
       valueExpression: -30

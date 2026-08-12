@@ -296,6 +296,9 @@ namespace GoldfishWalking.Editor.DataImport
                     label = ReadString(source, "label"),
                     editable = ReadBool(source, "editable") || (operation == "heal" && editableHeal)
                 };
+                effect.timingKind = GameplayEffectTypeParser.ParseTiming(effect.timing);
+                effect.targetKind = GameplayEffectTypeParser.ParseTarget(effect.target);
+                effect.operationKind = GameplayEffectTypeParser.ParseOperation(effect.action);
                 if (TryParseFloat(effect.valueExpression, out float numeric))
                 {
                     effect.hasNumericValue = true;
@@ -373,6 +376,9 @@ namespace GoldfishWalking.Editor.DataImport
                 execution = ReadString(source, "execution"),
                 duration = ReadInt(Object(source, "duration"), "turns")
             };
+            effect.timingKind = GameplayEffectTypeParser.ParseTiming(effect.trigger);
+            effect.targetKind = GameplayEffectTypeParser.ParseTarget(effect.target);
+            effect.operationKind = GameplayEffectTypeParser.ParseOperation(calc);
             if (TryParseFloat(effect.valueExpression, out float numeric))
             {
                 effect.hasNumericValue = true;

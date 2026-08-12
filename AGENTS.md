@@ -21,7 +21,8 @@ C:\Users\USER\Documents\GitHub\GoldfishWalking
 - The user will manually clean legacy scripts before the next coding pass.
 - After legacy cleanup, treat `Assets/1Scripts` as the source of truth.
 - Remove temporary alias-heavy code once legacy global type conflicts are gone.
-- Main Unity scene: `Assets/Scenes/Game.unity`.
+- Main Unity scene: `Assets/Scenes/GumBwing_Er.unity`.
+- `Assets/Scenes/Game.unity` is an older reference scene and is not the integration target.
 
 ## Data-Driven Gameplay Rule
 
