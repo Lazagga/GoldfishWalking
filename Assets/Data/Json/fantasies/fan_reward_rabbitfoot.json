@@ -1,0 +1,33 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_reward_rabbitfoot",
+    "sourceId":  11,
+    "designerName":  "토끼발",
+    "designerNote":  "전투 종료 이후 아이템을 얻을 확률 x2",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "white",
+    "tags":  [
+                 "battle_reward"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "battle_reward"
+                                    },
+                        "target":  {
+                                       "system":  "reward",
+                                       "property":  "item_chance"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "multiply",
+                        "amount":  2.0
+                    }
+                ]
+}

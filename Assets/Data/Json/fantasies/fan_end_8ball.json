@@ -1,0 +1,34 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_end_8ball",
+    "sourceId":  13,
+    "designerName":  "8번 당구공",
+    "designerNote":  "내 턴이 끝날 때 모든 상자 속 8의 개수 x40의 피해를 추가로 입힘",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "white",
+    "tags":  [
+                 "turn_end"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "turn_end"
+                                    },
+                        "target":  {
+                                       "key":  "damage"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  {
+                                       "expression":  "BattleDigit8Count*40"
+                                   }
+                    }
+                ]
+}

@@ -1,0 +1,32 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_damage_grapeshot",
+    "sourceId":  53,
+    "designerName":  "포도탄",
+    "designerNote":  "피해를 입힐 때 마다 항상 60씩 추가로 입힘",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "blue",
+    "tags":  [
+                 "deal_damage"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "deal_damage"
+                                    },
+                        "target":  {
+                                       "actor":  "monster"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  60.0
+                    }
+                ]
+}

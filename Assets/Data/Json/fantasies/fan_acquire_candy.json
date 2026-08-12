@@ -1,0 +1,35 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_acquire_Candy",
+    "sourceId":  58,
+    "designerName":  "캔디",
+    "designerNote":  "획득 시 현재 체력 +10%",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "white",
+    "tags":  [
+                 "acquire"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "acquire"
+                                    },
+                        "target":  {
+                                       "actor":  "player",
+                                       "stat":  "health"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  {
+                                       "expression":  "HP*0.1"
+                                   }
+                    }
+                ]
+}

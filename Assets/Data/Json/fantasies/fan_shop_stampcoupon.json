@@ -1,0 +1,34 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_shop_stampcoupon",
+    "sourceId":  39,
+    "designerName":  "스탬프쿠폰",
+    "designerNote":  "상점에서 체력 999 소모 시 매 턴 공격 횟수 +1의 환상으로 변경",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "blue",
+    "tags":  [
+                 "shop_purchase"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "shop_purchase"
+                                    },
+                        "target":  {
+                                       "key":  "health_spent"
+                                   },
+                        "operation":  "transform_value",
+                        "mode":  "transform",
+                        "amount":  999,
+                        "execution":  "capability",
+                        "options":  "fan_turn_syringe"
+                    }
+                ]
+}

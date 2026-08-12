@@ -1,0 +1,33 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_20102_Robber",
+    "sourceId":  20102,
+    "designerName":  "강도",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  2,
+                      "grade":  "normal",
+                      "difficulty":  "easy"
+                  },
+    "stats":  {
+                  "health":  520,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "random",
+               "patterns":  [
+                                "RobberSingle"
+                            ]
+           },
+    "passives":  [
+
+                 ]
+}

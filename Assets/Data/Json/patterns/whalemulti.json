@@ -1,0 +1,47 @@
+{
+    "schemaVersion":  1,
+    "id":  "WhaleMulti",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "2x3 연타 + 다음턴 고래 전용상자에 무작위 숫자 2개 설정",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  null
+                     },
+    "attack":  {
+                   "damage":  {
+                                  "digits":  2,
+                                  "editable":  true
+                              },
+                   "hits":  {
+                                "digits":  3,
+                                "editable":  true,
+                                "minimum":  0
+                            }
+               },
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "next_turn"
+                                    },
+                        "target":  {
+                                       "key":  "whale_box"
+                                   },
+                        "operation":  "create_formula_box",
+                        "amount":  {
+                                       "expression":  "Random"
+                                   },
+                        "repeat":  2
+                    }
+                ],
+    "metadata":  {
+
+                 }
+}

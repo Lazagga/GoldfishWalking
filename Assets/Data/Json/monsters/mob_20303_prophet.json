@@ -1,0 +1,36 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_20303_Prophet",
+    "sourceId":  20303,
+    "designerName":  "예언자",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  2,
+                      "grade":  "boss",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  1320,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "static",
+               "patterns":  [
+                                "ProphetSingle",
+                                "ProphetMulti",
+                                "ProphetSingle",
+                                "ProphetExplode"
+                            ]
+           },
+    "passives":  [
+
+                 ]
+}

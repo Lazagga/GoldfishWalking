@@ -1,0 +1,48 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_20203_Conductor",
+    "sourceId":  20203,
+    "designerName":  "지휘자",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  2,
+                      "grade":  "elite",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  720,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "random",
+               "patterns":  [
+                                "2_Single",
+                                "2_Multi_2"
+                            ]
+           },
+    "passives":  [
+                     {
+                         "operation":  "aimed_shot",
+                         "multiplier":  1
+                     },
+                     {
+                         "operation":  "require_formula_condition",
+                         "configuration":  {
+                                               "Type":  "DigitCount",
+                                               "ValueMin":  0,
+                                               "ValueMax":  9,
+                                               "CountMin":  0,
+                                               "CountMax":  9,
+                                               "CountEditable":  true
+                                           }
+                     }
+                 ]
+}

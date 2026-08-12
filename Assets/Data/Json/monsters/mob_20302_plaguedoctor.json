@@ -1,0 +1,34 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_20302_PlagueDoctor",
+    "sourceId":  20302,
+    "designerName":  "역병 의사",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  2,
+                      "grade":  "boss",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  1200,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "static",
+               "patterns":  [
+                                "PlagueDoctorSingle",
+                                "PlagueDoctorSkill"
+                            ]
+           },
+    "passives":  [
+
+                 ]
+}

@@ -1,0 +1,37 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_10203_Hunter",
+    "sourceId":  10203,
+    "designerName":  "사냥꾼",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  1,
+                      "grade":  "elite",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  450,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "static",
+               "patterns":  [
+                                "HunterSingle",
+                                "HunterSingle",
+                                "2_Single",
+                                "2_Single",
+                                "Str_1"
+                            ]
+           },
+    "passives":  [
+
+                 ]
+}

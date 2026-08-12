@@ -1,0 +1,35 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_10102_WildDog",
+    "sourceId":  10102,
+    "designerName":  "들개",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  1,
+                      "grade":  "normal",
+                      "difficulty":  "easy"
+                  },
+    "stats":  {
+                  "health":  120,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "static",
+               "patterns":  [
+                                "2_Single",
+                                "2_Single",
+                                "Str_1"
+                            ]
+           },
+    "passives":  [
+
+                 ]
+}

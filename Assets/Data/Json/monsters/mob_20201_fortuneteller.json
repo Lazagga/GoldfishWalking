@@ -1,0 +1,35 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_20201_FortuneTeller",
+    "sourceId":  20201,
+    "designerName":  "점술사",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  2,
+                      "grade":  "elite",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  800,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "random",
+               "patterns":  [
+                                "FortuneTellerSingle",
+                                "FortuneTellerMulti",
+                                "FortuneTellerExplode"
+                            ]
+           },
+    "passives":  [
+
+                 ]
+}

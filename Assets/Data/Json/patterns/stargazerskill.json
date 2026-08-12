@@ -1,0 +1,36 @@
+{
+    "schemaVersion":  1,
+    "id":  "StargazerSkill",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "지정숫자 3개를 이어놓은 잠금타수만큼의 연타3 패턴 \"유성우\"",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  null
+                     },
+    "attack":  null,
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "player"
+                                   },
+                        "operation":  "deal_damage",
+                        "amount":  {
+                                       "expression":  "Stargazing_Multi_3"
+                                   }
+                    }
+                ],
+    "metadata":  {
+
+                 }
+}

@@ -1,0 +1,33 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_damage_abacus",
+    "sourceId":  59,
+    "designerName":  "주판",
+    "designerNote":  "매 턴 이동 횟수 +3",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "blue",
+    "tags":  [
+                 "passive"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "turn_start"
+                                    },
+                        "target":  {
+                                       "system":  "battle",
+                                       "property":  "movement_limit"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  3.0
+                    }
+                ]
+}

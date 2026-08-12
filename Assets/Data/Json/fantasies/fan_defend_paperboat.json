@@ -1,0 +1,44 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_defend_paperboat",
+    "sourceId":  41,
+    "designerName":  "종이 배",
+    "designerNote":  "적의 기본 피해량이 내 기본 피해량 이상인 경우, 받는 피해 절반",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "blue",
+    "tags":  [
+                 "passive"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "take_damage"
+                                    },
+                        "target":  {
+                                       "value":  "incoming_damage"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "multiply",
+                        "amount":  0.5,
+                        "condition":  {
+                                          "comparison":  {
+                                                             "left":  {
+                                                                          "variable":  "monster_base_damage"
+                                                                      },
+                                                             "operator":  "\u003e=",
+                                                             "right":  {
+                                                                           "variable":  "player_base_damage"
+                                                                       }
+                                                         }
+                                      },
+                        "execution":  "modifier"
+                    }
+                ]
+}

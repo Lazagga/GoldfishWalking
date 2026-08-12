@@ -1,0 +1,33 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_rest_marshmallow",
+    "sourceId":  52,
+    "designerName":  "마시멜로",
+    "designerNote":  "휴식 버튼을 한 번 더 누를 수 있음",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "blue",
+    "tags":  [
+                 "passive"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "passive"
+                                    },
+                        "target":  {
+                                       "system":  "rest",
+                                       "property":  "use_count"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  1.0
+                    }
+                ]
+}

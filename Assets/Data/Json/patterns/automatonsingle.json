@@ -1,0 +1,43 @@
+{
+    "schemaVersion":  1,
+    "id":  "AutomatonSingle",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "단타 + 힘 증가",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  null
+                     },
+    "attack":  {
+                   "damage":  {
+                                  "digits":  1,
+                                  "editable":  true
+                              },
+                   "hits":  {
+                                "fixed":  1
+                            }
+               },
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "self"
+                                   },
+                        "operation":  "add_status",
+                        "type":  "strength",
+                        "amount":  1
+                    }
+                ],
+    "metadata":  {
+
+                 }
+}

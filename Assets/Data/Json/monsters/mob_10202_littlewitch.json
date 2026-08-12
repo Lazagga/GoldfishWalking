@@ -1,0 +1,35 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_10202_LittleWitch",
+    "sourceId":  10202,
+    "designerName":  "작은 마녀",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  1,
+                      "grade":  "elite",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  425,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "static",
+               "patterns":  [
+                                "LittleWitchSkill",
+                                "2_Single",
+                                "2_Single"
+                            ]
+           },
+    "passives":  [
+
+                 ]
+}

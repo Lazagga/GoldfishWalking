@@ -1,0 +1,33 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_shop_discount",
+    "sourceId":  7,
+    "designerName":  "할인 쿠폰",
+    "designerNote":  "상점 품목 가격 30% 할인",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "white",
+    "tags":  [
+                 "passive"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "passive"
+                                    },
+                        "target":  {
+                                       "system":  "shop",
+                                       "property":  "price"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "multiply",
+                        "amount":  0.85
+                    }
+                ]
+}

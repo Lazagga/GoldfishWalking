@@ -1,0 +1,35 @@
+{
+    "schemaVersion":  1,
+    "id":  "WitchSkill",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  1,
+                         "condition":  null
+                     },
+    "attack":  null,
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "player"
+                                   },
+                        "operation":  "add_status",
+                        "type":  "divide_box",
+                        "amount":  1
+                    }
+                ],
+    "metadata":  {
+
+                 }
+}

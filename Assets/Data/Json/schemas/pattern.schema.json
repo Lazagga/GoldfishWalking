@@ -1,0 +1,64 @@
+{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "title":  "GoldfishWalking Pattern",
+    "type":  "object",
+    "required":  [
+                     "schemaVersion",
+                     "id",
+                     "availability",
+                     "effects"
+                 ],
+    "properties":  {
+                       "schemaVersion":  {
+                                             "const":  1
+                                         },
+                       "id":  {
+                                  "type":  "string",
+                                  "pattern":  "^[A-Za-z0-9_.-]+$"
+                              },
+                       "designerName":  {
+                                            "type":  "string"
+                                        },
+                       "designerNote":  {
+                                            "type":  "string"
+                                        },
+                       "enabled":  {
+                                       "type":  "boolean"
+                                   },
+                       "sourceId":  {
+                                        "type":  [
+                                                     "integer",
+                                                     "null"
+                                                 ]
+                                    },
+                       "localization":  {
+                                            "type":  "object"
+                                        },
+                       "presentation":  {
+                                            "type":  "object"
+                                        },
+                       "availability":  {
+                                            "type":  "object"
+                                        },
+                       "attack":  {
+                                      "type":  [
+                                                   "object",
+                                                   "null"
+                                               ]
+                                  },
+                       "effects":  {
+                                       "type":  "array",
+                                       "items":  {
+                                                     "type":  "object",
+                                                     "required":  [
+                                                                      "target",
+                                                                      "operation"
+                                                                  ]
+                                                 }
+                                   },
+                       "metadata":  {
+                                        "type":  "object"
+                                    }
+                   },
+    "additionalProperties":  false
+}

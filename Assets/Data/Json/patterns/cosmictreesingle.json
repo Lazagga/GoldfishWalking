@@ -1,0 +1,43 @@
+{
+    "schemaVersion":  1,
+    "id":  "CosmictreeSingle",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "공격과 함께 힘 증가",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  null
+                     },
+    "attack":  {
+                   "damage":  {
+                                  "digits":  2,
+                                  "editable":  true
+                              },
+                   "hits":  {
+                                "fixed":  1
+                            }
+               },
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "self"
+                                   },
+                        "operation":  "add_status",
+                        "type":  "strength",
+                        "amount":  1
+                    }
+                ],
+    "metadata":  {
+
+                 }
+}

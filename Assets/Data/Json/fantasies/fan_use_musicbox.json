@@ -1,0 +1,35 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_use_musicbox",
+    "sourceId":  43,
+    "designerName":  "오르골",
+    "designerNote":  "소모품을 사용할 때마다, 50% 확률로 그 소모품의 복사본 생성",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "blue",
+    "tags":  [
+                 "use_item"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "use_item"
+                                    },
+                        "target":  {
+                                       "key":  "last_used_item"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  1.0,
+                        "chance":  {
+                                       "percent":  50
+                                   }
+                    }
+                ]
+}

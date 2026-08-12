@@ -1,0 +1,35 @@
+{
+    "schemaVersion":  1,
+    "id":  "AlchemistSkill",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "[출혈 아이콘] [x] [1자릿수] -\u003e 출혈 수치 n배",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  null
+                     },
+    "attack":  null,
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "next_turn"
+                                    },
+                        "target":  {
+                                       "actor":  "player"
+                                   },
+                        "operation":  "multiply_stat",
+                        "type":  "bleed",
+                        "amount":  3
+                    }
+                ],
+    "metadata":  {
+
+                 }
+}

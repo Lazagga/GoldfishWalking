@@ -1,0 +1,53 @@
+{
+    "schemaVersion":  1,
+    "id":  "KnightSkill",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "피해를 400 받으면 해당 버프를 없애고, 힘을 1 얻음",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  {
+                                           "comparison":  {
+                                                              "left":  {
+                                                                           "variable":  "damage_taken"
+                                                                       },
+                                                              "operator":  "\u003e=",
+                                                              "right":  400
+                                                          }
+                                       }
+                     },
+    "attack":  null,
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "self"
+                                   },
+                        "operation":  "remove_status",
+                        "type":  "shield"
+                    },
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "self"
+                                   },
+                        "operation":  "add_status",
+                        "type":  "strength",
+                        "amount":  1
+                    }
+                ],
+    "metadata":  {
+                     "editableHeal":  false
+                 }
+}

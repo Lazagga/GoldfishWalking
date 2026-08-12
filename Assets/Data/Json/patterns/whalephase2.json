@@ -1,0 +1,46 @@
+{
+    "schemaVersion":  1,
+    "id":  "WhalePhase2",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "고래 전용버프 초기화 이후 \"2페이즈\" 버프 설정, 조건은 기초체력 50% 이하로 내려갔을 때 및 Phase 버프값이 1인 경우",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  {
+                                           "expression":  "HPRate\u003c=0.5 \u0026\u0026 Phase==1"
+                                       }
+                     },
+    "attack":  null,
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "self"
+                                   },
+                        "operation":  "remove_status",
+                        "type":  "whale_buff"
+                    },
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "self"
+                                   },
+                        "operation":  "add_status",
+                        "type":  "phase2"
+                    }
+                ],
+    "metadata":  {
+
+                 }
+}

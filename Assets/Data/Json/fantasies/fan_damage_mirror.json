@@ -1,0 +1,42 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_damage_mirror",
+    "sourceId":  57,
+    "designerName":  "손거울",
+    "designerNote":  "내 기본 피해량이 같은 숫자로만 이루어져 있을 경우, 타수 1회 추가",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "blue",
+    "tags":  [
+                 "turn_end"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "turn_end"
+                                    },
+                        "target":  {
+                                       "formula":  "player.hits"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  1.0,
+                        "condition":  {
+                                          "comparison":  {
+                                                             "left":  {
+                                                                          "variable":  "player_base_damage_same_digits"
+                                                                      },
+                                                             "operator":  "==",
+                                                             "right":  1
+                                                         }
+                                      },
+                        "execution":  "modifier"
+                    }
+                ]
+}

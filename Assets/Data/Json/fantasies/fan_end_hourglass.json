@@ -1,0 +1,32 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_end_hourglass",
+    "sourceId":  20,
+    "designerName":  "모래시계",
+    "designerNote":  "내 턴이 끝날 때 적에게 50의 피해",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "white",
+    "tags":  [
+                 "turn_end"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "turn_end"
+                                    },
+                        "target":  {
+                                       "key":  "damage"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  50.0
+                    }
+                ]
+}

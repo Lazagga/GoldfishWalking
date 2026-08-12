@@ -1,0 +1,33 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_rest_coffee",
+    "sourceId":  28,
+    "designerName":  "커피",
+    "designerNote":  "휴식 장소에서 휴식하는 대신 무작위 백색 환상 획득 가능",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "white",
+    "tags":  [
+                 "passive"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "passive"
+                                    },
+                        "target":  {
+                                       "key":  "rest_fantasy_alternative"
+                                   },
+                        "operation":  "enable",
+                        "mode":  "enable",
+                        "amount":  1.0,
+                        "execution":  "capability"
+                    }
+                ]
+}

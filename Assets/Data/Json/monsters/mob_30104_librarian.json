@@ -1,0 +1,34 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_30104_Librarian",
+    "sourceId":  30104,
+    "designerName":  "사서",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  3,
+                      "grade":  "normal",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  900,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "random",
+               "patterns":  [
+                                "LibrarianSingle",
+                                "LibrarianMulti"
+                            ]
+           },
+    "passives":  [
+
+                 ]
+}

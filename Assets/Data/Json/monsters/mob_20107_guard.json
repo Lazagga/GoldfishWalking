@@ -1,0 +1,36 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_20107_Guard",
+    "sourceId":  20107,
+    "designerName":  "경비병",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  2,
+                      "grade":  "normal",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  297,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "static",
+               "patterns":  [
+                                "2_Single"
+                            ]
+           },
+    "passives":  [
+                     {
+                         "operation":  "limit_incoming_damage",
+                         "maximum":  45
+                     }
+                 ]
+}

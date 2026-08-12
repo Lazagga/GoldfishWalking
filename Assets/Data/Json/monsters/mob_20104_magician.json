@@ -1,0 +1,42 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_20104_Magician",
+    "sourceId":  20104,
+    "designerName":  "마술사",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  2,
+                      "grade":  "normal",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  680,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "random",
+               "patterns":  [
+                                "2_Multi_1",
+                                "2_Multi_2",
+                                "2_Single"
+                            ]
+           },
+    "passives":  [
+                     {
+                         "operation":  "aimed_shot",
+                         "multiplier":  1
+                     },
+                     {
+                         "operation":  "add_formula_decoy_digits",
+                         "count":  1
+                     }
+                 ]
+}

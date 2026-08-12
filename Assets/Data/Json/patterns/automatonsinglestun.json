@@ -1,0 +1,57 @@
+{
+    "schemaVersion":  1,
+    "id":  "AutomatonSingleStun",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "단타 + 자체 스턴, 이후 증가한 힘 초기화",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  null
+                     },
+    "attack":  {
+                   "damage":  {
+                                  "digits":  1,
+                                  "editable":  true
+                              },
+                   "hits":  {
+                                "fixed":  1
+                            }
+               },
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "self"
+                                   },
+                        "operation":  "add_status",
+                        "type":  "stun",
+                        "duration":  {
+                                         "turns":  1,
+                                         "decreaseAt":  "turn_end"
+                                     }
+                    },
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "self"
+                                   },
+                        "operation":  "set_status",
+                        "type":  "strength",
+                        "amount":  0
+                    }
+                ],
+    "metadata":  {
+
+                 }
+}

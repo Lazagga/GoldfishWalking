@@ -1,0 +1,37 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_10303_Elf",
+    "sourceId":  10303,
+    "designerName":  "엘프",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  1,
+                      "grade":  "boss",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  500,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "random",
+               "patterns":  [
+                                "2_Single",
+                                "2_Multi_2"
+                            ]
+           },
+    "passives":  [
+                     {
+                         "operation":  "aimed_shot",
+                         "multiplier":  3
+                     }
+                 ]
+}

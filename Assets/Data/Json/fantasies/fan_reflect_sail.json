@@ -1,0 +1,32 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_reflect_sail",
+    "sourceId":  16,
+    "designerName":  "돛",
+    "designerNote":  "피해를 입을 때마다 받은 피해량의 50%를 반사",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "white",
+    "tags":  [
+                 "take_damage"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "take_damage"
+                                    },
+                        "target":  {
+                                       "actor":  "attacker"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "multiply",
+                        "amount":  50.0
+                    }
+                ]
+}

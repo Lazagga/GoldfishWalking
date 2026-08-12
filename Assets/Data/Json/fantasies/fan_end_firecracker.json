@@ -1,0 +1,34 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_end_firecracker",
+    "sourceId":  46,
+    "designerName":  "폭죽",
+    "designerNote":  "턴 종료시 이번 전투에서 소모품을 사용한 횟수만큼 30의 피해",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "blue",
+    "tags":  [
+                 "turn_end"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "turn_end"
+                                    },
+                        "target":  {
+                                       "key":  "damage"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  {
+                                       "expression":  "ItemUseCount*30"
+                                   }
+                    }
+                ]
+}

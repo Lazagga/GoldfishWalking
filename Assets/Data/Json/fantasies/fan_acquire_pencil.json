@@ -1,0 +1,32 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_acquire_pencil",
+    "sourceId":  12,
+    "designerName":  "연필",
+    "designerNote":  "소모품을 얻을 때마다, 한 개씩 추가로 얻음",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "white",
+    "tags":  [
+                 "acquire_item"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "acquire_item"
+                                    },
+                        "target":  {
+                                       "key":  "item"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  1.0
+                    }
+                ]
+}

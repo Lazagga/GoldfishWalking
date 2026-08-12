@@ -1,0 +1,45 @@
+{
+    "schemaVersion":  1,
+    "id":  "GiantRatSkill",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "3자릿수의 체력 회복(회복 상자 조작 가능) 및 힘1 증가",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  null
+                     },
+    "attack":  null,
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "self"
+                                   },
+                        "operation":  "heal",
+                        "amount":  3
+                    },
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "self"
+                                   },
+                        "operation":  "add_status",
+                        "type":  "strength",
+                        "amount":  1
+                    }
+                ],
+    "metadata":  {
+                     "editableHeal":  true
+                 }
+}

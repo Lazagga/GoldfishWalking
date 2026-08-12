@@ -1,0 +1,33 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_damage_scythe",
+    "sourceId":  44,
+    "designerName":  "낫",
+    "designerNote":  "피해를 입힐 때마다 체력 20씩 회복",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "blue",
+    "tags":  [
+                 "deal_damage"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "deal_damage"
+                                    },
+                        "target":  {
+                                       "actor":  "player",
+                                       "stat":  "health"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  20.0
+                    }
+                ]
+}

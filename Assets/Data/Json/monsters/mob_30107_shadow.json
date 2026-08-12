@@ -1,0 +1,35 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_30107_Shadow",
+    "sourceId":  30107,
+    "designerName":  "그림자",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  3,
+                      "grade":  "normal",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  1200,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "static",
+               "patterns":  [
+                                "3_Single",
+                                "3_Single",
+                                "3_Multi_1"
+                            ]
+           },
+    "passives":  [
+
+                 ]
+}

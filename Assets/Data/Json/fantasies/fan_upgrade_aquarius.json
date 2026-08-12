@@ -1,0 +1,35 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_upgrade_aquarius",
+    "sourceId":  33,
+    "designerName":  "물병자리",
+    "designerNote":  "보유중인 소모품의 합 10개당 타수 +1",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "red",
+    "tags":  [
+                 "passive"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "passive"
+                                    },
+                        "target":  {
+                                       "formula":  "player.hits"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  {
+                                       "expression":  "ConsumableCount/10"
+                                   },
+                        "execution":  "modifier"
+                    }
+                ]
+}

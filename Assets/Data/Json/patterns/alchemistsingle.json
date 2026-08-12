@@ -1,0 +1,45 @@
+{
+    "schemaVersion":  1,
+    "id":  "AlchemistSingle",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "공격 시 입힌 피해량 50%만큼 출혈 적용",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  null
+                     },
+    "attack":  {
+                   "damage":  {
+                                  "digits":  2,
+                                  "editable":  true
+                              },
+                   "hits":  {
+                                "fixed":  1
+                            }
+               },
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "self"
+                                   },
+                        "operation":  "add_status",
+                        "type":  "bleed",
+                        "amount":  {
+                                       "expression":  "DamageDealt"
+                                   }
+                    }
+                ],
+    "metadata":  {
+
+                 }
+}

@@ -1,0 +1,36 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_20105_Automaton",
+    "sourceId":  20105,
+    "designerName":  "자동인형",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  2,
+                      "grade":  "normal",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  720,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "static",
+               "patterns":  [
+                                "AutomatonSingle",
+                                "AutomatonSingle",
+                                "AutomatonSingle",
+                                "AutomatonSingleStun"
+                            ]
+           },
+    "passives":  [
+
+                 ]
+}

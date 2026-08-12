@@ -1,0 +1,34 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_20202_Alchemist",
+    "sourceId":  20202,
+    "designerName":  "연금술사",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  2,
+                      "grade":  "elite",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  960,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "static",
+               "patterns":  [
+                                "AlchemistSingle",
+                                "AlchemistSkill"
+                            ]
+           },
+    "passives":  [
+
+                 ]
+}

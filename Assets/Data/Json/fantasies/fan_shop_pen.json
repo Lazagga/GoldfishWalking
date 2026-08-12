@@ -1,0 +1,33 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_shop_pen",
+    "sourceId":  5,
+    "designerName":  "싸인펜",
+    "designerNote":  "상점에서 이동 횟수 +1",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "white",
+    "tags":  [
+                 "passive"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "passive"
+                                    },
+                        "target":  {
+                                       "system":  "shop",
+                                       "property":  "movement_limit"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  1
+                    }
+                ]
+}

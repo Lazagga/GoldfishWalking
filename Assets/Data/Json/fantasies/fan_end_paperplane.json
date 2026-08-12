@@ -1,0 +1,44 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_end_paperplane",
+    "sourceId":  47,
+    "designerName":  "종이 비행기",
+    "designerNote":  "턴 종료시 적과 나의 기본 피해량이 같을 경우, 가하는 피해량 두 배",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "blue",
+    "tags":  [
+                 "turn_end"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "turn_end"
+                                    },
+                        "target":  {
+                                       "actor":  "monster"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "multiply",
+                        "amount":  2.0,
+                        "condition":  {
+                                          "comparison":  {
+                                                             "left":  {
+                                                                          "variable":  "player_base_damage"
+                                                                      },
+                                                             "operator":  "==",
+                                                             "right":  {
+                                                                           "variable":  "monster_base_damage"
+                                                                       }
+                                                         }
+                                      },
+                        "execution":  "modifier"
+                    }
+                ]
+}

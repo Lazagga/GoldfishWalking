@@ -1,0 +1,46 @@
+{
+    "schemaVersion":  1,
+    "id":  "ProphetExplode",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "버프 수치만큼 데미지 주고 지금까지 쌓인 스택을 제거",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  null
+                     },
+    "attack":  {
+                   "damage":  {
+                                  "digits":  1,
+                                  "editable":  true,
+                                  "initialValue":  {
+                                                       "expression":  "ProphetStack"
+                                                   }
+                              },
+                   "hits":  {
+                                "fixed":  1
+                            }
+               },
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "self"
+                                   },
+                        "operation":  "set_status",
+                        "type":  "prophet_stack",
+                        "amount":  0
+                    }
+                ],
+    "metadata":  {
+
+                 }
+}

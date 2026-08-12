@@ -1,0 +1,33 @@
+{
+    "schemaVersion":  1,
+    "id":  "MushroomLock",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "플레이어 상자 잠금",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  null
+                     },
+    "attack":  null,
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "next_turn"
+                                    },
+                        "target":  {
+                                       "actor":  "player"
+                                   },
+                        "operation":  "lock_box"
+                    }
+                ],
+    "metadata":  {
+
+                 }
+}

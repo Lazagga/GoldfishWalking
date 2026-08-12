@@ -1,0 +1,32 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_damage_poinsettia",
+    "sourceId":  60,
+    "designerName":  "포인세티아",
+    "designerNote":  "피해를 입을 때 마다 항상 30씩 적게 받음",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "blue",
+    "tags":  [
+                 "take_damage"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "take_damage"
+                                    },
+                        "target":  {
+                                       "value":  "incoming_damage"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  -30.0
+                    }
+                ]
+}

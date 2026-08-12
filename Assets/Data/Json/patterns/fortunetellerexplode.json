@@ -1,0 +1,54 @@
+{
+    "schemaVersion":  1,
+    "id":  "FortuneTellerExplode",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "쌓인 스택만큼 데미지",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  {
+                                           "comparison":  {
+                                                              "left":  {
+                                                                           "variable":  "hprate"
+                                                                       },
+                                                              "operator":  "\u003c=",
+                                                              "right":  0.4
+                                                          }
+                                       }
+                     },
+    "attack":  {
+                   "damage":  {
+                                  "digits":  1,
+                                  "editable":  true,
+                                  "initialValue":  {
+                                                       "expression":  "FortuneStack"
+                                                   }
+                              },
+                   "hits":  {
+                                "fixed":  1
+                            }
+               },
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "self"
+                                   },
+                        "operation":  "set_status",
+                        "type":  "fortune_stack",
+                        "amount":  0
+                    }
+                ],
+    "metadata":  {
+
+                 }
+}

@@ -1,0 +1,36 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_10105_Frog",
+    "sourceId":  10105,
+    "designerName":  "개구리",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  1,
+                      "grade":  "normal",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  250,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "static",
+               "patterns":  [
+                                "Skip",
+                                "Skip",
+                                "Skip",
+                                "3_Single"
+                            ]
+           },
+    "passives":  [
+
+                 ]
+}

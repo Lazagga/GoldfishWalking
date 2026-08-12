@@ -1,0 +1,35 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_20101_Snowman",
+    "sourceId":  20101,
+    "designerName":  "눈사람",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  2,
+                      "grade":  "normal",
+                      "difficulty":  "easy"
+                  },
+    "stats":  {
+                  "health":  560,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "static",
+               "patterns":  [
+                                "2_Multi_1",
+                                "2_Multi_2",
+                                "3_Single"
+                            ]
+           },
+    "passives":  [
+
+                 ]
+}

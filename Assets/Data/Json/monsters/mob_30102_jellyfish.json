@@ -1,0 +1,35 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_30102_Jellyfish",
+    "sourceId":  30102,
+    "designerName":  "해파리",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  3,
+                      "grade":  "normal",
+                      "difficulty":  "easy"
+                  },
+    "stats":  {
+                  "health":  800,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "static",
+               "patterns":  [
+                                "JellyfishSingle",
+                                "JellyfishSingle",
+                                "JellyfishSkill"
+                            ]
+           },
+    "passives":  [
+
+                 ]
+}

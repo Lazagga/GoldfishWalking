@@ -1,0 +1,36 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_10104_MushroomMan",
+    "sourceId":  10104,
+    "designerName":  "버섯인간",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  1,
+                      "grade":  "normal",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  220,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "random",
+               "patterns":  [
+                                "MushroomLock",
+                                "2_Single",
+                                "Str_1",
+                                "2_Multi_1"
+                            ]
+           },
+    "passives":  [
+
+                 ]
+}

@@ -1,0 +1,33 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_rest_pillow",
+    "sourceId":  30,
+    "designerName":  "베개",
+    "designerNote":  "휴식 장소에서 휴식 시 체력 +70",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "white",
+    "tags":  [
+                 "passive"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "passive"
+                                    },
+                        "target":  {
+                                       "actor":  "player",
+                                       "stat":  "health"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  70.0
+                    }
+                ]
+}

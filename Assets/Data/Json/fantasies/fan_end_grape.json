@@ -1,0 +1,35 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_end_grape",
+    "sourceId":  25,
+    "designerName":  "포도",
+    "designerNote":  "턴 종료 시 남은 이동 횟수마다 체력 +5",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "white",
+    "tags":  [
+                 "turn_end"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "turn_end"
+                                    },
+                        "target":  {
+                                       "actor":  "player",
+                                       "stat":  "health"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  {
+                                       "expression":  "RemainingMoves*5"
+                                   }
+                    }
+                ]
+}

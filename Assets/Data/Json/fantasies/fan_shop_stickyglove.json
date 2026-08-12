@@ -1,0 +1,32 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_shop_stickyglove",
+    "sourceId":  38,
+    "designerName":  "끈끈이장갑",
+    "designerNote":  "상점에서 소모품을 각각 1회 무료로 구매 가능",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "blue",
+    "tags":  [
+                 "passive"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "passive"
+                                    },
+                        "target":  {
+                                       "key":  "item_cost"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  -100.0
+                    }
+                ]
+}

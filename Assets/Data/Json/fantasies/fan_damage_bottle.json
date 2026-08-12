@@ -1,0 +1,32 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_damage_Bottle",
+    "sourceId":  54,
+    "designerName":  "병 속의 배",
+    "designerNote":  "피해를 받을 때 마다 적에게 150 피해를 입힘",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "blue",
+    "tags":  [
+                 "take_damage"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "take_damage"
+                                    },
+                        "target":  {
+                                       "actor":  "attacker"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  150.0
+                    }
+                ]
+}

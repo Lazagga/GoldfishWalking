@@ -1,0 +1,45 @@
+{
+    "schemaVersion":  1,
+    "id":  "StargazerSingle",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "3자릿수 단타 + 별 상자에 무작위 0~9까지 숫자 넣기",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  null
+                     },
+    "attack":  {
+                   "damage":  {
+                                  "digits":  3,
+                                  "editable":  true
+                              },
+                   "hits":  {
+                                "fixed":  1
+                            }
+               },
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "self"
+                                   },
+                        "operation":  "create_formula_box",
+                        "amount":  {
+                                       "expression":  "Random"
+                                   }
+                    }
+                ],
+    "metadata":  {
+                     "specialBoxMode":  "append",
+                     "editableHeal":  false
+                 }
+}

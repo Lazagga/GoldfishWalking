@@ -1,0 +1,47 @@
+{
+    "schemaVersion":  1,
+    "id":  "FortuneTellerMulti",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  null
+                     },
+    "attack":  {
+                   "damage":  {
+                                  "digits":  2,
+                                  "editable":  true
+                              },
+                   "hits":  {
+                                "digits":  1,
+                                "editable":  true,
+                                "minimum":  0
+                            }
+               },
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "self"
+                                   },
+                        "operation":  "add_status",
+                        "type":  "fortune_stack",
+                        "amount":  {
+                                       "expression":  "DamageDealt"
+                                   }
+                    }
+                ],
+    "metadata":  {
+
+                 }
+}

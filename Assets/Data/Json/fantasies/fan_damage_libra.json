@@ -1,0 +1,65 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_damage_libra",
+    "sourceId":  31,
+    "designerName":  "천칭자리",
+    "designerNote":  "내 기본 피해량 수치가 0이라면 200으로 취급, 0이 아니라면 절반 취급",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "red",
+    "tags":  [
+
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "passive"
+                                    },
+                        "target":  {
+                                       "formula":  "player.damage",
+                                       "box":  "base"
+                                   },
+                        "operation":  "set_value",
+                        "mode":  "set",
+                        "amount":  200.0,
+                        "condition":  {
+                                          "comparison":  {
+                                                             "left":  {
+                                                                          "variable":  "current_value"
+                                                                      },
+                                                             "operator":  "==",
+                                                             "right":  0
+                                                         }
+                                      },
+                        "execution":  "modifier"
+                    },
+                    {
+                        "trigger":  {
+                                        "event":  "passive"
+                                    },
+                        "target":  {
+                                       "formula":  "player.damage",
+                                       "box":  "base"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "multiply",
+                        "amount":  0.5,
+                        "condition":  {
+                                          "comparison":  {
+                                                             "left":  {
+                                                                          "variable":  "current_value"
+                                                                      },
+                                                             "operator":  "!=",
+                                                             "right":  0
+                                                         }
+                                      },
+                        "execution":  "modifier"
+                    }
+                ]
+}

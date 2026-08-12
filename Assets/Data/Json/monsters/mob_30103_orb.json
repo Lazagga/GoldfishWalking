@@ -1,0 +1,36 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_30103_Orb",
+    "sourceId":  30103,
+    "designerName":  "구체",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  3,
+                      "grade":  "normal",
+                      "difficulty":  "easy"
+                  },
+    "stats":  {
+                  "health":  850,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "static",
+               "patterns":  [
+                                "2_Multi_1",
+                                "2_Multi_2",
+                                "2_Multi_3",
+                                "OrbSkill"
+                            ]
+           },
+    "passives":  [
+
+                 ]
+}

@@ -1,0 +1,48 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_30202_Knight",
+    "sourceId":  30202,
+    "designerName":  "기사",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  3,
+                      "grade":  "elite",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  900,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "random",
+               "patterns":  [
+                                "2_Single",
+                                "2_Single",
+                                "2_Multi_3",
+                                "KnightSkill"
+                            ]
+           },
+    "passives":  [
+                     {
+                         "operation":  "limit_incoming_damage",
+                         "maximum":  20,
+                         "until":  {
+                                       "comparison":  {
+                                                          "left":  {
+                                                                       "variable":  "monster_damage_taken_this_battle"
+                                                                   },
+                                                          "operator":  "\u003e=",
+                                                          "right":  400
+                                                      }
+                                   }
+                     }
+                 ]
+}

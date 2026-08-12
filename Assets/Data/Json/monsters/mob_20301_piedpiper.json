@@ -1,0 +1,50 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_20301_PiedPiper",
+    "sourceId":  20301,
+    "designerName":  "피리부는사나이",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  2,
+                      "grade":  "boss",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  1120,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "static",
+               "patterns":  [
+                                "Str_1",
+                                "2_Single",
+                                "2_Multi_2"
+                            ]
+           },
+    "passives":  [
+                     {
+                         "operation":  "aimed_shot",
+                         "multiplier":  1
+                     },
+                     {
+                         "operation":  "require_formula_condition",
+                         "configuration":  {
+                                               "Type":  "CompareBaseDamage",
+                                               "ValueMin":  10,
+                                               "ValueMax":  99,
+                                               "Operators":  [
+                                                                 "\u003c",
+                                                                 "\u003e"
+                                                             ]
+                                           }
+                     }
+                 ]
+}

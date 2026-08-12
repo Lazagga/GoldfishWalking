@@ -1,0 +1,34 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_10103_Slime",
+    "sourceId":  10103,
+    "designerName":  "슬라임",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  1,
+                      "grade":  "normal",
+                      "difficulty":  "easy"
+                  },
+    "stats":  {
+                  "health":  160,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "random",
+               "patterns":  [
+                                "SlimeSingle",
+                                "2_Single"
+                            ]
+           },
+    "passives":  [
+
+                 ]
+}

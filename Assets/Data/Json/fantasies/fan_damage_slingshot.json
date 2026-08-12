@@ -1,0 +1,32 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_damage_slingshot",
+    "sourceId":  19,
+    "designerName":  "새총",
+    "designerNote":  "피해를 입힐 때 마다 항상 30씩 추가로 입힘",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "white",
+    "tags":  [
+                 "deal_damage"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "deal_damage"
+                                    },
+                        "target":  {
+                                       "actor":  "monster"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  30.0
+                    }
+                ]
+}

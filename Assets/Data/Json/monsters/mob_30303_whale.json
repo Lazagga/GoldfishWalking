@@ -1,0 +1,35 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_30303_Whale",
+    "sourceId":  30303,
+    "designerName":  "고래",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  3,
+                      "grade":  "boss",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  3000,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "random",
+               "patterns":  [
+                                "WhaleSingle",
+                                "WhalePhase2",
+                                "WhaleMulti"
+                            ]
+           },
+    "passives":  [
+
+                 ]
+}

@@ -1,0 +1,88 @@
+{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "title":  "GoldfishWalking Monster",
+    "type":  "object",
+    "required":  [
+                     "schemaVersion",
+                     "id",
+                     "stats",
+                     "ai"
+                 ],
+    "properties":  {
+                       "schemaVersion":  {
+                                             "const":  1
+                                         },
+                       "id":  {
+                                  "type":  "string",
+                                  "pattern":  "^[A-Za-z0-9_.-]+$"
+                              },
+                       "designerName":  {
+                                            "type":  "string"
+                                        },
+                       "designerNote":  {
+                                            "type":  "string"
+                                        },
+                       "enabled":  {
+                                       "type":  "boolean"
+                                   },
+                       "sourceId":  {
+                                        "type":  "integer"
+                                    },
+                       "localization":  {
+                                            "type":  "object"
+                                        },
+                       "presentation":  {
+                                            "type":  "object"
+                                        },
+                       "encounter":  {
+                                         "type":  "object"
+                                     },
+                       "stats":  {
+                                     "type":  "object",
+                                     "required":  [
+                                                      "health",
+                                                      "strength"
+                                                  ],
+                                     "properties":  {
+                                                        "health":  {
+                                                                       "type":  "integer",
+                                                                       "minimum":  1
+                                                                   },
+                                                        "strength":  {
+                                                                         "type":  "integer"
+                                                                     }
+                                                    }
+                                 },
+                       "ai":  {
+                                  "type":  "object",
+                                  "required":  [
+                                                   "mode",
+                                                   "patterns"
+                                               ],
+                                  "properties":  {
+                                                     "mode":  {
+                                                                  "enum":  [
+                                                                               "static",
+                                                                               "random"
+                                                                           ]
+                                                              },
+                                                     "patterns":  {
+                                                                      "type":  "array",
+                                                                      "items":  {
+                                                                                    "type":  "string"
+                                                                                }
+                                                                  }
+                                                 }
+                              },
+                       "passives":  {
+                                        "type":  "array",
+                                        "items":  {
+                                                      "type":  "object",
+                                                      "required":  [
+                                                                       "operation"
+                                                                   ]
+                                                  }
+                                    }
+                   },
+    "additionalProperties":  false
+}

@@ -1,0 +1,54 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_10201_WhiteRabbit",
+    "sourceId":  10201,
+    "designerName":  "화이트 래빗",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  1,
+                      "grade":  "elite",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  400,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "random",
+               "patterns":  [
+                                "2_Multi_1",
+                                "2_Single",
+                                "2_Multi_1",
+                                "2_Single",
+                                "Str_2"
+                            ]
+           },
+    "passives":  [
+                     {
+                         "operation":  "countdown",
+                         "box":  {
+                                     "label":  "RABBIT",
+                                     "minimum":  0,
+                                     "maximum":  9,
+                                     "initialValue":  3,
+                                     "editable":  true
+                                 },
+                         "decrease":  {
+                                          "trigger":  "turn_end",
+                                          "amount":  1
+                                      },
+                         "onZero":  {
+                                        "operation":  "end_battle",
+                                        "result":  "escape"
+                                    }
+                     }
+                 ]
+}

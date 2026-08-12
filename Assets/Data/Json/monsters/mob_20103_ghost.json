@@ -1,0 +1,34 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_20103_Ghost",
+    "sourceId":  20103,
+    "designerName":  "유령",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  2,
+                      "grade":  "normal",
+                      "difficulty":  "easy"
+                  },
+    "stats":  {
+                  "health":  640,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "random",
+               "patterns":  [
+                                "GhostSingle",
+                                "GhostMulti"
+                            ]
+           },
+    "passives":  [
+
+                 ]
+}

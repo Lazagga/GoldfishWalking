@@ -1,0 +1,33 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_10107_Bandit",
+    "sourceId":  10107,
+    "designerName":  "노상강도",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  1,
+                      "grade":  "normal",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  250,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "static",
+               "patterns":  [
+                                "BanditSingle"
+                            ]
+           },
+    "passives":  [
+
+                 ]
+}

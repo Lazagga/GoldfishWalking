@@ -1,0 +1,58 @@
+{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "$id":  "effect.schema.json",
+    "title":  "GoldfishWalking Effect",
+    "type":  "object",
+    "required":  [
+                     "target",
+                     "operation"
+                 ],
+    "properties":  {
+                       "designerNote":  {
+                                            "type":  "string"
+                                        },
+                       "trigger":  {
+                                       "type":  "object",
+                                       "required":  [
+                                                        "event"
+                                                    ],
+                                       "properties":  {
+                                                          "event":  {
+                                                                        "type":  "string",
+                                                                        "minLength":  1
+                                                                    }
+                                                      }
+                                   },
+                       "target":  {
+                                      "type":  "object",
+                                      "minProperties":  1
+                                  },
+                       "operation":  {
+                                         "type":  "string",
+                                         "minLength":  1
+                                     },
+                       "condition":  {
+                                         "type":  [
+                                                      "object",
+                                                      "null"
+                                                  ]
+                                     },
+                       "amount":  {
+
+                                  },
+                       "duration":  {
+                                        "type":  "object"
+                                    },
+                       "chance":  {
+                                      "type":  "object",
+                                      "properties":  {
+                                                         "percent":  {
+                                                                         "type":  "number",
+                                                                         "minimum":  0,
+                                                                         "maximum":  100
+                                                                     }
+                                                     }
+                                  }
+                   },
+    "additionalProperties":  true
+}

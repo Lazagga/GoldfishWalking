@@ -1,0 +1,35 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_30302_CosmicTree",
+    "sourceId":  30302,
+    "designerName":  "세계수",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  3,
+                      "grade":  "boss",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  3000,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "static",
+               "patterns":  [
+                                "CosmictreeSingle",
+                                "CosmictreeSingle",
+                                "CosmictreeHeal"
+                            ]
+           },
+    "passives":  [
+
+                 ]
+}

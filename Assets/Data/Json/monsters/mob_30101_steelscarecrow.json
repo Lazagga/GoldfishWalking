@@ -1,0 +1,41 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_30101_SteelScarecrow",
+    "sourceId":  30101,
+    "designerName":  "강철 허수아비",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  3,
+                      "grade":  "normal",
+                      "difficulty":  "easy"
+                  },
+    "stats":  {
+                  "health":  900,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "static",
+               "patterns":  [
+                                "Str_1",
+                                "2_Multi_1",
+                                "2_Multi_2"
+                            ]
+           },
+    "passives":  [
+                     {
+                         "operation":  "lock_box",
+                         "target":  {
+                                        "formula":  "monster.damage",
+                                        "box":  "base"
+                                    }
+                     }
+                 ]
+}

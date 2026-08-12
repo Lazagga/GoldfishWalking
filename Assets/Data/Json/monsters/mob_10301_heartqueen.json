@@ -1,0 +1,53 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_10301_HeartQueen",
+    "sourceId":  10301,
+    "designerName":  "하트 여왕",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  1,
+                      "grade":  "boss",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  600,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "static",
+               "patterns":  [
+                                "2_Single",
+                                "2_Multi_1",
+                                "Str_1",
+                                "HeartQueenSkill"
+                            ]
+           },
+    "passives":  [
+                     {
+                         "operation":  "countdown",
+                         "box":  {
+                                     "label":  "HEART",
+                                     "minimum":  0,
+                                     "maximum":  9,
+                                     "initialValue":  5,
+                                     "editable":  true
+                                 },
+                         "decrease":  {
+                                          "trigger":  "turn_end",
+                                          "amount":  1
+                                      },
+                         "onZero":  {
+                                        "operation":  "execute_pattern",
+                                        "pattern":  "HeartQueenSkill"
+                                    }
+                     }
+                 ]
+}

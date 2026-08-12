@@ -1,0 +1,40 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_30201_Vampire",
+    "sourceId":  30201,
+    "designerName":  "뱀파이어",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "encounter":  {
+                      "act":  3,
+                      "grade":  "elite",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  2000,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "random",
+               "patterns":  [
+                                "2_Single",
+                                "2_Single",
+                                "2_Multi_3",
+                                "VampireSkill"
+                            ]
+           },
+    "passives":  [
+                     {
+                         "operation":  "lifesteal",
+                         "trigger":  "after_dealing_damage",
+                         "ratio":  0.3
+                     }
+                 ]
+}
