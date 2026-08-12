@@ -20,7 +20,7 @@ namespace GoldfishWalking.Editor
         {
             serializedObject.Update();
             EditorGUILayout.LabelField("Monster Database", EditorStyles.boldLabel);
-            EditorGUILayout.LabelField("Edit runtime values here. TSV import can overwrite this asset.", EditorStyles.miniLabel);
+            EditorGUILayout.LabelField("Generated from Assets/Data/Json/monsters. Edit the source JSON, not this asset.", EditorStyles.miniLabel);
             search = EditorGUILayout.TextField("Search", search);
             DrawList();
             EditorGUILayout.Space(8);

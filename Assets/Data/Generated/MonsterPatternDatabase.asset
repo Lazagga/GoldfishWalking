@@ -13,14 +13,14 @@ MonoBehaviour:
   m_Name: MonsterPatternDatabase
   m_EditorClassIdentifier: Assembly-CSharp::GoldfishWalking.Data.MonsterPatternDatabase
   patterns:
-  - id: SlimeSingle
+  - id: AlchemistSingle
     sourceId: 0
-    dataCode: SlimeSingle
+    dataCode: AlchemistSingle
     devName: 
     nameStringId: 
-    displayName: SlimeSingle
-    description: "\uB2E8\uD0C0 \uB9DE \uB2E4\uC74C \uD134 \uC790\uAE30 \uC0C1\uC790
-      \uBD84\uB9AC (\uD574\uB2F9 \uD134\uC5D0\uB9CC \uC801\uC6A9)"
+    displayName: AlchemistSingle
+    description: "\uACF5\uACA9 \uC2DC \uC785\uD78C \uD53C\uD574\uB7C9 50%\uB9CC\uD07C
+      \uCD9C\uD608 \uC801\uC6A9"
     patternType: 1
     value: 0
     hitCount: 1
@@ -31,160 +31,14 @@ MonoBehaviour:
     hitDigitCount: 0
     strengthDelta: 0
     condition: 
-    rawEffects: '{"Attack": "2_Single","Effects": [{"Timing": "NextTurn","Target":
-      "Self","Action": "Split","Duration": 1}]}'
+    rawEffects: '{"Attack":"2_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"bleed","Condition":"","Value":"DamageDealt","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: NextTurn
-      target: Self
-      action: Split
-      type: 
-      condition: 
-      valueExpression: 
-      hasNumericValue: 0
-      numericValue: 0
-      duration: 1
-      count: 1
-      hitCount: 1
-      lockDamage: 0
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Timing":"NextTurn","Target":"Self","Action":"Split","Duration":1}'
-    sprite: 
-    specialHandler: 
-    maxUses: -1
-    selfDestruct: 0
-  - id: MushroomLock
-    sourceId: 0
-    dataCode: MushroomLock
-    devName: 
-    nameStringId: 
-    displayName: MushroomLock
-    description: "\uD50C\uB808\uC774\uC5B4 \uC0C1\uC790 \uC7A0\uAE08"
-    patternType: 0
-    value: 0
-    hitCount: 1
-    attackKey: 
-    hasDynamicDamageValue: 0
-    damageValueExpression: 
-    damageDigitCount: 0
-    hitDigitCount: 0
-    strengthDelta: 0
-    condition: 
-    rawEffects: '{"Attack": null,"Effects": [{"Timing": "NextTurn","Target": "Player","Action":
-      "Lock"}]}'
-    effects:
-    - timing: NextTurn
-      target: Player
-      action: Lock
-      type: 
-      condition: 
-      valueExpression: 
-      hasNumericValue: 0
-      numericValue: 0
-      duration: 0
-      count: 1
-      hitCount: 1
-      lockDamage: 0
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Timing":"NextTurn","Target":"Player","Action":"Lock"}'
-    sprite: 
-    specialHandler: 
-    maxUses: -1
-    selfDestruct: 0
-  - id: Skip
-    sourceId: 0
-    dataCode: Skip
-    devName: 
-    nameStringId: 
-    displayName: Skip
-    description: "\uC544\uBB34\uAC83\uB3C4 \uC548 \uD568"
-    patternType: 0
-    value: 0
-    hitCount: 1
-    attackKey: 
-    hasDynamicDamageValue: 0
-    damageValueExpression: 
-    damageDigitCount: 0
-    hitDigitCount: 0
-    strengthDelta: 0
-    condition: 
-    rawEffects: '{"Attack": null, "Effect": null}'
-    effects: []
-    sprite: 
-    specialHandler: 
-    maxUses: -1
-    selfDestruct: 0
-  - id: LittleWitchSkill
-    sourceId: 0
-    dataCode: LittleWitchSkill
-    devName: 
-    nameStringId: 
-    displayName: LittleWitchSkill
-    description: "\uD50C\uB808\uC774\uC5B4 \uD798 1 \uAC10\uC18C"
-    patternType: 0
-    value: 0
-    hitCount: 1
-    attackKey: 
-    hasDynamicDamageValue: 0
-    damageValueExpression: 
-    damageDigitCount: 0
-    hitDigitCount: 0
-    strengthDelta: 0
-    condition: 
-    rawEffects: '{"Attack": null, "Effects": [{"Target": "Player", "Action": "AddBuff",
-      "Type": "MinusBox", "Value": 1, "Duration": 2}]}'
-    effects:
-    - timing: 
-      target: Player
+    - timing: immediate
+      target: self
       action: AddBuff
-      type: MinusBox
+      type: bleed
       condition: 
-      valueExpression: 1
-      hasNumericValue: 1
-      numericValue: 1
-      duration: 2
-      count: 1
-      hitCount: 1
-      lockDamage: 0
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Target":"Player","Action":"AddBuff","Type":"MinusBox","Value":1,"Duration":2}'
-    sprite: 
-    specialHandler: 
-    maxUses: -1
-    selfDestruct: 0
-  - id: HunterSingle
-    sourceId: 0
-    dataCode: HunterSingle
-    devName: 
-    nameStringId: 
-    displayName: HunterSingle
-    description: "\uD50C\uB808\uC774\uC5B4 \uAE30\uBCF8 \uD53C\uD574\uB7C9 \uC0C1\uC790\uB97C
-      \uBD84\uB9AC\uC2DC\uD0A8 \uB4A4 \uD558\uB098\uB97C \uC7A0\uAE08"
-    patternType: 1
-    value: 0
-    hitCount: 1
-    attackKey: 2_Single
-    hasDynamicDamageValue: 0
-    damageValueExpression: 
-    damageDigitCount: 2
-    hitDigitCount: 0
-    strengthDelta: 0
-    condition: 
-    rawEffects: '{"Attack": "2_Single", "Effects": [{"Timing": "NextTurn", "Target":
-      "Player", "Action": "Split"}, {"Timing": "NextTurn", "Target": "Player", "Action":
-      "AddBuff", "Type": "BoxLock", "Value": 1, "Duration": 1}]}'
-    effects:
-    - timing: NextTurn
-      target: Player
-      action: Split
-      type: 
-      condition: 
-      valueExpression: 
+      valueExpression: DamageDealt
       hasNumericValue: 0
       numericValue: 0
       duration: 0
@@ -194,34 +48,19 @@ MonoBehaviour:
       mode: 
       label: 
       editable: 0
-      rawJson: '{"Timing":"NextTurn","Target":"Player","Action":"Split"}'
-    - timing: NextTurn
-      target: Player
-      action: AddBuff
-      type: BoxLock
-      condition: 
-      valueExpression: 1
-      hasNumericValue: 1
-      numericValue: 1
-      duration: 1
-      count: 1
-      hitCount: 1
-      lockDamage: 0
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Timing":"NextTurn","Target":"Player","Action":"AddBuff","Type":"BoxLock","Value":1,"Duration":1}'
+      rawJson: '{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"bleed","Condition":"","Value":"DamageDealt","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
     sprite: 
     specialHandler: 
     maxUses: -1
     selfDestruct: 0
-  - id: WitchSkill
+  - id: AlchemistSkill
     sourceId: 0
-    dataCode: WitchSkill
+    dataCode: AlchemistSkill
     devName: 
     nameStringId: 
-    displayName: WitchSkill
-    description: 
+    displayName: AlchemistSkill
+    description: "[\uCD9C\uD608 \uC544\uC774\uCF58] [x] [1\uC790\uB9BF\uC218] ->
+      \uCD9C\uD608 \uC218\uCE58 n\uBC30"
     patternType: 0
     value: 0
     hitCount: 1
@@ -232,17 +71,16 @@ MonoBehaviour:
     hitDigitCount: 0
     strengthDelta: 0
     condition: 
-    rawEffects: '{"Count":1, "Attack": null, "Effects": [{"Target": "Player", "Action":
-      "AddBuff", "Type": "DivideBox", "Value": 1}]}'
+    rawEffects: '{"Attack":null,"Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"next_turn","Target":"player","Action":"MultiplyBuff","Type":"bleed","Condition":"","Value":3.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: 
-      target: Player
-      action: AddBuff
-      type: DivideBox
+    - timing: next_turn
+      target: player
+      action: MultiplyBuff
+      type: bleed
       condition: 
-      valueExpression: 1
+      valueExpression: 3
       hasNumericValue: 1
-      numericValue: 1
+      numericValue: 3
       duration: 0
       count: 1
       hitCount: 1
@@ -250,127 +88,7 @@ MonoBehaviour:
       mode: 
       label: 
       editable: 0
-      rawJson: '{"Target":"Player","Action":"AddBuff","Type":"DivideBox","Value":1}'
-    sprite: 
-    specialHandler: 
-    maxUses: 1
-    selfDestruct: 0
-  - id: HeartQueenSkill
-    sourceId: 0
-    dataCode: HeartQueenSkill
-    devName: 
-    nameStringId: 
-    displayName: HeartQueenSkill
-    description: 
-    patternType: 0
-    value: 0
-    hitCount: 1
-    attackKey: 
-    hasDynamicDamageValue: 0
-    damageValueExpression: 
-    damageDigitCount: 0
-    hitDigitCount: 0
-    strengthDelta: 0
-    condition: HeartQueenBox==0
-    rawEffects: '{"Condition": "HeartQueenBox==0", "Effects": [{"Target": "Player",
-      "Action": "Damage", "Value": 9999, "Lock": true}]}'
-    effects:
-    - timing: 
-      target: Player
-      action: Damage
-      type: 
-      condition: 
-      valueExpression: 9999
-      hasNumericValue: 1
-      numericValue: 9999
-      duration: 0
-      count: 1
-      hitCount: 1
-      lockDamage: 1
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Target":"Player","Action":"Damage","Value":9999,"Lock":true}'
-    sprite: 
-    specialHandler: 
-    maxUses: -1
-    selfDestruct: 0
-  - id: GhostSingle
-    sourceId: 0
-    dataCode: GhostSingle
-    devName: 
-    nameStringId: 
-    displayName: GhostSingle
-    description: "\uB2E8\uD0C0 + \uB2E4\uC74C \uD134 \uB0B4 \uC0C1\uC790 \uBD84\uB9AC"
-    patternType: 1
-    value: 0
-    hitCount: 1
-    attackKey: 2_Single
-    hasDynamicDamageValue: 0
-    damageValueExpression: 
-    damageDigitCount: 2
-    hitDigitCount: 0
-    strengthDelta: 0
-    condition: 
-    rawEffects: '{"Attack": "2_Single", "Effects": [{"Timing": "NextTurn", "Target":
-      "Player", "Action": "Split", "Duration": 1}]}'
-    effects:
-    - timing: NextTurn
-      target: Player
-      action: Split
-      type: 
-      condition: 
-      valueExpression: 
-      hasNumericValue: 0
-      numericValue: 0
-      duration: 1
-      count: 1
-      hitCount: 1
-      lockDamage: 0
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Timing":"NextTurn","Target":"Player","Action":"Split","Duration":1}'
-    sprite: 
-    specialHandler: 
-    maxUses: -1
-    selfDestruct: 0
-  - id: GhostMulti
-    sourceId: 0
-    dataCode: GhostMulti
-    devName: 
-    nameStringId: 
-    displayName: GhostMulti
-    description: "\uC5F0\uD0C01 + \uB2E4\uC74C \uD134 \uC790\uAE30 \uC0C1\uC790 \uBD84\uB9AC"
-    patternType: 2
-    value: 0
-    hitCount: 1
-    attackKey: 2_Multi_1
-    hasDynamicDamageValue: 0
-    damageValueExpression: 
-    damageDigitCount: 2
-    hitDigitCount: 1
-    strengthDelta: 0
-    condition: 
-    rawEffects: '{"Attack": "2_Multi_1", "Effects": [{"Timing": "NextTurn", "Target":
-      "Self", "Action": "Split","Duration":1}]}'
-    effects:
-    - timing: NextTurn
-      target: Self
-      action: Split
-      type: 
-      condition: 
-      valueExpression: 
-      hasNumericValue: 0
-      numericValue: 0
-      duration: 1
-      count: 1
-      hitCount: 1
-      lockDamage: 0
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Timing":"NextTurn","Target":"Self","Action":"Split","Duration":1}'
+      rawJson: '{"Timing":"next_turn","Target":"player","Action":"MultiplyBuff","Type":"bleed","Condition":"","Value":3.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
     sprite: 
     specialHandler: 
     maxUses: -1
@@ -392,13 +110,12 @@ MonoBehaviour:
     hitDigitCount: 0
     strengthDelta: 0
     condition: 
-    rawEffects: '{"Attack": "1_Single", "Effects": [{"Target": "Self", "Action":
-      "AddBuff", "Type": "Strength", "Value": 1}]}'
+    rawEffects: '{"Attack":"1_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"strength","Condition":"","Value":1.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: 
-      target: Self
+    - timing: immediate
+      target: self
       action: AddBuff
-      type: Strength
+      type: strength
       condition: 
       valueExpression: 1
       hasNumericValue: 1
@@ -410,7 +127,7 @@ MonoBehaviour:
       mode: 
       label: 
       editable: 0
-      rawJson: '{"Target":"Self","Action":"AddBuff","Type":"Strength","Value":1}'
+      rawJson: '{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"strength","Condition":"","Value":1.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
     sprite: 
     specialHandler: 
     maxUses: -1
@@ -433,14 +150,12 @@ MonoBehaviour:
     hitDigitCount: 0
     strengthDelta: 0
     condition: 
-    rawEffects: '{"Attack": "1_Single", "Effects": [{"Target": "Self", "Action":
-      "AddBuff", "Type": "Stun", "Duration": 1}, {"Target": "Self", "Action": "SetBuff",
-      "Type": "Strength", "Value": 0}]}'
+    rawEffects: '{"Attack":"1_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"stun","Condition":"","Value":"","Duration":1,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false},{"Timing":"immediate","Target":"self","Action":"SetBuff","Type":"strength","Condition":"","Value":0.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: 
-      target: Self
+    - timing: immediate
+      target: self
       action: AddBuff
-      type: Stun
+      type: stun
       condition: 
       valueExpression: 
       hasNumericValue: 0
@@ -452,11 +167,11 @@ MonoBehaviour:
       mode: 
       label: 
       editable: 0
-      rawJson: '{"Target":"Self","Action":"AddBuff","Type":"Stun","Duration":1}'
-    - timing: 
-      target: Self
+      rawJson: '{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"stun","Condition":"","Value":"","Duration":1,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
+    - timing: immediate
+      target: self
       action: SetBuff
-      type: Strength
+      type: strength
       condition: 
       valueExpression: 0
       hasNumericValue: 1
@@ -468,19 +183,58 @@ MonoBehaviour:
       mode: 
       label: 
       editable: 0
-      rawJson: '{"Target":"Self","Action":"SetBuff","Type":"Strength","Value":0}'
+      rawJson: '{"Timing":"immediate","Target":"self","Action":"SetBuff","Type":"strength","Condition":"","Value":0.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
     sprite: 
     specialHandler: 
     maxUses: -1
     selfDestruct: 0
-  - id: GiantRatSkill
+  - id: BanditSingle
     sourceId: 0
-    dataCode: GiantRatSkill
+    dataCode: BanditSingle
     devName: 
     nameStringId: 
-    displayName: GiantRatSkill
-    description: "3\uC790\uB9BF\uC218\uC758 \uCCB4\uB825 \uD68C\uBCF5(\uD68C\uBCF5
-      \uC0C1\uC790 \uC870\uC791 \uAC00\uB2A5) \uBC0F \uD7981 \uC99D\uAC00"
+    displayName: BanditSingle
+    description: "\uACF5\uACA9 \uC2DC \uC785\uD78C \uD53C\uD574\uB7C9\uB9CC\uD07C
+      \uCD9C\uD608 \uC801\uC6A9"
+    patternType: 1
+    value: 0
+    hitCount: 1
+    attackKey: 2_Single
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 2
+    hitDigitCount: 0
+    strengthDelta: 0
+    condition: 
+    rawEffects: '{"Attack":"2_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"player","Action":"AddBuff","Type":"bleed","Condition":"","Value":"DamageDealt","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
+    effects:
+    - timing: immediate
+      target: player
+      action: AddBuff
+      type: bleed
+      condition: 
+      valueExpression: DamageDealt
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      count: 1
+      hitCount: 1
+      lockDamage: 0
+      mode: 
+      label: 
+      editable: 0
+      rawJson: '{"Timing":"immediate","Target":"player","Action":"AddBuff","Type":"bleed","Condition":"","Value":"DamageDealt","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
+    sprite: 
+    specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
+  - id: CosmictreeHeal
+    sourceId: 0
+    dataCode: CosmictreeHeal
+    devName: 
+    nameStringId: 
+    displayName: CosmictreeHeal
+    description: "\uD798 \uC218\uCE58 \uC790\uB9BF\uC218\uB9CC\uD07C \uD790"
     patternType: 0
     value: 0
     hitCount: 1
@@ -491,29 +245,51 @@ MonoBehaviour:
     hitDigitCount: 0
     strengthDelta: 0
     condition: 
-    rawEffects: '{"Effects": [{"Target": "Self", "Action": "Heal", "Value": 3}, {"Target":
-      "Self", "Action": "AddBuff", "Type": "Strength", "Value": 1}]}'
+    rawEffects: '{"Attack":null,"Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"heal","Type":"","Condition":"","Value":"CosmictreeHeal","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":true}]}'
     effects:
-    - timing: 
-      target: Self
-      action: Heal
+    - timing: immediate
+      target: self
+      action: heal
       type: 
       condition: 
-      valueExpression: 3
-      hasNumericValue: 1
-      numericValue: 3
+      valueExpression: CosmictreeHeal
+      hasNumericValue: 0
+      numericValue: 0
       duration: 0
       count: 1
       hitCount: 1
       lockDamage: 0
       mode: 
       label: 
-      editable: 0
-      rawJson: '{"Target":"Self","Action":"Heal","Value":3}'
-    - timing: 
-      target: Self
+      editable: 1
+      rawJson: '{"Timing":"immediate","Target":"self","Action":"heal","Type":"","Condition":"","Value":"CosmictreeHeal","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":true}'
+    sprite: 
+    specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
+  - id: CosmictreeSingle
+    sourceId: 0
+    dataCode: CosmictreeSingle
+    devName: 
+    nameStringId: 
+    displayName: CosmictreeSingle
+    description: "\uACF5\uACA9\uACFC \uD568\uAED8 \uD798 \uC99D\uAC00"
+    patternType: 1
+    value: 0
+    hitCount: 1
+    attackKey: 2_Single
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 2
+    hitDigitCount: 0
+    strengthDelta: 0
+    condition: 
+    rawEffects: '{"Attack":"2_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"strength","Condition":"","Value":1.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
+    effects:
+    - timing: immediate
+      target: self
       action: AddBuff
-      type: Strength
+      type: strength
       condition: 
       valueExpression: 1
       hasNumericValue: 1
@@ -525,7 +301,85 @@ MonoBehaviour:
       mode: 
       label: 
       editable: 0
-      rawJson: '{"Target":"Self","Action":"AddBuff","Type":"Strength","Value":1}'
+      rawJson: '{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"strength","Condition":"","Value":1.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
+    sprite: 
+    specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
+  - id: FortuneTellerExplode
+    sourceId: 0
+    dataCode: FortuneTellerExplode
+    devName: 
+    nameStringId: 
+    displayName: FortuneTellerExplode
+    description: "\uC313\uC778 \uC2A4\uD0DD\uB9CC\uD07C \uB370\uBBF8\uC9C0"
+    patternType: 1
+    value: 0
+    hitCount: 1
+    attackKey: FortuneStack_Single
+    hasDynamicDamageValue: 1
+    damageValueExpression: FortuneStack
+    damageDigitCount: 1
+    hitDigitCount: 0
+    strengthDelta: 0
+    condition: hprate<=0.4
+    rawEffects: '{"Attack":"FortuneStack_Single","Condition":"hprate<=0.4","Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"SetBuff","Type":"fortune_stack","Condition":"","Value":0.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
+    effects:
+    - timing: immediate
+      target: self
+      action: SetBuff
+      type: fortune_stack
+      condition: 
+      valueExpression: 0
+      hasNumericValue: 1
+      numericValue: 0
+      duration: 0
+      count: 1
+      hitCount: 1
+      lockDamage: 0
+      mode: 
+      label: 
+      editable: 0
+      rawJson: '{"Timing":"immediate","Target":"self","Action":"SetBuff","Type":"fortune_stack","Condition":"","Value":0.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
+    sprite: 
+    specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
+  - id: FortuneTellerMulti
+    sourceId: 0
+    dataCode: FortuneTellerMulti
+    devName: 
+    nameStringId: 
+    displayName: FortuneTellerMulti
+    description: 
+    patternType: 2
+    value: 0
+    hitCount: 1
+    attackKey: 2_Multi_1
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 2
+    hitDigitCount: 1
+    strengthDelta: 0
+    condition: 
+    rawEffects: '{"Attack":"2_Multi_1","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"fortune_stack","Condition":"","Value":"DamageDealt","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
+    effects:
+    - timing: immediate
+      target: self
+      action: AddBuff
+      type: fortune_stack
+      condition: 
+      valueExpression: DamageDealt
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      count: 1
+      hitCount: 1
+      lockDamage: 0
+      mode: 
+      label: 
+      editable: 0
+      rawJson: '{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"fortune_stack","Condition":"","Value":"DamageDealt","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
     sprite: 
     specialHandler: 
     maxUses: -1
@@ -549,13 +403,12 @@ MonoBehaviour:
     hitDigitCount: 0
     strengthDelta: 0
     condition: 
-    rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Self", "Action":
-      "Addbuff", "Type": "FortuneStack", "Value": "DamageDealt"}]}'
+    rawEffects: '{"Attack":"2_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"fortune_stack","Condition":"","Value":"DamageDealt","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: 
-      target: Self
-      action: Addbuff
-      type: FortuneStack
+    - timing: immediate
+      target: self
+      action: AddBuff
+      type: fortune_stack
       condition: 
       valueExpression: DamageDealt
       hasNumericValue: 0
@@ -567,18 +420,18 @@ MonoBehaviour:
       mode: 
       label: 
       editable: 0
-      rawJson: '{"Target":"Self","Action":"Addbuff","Type":"FortuneStack","Value":"DamageDealt"}'
+      rawJson: '{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"fortune_stack","Condition":"","Value":"DamageDealt","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
     sprite: 
     specialHandler: 
     maxUses: -1
     selfDestruct: 0
-  - id: FortuneTellerMulti
+  - id: GhostMulti
     sourceId: 0
-    dataCode: FortuneTellerMulti
+    dataCode: GhostMulti
     devName: 
     nameStringId: 
-    displayName: FortuneTellerMulti
-    description: 
+    displayName: GhostMulti
+    description: "\uC5F0\uD0C01 + \uB2E4\uC74C \uD134 \uC790\uAE30 \uC0C1\uC790 \uBD84\uB9AC"
     patternType: 2
     value: 0
     hitCount: 1
@@ -589,77 +442,35 @@ MonoBehaviour:
     hitDigitCount: 1
     strengthDelta: 0
     condition: 
-    rawEffects: '{"Attack": "2_Multi_1", "Effects": [{"Target": "Self", "Action":
-      "Addbuff", "Type": "FortuneStack", "Value": "DamageDealt"}]}'
+    rawEffects: '{"Attack":"2_Multi_1","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"next_turn","Target":"self","Action":"Split","Type":"","Condition":"","Value":"","Duration":1,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: 
-      target: Self
-      action: Addbuff
-      type: FortuneStack
+    - timing: next_turn
+      target: self
+      action: Split
+      type: 
       condition: 
-      valueExpression: DamageDealt
+      valueExpression: 
       hasNumericValue: 0
       numericValue: 0
-      duration: 0
+      duration: 1
       count: 1
       hitCount: 1
       lockDamage: 0
       mode: 
       label: 
       editable: 0
-      rawJson: '{"Target":"Self","Action":"Addbuff","Type":"FortuneStack","Value":"DamageDealt"}'
+      rawJson: '{"Timing":"next_turn","Target":"self","Action":"Split","Type":"","Condition":"","Value":"","Duration":1,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
     sprite: 
     specialHandler: 
     maxUses: -1
     selfDestruct: 0
-  - id: FortuneTellerExplode
+  - id: GhostSingle
     sourceId: 0
-    dataCode: FortuneTellerExplode
+    dataCode: GhostSingle
     devName: 
     nameStringId: 
-    displayName: FortuneTellerExplode
-    description: "\uC313\uC778 \uC2A4\uD0DD\uB9CC\uD07C \uB370\uBBF8\uC9C0"
-    patternType: 1
-    value: 0
-    hitCount: 1
-    attackKey: FortuneStack_Single
-    hasDynamicDamageValue: 1
-    damageValueExpression: FortuneStack
-    damageDigitCount: 1
-    hitDigitCount: 0
-    strengthDelta: 0
-    condition: HPRate<=0.4
-    rawEffects: '{"Condition": "HPRate<=0.4", "Attack": "FortuneStack_Single", "Effects":
-      [{"Target": "Self", "Action": "SetBuff", "Type": "FortuneStack", "Value": 0}]}'
-    effects:
-    - timing: 
-      target: Self
-      action: SetBuff
-      type: FortuneStack
-      condition: 
-      valueExpression: 0
-      hasNumericValue: 1
-      numericValue: 0
-      duration: 0
-      count: 1
-      hitCount: 1
-      lockDamage: 0
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Target":"Self","Action":"SetBuff","Type":"FortuneStack","Value":0}'
-    sprite: 
-    specialHandler: 
-    maxUses: -1
-    selfDestruct: 0
-  - id: AlchemistSingle
-    sourceId: 0
-    dataCode: AlchemistSingle
-    devName: 
-    nameStringId: 
-    displayName: AlchemistSingle
-    description: "\uACF5\uACA9 \uC2DC \uC785\uD78C \uD53C\uD574\uB7C9 50%\uB9CC\uD07C
-      \uCD9C\uD608 \uC801\uC6A9"
+    displayName: GhostSingle
+    description: "\uB2E8\uD0C0 + \uB2E4\uC74C \uD134 \uB0B4 \uC0C1\uC790 \uBD84\uB9AC"
     patternType: 1
     value: 0
     hitCount: 1
@@ -670,13 +481,567 @@ MonoBehaviour:
     hitDigitCount: 0
     strengthDelta: 0
     condition: 
-    rawEffects: '{"Attack": "2_Single", "Effects": [{"Action": "AddBuff", "Type":
-      "Bleed", "Value": "DamageDealt"}]}'
+    rawEffects: '{"Attack":"2_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"next_turn","Target":"player","Action":"Split","Type":"","Condition":"","Value":"","Duration":1,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: 
-      target: 
+    - timing: next_turn
+      target: player
+      action: Split
+      type: 
+      condition: 
+      valueExpression: 
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 1
+      count: 1
+      hitCount: 1
+      lockDamage: 0
+      mode: 
+      label: 
+      editable: 0
+      rawJson: '{"Timing":"next_turn","Target":"player","Action":"Split","Type":"","Condition":"","Value":"","Duration":1,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
+    sprite: 
+    specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
+  - id: GiantRatSkill
+    sourceId: 0
+    dataCode: GiantRatSkill
+    devName: 
+    nameStringId: 
+    displayName: GiantRatSkill
+    description: "3\uC790\uB9BF\uC218\uC758 \uCCB4\uB825 \uD68C\uBCF5(\uD68C\uBCF5
+      \uC0C1\uC790 \uC870\uC791 \uAC00\uB2A5) \uBC0F \uD7981 \uC99D\uAC00"
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    condition: 
+    rawEffects: '{"Attack":null,"Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"heal","Type":"","Condition":"","Value":3.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":true},{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"strength","Condition":"","Value":1.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
+    effects:
+    - timing: immediate
+      target: self
+      action: heal
+      type: 
+      condition: 
+      valueExpression: 3
+      hasNumericValue: 1
+      numericValue: 3
+      duration: 0
+      count: 1
+      hitCount: 1
+      lockDamage: 0
+      mode: 
+      label: 
+      editable: 1
+      rawJson: '{"Timing":"immediate","Target":"self","Action":"heal","Type":"","Condition":"","Value":3.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":true}'
+    - timing: immediate
+      target: self
       action: AddBuff
-      type: Bleed
+      type: strength
+      condition: 
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      duration: 0
+      count: 1
+      hitCount: 1
+      lockDamage: 0
+      mode: 
+      label: 
+      editable: 0
+      rawJson: '{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"strength","Condition":"","Value":1.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
+    sprite: 
+    specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
+  - id: HeartQueenSkill
+    sourceId: 0
+    dataCode: HeartQueenSkill
+    devName: 
+    nameStringId: 
+    displayName: HeartQueenSkill
+    description: 
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    condition: heartqueenbox==0
+    rawEffects: '{"Attack":null,"Condition":"heartqueenbox==0","Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"player","Action":"Damage","Type":"","Condition":"","Value":9999.0,"Duration":0,"Count":1,"HitCount":1,"Lock":true,"Mode":"","Label":"","Editable":false}]}'
+    effects:
+    - timing: immediate
+      target: player
+      action: Damage
+      type: 
+      condition: 
+      valueExpression: 9999
+      hasNumericValue: 1
+      numericValue: 9999
+      duration: 0
+      count: 1
+      hitCount: 1
+      lockDamage: 1
+      mode: 
+      label: 
+      editable: 0
+      rawJson: '{"Timing":"immediate","Target":"player","Action":"Damage","Type":"","Condition":"","Value":9999.0,"Duration":0,"Count":1,"HitCount":1,"Lock":true,"Mode":"","Label":"","Editable":false}'
+    sprite: 
+    specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
+  - id: HunterSingle
+    sourceId: 0
+    dataCode: HunterSingle
+    devName: 
+    nameStringId: 
+    displayName: HunterSingle
+    description: "\uD50C\uB808\uC774\uC5B4 \uAE30\uBCF8 \uD53C\uD574\uB7C9 \uC0C1\uC790\uB97C
+      \uBD84\uB9AC\uC2DC\uD0A8 \uB4A4 \uD558\uB098\uB97C \uC7A0\uAE08"
+    patternType: 1
+    value: 0
+    hitCount: 1
+    attackKey: 2_Single
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 2
+    hitDigitCount: 0
+    strengthDelta: 0
+    condition: 
+    rawEffects: '{"Attack":"2_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"next_turn","Target":"player","Action":"Split","Type":"","Condition":"","Value":"","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false},{"Timing":"next_turn","Target":"player","Action":"AddBuff","Type":"box_lock","Condition":"","Value":1.0,"Duration":1,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
+    effects:
+    - timing: next_turn
+      target: player
+      action: Split
+      type: 
+      condition: 
+      valueExpression: 
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      count: 1
+      hitCount: 1
+      lockDamage: 0
+      mode: 
+      label: 
+      editable: 0
+      rawJson: '{"Timing":"next_turn","Target":"player","Action":"Split","Type":"","Condition":"","Value":"","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
+    - timing: next_turn
+      target: player
+      action: AddBuff
+      type: box_lock
+      condition: 
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      duration: 1
+      count: 1
+      hitCount: 1
+      lockDamage: 0
+      mode: 
+      label: 
+      editable: 0
+      rawJson: '{"Timing":"next_turn","Target":"player","Action":"AddBuff","Type":"box_lock","Condition":"","Value":1.0,"Duration":1,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
+    sprite: 
+    specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
+  - id: JellyfishSingle
+    sourceId: 0
+    dataCode: JellyfishSingle
+    devName: 
+    nameStringId: 
+    displayName: JellyfishSingle
+    description: "\uD574\uD30C\uB9AC\uAC00 \uAC00\uD558\uB294 \uD53C\uD574\uC758
+      50%\uAC00 \uAC01\uAC01 \uCD9C\uD608/\uC911\uB3C5 \uC801\uC6A9"
+    patternType: 1
+    value: 0
+    hitCount: 1
+    attackKey: 2_Single
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 2
+    hitDigitCount: 0
+    strengthDelta: 0
+    condition: 
+    rawEffects: '{"Attack":"2_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"player","Action":"AddBuff","Type":"bleed","Condition":"","Value":"DamageDealt*0.5","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false},{"Timing":"immediate","Target":"player","Action":"AddBuff","Type":"poison","Condition":"","Value":"DamageDealt*0.5","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
+    effects:
+    - timing: immediate
+      target: player
+      action: AddBuff
+      type: bleed
+      condition: 
+      valueExpression: DamageDealt*0.5
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      count: 1
+      hitCount: 1
+      lockDamage: 0
+      mode: 
+      label: 
+      editable: 0
+      rawJson: '{"Timing":"immediate","Target":"player","Action":"AddBuff","Type":"bleed","Condition":"","Value":"DamageDealt*0.5","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
+    - timing: immediate
+      target: player
+      action: AddBuff
+      type: poison
+      condition: 
+      valueExpression: DamageDealt*0.5
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      count: 1
+      hitCount: 1
+      lockDamage: 0
+      mode: 
+      label: 
+      editable: 0
+      rawJson: '{"Timing":"immediate","Target":"player","Action":"AddBuff","Type":"poison","Condition":"","Value":"DamageDealt*0.5","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
+    sprite: 
+    specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
+  - id: JellyfishSkill
+    sourceId: 0
+    dataCode: JellyfishSkill
+    devName: 
+    nameStringId: 
+    displayName: JellyfishSkill
+    description: "\uD50C\uB808\uC774\uC5B4\uC758 \uCD9C\uD608/\uC911\uB3C5 \uC218\uCE58\uB9CC\uD07C
+      \uD68C\uBCF5"
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    condition: 
+    rawEffects: '{"Attack":null,"Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"heal","Type":"","Condition":"","Value":"PlayerBleed","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false},{"Timing":"immediate","Target":"self","Action":"heal","Type":"","Condition":"","Value":"PlayerPoison","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
+    effects:
+    - timing: immediate
+      target: self
+      action: heal
+      type: 
+      condition: 
+      valueExpression: PlayerBleed
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      count: 1
+      hitCount: 1
+      lockDamage: 0
+      mode: 
+      label: 
+      editable: 0
+      rawJson: '{"Timing":"immediate","Target":"self","Action":"heal","Type":"","Condition":"","Value":"PlayerBleed","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
+    - timing: immediate
+      target: self
+      action: heal
+      type: 
+      condition: 
+      valueExpression: PlayerPoison
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      count: 1
+      hitCount: 1
+      lockDamage: 0
+      mode: 
+      label: 
+      editable: 0
+      rawJson: '{"Timing":"immediate","Target":"self","Action":"heal","Type":"","Condition":"","Value":"PlayerPoison","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
+    sprite: 
+    specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
+  - id: KnightSkill
+    sourceId: 0
+    dataCode: KnightSkill
+    devName: 
+    nameStringId: 
+    displayName: KnightSkill
+    description: "\uD53C\uD574\uB97C 400 \uBC1B\uC73C\uBA74 \uD574\uB2F9 \uBC84\uD504\uB97C
+      \uC5C6\uC560\uACE0, \uD798\uC744 1 \uC5BB\uC74C"
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    condition: damagetaken>=400
+    rawEffects: '{"Attack":null,"Condition":"damagetaken>=400","Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"RemoveBuff","Type":"shield","Condition":"","Value":"","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false},{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"strength","Condition":"","Value":1.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
+    effects:
+    - timing: immediate
+      target: self
+      action: RemoveBuff
+      type: shield
+      condition: 
+      valueExpression: 
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      count: 1
+      hitCount: 1
+      lockDamage: 0
+      mode: 
+      label: 
+      editable: 0
+      rawJson: '{"Timing":"immediate","Target":"self","Action":"RemoveBuff","Type":"shield","Condition":"","Value":"","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
+    - timing: immediate
+      target: self
+      action: AddBuff
+      type: strength
+      condition: 
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      duration: 0
+      count: 1
+      hitCount: 1
+      lockDamage: 0
+      mode: 
+      label: 
+      editable: 0
+      rawJson: '{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"strength","Condition":"","Value":1.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
+    sprite: 
+    specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
+  - id: LibrarianMulti
+    sourceId: 0
+    dataCode: LibrarianMulti
+    devName: 
+    nameStringId: 
+    displayName: LibrarianMulti
+    description: 
+    patternType: 2
+    value: 0
+    hitCount: 1
+    attackKey: 2_Multi_2
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 2
+    hitDigitCount: 2
+    strengthDelta: 0
+    condition: 
+    rawEffects: '{"Attack":"2_Multi_2","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"player","Action":"librarianskill","Type":"","Condition":"","Value":1.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
+    effects:
+    - timing: immediate
+      target: player
+      action: librarianskill
+      type: 
+      condition: 
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      duration: 0
+      count: 1
+      hitCount: 1
+      lockDamage: 0
+      mode: 
+      label: 
+      editable: 0
+      rawJson: '{"Timing":"immediate","Target":"player","Action":"librarianskill","Type":"","Condition":"","Value":1.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
+    sprite: 
+    specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
+  - id: LibrarianSingle
+    sourceId: 0
+    dataCode: LibrarianSingle
+    devName: 
+    nameStringId: 
+    displayName: LibrarianSingle
+    description: 
+    patternType: 1
+    value: 0
+    hitCount: 1
+    attackKey: 3_Single
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 3
+    hitDigitCount: 0
+    strengthDelta: 0
+    condition: 
+    rawEffects: '{"Attack":"3_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"player","Action":"librarianskill","Type":"","Condition":"","Value":1.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
+    effects:
+    - timing: immediate
+      target: player
+      action: librarianskill
+      type: 
+      condition: 
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      duration: 0
+      count: 1
+      hitCount: 1
+      lockDamage: 0
+      mode: 
+      label: 
+      editable: 0
+      rawJson: '{"Timing":"immediate","Target":"player","Action":"librarianskill","Type":"","Condition":"","Value":1.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
+    sprite: 
+    specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
+  - id: LittleWitchSkill
+    sourceId: 0
+    dataCode: LittleWitchSkill
+    devName: 
+    nameStringId: 
+    displayName: LittleWitchSkill
+    description: "\uD50C\uB808\uC774\uC5B4 \uD798 1 \uAC10\uC18C"
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    condition: 
+    rawEffects: '{"Attack":null,"Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"player","Action":"AddBuff","Type":"minus_box","Condition":"","Value":1.0,"Duration":2,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
+    effects:
+    - timing: immediate
+      target: player
+      action: AddBuff
+      type: minus_box
+      condition: 
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      duration: 2
+      count: 1
+      hitCount: 1
+      lockDamage: 0
+      mode: 
+      label: 
+      editable: 0
+      rawJson: '{"Timing":"immediate","Target":"player","Action":"AddBuff","Type":"minus_box","Condition":"","Value":1.0,"Duration":2,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
+    sprite: 
+    specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
+  - id: MushroomLock
+    sourceId: 0
+    dataCode: MushroomLock
+    devName: 
+    nameStringId: 
+    displayName: MushroomLock
+    description: "\uD50C\uB808\uC774\uC5B4 \uC0C1\uC790 \uC7A0\uAE08"
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    condition: 
+    rawEffects: '{"Attack":null,"Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"next_turn","Target":"player","Action":"Lock","Type":"","Condition":"","Value":"","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
+    effects:
+    - timing: next_turn
+      target: player
+      action: Lock
+      type: 
+      condition: 
+      valueExpression: 
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      count: 1
+      hitCount: 1
+      lockDamage: 0
+      mode: 
+      label: 
+      editable: 0
+      rawJson: '{"Timing":"next_turn","Target":"player","Action":"Lock","Type":"","Condition":"","Value":"","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
+    sprite: 
+    specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
+  - id: OrbSkill
+    sourceId: 0
+    dataCode: OrbSkill
+    devName: 
+    nameStringId: 
+    displayName: OrbSkill
+    description: "4\uBC88\uC9F8 \uD134 \uC885\uB8CC \uC2DC \uC790\uD3ED, \uD50C\uB808\uC774\uC5B4
+      \uCCB4\uB825 30% \uC7A0\uAE08 \uD53C\uD574"
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    condition: 
+    rawEffects: '{"Attack":null,"Condition":null,"Count":null,"SelfDestruct":true,"Effects":[{"Timing":"immediate","Target":"player","Action":"Damage","Type":"","Condition":"","Value":"PlayerHP*0.3","Duration":0,"Count":1,"HitCount":1,"Lock":true,"Mode":"","Label":"","Editable":false}]}'
+    effects:
+    - timing: immediate
+      target: player
+      action: Damage
+      type: 
+      condition: 
+      valueExpression: PlayerHP*0.3
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      count: 1
+      hitCount: 1
+      lockDamage: 1
+      mode: 
+      label: 
+      editable: 0
+      rawJson: '{"Timing":"immediate","Target":"player","Action":"Damage","Type":"","Condition":"","Value":"PlayerHP*0.3","Duration":0,"Count":1,"HitCount":1,"Lock":true,"Mode":"","Label":"","Editable":false}'
+    sprite: 
+    specialHandler: 
+    maxUses: -1
+    selfDestruct: 1
+  - id: PlagueDoctorSingle
+    sourceId: 0
+    dataCode: PlagueDoctorSingle
+    devName: 
+    nameStringId: 
+    displayName: PlagueDoctorSingle
+    description: "\uACF5\uACA9 \uC2DC \uC785\uD78C \uD53C\uD574\uB7C9\uB9CC\uD07C
+      \uC911\uB3C5 \uC801\uC6A9"
+    patternType: 1
+    value: 0
+    hitCount: 1
+    attackKey: 2_Single
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 2
+    hitDigitCount: 0
+    strengthDelta: 0
+    condition: 
+    rawEffects: '{"Attack":"2_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"player","Action":"AddBuff","Type":"poison","Condition":"","Value":"DamageDealt","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
+    effects:
+    - timing: immediate
+      target: player
+      action: AddBuff
+      type: poison
       condition: 
       valueExpression: DamageDealt
       hasNumericValue: 0
@@ -688,48 +1053,7 @@ MonoBehaviour:
       mode: 
       label: 
       editable: 0
-      rawJson: '{"Action":"AddBuff","Type":"Bleed","Value":"DamageDealt"}'
-    sprite: 
-    specialHandler: 
-    maxUses: -1
-    selfDestruct: 0
-  - id: AlchemistSkill
-    sourceId: 0
-    dataCode: AlchemistSkill
-    devName: 
-    nameStringId: 
-    displayName: AlchemistSkill
-    description: "[\uCD9C\uD608 \uC544\uC774\uCF58] [x] [1\uC790\uB9BF\uC218] ->
-      \uCD9C\uD608 \uC218\uCE58 n\uBC30"
-    patternType: 0
-    value: 0
-    hitCount: 1
-    attackKey: 
-    hasDynamicDamageValue: 0
-    damageValueExpression: 
-    damageDigitCount: 0
-    hitDigitCount: 0
-    strengthDelta: 0
-    condition: 
-    rawEffects: '{"Effects": [{"Timing": "NextTurn", "Target": "Player", "Action":
-      "MultiplyBuff", "Type": "Bleed", "Value": 3}]}'
-    effects:
-    - timing: NextTurn
-      target: Player
-      action: MultiplyBuff
-      type: Bleed
-      condition: 
-      valueExpression: 3
-      hasNumericValue: 1
-      numericValue: 3
-      duration: 0
-      count: 1
-      hitCount: 1
-      lockDamage: 0
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Timing":"NextTurn","Target":"Player","Action":"MultiplyBuff","Type":"Bleed","Value":3}'
+      rawJson: '{"Timing":"immediate","Target":"player","Action":"AddBuff","Type":"poison","Condition":"","Value":"DamageDealt","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
     sprite: 
     specialHandler: 
     maxUses: -1
@@ -752,13 +1076,12 @@ MonoBehaviour:
     hitDigitCount: 0
     strengthDelta: 0
     condition: 
-    rawEffects: '{"Effects": [{"Target": "Player", "Action": "MultiplyBuff", "Type":
-      "Poison", "Value": 2}]}'
+    rawEffects: '{"Attack":null,"Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"player","Action":"MultiplyBuff","Type":"poison","Condition":"","Value":2.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: 
-      target: Player
+    - timing: immediate
+      target: player
       action: MultiplyBuff
-      type: Poison
+      type: poison
       condition: 
       valueExpression: 2
       hasNumericValue: 1
@@ -770,7 +1093,88 @@ MonoBehaviour:
       mode: 
       label: 
       editable: 0
-      rawJson: '{"Target":"Player","Action":"MultiplyBuff","Type":"Poison","Value":2}'
+      rawJson: '{"Timing":"immediate","Target":"player","Action":"MultiplyBuff","Type":"poison","Condition":"","Value":2.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
+    sprite: 
+    specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
+  - id: ProphetExplode
+    sourceId: 0
+    dataCode: ProphetExplode
+    devName: 
+    nameStringId: 
+    displayName: ProphetExplode
+    description: "\uBC84\uD504 \uC218\uCE58\uB9CC\uD07C \uB370\uBBF8\uC9C0 \uC8FC\uACE0
+      \uC9C0\uAE08\uAE4C\uC9C0 \uC313\uC778 \uC2A4\uD0DD\uC744 \uC81C\uAC70"
+    patternType: 1
+    value: 0
+    hitCount: 1
+    attackKey: ProphetStack_Single
+    hasDynamicDamageValue: 1
+    damageValueExpression: ProphetStack
+    damageDigitCount: 1
+    hitDigitCount: 0
+    strengthDelta: 0
+    condition: 
+    rawEffects: '{"Attack":"ProphetStack_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"SetBuff","Type":"prophet_stack","Condition":"","Value":0.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
+    effects:
+    - timing: immediate
+      target: self
+      action: SetBuff
+      type: prophet_stack
+      condition: 
+      valueExpression: 0
+      hasNumericValue: 1
+      numericValue: 0
+      duration: 0
+      count: 1
+      hitCount: 1
+      lockDamage: 0
+      mode: 
+      label: 
+      editable: 0
+      rawJson: '{"Timing":"immediate","Target":"self","Action":"SetBuff","Type":"prophet_stack","Condition":"","Value":0.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
+    sprite: 
+    specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
+  - id: ProphetMulti
+    sourceId: 0
+    dataCode: ProphetMulti
+    devName: 
+    nameStringId: 
+    displayName: ProphetMulti
+    description: "\uC608\uC5B8\uC790\uAC00 \uACF5\uACA9 \uC2DC \uC608\uC5B8\uC790\uAC00
+      \uC790\uC2E0\uC774 \uAC00\uD558\uB294 \uD53C\uD574\uB7C9\uB9CC\uD07C \uC2A4\uD0DD
+      \uBC84\uD504 \uB204\uC801"
+    patternType: 2
+    value: 0
+    hitCount: 1
+    attackKey: 2_Multi_1
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 2
+    hitDigitCount: 1
+    strengthDelta: 0
+    condition: 
+    rawEffects: '{"Attack":"2_Multi_1","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"prophet_stack","Condition":"","Value":"DamageDealt","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
+    effects:
+    - timing: immediate
+      target: self
+      action: AddBuff
+      type: prophet_stack
+      condition: 
+      valueExpression: DamageDealt
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      count: 1
+      hitCount: 1
+      lockDamage: 0
+      mode: 
+      label: 
+      editable: 0
+      rawJson: '{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"prophet_stack","Condition":"","Value":"DamageDealt","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
     sprite: 
     specialHandler: 
     maxUses: -1
@@ -794,13 +1198,12 @@ MonoBehaviour:
     hitDigitCount: 0
     strengthDelta: 0
     condition: 
-    rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Self", "Action":
-      "Addbuff", "Type": "ProphetStack", "Value": "DamageDealt"}]}'
+    rawEffects: '{"Attack":"2_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"prophet_stack","Condition":"","Value":"DamageDealt","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: 
-      target: Self
-      action: Addbuff
-      type: ProphetStack
+    - timing: immediate
+      target: self
+      action: AddBuff
+      type: prophet_stack
       condition: 
       valueExpression: DamageDealt
       hasNumericValue: 0
@@ -812,547 +1215,7 @@ MonoBehaviour:
       mode: 
       label: 
       editable: 0
-      rawJson: '{"Target":"Self","Action":"Addbuff","Type":"ProphetStack","Value":"DamageDealt"}'
-    sprite: 
-    specialHandler: 
-    maxUses: -1
-    selfDestruct: 0
-  - id: ProphetMulti
-    sourceId: 0
-    dataCode: ProphetMulti
-    devName: 
-    nameStringId: 
-    displayName: ProphetMulti
-    description: "\uC608\uC5B8\uC790\uAC00 \uACF5\uACA9 \uC2DC \uC608\uC5B8\uC790\uAC00
-      \uC790\uC2E0\uC774 \uAC00\uD558\uB294 \uD53C\uD574\uB7C9\uB9CC\uD07C \uC2A4\uD0DD
-      \uBC84\uD504 \uB204\uC801"
-    patternType: 2
-    value: 0
-    hitCount: 1
-    attackKey: 2_Multi
-    hasDynamicDamageValue: 0
-    damageValueExpression: 
-    damageDigitCount: 2
-    hitDigitCount: 1
-    strengthDelta: 0
-    condition: 
-    rawEffects: '{"Attack": "2_Multi", "Effects": [{"Target": "Self", "Action": "Addbuff",
-      "Type": "ProphetStack", "Value": "DamageDealt"}]}'
-    effects:
-    - timing: 
-      target: Self
-      action: Addbuff
-      type: ProphetStack
-      condition: 
-      valueExpression: DamageDealt
-      hasNumericValue: 0
-      numericValue: 0
-      duration: 0
-      count: 1
-      hitCount: 1
-      lockDamage: 0
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Target":"Self","Action":"Addbuff","Type":"ProphetStack","Value":"DamageDealt"}'
-    sprite: 
-    specialHandler: 
-    maxUses: -1
-    selfDestruct: 0
-  - id: ProphetExplode
-    sourceId: 0
-    dataCode: ProphetExplode
-    devName: 
-    nameStringId: 
-    displayName: ProphetExplode
-    description: "\uBC84\uD504 \uC218\uCE58\uB9CC\uD07C \uB370\uBBF8\uC9C0 \uC8FC\uACE0
-      \uC9C0\uAE08\uAE4C\uC9C0 \uC313\uC778 \uC2A4\uD0DD\uC744 \uC81C\uAC70"
-    patternType: 1
-    value: 0
-    hitCount: 1
-    attackKey: ProphetStack_Single
-    hasDynamicDamageValue: 1
-    damageValueExpression: ProphetStack
-    damageDigitCount: 1
-    hitDigitCount: 0
-    strengthDelta: 0
-    condition: 
-    rawEffects: '{"Attack": "ProphetStack_Single", "Effects": [{"Target": "Self",
-      "Action": "SetBuff", "Type": "ProphetStack", "Value": 0}]}'
-    effects:
-    - timing: 
-      target: Self
-      action: SetBuff
-      type: ProphetStack
-      condition: 
-      valueExpression: 0
-      hasNumericValue: 1
-      numericValue: 0
-      duration: 0
-      count: 1
-      hitCount: 1
-      lockDamage: 0
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Target":"Self","Action":"SetBuff","Type":"ProphetStack","Value":0}'
-    sprite: 
-    specialHandler: 
-    maxUses: -1
-    selfDestruct: 0
-  - id: JellyfishSingle
-    sourceId: 0
-    dataCode: JellyfishSingle
-    devName: 
-    nameStringId: 
-    displayName: JellyfishSingle
-    description: "\uD574\uD30C\uB9AC\uAC00 \uAC00\uD558\uB294 \uD53C\uD574\uC758
-      50%\uAC00 \uAC01\uAC01 \uCD9C\uD608/\uC911\uB3C5 \uC801\uC6A9"
-    patternType: 1
-    value: 0
-    hitCount: 1
-    attackKey: 2_Single
-    hasDynamicDamageValue: 0
-    damageValueExpression: 
-    damageDigitCount: 2
-    hitDigitCount: 0
-    strengthDelta: 0
-    condition: 
-    rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Player", "Action":
-      "AddBuff", "Type": "Bleed", "Value": "DamageDealt*0.5"}, {"Target": "Player",
-      "Action": "AddBuff", "Type": "Poison", "Value": "DamageDealt*0.5"}]}'
-    effects:
-    - timing: 
-      target: Player
-      action: AddBuff
-      type: Bleed
-      condition: 
-      valueExpression: DamageDealt*0.5
-      hasNumericValue: 0
-      numericValue: 0
-      duration: 0
-      count: 1
-      hitCount: 1
-      lockDamage: 0
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Target":"Player","Action":"AddBuff","Type":"Bleed","Value":"DamageDealt*0.5"}'
-    - timing: 
-      target: Player
-      action: AddBuff
-      type: Poison
-      condition: 
-      valueExpression: DamageDealt*0.5
-      hasNumericValue: 0
-      numericValue: 0
-      duration: 0
-      count: 1
-      hitCount: 1
-      lockDamage: 0
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Target":"Player","Action":"AddBuff","Type":"Poison","Value":"DamageDealt*0.5"}'
-    sprite: 
-    specialHandler: 
-    maxUses: -1
-    selfDestruct: 0
-  - id: JellyfishSkill
-    sourceId: 0
-    dataCode: JellyfishSkill
-    devName: 
-    nameStringId: 
-    displayName: JellyfishSkill
-    description: "\uD50C\uB808\uC774\uC5B4\uC758 \uCD9C\uD608/\uC911\uB3C5 \uC218\uCE58\uB9CC\uD07C
-      \uD68C\uBCF5"
-    patternType: 0
-    value: 0
-    hitCount: 1
-    attackKey: 
-    hasDynamicDamageValue: 0
-    damageValueExpression: 
-    damageDigitCount: 0
-    hitDigitCount: 0
-    strengthDelta: 0
-    condition: 
-    rawEffects: '{"Effects": [{"Target": "Self", "Action": "Heal", "Value": "PlayerBleed"},
-      {"Target": "Self", "Action": "Heal", "Value": "PlayerPoison"}]}'
-    effects:
-    - timing: 
-      target: Self
-      action: Heal
-      type: 
-      condition: 
-      valueExpression: PlayerBleed
-      hasNumericValue: 0
-      numericValue: 0
-      duration: 0
-      count: 1
-      hitCount: 1
-      lockDamage: 0
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Target":"Self","Action":"Heal","Value":"PlayerBleed"}'
-    - timing: 
-      target: Self
-      action: Heal
-      type: 
-      condition: 
-      valueExpression: PlayerPoison
-      hasNumericValue: 0
-      numericValue: 0
-      duration: 0
-      count: 1
-      hitCount: 1
-      lockDamage: 0
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Target":"Self","Action":"Heal","Value":"PlayerPoison"}'
-    sprite: 
-    specialHandler: 
-    maxUses: -1
-    selfDestruct: 0
-  - id: OrbSkill
-    sourceId: 0
-    dataCode: OrbSkill
-    devName: 
-    nameStringId: 
-    displayName: OrbSkill
-    description: "4\uBC88\uC9F8 \uD134 \uC885\uB8CC \uC2DC \uC790\uD3ED, \uD50C\uB808\uC774\uC5B4
-      \uCCB4\uB825 30% \uC7A0\uAE08 \uD53C\uD574"
-    patternType: 0
-    value: 0
-    hitCount: 1
-    attackKey: 
-    hasDynamicDamageValue: 0
-    damageValueExpression: 
-    damageDigitCount: 0
-    hitDigitCount: 0
-    strengthDelta: 0
-    condition: 
-    rawEffects: '{"Effects": [{"Target": "Player", "Action": "Damage", "Value": "PlayerHP*0.3",
-      "Lock": true}]}'
-    effects:
-    - timing: 
-      target: Player
-      action: Damage
-      type: 
-      condition: 
-      valueExpression: PlayerHP*0.3
-      hasNumericValue: 0
-      numericValue: 0
-      duration: 0
-      count: 1
-      hitCount: 1
-      lockDamage: 1
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Target":"Player","Action":"Damage","Value":"PlayerHP*0.3","Lock":true}'
-    sprite: 
-    specialHandler: 
-    maxUses: -1
-    selfDestruct: 0
-  - id: VampireSkill
-    sourceId: 0
-    dataCode: VampireSkill
-    devName: 
-    nameStringId: 
-    displayName: VampireSkill
-    description: "[\uCCB4\uB825 \uC544\uC774\uCF58] [X] [2\uC790\uB9BF\uC218] [%]
-      \uB370\uBBF8\uC9C0 \uD328\uD134"
-    patternType: 0
-    value: 0
-    hitCount: 1
-    attackKey: 
-    hasDynamicDamageValue: 0
-    damageValueExpression: 
-    damageDigitCount: 0
-    hitDigitCount: 0
-    strengthDelta: 0
-    condition: HPRate<=0.5
-    rawEffects: '{"Condition": "HPRate<=0.5", "Effects": [{"Target": "Player", "Action":
-      "Damage", "Value": "PlayerHP_Multi_2"}]}'
-    effects:
-    - timing: 
-      target: Player
-      action: Damage
-      type: 
-      condition: 
-      valueExpression: PlayerHP_Multi_2
-      hasNumericValue: 0
-      numericValue: 0
-      duration: 0
-      count: 1
-      hitCount: 1
-      lockDamage: 0
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Target":"Player","Action":"Damage","Value":"PlayerHP_Multi_2"}'
-    sprite: 
-    specialHandler: 
-    maxUses: -1
-    selfDestruct: 0
-  - id: KnightSkill
-    sourceId: 0
-    dataCode: KnightSkill
-    devName: 
-    nameStringId: 
-    displayName: KnightSkill
-    description: "\uD53C\uD574\uB97C 400 \uBC1B\uC73C\uBA74 \uD574\uB2F9 \uBC84\uD504\uB97C
-      \uC5C6\uC560\uACE0, \uD798\uC744 1 \uC5BB\uC74C"
-    patternType: 0
-    value: 0
-    hitCount: 1
-    attackKey: 
-    hasDynamicDamageValue: 0
-    damageValueExpression: 
-    damageDigitCount: 0
-    hitDigitCount: 0
-    strengthDelta: 0
-    condition: DamageTaken>=400
-    rawEffects: '{"Condition": "DamageTaken>=400", "Effects": [{"Action": "RemoveBuff",
-      "Type": "Shield"}, {"Target": "Self", "Action": "AddBuff", "Type": "Strength",
-      "Value": 1}]}'
-    effects:
-    - timing: 
-      target: 
-      action: RemoveBuff
-      type: Shield
-      condition: 
-      valueExpression: 
-      hasNumericValue: 0
-      numericValue: 0
-      duration: 0
-      count: 1
-      hitCount: 1
-      lockDamage: 0
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Action":"RemoveBuff","Type":"Shield"}'
-    - timing: 
-      target: Self
-      action: AddBuff
-      type: Strength
-      condition: 
-      valueExpression: 1
-      hasNumericValue: 1
-      numericValue: 1
-      duration: 0
-      count: 1
-      hitCount: 1
-      lockDamage: 0
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Target":"Self","Action":"AddBuff","Type":"Strength","Value":1}'
-    sprite: 
-    specialHandler: 
-    maxUses: -1
-    selfDestruct: 0
-  - id: StargazerSingle
-    sourceId: 0
-    dataCode: StargazerSingle
-    devName: 
-    nameStringId: 
-    displayName: StargazerSingle
-    description: "3\uC790\uB9BF\uC218 \uB2E8\uD0C0 + \uBCC4 \uC0C1\uC790\uC5D0 \uBB34\uC791\uC704
-      0~9\uAE4C\uC9C0 \uC22B\uC790 \uB123\uAE30"
-    patternType: 1
-    value: 0
-    hitCount: 1
-    attackKey: 3_Single
-    hasDynamicDamageValue: 0
-    damageValueExpression: 
-    damageDigitCount: 3
-    hitDigitCount: 0
-    strengthDelta: 0
-    condition: 
-    rawEffects: '{"Attack": "3_Single", "Effects": [{"Target": "Self", "Action":
-      "AddBox", "Value": "Random"}]}'
-    effects:
-    - timing: 
-      target: Self
-      action: AddBox
-      type: 
-      condition: 
-      valueExpression: Random
-      hasNumericValue: 0
-      numericValue: 0
-      duration: 0
-      count: 1
-      hitCount: 1
-      lockDamage: 0
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Target":"Self","Action":"AddBox","Value":"Random"}'
-    sprite: 
-    specialHandler: 
-    maxUses: -1
-    selfDestruct: 0
-  - id: StargazerSkill
-    sourceId: 0
-    dataCode: StargazerSkill
-    devName: 
-    nameStringId: 
-    displayName: StargazerSkill
-    description: "\uC9C0\uC815\uC22B\uC790 3\uAC1C\uB97C \uC774\uC5B4\uB193\uC740
-      \uC7A0\uAE08\uD0C0\uC218\uB9CC\uD07C\uC758 \uC5F0\uD0C03 \uD328\uD134 \"\uC720\uC131\uC6B0\""
-    patternType: 0
-    value: 0
-    hitCount: 1
-    attackKey: 
-    hasDynamicDamageValue: 0
-    damageValueExpression: 
-    damageDigitCount: 0
-    hitDigitCount: 0
-    strengthDelta: 0
-    condition: 
-    rawEffects: '{"Effects": [{"Target": "Player", "Action": "Damage", "Value": "Stargazing_Multi_3"}]}'
-    effects:
-    - timing: 
-      target: Player
-      action: Damage
-      type: 
-      condition: 
-      valueExpression: Stargazing_Multi_3
-      hasNumericValue: 0
-      numericValue: 0
-      duration: 0
-      count: 1
-      hitCount: 1
-      lockDamage: 0
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Target":"Player","Action":"Damage","Value":"Stargazing_Multi_3"}'
-    sprite: 
-    specialHandler: 
-    maxUses: -1
-    selfDestruct: 0
-  - id: LibrarianSingle
-    sourceId: 0
-    dataCode: LibrarianSingle
-    devName: 
-    nameStringId: 
-    displayName: LibrarianSingle
-    description: 
-    patternType: 1
-    value: 0
-    hitCount: 1
-    attackKey: 3_Single
-    hasDynamicDamageValue: 0
-    damageValueExpression: 
-    damageDigitCount: 3
-    hitDigitCount: 0
-    strengthDelta: 0
-    condition: 
-    rawEffects: '{"Attack": "3_Single", "Effects": [{"Target": "Player", "Action":
-      "LibrarianSkill", "Value": "1"}]}'
-    effects:
-    - timing: 
-      target: Player
-      action: LibrarianSkill
-      type: 
-      condition: 
-      valueExpression: 1
-      hasNumericValue: 1
-      numericValue: 1
-      duration: 0
-      count: 1
-      hitCount: 1
-      lockDamage: 0
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Target":"Player","Action":"LibrarianSkill","Value":"1"}'
-    sprite: 
-    specialHandler: 
-    maxUses: -1
-    selfDestruct: 0
-  - id: LibrarianMulti
-    sourceId: 0
-    dataCode: LibrarianMulti
-    devName: 
-    nameStringId: 
-    displayName: LibrarianMulti
-    description: 
-    patternType: 2
-    value: 0
-    hitCount: 1
-    attackKey: 2_Multi_2
-    hasDynamicDamageValue: 0
-    damageValueExpression: 
-    damageDigitCount: 2
-    hitDigitCount: 2
-    strengthDelta: 0
-    condition: 
-    rawEffects: '{"Attack": "2_Multi_2", "Effects": [{"Target": "Player", "Action":
-      "LibrarianSkill", "Value": "1"}]}'
-    effects:
-    - timing: 
-      target: Player
-      action: LibrarianSkill
-      type: 
-      condition: 
-      valueExpression: 1
-      hasNumericValue: 1
-      numericValue: 1
-      duration: 0
-      count: 1
-      hitCount: 1
-      lockDamage: 0
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Target":"Player","Action":"LibrarianSkill","Value":"1"}'
-    sprite: 
-    specialHandler: 
-    maxUses: -1
-    selfDestruct: 0
-  - id: BanditSingle
-    sourceId: 0
-    dataCode: BanditSingle
-    devName: 
-    nameStringId: 
-    displayName: BanditSingle
-    description: "\uACF5\uACA9 \uC2DC \uC785\uD78C \uD53C\uD574\uB7C9\uB9CC\uD07C
-      \uCD9C\uD608 \uC801\uC6A9"
-    patternType: 1
-    value: 0
-    hitCount: 1
-    attackKey: 2_Single
-    hasDynamicDamageValue: 0
-    damageValueExpression: 
-    damageDigitCount: 2
-    hitDigitCount: 0
-    strengthDelta: 0
-    condition: 
-    rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Player", "Action":
-      "AddBuff", "Type": "Bleed", "Value": "DamageDealt"}]}'
-    effects:
-    - timing: 
-      target: Player
-      action: AddBuff
-      type: Bleed
-      condition: 
-      valueExpression: DamageDealt
-      hasNumericValue: 0
-      numericValue: 0
-      duration: 0
-      count: 1
-      hitCount: 1
-      lockDamage: 0
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Target":"Player","Action":"AddBuff","Type":"Bleed","Value":"DamageDealt"}'
+      rawJson: '{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"prophet_stack","Condition":"","Value":"DamageDealt","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
     sprite: 
     specialHandler: 
     maxUses: -1
@@ -1375,13 +1238,12 @@ MonoBehaviour:
     hitDigitCount: 0
     strengthDelta: 0
     condition: 
-    rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Player", "Action":
-      "AddBuff", "Type": "Poison", "Value": "DamageDealt*0.5"}]}'
+    rawEffects: '{"Attack":"2_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"player","Action":"AddBuff","Type":"poison","Condition":"","Value":"DamageDealt*0.5","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: 
-      target: Player
+    - timing: immediate
+      target: player
       action: AddBuff
-      type: Poison
+      type: poison
       condition: 
       valueExpression: DamageDealt*0.5
       hasNumericValue: 0
@@ -1393,99 +1255,18 @@ MonoBehaviour:
       mode: 
       label: 
       editable: 0
-      rawJson: '{"Target":"Player","Action":"AddBuff","Type":"Poison","Value":"DamageDealt*0.5"}'
+      rawJson: '{"Timing":"immediate","Target":"player","Action":"AddBuff","Type":"poison","Condition":"","Value":"DamageDealt*0.5","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
     sprite: 
     specialHandler: 
     maxUses: -1
     selfDestruct: 0
-  - id: PlagueDoctorSingle
+  - id: Skip
     sourceId: 0
-    dataCode: PlagueDoctorSingle
+    dataCode: Skip
     devName: 
     nameStringId: 
-    displayName: PlagueDoctorSingle
-    description: "\uACF5\uACA9 \uC2DC \uC785\uD78C \uD53C\uD574\uB7C9\uB9CC\uD07C
-      \uC911\uB3C5 \uC801\uC6A9"
-    patternType: 1
-    value: 0
-    hitCount: 1
-    attackKey: 2_Single
-    hasDynamicDamageValue: 0
-    damageValueExpression: 
-    damageDigitCount: 2
-    hitDigitCount: 0
-    strengthDelta: 0
-    condition: 
-    rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Player", "Action":
-      "AddBuff", "Type": "Poison", "Value": "DamageDealt"}]}'
-    effects:
-    - timing: 
-      target: Player
-      action: AddBuff
-      type: Poison
-      condition: 
-      valueExpression: DamageDealt
-      hasNumericValue: 0
-      numericValue: 0
-      duration: 0
-      count: 1
-      hitCount: 1
-      lockDamage: 0
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Target":"Player","Action":"AddBuff","Type":"Poison","Value":"DamageDealt"}'
-    sprite: 
-    specialHandler: 
-    maxUses: -1
-    selfDestruct: 0
-  - id: CosmictreeSingle
-    sourceId: 0
-    dataCode: CosmictreeSingle
-    devName: 
-    nameStringId: 
-    displayName: CosmictreeSingle
-    description: "\uACF5\uACA9\uACFC \uD568\uAED8 \uD798 \uC99D\uAC00"
-    patternType: 1
-    value: 0
-    hitCount: 1
-    attackKey: 2_Single
-    hasDynamicDamageValue: 0
-    damageValueExpression: 
-    damageDigitCount: 2
-    hitDigitCount: 0
-    strengthDelta: 0
-    condition: 
-    rawEffects: '{"Attack": "2_Single", "Effects": [{"Target": "Self", "Action":
-      "AddBuff", "Type": "Strength", "Value": 1}]}'
-    effects:
-    - timing: 
-      target: Self
-      action: AddBuff
-      type: Strength
-      condition: 
-      valueExpression: 1
-      hasNumericValue: 1
-      numericValue: 1
-      duration: 0
-      count: 1
-      hitCount: 1
-      lockDamage: 0
-      mode: 
-      label: 
-      editable: 0
-      rawJson: '{"Target":"Self","Action":"AddBuff","Type":"Strength","Value":1}'
-    sprite: 
-    specialHandler: 
-    maxUses: -1
-    selfDestruct: 0
-  - id: CosmictreeHeal
-    sourceId: 0
-    dataCode: CosmictreeHeal
-    devName: 
-    nameStringId: 
-    displayName: CosmictreeHeal
-    description: "\uD798 \uC218\uCE58 \uC790\uB9BF\uC218\uB9CC\uD07C \uD790"
+    displayName: Skip
+    description: "\uC544\uBB34\uAC83\uB3C4 \uC548 \uD568"
     patternType: 0
     value: 0
     hitCount: 1
@@ -1496,36 +1277,60 @@ MonoBehaviour:
     hitDigitCount: 0
     strengthDelta: 0
     condition: 
-    rawEffects: '{"Effects": [{"Target": "Self", "Action": "Heal", "Value": "CosmictreeHeal"}]}'
+    rawEffects: '{"Attack":null,"Condition":null,"Count":null,"SelfDestruct":false,"Effects":[]}'
+    effects: []
+    sprite: 
+    specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
+  - id: SlimeSingle
+    sourceId: 0
+    dataCode: SlimeSingle
+    devName: 
+    nameStringId: 
+    displayName: SlimeSingle
+    description: "\uB2E8\uD0C0 \uB9DE \uB2E4\uC74C \uD134 \uC790\uAE30 \uC0C1\uC790
+      \uBD84\uB9AC (\uD574\uB2F9 \uD134\uC5D0\uB9CC \uC801\uC6A9)"
+    patternType: 1
+    value: 0
+    hitCount: 1
+    attackKey: 2_Single
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 2
+    hitDigitCount: 0
+    strengthDelta: 0
+    condition: 
+    rawEffects: '{"Attack":"2_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"next_turn","Target":"self","Action":"Split","Type":"","Condition":"","Value":"","Duration":1,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: 
-      target: Self
-      action: Heal
+    - timing: next_turn
+      target: self
+      action: Split
       type: 
       condition: 
-      valueExpression: CosmictreeHeal
+      valueExpression: 
       hasNumericValue: 0
       numericValue: 0
-      duration: 0
+      duration: 1
       count: 1
       hitCount: 1
       lockDamage: 0
       mode: 
       label: 
       editable: 0
-      rawJson: '{"Target":"Self","Action":"Heal","Value":"CosmictreeHeal"}'
+      rawJson: '{"Timing":"next_turn","Target":"self","Action":"Split","Type":"","Condition":"","Value":"","Duration":1,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
     sprite: 
     specialHandler: 
     maxUses: -1
     selfDestruct: 0
-  - id: WhaleSingle
+  - id: StargazerSingle
     sourceId: 0
-    dataCode: WhaleSingle
+    dataCode: StargazerSingle
     devName: 
     nameStringId: 
-    displayName: WhaleSingle
-    description: "3\uC790\uB9BF\uC218 \uB2E8\uD0C0 + \uB2E4\uC74C\uD134 \uACE0\uB798
-      \uC804\uC6A9\uC0C1\uC790\uC5D0 \uBB34\uC791\uC704 \uC22B\uC790 2\uAC1C \uC124\uC815"
+    displayName: StargazerSingle
+    description: "3\uC790\uB9BF\uC218 \uB2E8\uD0C0 + \uBCC4 \uC0C1\uC790\uC5D0 \uBB34\uC791\uC704
+      0~9\uAE4C\uC9C0 \uC22B\uC790 \uB123\uAE30"
     patternType: 1
     value: 0
     hitCount: 1
@@ -1536,11 +1341,10 @@ MonoBehaviour:
     hitDigitCount: 0
     strengthDelta: 0
     condition: 
-    rawEffects: '{"Attack": "3_Single", "Effects": [{"Timing": "NextTurn", "Target":
-      "WhaleBox", "Action": "AddBox", "Value": "Random", "Count": 2}]}'
+    rawEffects: '{"Attack":"3_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"AddBox","Type":"","Condition":"","Value":"Random","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"append","Label":"","Editable":false}]}'
     effects:
-    - timing: NextTurn
-      target: WhaleBox
+    - timing: immediate
+      target: self
       action: AddBox
       type: 
       condition: 
@@ -1548,13 +1352,93 @@ MonoBehaviour:
       hasNumericValue: 0
       numericValue: 0
       duration: 0
-      count: 2
+      count: 1
+      hitCount: 1
+      lockDamage: 0
+      mode: append
+      label: 
+      editable: 0
+      rawJson: '{"Timing":"immediate","Target":"self","Action":"AddBox","Type":"","Condition":"","Value":"Random","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"append","Label":"","Editable":false}'
+    sprite: 
+    specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
+  - id: StargazerSkill
+    sourceId: 0
+    dataCode: StargazerSkill
+    devName: 
+    nameStringId: 
+    displayName: StargazerSkill
+    description: "\uC9C0\uC815\uC22B\uC790 3\uAC1C\uB97C \uC774\uC5B4\uB193\uC740
+      \uC7A0\uAE08\uD0C0\uC218\uB9CC\uD07C\uC758 \uC5F0\uD0C03 \uD328\uD134 \"\uC720\uC131\uC6B0\""
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    condition: 
+    rawEffects: '{"Attack":null,"Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"player","Action":"Damage","Type":"","Condition":"","Value":"Stargazing_Multi_3","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
+    effects:
+    - timing: immediate
+      target: player
+      action: Damage
+      type: 
+      condition: 
+      valueExpression: Stargazing_Multi_3
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      count: 1
       hitCount: 1
       lockDamage: 0
       mode: 
       label: 
       editable: 0
-      rawJson: '{"Timing":"NextTurn","Target":"WhaleBox","Action":"AddBox","Value":"Random","Count":2}'
+      rawJson: '{"Timing":"immediate","Target":"player","Action":"Damage","Type":"","Condition":"","Value":"Stargazing_Multi_3","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
+    sprite: 
+    specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
+  - id: VampireSkill
+    sourceId: 0
+    dataCode: VampireSkill
+    devName: 
+    nameStringId: 
+    displayName: VampireSkill
+    description: "[\uCCB4\uB825 \uC544\uC774\uCF58] [X] [2\uC790\uB9BF\uC218] [%]
+      \uB370\uBBF8\uC9C0 \uD328\uD134"
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    condition: hprate<=0.5
+    rawEffects: '{"Attack":null,"Condition":"hprate<=0.5","Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"player","Action":"Damage","Type":"","Condition":"","Value":"PlayerHP_Multi_2","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
+    effects:
+    - timing: immediate
+      target: player
+      action: Damage
+      type: 
+      condition: 
+      valueExpression: PlayerHP_Multi_2
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      count: 1
+      hitCount: 1
+      lockDamage: 0
+      mode: 
+      label: 
+      editable: 0
+      rawJson: '{"Timing":"immediate","Target":"player","Action":"Damage","Type":"","Condition":"","Value":"PlayerHP_Multi_2","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
     sprite: 
     specialHandler: 
     maxUses: -1
@@ -1577,11 +1461,10 @@ MonoBehaviour:
     hitDigitCount: 3
     strengthDelta: 0
     condition: 
-    rawEffects: '{"Attack": "2_Multi_3", "Effects": [{"Timing": "NextTurn", "Target":
-      "WhaleBox", "Action": "AddBox", "Value": "Random", "Count": 2}]}'
+    rawEffects: '{"Attack":"2_Multi_3","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"next_turn","Target":"whale_box","Action":"AddBox","Type":"","Condition":"","Value":"Random","Duration":0,"Count":2,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: NextTurn
-      target: WhaleBox
+    - timing: next_turn
+      target: whale_box
       action: AddBox
       type: 
       condition: 
@@ -1595,7 +1478,7 @@ MonoBehaviour:
       mode: 
       label: 
       editable: 0
-      rawJson: '{"Timing":"NextTurn","Target":"WhaleBox","Action":"AddBox","Value":"Random","Count":2}'
+      rawJson: '{"Timing":"next_turn","Target":"whale_box","Action":"AddBox","Type":"","Condition":"","Value":"Random","Duration":0,"Count":2,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
     sprite: 
     specialHandler: 
     maxUses: -1
@@ -1620,14 +1503,12 @@ MonoBehaviour:
     hitDigitCount: 0
     strengthDelta: 0
     condition: HPRate<=0.5 && Phase==1
-    rawEffects: '{"Condition": "HPRate<=0.5 && Phase==1", "Effects": [{"Target":
-      "Self", "Action": "RemoveBuff", "Type": "WhaleBuff"}, {"Target": "Self", "Action":
-      "AddBuff", "Type": "Phase2"}]}'
+    rawEffects: '{"Attack":null,"Condition":"HPRate<=0.5 && Phase==1","Count":null,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"self","Action":"RemoveBuff","Type":"whale_buff","Condition":"","Value":"","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false},{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"phase2","Condition":"","Value":"","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
     effects:
-    - timing: 
-      target: Self
+    - timing: immediate
+      target: self
       action: RemoveBuff
-      type: WhaleBuff
+      type: whale_buff
       condition: 
       valueExpression: 
       hasNumericValue: 0
@@ -1639,11 +1520,11 @@ MonoBehaviour:
       mode: 
       label: 
       editable: 0
-      rawJson: '{"Target":"Self","Action":"RemoveBuff","Type":"WhaleBuff"}'
-    - timing: 
-      target: Self
+      rawJson: '{"Timing":"immediate","Target":"self","Action":"RemoveBuff","Type":"whale_buff","Condition":"","Value":"","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
+    - timing: immediate
+      target: self
       action: AddBuff
-      type: Phase2
+      type: phase2
       condition: 
       valueExpression: 
       hasNumericValue: 0
@@ -1655,8 +1536,87 @@ MonoBehaviour:
       mode: 
       label: 
       editable: 0
-      rawJson: '{"Target":"Self","Action":"AddBuff","Type":"Phase2"}'
+      rawJson: '{"Timing":"immediate","Target":"self","Action":"AddBuff","Type":"phase2","Condition":"","Value":"","Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
     sprite: 
     specialHandler: 
     maxUses: -1
+    selfDestruct: 0
+  - id: WhaleSingle
+    sourceId: 0
+    dataCode: WhaleSingle
+    devName: 
+    nameStringId: 
+    displayName: WhaleSingle
+    description: "3\uC790\uB9BF\uC218 \uB2E8\uD0C0 + \uB2E4\uC74C\uD134 \uACE0\uB798
+      \uC804\uC6A9\uC0C1\uC790\uC5D0 \uBB34\uC791\uC704 \uC22B\uC790 2\uAC1C \uC124\uC815"
+    patternType: 1
+    value: 0
+    hitCount: 1
+    attackKey: 3_Single
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 3
+    hitDigitCount: 0
+    strengthDelta: 0
+    condition: 
+    rawEffects: '{"Attack":"3_Single","Condition":null,"Count":null,"SelfDestruct":false,"Effects":[{"Timing":"next_turn","Target":"whale_box","Action":"AddBox","Type":"","Condition":"","Value":"Random","Duration":0,"Count":2,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
+    effects:
+    - timing: next_turn
+      target: whale_box
+      action: AddBox
+      type: 
+      condition: 
+      valueExpression: Random
+      hasNumericValue: 0
+      numericValue: 0
+      duration: 0
+      count: 2
+      hitCount: 1
+      lockDamage: 0
+      mode: 
+      label: 
+      editable: 0
+      rawJson: '{"Timing":"next_turn","Target":"whale_box","Action":"AddBox","Type":"","Condition":"","Value":"Random","Duration":0,"Count":2,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
+    sprite: 
+    specialHandler: 
+    maxUses: -1
+    selfDestruct: 0
+  - id: WitchSkill
+    sourceId: 0
+    dataCode: WitchSkill
+    devName: 
+    nameStringId: 
+    displayName: WitchSkill
+    description: 
+    patternType: 0
+    value: 0
+    hitCount: 1
+    attackKey: 
+    hasDynamicDamageValue: 0
+    damageValueExpression: 
+    damageDigitCount: 0
+    hitDigitCount: 0
+    strengthDelta: 0
+    condition: 
+    rawEffects: '{"Attack":null,"Condition":null,"Count":1,"SelfDestruct":false,"Effects":[{"Timing":"immediate","Target":"player","Action":"AddBuff","Type":"divide_box","Condition":"","Value":1.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}]}'
+    effects:
+    - timing: immediate
+      target: player
+      action: AddBuff
+      type: divide_box
+      condition: 
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      duration: 0
+      count: 1
+      hitCount: 1
+      lockDamage: 0
+      mode: 
+      label: 
+      editable: 0
+      rawJson: '{"Timing":"immediate","Target":"player","Action":"AddBuff","Type":"divide_box","Condition":"","Value":1.0,"Duration":0,"Count":1,"HitCount":1,"Lock":false,"Mode":"","Label":"","Editable":false}'
+    sprite: 
+    specialHandler: 
+    maxUses: 1
     selfDestruct: 0

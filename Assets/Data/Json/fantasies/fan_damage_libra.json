@@ -19,7 +19,7 @@
     "effects":  [
                     {
                         "trigger":  {
-                                        "event":  "passive"
+                                        "event":  "value_evaluation"
                                     },
                         "target":  {
                                        "formula":  "player.damage",
@@ -41,7 +41,7 @@
                     },
                     {
                         "trigger":  {
-                                        "event":  "passive"
+                                        "event":  "value_evaluation"
                                     },
                         "target":  {
                                        "formula":  "player.damage",

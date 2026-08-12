@@ -23,7 +23,7 @@ namespace GoldfishWalking.Editor
             }
 
             EditorGUILayout.LabelField("Monster Pattern Database", EditorStyles.boldLabel);
-            EditorGUILayout.LabelField("Effects JSON is the runtime source. TSV import can overwrite this asset.", EditorStyles.miniLabel);
+            EditorGUILayout.LabelField("Generated from Assets/Data/Json/patterns. Edit the source JSON, not this asset.", EditorStyles.miniLabel);
             scroll = EditorGUILayout.BeginScrollView(scroll, GUILayout.Height(180f));
             for (int i = 0; i < patterns.arraySize; i++)
             {
@@ -39,23 +39,11 @@ namespace GoldfishWalking.Editor
             using (new EditorGUI.DisabledScope(true))
                 EditorGUILayout.PropertyField(pattern.FindPropertyRelative("id"), new GUIContent("ID"));
 
-            EditorGUILayout.LabelField("Effects JSON (Runtime Source)", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Generated Compatibility JSON", EditorStyles.boldLabel);
             SerializedProperty rawEffects = pattern.FindPropertyRelative("rawEffects");
-            EditorGUI.BeginChangeCheck();
-            EditorGUILayout.PropertyField(rawEffects, GUIContent.none, GUILayout.MinHeight(140f));
-            bool changed = EditorGUI.EndChangeCheck();
+            using (new EditorGUI.DisabledScope(true))
+                EditorGUILayout.PropertyField(rawEffects, GUIContent.none, GUILayout.MinHeight(140f));
             serializedObject.ApplyModifiedProperties();
-
-            if (changed)
-            {
-                MonsterPatternDatabase database = (MonsterPatternDatabase)target;
-                if (EffectJsonInspectorParser.TryApply(database.patterns[selectedIndex], out jsonError))
-                {
-                    jsonError = string.Empty;
-                    EditorUtility.SetDirty(database);
-                    serializedObject.Update();
-                }
-            }
 
             if (!string.IsNullOrWhiteSpace(jsonError))
                 EditorGUILayout.HelpBox($"JSON was not applied: {jsonError}", MessageType.Error);

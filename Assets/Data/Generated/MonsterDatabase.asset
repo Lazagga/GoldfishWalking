@@ -922,7 +922,7 @@ MonoBehaviour:
     countdownPattern: 
     aimedShotMultiplier: 1
     formulaDecoyDigitCount: 0
-    playerAttackConditionJson: '`{"Type":"DigitCount","ValueMin":0,"ValueMax":9,"CountMin":0,"CountMax":9,"CountEditable":true}`'
+    playerAttackConditionJson: '{"Type":"DigitCount","ValueMin":0,"ValueMax":9,"CountMin":0,"CountMax":9,"CountEditable":true}'
     playerAttackConditionType: DigitCount
     conditionValueMin: 0
     conditionValueMax: 9
@@ -962,7 +962,7 @@ MonoBehaviour:
     countdownPattern: 
     aimedShotMultiplier: 1
     formulaDecoyDigitCount: 0
-    playerAttackConditionJson: '`{"Type":"CompareBaseDamage","ValueMin":10,"ValueMax":99,"Operators":["<",">"]}`'
+    playerAttackConditionJson: '{"Type":"CompareBaseDamage","ValueMin":10,"ValueMax":99,"Operators":["<",">"]}'
     playerAttackConditionType: CompareBaseDamage
     conditionValueMin: 10
     conditionValueMax: 99

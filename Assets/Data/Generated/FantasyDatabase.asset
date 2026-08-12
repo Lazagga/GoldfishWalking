@@ -18,19 +18,18 @@ MonoBehaviour:
     dataCode: fan_rabbit_head
     devName: "\uD1A0\uB07C \uC778\uD615"
     nameStringId: 
-    descStringId: "\uBA38\uB9AC \uC704\uC5D0 \uD1A0\uB07C\uB97C \uC5C5\uACE0 \uB2E4\uB2D0
-      \uC218 \uC788\uC74C"
+    descStringId: 
     grade: 0
-    triggerType: Passive
+    triggerType: passive
     displayName: "\uD1A0\uB07C \uC778\uD615"
     description: "\uBA38\uB9AC \uC704\uC5D0 \uD1A0\uB07C\uB97C \uC5C5\uACE0 \uB2E4\uB2D0
       \uC218 \uC788\uC74C"
     sprite: 
-    rawEffects: '[{"Trigger":"Passive","Target":"Cosmetic","Calc":"Add","Value":0,"Option":"Rabbit"}]'
+    rawEffects: '[{"Trigger":"passive","Target":"cosmetic","Calc":"add","Value":0.0,"Option":"Rabbit","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Passive
-      target: Cosmetic
-      calc: Add
+    - trigger: passive
+      target: cosmetic
+      calc: add
       valueExpression: 0
       hasNumericValue: 1
       numericValue: 0
@@ -40,7 +39,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Passive","Target":"Cosmetic","Calc":"Add","Value":0,"Option":"Rabbit"}'
+      rawJson: '{"Trigger":"passive","Target":"cosmetic","Calc":"add","Value":0.0,"Option":"Rabbit","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 1
     target: 9
@@ -51,19 +50,18 @@ MonoBehaviour:
     dataCode: fan_turtle_head
     devName: "\uAC70\uBD81\uC774 \uC778\uD615"
     nameStringId: 
-    descStringId: "\uBA38\uB9AC \uC704\uC5D0 \uAC70\uBD81\uC774\uB97C \uC5C5\uACE0
-      \uB2E4\uB2D0 \uC218 \uC788\uC74C"
+    descStringId: 
     grade: 0
-    triggerType: Passive
+    triggerType: passive
     displayName: "\uAC70\uBD81\uC774 \uC778\uD615"
     description: "\uBA38\uB9AC \uC704\uC5D0 \uAC70\uBD81\uC774\uB97C \uC5C5\uACE0
       \uB2E4\uB2D0 \uC218 \uC788\uC74C"
     sprite: 
-    rawEffects: '[{"Trigger":"Passive","Target":"Cosmetic","Calc":"Add","Value":0,"Option":"Turtle"}]'
+    rawEffects: '[{"Trigger":"passive","Target":"cosmetic","Calc":"add","Value":0.0,"Option":"Turtle","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Passive
-      target: Cosmetic
-      calc: Add
+    - trigger: passive
+      target: cosmetic
+      calc: add
       valueExpression: 0
       hasNumericValue: 1
       numericValue: 0
@@ -73,7 +71,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Passive","Target":"Cosmetic","Calc":"Add","Value":0,"Option":"Turtle"}'
+      rawJson: '{"Trigger":"passive","Target":"cosmetic","Calc":"add","Value":0.0,"Option":"Turtle","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 1
     target: 9
@@ -84,19 +82,18 @@ MonoBehaviour:
     dataCode: fan_cat_head
     devName: "\uACE0\uC591\uC774 \uC778\uD615"
     nameStringId: 
-    descStringId: "\uBA38\uB9AC \uC704\uC5D0 \uACE0\uC591\uC774\uB97C \uC5C5\uACE0
-      \uB2E4\uB2D0 \uC218 \uC788\uC74C"
+    descStringId: 
     grade: 0
-    triggerType: Passive
+    triggerType: passive
     displayName: "\uACE0\uC591\uC774 \uC778\uD615"
     description: "\uBA38\uB9AC \uC704\uC5D0 \uACE0\uC591\uC774\uB97C \uC5C5\uACE0
       \uB2E4\uB2D0 \uC218 \uC788\uC74C"
     sprite: 
-    rawEffects: '[{"Trigger":"Passive","Target":"Cosmetic","Calc":"Add","Value":0,"Option":"Cat"}]'
+    rawEffects: '[{"Trigger":"passive","Target":"cosmetic","Calc":"add","Value":0.0,"Option":"Cat","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Passive
-      target: Cosmetic
-      calc: Add
+    - trigger: passive
+      target: cosmetic
+      calc: add
       valueExpression: 0
       hasNumericValue: 1
       numericValue: 0
@@ -106,7 +103,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Passive","Target":"Cosmetic","Calc":"Add","Value":0,"Option":"Cat"}'
+      rawJson: '{"Trigger":"passive","Target":"cosmetic","Calc":"add","Value":0.0,"Option":"Cat","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 1
     target: 9
@@ -117,19 +114,18 @@ MonoBehaviour:
     dataCode: fan_parrot_head
     devName: "\uC575\uBB34\uC0C8 \uC778\uD615"
     nameStringId: 
-    descStringId: "\uBA38\uB9AC \uC704\uC5D0 \uC575\uBB34\uC0C8\uB97C \uC5C5\uACE0
-      \uB2E4\uB2D0 \uC218 \uC788\uC74C"
+    descStringId: 
     grade: 0
-    triggerType: Passive
+    triggerType: passive
     displayName: "\uC575\uBB34\uC0C8 \uC778\uD615"
     description: "\uBA38\uB9AC \uC704\uC5D0 \uC575\uBB34\uC0C8\uB97C \uC5C5\uACE0
       \uB2E4\uB2D0 \uC218 \uC788\uC74C"
     sprite: 
-    rawEffects: '[{"Trigger":"Passive","Target":"Cosmetic","Calc":"Add","Value":0,"Option":"Parrot"}]'
+    rawEffects: '[{"Trigger":"passive","Target":"cosmetic","Calc":"add","Value":0.0,"Option":"Parrot","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Passive
-      target: Cosmetic
-      calc: Add
+    - trigger: passive
+      target: cosmetic
+      calc: add
       valueExpression: 0
       hasNumericValue: 1
       numericValue: 0
@@ -139,7 +135,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Passive","Target":"Cosmetic","Calc":"Add","Value":0,"Option":"Parrot"}'
+      rawJson: '{"Trigger":"passive","Target":"cosmetic","Calc":"add","Value":0.0,"Option":"Parrot","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 1
     target: 9
@@ -150,17 +146,17 @@ MonoBehaviour:
     dataCode: fan_shop_pen
     devName: "\uC2F8\uC778\uD39C"
     nameStringId: 
-    descStringId: "\uC0C1\uC810\uC5D0\uC11C \uC774\uB3D9 \uD69F\uC218 +1"
+    descStringId: 
     grade: 0
-    triggerType: Passive
+    triggerType: passive
     displayName: "\uC2F8\uC778\uD39C"
     description: "\uC0C1\uC810\uC5D0\uC11C \uC774\uB3D9 \uD69F\uC218 +1"
     sprite: 
-    rawEffects: '[{"Trigger":"Passive","Target":"Shop_Movement","Calc":"Add","Value":1,"Option":""}]'
+    rawEffects: '[{"Trigger":"passive","Target":"Shop_Movement","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Passive
+    - trigger: passive
       target: Shop_Movement
-      calc: Add
+      calc: add
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -170,7 +166,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Passive","Target":"Shop_Movement","Calc":"Add","Value":1,"Option":""}'
+      rawJson: '{"Trigger":"passive","Target":"Shop_Movement","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 1
     target: 8
@@ -181,19 +177,18 @@ MonoBehaviour:
     dataCode: fan_shop_heal
     devName: "\uCFE0\uD0A4"
     nameStringId: 
-    descStringId: "\uC0C1\uC810\uC5D0 \uB4E4\uC5B4\uAC08 \uB54C\uB9C8\uB2E4, \uCCB4\uB825
-      +200"
+    descStringId: 
     grade: 0
-    triggerType: Shop_Enter
+    triggerType: shop_enter
     displayName: "\uCFE0\uD0A4"
     description: "\uC0C1\uC810\uC5D0 \uB4E4\uC5B4\uAC08 \uB54C\uB9C8\uB2E4, \uCCB4\uB825
       +200"
     sprite: 
-    rawEffects: '[{"Trigger":"Shop_Enter","Target":"HP","Calc":"Add","Value":300.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"shop_enter","Target":"HP","Calc":"add","Value":300.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Shop_Enter
+    - trigger: shop_enter
       target: HP
-      calc: Add
+      calc: add
       valueExpression: 300
       hasNumericValue: 1
       numericValue: 300
@@ -203,7 +198,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Shop_Enter","Target":"HP","Calc":"Add","Value":300.0,"Option":""}'
+      rawJson: '{"Trigger":"shop_enter","Target":"HP","Calc":"add","Value":300.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 7
     target: 1
@@ -214,17 +209,17 @@ MonoBehaviour:
     dataCode: fan_shop_discount
     devName: "\uD560\uC778 \uCFE0\uD3F0"
     nameStringId: 
-    descStringId: "\uC0C1\uC810 \uD488\uBAA9 \uAC00\uACA9 30% \uD560\uC778"
+    descStringId: 
     grade: 0
-    triggerType: Passive
+    triggerType: passive
     displayName: "\uD560\uC778 \uCFE0\uD3F0"
     description: "\uC0C1\uC810 \uD488\uBAA9 \uAC00\uACA9 30% \uD560\uC778"
     sprite: 
-    rawEffects: '[{"Trigger":"Passive","Target":"Price","Calc":"Multiply","Value":0.85,"Option":""}]'
+    rawEffects: '[{"Trigger":"passive","Target":"Price","Calc":"multiply","Value":0.85,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Passive
+    - trigger: passive
       target: Price
-      calc: Multiply
+      calc: multiply
       valueExpression: 0.85
       hasNumericValue: 1
       numericValue: 0.85
@@ -234,7 +229,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Passive","Target":"Price","Calc":"Multiply","Value":0.85,"Option":""}'
+      rawJson: '{"Trigger":"passive","Target":"Price","Calc":"multiply","Value":0.85,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 1
     target: 8
@@ -245,23 +240,20 @@ MonoBehaviour:
     dataCode: fan_shop_stencil
     devName: "\uC2A4\uD150\uC2E4"
     nameStringId: 
-    descStringId: "\uC0C1\uC810\uC5D0\uC11C \uC2A4\uD150\uC2E4\uC744 \uC81C\uC678\uD55C,
-      \uBCF4\uC720\uC911\uC778 \uBC31\uC0C9 \uB4F1\uAE09 \uC544\uC774\uD15C\uC744
-      \uCD94\uAC00\uB85C \uD55C \uAC1C \uC5BB\uC744 \uC218 \uC788\uC74C(\uC0C1\uC810\uB2F9
-      1\uD68C, \uD658\uC0C1\uB2F9 \uD55C \uBC88\uC529\uB9CC, \uBE44\uC6A9 2\uC790\uB9AC)"
+    descStringId: 
     grade: 1
-    triggerType: Passive
+    triggerType: passive
     displayName: "\uC2A4\uD150\uC2E4"
     description: "\uC0C1\uC810\uC5D0\uC11C \uC2A4\uD150\uC2E4\uC744 \uC81C\uC678\uD55C,
       \uBCF4\uC720\uC911\uC778 \uBC31\uC0C9 \uB4F1\uAE09 \uC544\uC774\uD15C\uC744
       \uCD94\uAC00\uB85C \uD55C \uAC1C \uC5BB\uC744 \uC218 \uC788\uC74C(\uC0C1\uC810\uB2F9
       1\uD68C, \uD658\uC0C1\uB2F9 \uD55C \uBC88\uC529\uB9CC, \uBE44\uC6A9 2\uC790\uB9AC)"
     sprite: 
-    rawEffects: '[{"Trigger":"Passive","Target":"Shop_Extra_Fantasy_Slot","Calc":"Enable","Value":1.0,"Execution":"Capability"}]'
+    rawEffects: '[{"Trigger":"passive","Target":"shop_extra_fantasy_slot","Calc":"enable","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0}]'
     effects:
-    - trigger: Passive
-      target: Shop_Extra_Fantasy_Slot
-      calc: Enable
+    - trigger: passive
+      target: shop_extra_fantasy_slot
+      calc: enable
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -269,9 +261,9 @@ MonoBehaviour:
       condition: 
       chance: 1
       lifetime: 
-      execution: Capability
+      execution: capability
       duration: 0
-      rawJson: '{"Trigger":"Passive","Target":"Shop_Extra_Fantasy_Slot","Calc":"Enable","Value":1.0,"Execution":"Capability"}'
+      rawJson: '{"Trigger":"passive","Target":"shop_extra_fantasy_slot","Calc":"enable","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0}'
     isTemporary: 0
     trigger: 1
     target: 9
@@ -282,19 +274,18 @@ MonoBehaviour:
     dataCode: fan_start_match
     devName: "\uC131\uB0E5\uAC11"
     nameStringId: 
-    descStringId: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uC784\uC2DC \uC5EC\uBD84\uC131\uB0E5
-      +1"
+    descStringId: 
     grade: 0
-    triggerType: Battle_Start
+    triggerType: battle_start
     displayName: "\uC131\uB0E5\uAC11"
     description: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uC784\uC2DC \uC5EC\uBD84\uC131\uB0E5
       +1"
     sprite: 
-    rawEffects: '[{"Trigger":"Battle_Start","Target":"Extra_Match","Calc":"Add","Value":1.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"battle_start","Target":"extra_match","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Battle_Start
-      target: Extra_Match
-      calc: Add
+    - trigger: battle_start
+      target: extra_match
+      calc: add
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -304,7 +295,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Battle_Start","Target":"Extra_Match","Calc":"Add","Value":1.0,"Option":""}'
+      rawJson: '{"Trigger":"battle_start","Target":"extra_match","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 2
     target: 2
@@ -315,19 +306,18 @@ MonoBehaviour:
     dataCode: fan_start_eraser
     devName: "\uB5A1\uC9C0\uC6B0\uAC1C"
     nameStringId: 
-    descStringId: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uC784\uC2DC \uC9C0\uC6B0\uAC1C
-      +1"
+    descStringId: 
     grade: 0
-    triggerType: Battle_Start
+    triggerType: battle_start
     displayName: "\uB5A1\uC9C0\uC6B0\uAC1C"
     description: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uC784\uC2DC \uC9C0\uC6B0\uAC1C
       +1"
     sprite: 
-    rawEffects: '[{"Trigger":"Battle_Start","Target":"Eraser","Calc":"Add","Value":1.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"battle_start","Target":"eraser","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Battle_Start
-      target: Eraser
-      calc: Add
+    - trigger: battle_start
+      target: eraser
+      calc: add
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -337,7 +327,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Battle_Start","Target":"Eraser","Calc":"Add","Value":1.0,"Option":""}'
+      rawJson: '{"Trigger":"battle_start","Target":"eraser","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 2
     target: 2
@@ -348,19 +338,18 @@ MonoBehaviour:
     dataCode: fan_reward_rabbitfoot
     devName: "\uD1A0\uB07C\uBC1C"
     nameStringId: 
-    descStringId: "\uC804\uD22C \uC885\uB8CC \uC774\uD6C4 \uC544\uC774\uD15C\uC744
-      \uC5BB\uC744 \uD655\uB960 x2"
+    descStringId: 
     grade: 0
-    triggerType: Battle_Reward
+    triggerType: battle_reward
     displayName: "\uD1A0\uB07C\uBC1C"
     description: "\uC804\uD22C \uC885\uB8CC \uC774\uD6C4 \uC544\uC774\uD15C\uC744
       \uC5BB\uC744 \uD655\uB960 x2"
     sprite: 
-    rawEffects: '[{"Trigger":"Battle_Reward","Target":"Item_Chance","Calc":"Multiply","Value":2.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"battle_reward","Target":"Item_Chance","Calc":"multiply","Value":2.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Battle_Reward
+    - trigger: battle_reward
       target: Item_Chance
-      calc: Multiply
+      calc: multiply
       valueExpression: 2
       hasNumericValue: 1
       numericValue: 2
@@ -370,7 +359,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Battle_Reward","Target":"Item_Chance","Calc":"Multiply","Value":2.0,"Option":""}'
+      rawJson: '{"Trigger":"battle_reward","Target":"Item_Chance","Calc":"multiply","Value":2.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 5
     target: 9
@@ -381,19 +370,18 @@ MonoBehaviour:
     dataCode: fan_acquire_pencil
     devName: "\uC5F0\uD544"
     nameStringId: 
-    descStringId: "\uC18C\uBAA8\uD488\uC744 \uC5BB\uC744 \uB54C\uB9C8\uB2E4, \uD55C
-      \uAC1C\uC529 \uCD94\uAC00\uB85C \uC5BB\uC74C"
+    descStringId: 
     grade: 0
-    triggerType: Acquire_Item
+    triggerType: acquire_item
     displayName: "\uC5F0\uD544"
     description: "\uC18C\uBAA8\uD488\uC744 \uC5BB\uC744 \uB54C\uB9C8\uB2E4, \uD55C
       \uAC1C\uC529 \uCD94\uAC00\uB85C \uC5BB\uC74C"
     sprite: 
-    rawEffects: '[{"Trigger":"Acquire_Item","Target":"Item","Calc":"Add","Value":1.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"acquire_item","Target":"item","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Acquire_Item
-      target: Item
-      calc: Add
+    - trigger: acquire_item
+      target: item
+      calc: add
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -403,7 +391,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Acquire_Item","Target":"Item","Calc":"Add","Value":1.0,"Option":""}'
+      rawJson: '{"Trigger":"acquire_item","Target":"item","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 8
     target: 2
@@ -414,21 +402,19 @@ MonoBehaviour:
     dataCode: fan_end_8ball
     devName: "8\uBC88 \uB2F9\uAD6C\uACF5"
     nameStringId: 
-    descStringId: "\uB0B4 \uD134\uC774 \uB05D\uB0A0 \uB54C \uBAA8\uB4E0 \uC0C1\uC790
-      \uC18D 8\uC758 \uAC1C\uC218 x40\uC758 \uD53C\uD574\uB97C \uCD94\uAC00\uB85C
-      \uC785\uD798"
+    descStringId: 
     grade: 0
-    triggerType: Turn_End
+    triggerType: turn_end
     displayName: "8\uBC88 \uB2F9\uAD6C\uACF5"
     description: "\uB0B4 \uD134\uC774 \uB05D\uB0A0 \uB54C \uBAA8\uB4E0 \uC0C1\uC790
       \uC18D 8\uC758 \uAC1C\uC218 x40\uC758 \uD53C\uD574\uB97C \uCD94\uAC00\uB85C
       \uC785\uD798"
     sprite: 
-    rawEffects: '[{"Trigger":"Turn_End","Target":"Damage","Calc":"Add","Value":"BattleDigit8Count*40"}]'
+    rawEffects: '[{"Trigger":"turn_end","Target":"damage","Calc":"add","Value":"BattleDigit8Count*40","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Turn_End
-      target: Damage
-      calc: Add
+    - trigger: turn_end
+      target: damage
+      calc: add
       valueExpression: BattleDigit8Count*40
       hasNumericValue: 0
       numericValue: 0
@@ -438,7 +424,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Turn_End","Target":"Damage","Calc":"Add","Value":"BattleDigit8Count*40"}'
+      rawJson: '{"Trigger":"turn_end","Target":"damage","Calc":"add","Value":"BattleDigit8Count*40","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 3
     target: 3
@@ -449,17 +435,17 @@ MonoBehaviour:
     dataCode: fan_eventurn_pipe
     devName: "\uD30C\uC774\uD504"
     nameStringId: 
-    descStringId: "\uB9E4 \uC9DD\uC218 \uD134\uB9C8\uB2E4 \uD0C0\uC218 +1"
+    descStringId: 
     grade: 0
-    triggerType: Turn_Even
+    triggerType: turn_even
     displayName: "\uD30C\uC774\uD504"
     description: "\uB9E4 \uC9DD\uC218 \uD134\uB9C8\uB2E4 \uD0C0\uC218 +1"
     sprite: 
-    rawEffects: '[{"Trigger":"Turn_Even","Target":"Attack_Count","Calc":"Add","Value":1.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"turn_even","Target":"Attack_Count","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Turn_Even
+    - trigger: turn_even
       target: Attack_Count
-      calc: Add
+      calc: add
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -469,7 +455,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Turn_Even","Target":"Attack_Count","Calc":"Add","Value":1.0,"Option":""}'
+      rawJson: '{"Trigger":"turn_even","Target":"Attack_Count","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 8
     target: 4
@@ -480,19 +466,18 @@ MonoBehaviour:
     dataCode: fan_damage_anchor
     devName: "\uB2FB"
     nameStringId: 
-    descStringId: "\uD53C\uD574\uB97C \uC785\uC744 \uB54C\uB9C8\uB2E4 \uD56D\uC0C1
-      20\uC529 \uC801\uAC8C \uBC1B\uC74C"
+    descStringId: 
     grade: 0
-    triggerType: Take_Damage
+    triggerType: take_damage
     displayName: "\uB2FB"
     description: "\uD53C\uD574\uB97C \uC785\uC744 \uB54C\uB9C8\uB2E4 \uD56D\uC0C1
       20\uC529 \uC801\uAC8C \uBC1B\uC74C"
     sprite: 
-    rawEffects: '[{"Trigger":"Take_Damage","Target":"Damage_Taken","Calc":"Add","Value":-20.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"take_damage","Target":"Damage_Taken","Calc":"add","Value":-20.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Take_Damage
+    - trigger: take_damage
       target: Damage_Taken
-      calc: Add
+      calc: add
       valueExpression: -20
       hasNumericValue: 1
       numericValue: -20
@@ -502,7 +487,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Take_Damage","Target":"Damage_Taken","Calc":"Add","Value":-20.0,"Option":""}'
+      rawJson: '{"Trigger":"take_damage","Target":"Damage_Taken","Calc":"add","Value":-20.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 8
     target: 9
@@ -513,19 +498,18 @@ MonoBehaviour:
     dataCode: fan_reflect_sail
     devName: "\uB3DB"
     nameStringId: 
-    descStringId: "\uD53C\uD574\uB97C \uC785\uC744 \uB54C\uB9C8\uB2E4 \uBC1B\uC740
-      \uD53C\uD574\uB7C9\uC758 50%\uB97C \uBC18\uC0AC"
+    descStringId: 
     grade: 0
-    triggerType: Take_Damage
+    triggerType: take_damage
     displayName: "\uB3DB"
     description: "\uD53C\uD574\uB97C \uC785\uC744 \uB54C\uB9C8\uB2E4 \uBC1B\uC740
       \uD53C\uD574\uB7C9\uC758 50%\uB97C \uBC18\uC0AC"
     sprite: 
-    rawEffects: '[{"Trigger":"Take_Damage","Target":"Damage_Reflect","Calc":"Multiply","Value":50.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"take_damage","Target":"Damage_Reflect","Calc":"multiply","Value":50.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Take_Damage
+    - trigger: take_damage
       target: Damage_Reflect
-      calc: Multiply
+      calc: multiply
       valueExpression: 50
       hasNumericValue: 1
       numericValue: 50
@@ -535,7 +519,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Take_Damage","Target":"Damage_Reflect","Calc":"Multiply","Value":50.0,"Option":""}'
+      rawJson: '{"Trigger":"take_damage","Target":"Damage_Reflect","Calc":"multiply","Value":50.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 8
     target: 9
@@ -546,17 +530,17 @@ MonoBehaviour:
     dataCode: fan_turn_boots
     devName: "\uC7A5\uD654"
     nameStringId: 
-    descStringId: "\uB9E4 \uD134 \uC774\uB3D9 \uD69F\uC218 +2"
+    descStringId: 
     grade: 0
-    triggerType: Turn_Start
+    triggerType: turn_start
     displayName: "\uC7A5\uD654"
     description: "\uB9E4 \uD134 \uC774\uB3D9 \uD69F\uC218 +2"
     sprite: 
-    rawEffects: '[{"Trigger":"Turn_Start","Target":"Movement","Calc":"Add","Value":2.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"turn_start","Target":"Movement","Calc":"add","Value":2.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Turn_Start
+    - trigger: turn_start
       target: Movement
-      calc: Add
+      calc: add
       valueExpression: 2
       hasNumericValue: 1
       numericValue: 2
@@ -566,7 +550,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Turn_Start","Target":"Movement","Calc":"Add","Value":2.0,"Option":""}'
+      rawJson: '{"Trigger":"turn_start","Target":"Movement","Calc":"add","Value":2.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 8
     target: 9
@@ -577,21 +561,19 @@ MonoBehaviour:
     dataCode: fan_end_trumpcard
     devName: "\uD2B8\uB7FC\uD504 \uCE74\uB4DC"
     nameStringId: 
-    descStringId: "\uB0B4 \uD134\uC774 \uB05D\uB0A0 \uB54C \uB0A8\uC544\uC788\uB294
-      \uC774\uB3D9 \uD69F\uC218\uAC00 \uC784\uC2DC \uC774\uB3D9\uD69F\uC218\uB85C
-      \uC804\uD658"
+    descStringId: 
     grade: 0
-    triggerType: Turn_End
+    triggerType: turn_end
     displayName: "\uD2B8\uB7FC\uD504 \uCE74\uB4DC"
     description: "\uB0B4 \uD134\uC774 \uB05D\uB0A0 \uB54C \uB0A8\uC544\uC788\uB294
       \uC774\uB3D9 \uD69F\uC218\uAC00 \uC784\uC2DC \uC774\uB3D9\uD69F\uC218\uB85C
       \uC804\uD658"
     sprite: 
-    rawEffects: '[{"Trigger":"Turn_End","Target":"Temporary_Movement","Calc":"Add","Value":"RemainingMoves"},{"Trigger":"Turn_End","Target":"Movement","Calc":"Set","Value":0}]'
+    rawEffects: '[{"Trigger":"turn_end","Target":"temporary_movement","Calc":"add","Value":"RemainingMoves","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0},{"Trigger":"turn_end","Target":"Movement","Calc":"set","Value":0.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Turn_End
-      target: Temporary_Movement
-      calc: Add
+    - trigger: turn_end
+      target: temporary_movement
+      calc: add
       valueExpression: RemainingMoves
       hasNumericValue: 0
       numericValue: 0
@@ -601,10 +583,10 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Turn_End","Target":"Temporary_Movement","Calc":"Add","Value":"RemainingMoves"}'
-    - trigger: Turn_End
+      rawJson: '{"Trigger":"turn_end","Target":"temporary_movement","Calc":"add","Value":"RemainingMoves","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
+    - trigger: turn_end
       target: Movement
-      calc: Set
+      calc: set
       valueExpression: 0
       hasNumericValue: 1
       numericValue: 0
@@ -614,7 +596,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Turn_End","Target":"Movement","Calc":"Set","Value":0}'
+      rawJson: '{"Trigger":"turn_end","Target":"Movement","Calc":"set","Value":0.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 3
     target: 9
@@ -625,19 +607,18 @@ MonoBehaviour:
     dataCode: fan_damage_slingshot
     devName: "\uC0C8\uCD1D"
     nameStringId: 
-    descStringId: "\uD53C\uD574\uB97C \uC785\uD790 \uB54C \uB9C8\uB2E4 \uD56D\uC0C1
-      30\uC529 \uCD94\uAC00\uB85C \uC785\uD798"
+    descStringId: 
     grade: 0
-    triggerType: Deal_Damage
+    triggerType: deal_damage
     displayName: "\uC0C8\uCD1D"
     description: "\uD53C\uD574\uB97C \uC785\uD790 \uB54C \uB9C8\uB2E4 \uD56D\uC0C1
       30\uC529 \uCD94\uAC00\uB85C \uC785\uD798"
     sprite: 
-    rawEffects: '[{"Trigger":"Deal_Damage","Target":"Additional_Damage","Calc":"Add","Value":30.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"deal_damage","Target":"Additional_Damage","Calc":"add","Value":30.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Deal_Damage
+    - trigger: deal_damage
       target: Additional_Damage
-      calc: Add
+      calc: add
       valueExpression: 30
       hasNumericValue: 1
       numericValue: 30
@@ -647,7 +628,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Deal_Damage","Target":"Additional_Damage","Calc":"Add","Value":30.0,"Option":""}'
+      rawJson: '{"Trigger":"deal_damage","Target":"Additional_Damage","Calc":"add","Value":30.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 4
     target: 3
@@ -658,19 +639,18 @@ MonoBehaviour:
     dataCode: fan_end_hourglass
     devName: "\uBAA8\uB798\uC2DC\uACC4"
     nameStringId: 
-    descStringId: "\uB0B4 \uD134\uC774 \uB05D\uB0A0 \uB54C \uC801\uC5D0\uAC8C 50\uC758
-      \uD53C\uD574"
+    descStringId: 
     grade: 0
-    triggerType: Turn_End
+    triggerType: turn_end
     displayName: "\uBAA8\uB798\uC2DC\uACC4"
     description: "\uB0B4 \uD134\uC774 \uB05D\uB0A0 \uB54C \uC801\uC5D0\uAC8C 50\uC758
       \uD53C\uD574"
     sprite: 
-    rawEffects: '[{"Trigger":"Turn_End","Target":"Damage","Calc":"Add","Value":50.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"turn_end","Target":"damage","Calc":"add","Value":50.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Turn_End
-      target: Damage
-      calc: Add
+    - trigger: turn_end
+      target: damage
+      calc: add
       valueExpression: 50
       hasNumericValue: 1
       numericValue: 50
@@ -680,7 +660,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Turn_End","Target":"Damage","Calc":"Add","Value":50.0,"Option":""}'
+      rawJson: '{"Trigger":"turn_end","Target":"damage","Calc":"add","Value":50.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 3
     target: 3
@@ -691,17 +671,17 @@ MonoBehaviour:
     dataCode: fan_start_papercrane
     devName: "\uC885\uC774\uD559"
     nameStringId: 
-    descStringId: "\uC804\uD22C \uAC1C\uC2DC 3\uD134 \uB4A4 \uD798 +1"
+    descStringId: 
     grade: 0
-    triggerType: Turn_4
+    triggerType: turn_4
     displayName: "\uC885\uC774\uD559"
     description: "\uC804\uD22C \uAC1C\uC2DC 3\uD134 \uB4A4 \uD798 +1"
     sprite: 
-    rawEffects: '[{"Trigger":"Turn_4","Target":"Strength","Calc":"Add","Value":1.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"turn_4","Target":"Strength","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Turn_4
+    - trigger: turn_4
       target: Strength
-      calc: Add
+      calc: add
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -711,7 +691,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Turn_4","Target":"Strength","Calc":"Add","Value":1.0,"Option":""}'
+      rawJson: '{"Trigger":"turn_4","Target":"Strength","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 8
     target: 5
@@ -722,17 +702,17 @@ MonoBehaviour:
     dataCode: fan_start_paperfrog
     devName: "\uC885\uC774\uAC1C\uAD6C\uB9AC"
     nameStringId: 
-    descStringId: "\uCCAB \uD134\uB3D9\uC548 \uC801\uC758 \uD798 -1"
+    descStringId: 
     grade: 0
-    triggerType: Battle_Start
+    triggerType: battle_start
     displayName: "\uC885\uC774\uAC1C\uAD6C\uB9AC"
     description: "\uCCAB \uD134\uB3D9\uC548 \uC801\uC758 \uD798 -1"
     sprite: 
-    rawEffects: '[{"Trigger":"Battle_Start","Target":"Enemy_Strength","Calc":"Add","Value":-1.0,"Option":"","Duration":1}]'
+    rawEffects: '[{"Trigger":"battle_start","Target":"Enemy_Strength","Calc":"add","Value":-1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":1}]'
     effects:
-    - trigger: Battle_Start
+    - trigger: battle_start
       target: Enemy_Strength
-      calc: Add
+      calc: add
       valueExpression: -1
       hasNumericValue: 1
       numericValue: -1
@@ -742,7 +722,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 1
-      rawJson: '{"Trigger":"Battle_Start","Target":"Enemy_Strength","Calc":"Add","Value":-1.0,"Option":"","Duration":1}'
+      rawJson: '{"Trigger":"battle_start","Target":"Enemy_Strength","Calc":"add","Value":-1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":1}'
     isTemporary: 0
     trigger: 2
     target: 5
@@ -753,17 +733,17 @@ MonoBehaviour:
     dataCode: fan_acquire_watermelon
     devName: "\uC218\uBC15"
     nameStringId: 
-    descStringId: "\uD68D\uB4DD \uC2DC \uCCB4\uB825 +150"
+    descStringId: 
     grade: 0
-    triggerType: On_Acquire
+    triggerType: on_acquire
     displayName: "\uC218\uBC15"
     description: "\uD68D\uB4DD \uC2DC \uCCB4\uB825 +150"
     sprite: 
-    rawEffects: '[{"Trigger":"On_Acquire","Target":"HP","Calc":"Add","Value":200.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"on_acquire","Target":"HP","Calc":"add","Value":200.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: On_Acquire
+    - trigger: on_acquire
       target: HP
-      calc: Add
+      calc: add
       valueExpression: 200
       hasNumericValue: 1
       numericValue: 200
@@ -773,7 +753,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"On_Acquire","Target":"HP","Calc":"Add","Value":200.0,"Option":""}'
+      rawJson: '{"Trigger":"on_acquire","Target":"HP","Calc":"add","Value":200.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 8
     target: 1
@@ -784,17 +764,17 @@ MonoBehaviour:
     dataCode: fan_end_strawberry
     devName: "\uB538\uAE30"
     nameStringId: 
-    descStringId: "\uC804\uD22C \uC885\uB8CC \uD6C4 \uCCB4\uB825 +30"
+    descStringId: 
     grade: 0
-    triggerType: Battle_End
+    triggerType: battle_end
     displayName: "\uB538\uAE30"
     description: "\uC804\uD22C \uC885\uB8CC \uD6C4 \uCCB4\uB825 +30"
     sprite: 
-    rawEffects: '[{"Trigger":"Battle_End","Target":"HP","Calc":"Add","Value":30.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"battle_end","Target":"HP","Calc":"add","Value":30.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Battle_End
+    - trigger: battle_end
       target: HP
-      calc: Add
+      calc: add
       valueExpression: 30
       hasNumericValue: 1
       numericValue: 30
@@ -804,7 +784,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Battle_End","Target":"HP","Calc":"Add","Value":30.0,"Option":""}'
+      rawJson: '{"Trigger":"battle_end","Target":"HP","Calc":"add","Value":30.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 8
     target: 1
@@ -815,19 +795,18 @@ MonoBehaviour:
     dataCode: fan_end_grape
     devName: "\uD3EC\uB3C4"
     nameStringId: 
-    descStringId: "\uD134 \uC885\uB8CC \uC2DC \uB0A8\uC740 \uC774\uB3D9 \uD69F\uC218\uB9C8\uB2E4
-      \uCCB4\uB825 +5"
+    descStringId: 
     grade: 0
-    triggerType: Turn_End
+    triggerType: turn_end
     displayName: "\uD3EC\uB3C4"
     description: "\uD134 \uC885\uB8CC \uC2DC \uB0A8\uC740 \uC774\uB3D9 \uD69F\uC218\uB9C8\uB2E4
       \uCCB4\uB825 +5"
     sprite: 
-    rawEffects: '[{"Trigger":"Turn_End","Target":"HP","Calc":"Add","Value":"RemainingMoves*5"}]'
+    rawEffects: '[{"Trigger":"turn_end","Target":"HP","Calc":"add","Value":"RemainingMoves*5","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Turn_End
+    - trigger: turn_end
       target: HP
-      calc: Add
+      calc: add
       valueExpression: RemainingMoves*5
       hasNumericValue: 0
       numericValue: 0
@@ -837,7 +816,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Turn_End","Target":"HP","Calc":"Add","Value":"RemainingMoves*5"}'
+      rawJson: '{"Trigger":"turn_end","Target":"HP","Calc":"add","Value":"RemainingMoves*5","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 3
     target: 1
@@ -848,19 +827,18 @@ MonoBehaviour:
     dataCode: fan_start_stamp
     devName: "\uB3C4\uC7A5"
     nameStringId: 
-    descStringId: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uBCF4\uC720 \uC911\uC778 \uD658\uC0C1\uC758
-      \uC784\uC2DC \uBB34\uC791\uC704 \uBCF5\uC0AC\uBCF8 \uC0DD\uC131"
+    descStringId: 
     grade: 0
-    triggerType: Battle_Start
+    triggerType: battle_start
     displayName: "\uB3C4\uC7A5"
     description: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uBCF4\uC720 \uC911\uC778 \uD658\uC0C1\uC758
       \uC784\uC2DC \uBB34\uC791\uC704 \uBCF5\uC0AC\uBCF8 \uC0DD\uC131"
     sprite: 
-    rawEffects: '[{"Trigger":"Battle_Start","Target":"Fantasy","Calc":"CopyTemporary","Value":1.0}]'
+    rawEffects: '[{"Trigger":"battle_start","Target":"fantasy","Calc":"copy_temporary","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Battle_Start
-      target: Fantasy
-      calc: CopyTemporary
+    - trigger: battle_start
+      target: fantasy
+      calc: copy_temporary
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -870,7 +848,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Battle_Start","Target":"Fantasy","Calc":"CopyTemporary","Value":1.0}'
+      rawJson: '{"Trigger":"battle_start","Target":"fantasy","Calc":"copy_temporary","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 2
     target: 6
@@ -881,19 +859,18 @@ MonoBehaviour:
     dataCode: fan_end_dice
     devName: "\uC8FC\uC0AC\uC704"
     nameStringId: 
-    descStringId: "\uC804\uD22C \uC885\uB8CC \uC2DC \uD658\uC0C1 1\uD68C \uC0C8\uB85C\uACE0\uCE68
-      \uAC00\uB2A5"
+    descStringId: 
     grade: 0
-    triggerType: Battle_End
+    triggerType: battle_end
     displayName: "\uC8FC\uC0AC\uC704"
     description: "\uC804\uD22C \uC885\uB8CC \uC2DC \uD658\uC0C1 1\uD68C \uC0C8\uB85C\uACE0\uCE68
       \uAC00\uB2A5"
     sprite: 
-    rawEffects: '[{"Trigger":"Battle_End","Target":"Fantasy_Reroll","Calc":"Add","Value":1.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"battle_end","Target":"Fantasy_Reroll","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Battle_End
+    - trigger: battle_end
       target: Fantasy_Reroll
-      calc: Add
+      calc: add
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -903,7 +880,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Battle_End","Target":"Fantasy_Reroll","Calc":"Add","Value":1.0,"Option":""}'
+      rawJson: '{"Trigger":"battle_end","Target":"Fantasy_Reroll","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 8
     target: 6
@@ -914,19 +891,18 @@ MonoBehaviour:
     dataCode: fan_rest_coffee
     devName: "\uCEE4\uD53C"
     nameStringId: 
-    descStringId: "\uD734\uC2DD \uC7A5\uC18C\uC5D0\uC11C \uD734\uC2DD\uD558\uB294
-      \uB300\uC2E0 \uBB34\uC791\uC704 \uBC31\uC0C9 \uD658\uC0C1 \uD68D\uB4DD \uAC00\uB2A5"
+    descStringId: 
     grade: 0
-    triggerType: Passive
+    triggerType: passive
     displayName: "\uCEE4\uD53C"
     description: "\uD734\uC2DD \uC7A5\uC18C\uC5D0\uC11C \uD734\uC2DD\uD558\uB294
       \uB300\uC2E0 \uBB34\uC791\uC704 \uBC31\uC0C9 \uD658\uC0C1 \uD68D\uB4DD \uAC00\uB2A5"
     sprite: 
-    rawEffects: '[{"Trigger":"Passive","Target":"Rest_Fantasy_Alternative","Calc":"Enable","Value":1.0,"Execution":"Capability"}]'
+    rawEffects: '[{"Trigger":"passive","Target":"rest_fantasy_alternative","Calc":"enable","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0}]'
     effects:
-    - trigger: Passive
-      target: Rest_Fantasy_Alternative
-      calc: Enable
+    - trigger: passive
+      target: rest_fantasy_alternative
+      calc: enable
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -934,9 +910,9 @@ MonoBehaviour:
       condition: 
       chance: 1
       lifetime: 
-      execution: Capability
+      execution: capability
       duration: 0
-      rawJson: '{"Trigger":"Passive","Target":"Rest_Fantasy_Alternative","Calc":"Enable","Value":1.0,"Execution":"Capability"}'
+      rawJson: '{"Trigger":"passive","Target":"rest_fantasy_alternative","Calc":"enable","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0}'
     isTemporary: 0
     trigger: 1
     target: 9
@@ -947,19 +923,18 @@ MonoBehaviour:
     dataCode: fan_rest_mug
     devName: "\uBA38\uADF8\uC794"
     nameStringId: 
-    descStringId: "\uD734\uC2DD \uC7A5\uC18C\uC5D0\uC11C \uD734\uC2DD \uC0C1\uC790\uC758
-      \uD798 +1"
+    descStringId: 
     grade: 1
-    triggerType: Passive
+    triggerType: passive
     displayName: "\uBA38\uADF8\uC794"
     description: "\uD734\uC2DD \uC7A5\uC18C\uC5D0\uC11C \uD734\uC2DD \uC0C1\uC790\uC758
       \uD798 +1"
     sprite: 
-    rawEffects: '[{"Trigger":"Passive","Target":"Strength","Calc":"Add","Value":1.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"passive","Target":"Strength","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Passive
+    - trigger: passive
       target: Strength
-      calc: Add
+      calc: add
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -969,7 +944,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Passive","Target":"Strength","Calc":"Add","Value":1.0,"Option":""}'
+      rawJson: '{"Trigger":"passive","Target":"Strength","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 1
     target: 5
@@ -980,19 +955,18 @@ MonoBehaviour:
     dataCode: fan_rest_pillow
     devName: "\uBCA0\uAC1C"
     nameStringId: 
-    descStringId: "\uD734\uC2DD \uC7A5\uC18C\uC5D0\uC11C \uD734\uC2DD \uC2DC \uCCB4\uB825
-      +70"
+    descStringId: 
     grade: 0
-    triggerType: Passive
+    triggerType: passive
     displayName: "\uBCA0\uAC1C"
     description: "\uD734\uC2DD \uC7A5\uC18C\uC5D0\uC11C \uD734\uC2DD \uC2DC \uCCB4\uB825
       +70"
     sprite: 
-    rawEffects: '[{"Trigger":"Passive","Target":"HP","Calc":"Add","Value":70.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"passive","Target":"HP","Calc":"add","Value":70.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Passive
+    - trigger: passive
       target: HP
-      calc: Add
+      calc: add
       valueExpression: 70
       hasNumericValue: 1
       numericValue: 70
@@ -1002,7 +976,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Passive","Target":"HP","Calc":"Add","Value":70.0,"Option":""}'
+      rawJson: '{"Trigger":"passive","Target":"HP","Calc":"add","Value":70.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 1
     target: 1
@@ -1013,9 +987,7 @@ MonoBehaviour:
     dataCode: fan_damage_libra
     devName: "\uCC9C\uCE6D\uC790\uB9AC"
     nameStringId: 
-    descStringId: "\uB0B4 \uAE30\uBCF8 \uD53C\uD574\uB7C9 \uC218\uCE58\uAC00 0\uC774\uB77C\uBA74
-      200\uC73C\uB85C \uCDE8\uAE09, 0\uC774 \uC544\uB2C8\uB77C\uBA74 \uC808\uBC18
-      \uCDE8\uAE09"
+    descStringId: 
     grade: 2
     triggerType: 
     displayName: "\uCC9C\uCE6D\uC790\uB9AC"
@@ -1023,34 +995,34 @@ MonoBehaviour:
       200\uC73C\uB85C \uCDE8\uAE09, 0\uC774 \uC544\uB2C8\uB77C\uBA74 \uC808\uBC18
       \uCDE8\uAE09"
     sprite: 
-    rawEffects: '[{"Trigger":"","Target":"Base_Damage","Calc":"Set","Value":200.0,"Condition":"CurrentValue==0","Execution":"Modifier"},{"Trigger":"","Target":"Base_Damage","Calc":"Multiply","Value":0.5,"Condition":"CurrentValue!=0","Execution":"Modifier"}]'
+    rawEffects: '[{"Trigger":"","Target":"Base_Damage","Calc":"set","Value":200.0,"Option":"","Condition":"currentvalue==0","Chance":1.0,"Lifetime":"","Execution":"modifier","Duration":0},{"Trigger":"","Target":"Base_Damage","Calc":"multiply","Value":0.5,"Option":"","Condition":"currentvalue!=0","Chance":1.0,"Lifetime":"","Execution":"modifier","Duration":0}]'
     effects:
     - trigger: 
       target: Base_Damage
-      calc: Set
+      calc: set
       valueExpression: 200
       hasNumericValue: 1
       numericValue: 200
       option: 
-      condition: CurrentValue==0
+      condition: currentvalue==0
       chance: 1
       lifetime: 
-      execution: Modifier
+      execution: modifier
       duration: 0
-      rawJson: '{"Trigger":"","Target":"Base_Damage","Calc":"Set","Value":200.0,"Condition":"CurrentValue==0","Execution":"Modifier"}'
+      rawJson: '{"Trigger":"","Target":"Base_Damage","Calc":"set","Value":200.0,"Option":"","Condition":"currentvalue==0","Chance":1.0,"Lifetime":"","Execution":"modifier","Duration":0}'
     - trigger: 
       target: Base_Damage
-      calc: Multiply
+      calc: multiply
       valueExpression: 0.5
       hasNumericValue: 1
       numericValue: 0.5
       option: 
-      condition: CurrentValue!=0
+      condition: currentvalue!=0
       chance: 1
       lifetime: 
-      execution: Modifier
+      execution: modifier
       duration: 0
-      rawJson: '{"Trigger":"","Target":"Base_Damage","Calc":"Multiply","Value":0.5,"Condition":"CurrentValue!=0","Execution":"Modifier"}'
+      rawJson: '{"Trigger":"","Target":"Base_Damage","Calc":"multiply","Value":0.5,"Option":"","Condition":"currentvalue!=0","Chance":1.0,"Lifetime":"","Execution":"modifier","Duration":0}'
     isTemporary: 0
     trigger: 0
     target: 3
@@ -1061,47 +1033,45 @@ MonoBehaviour:
     dataCode: fan_turn_pisces
     devName: "\uBB3C\uACE0\uAE30\uC790\uB9AC"
     nameStringId: 
-    descStringId: "\uD134 \uC2DC\uC791 \uC2DC \uC774\uB3D9 \uD69F\uC218\uAC00 0\uC774
-      \uB418\uB294 \uB300\uC2E0, \uADF8\uB9CC\uD07C \uC784\uC2DC \uC5EC\uBD84\uC131\uB0E5\uACFC
-      \uC9C0\uC6B0\uAC1C \uD68D\uB4DD"
+    descStringId: 
     grade: 2
-    triggerType: Turn_Start
+    triggerType: turn_start
     displayName: "\uBB3C\uACE0\uAE30\uC790\uB9AC"
     description: "\uD134 \uC2DC\uC791 \uC2DC \uC774\uB3D9 \uD69F\uC218\uAC00 0\uC774
       \uB418\uB294 \uB300\uC2E0, \uADF8\uB9CC\uD07C \uC784\uC2DC \uC5EC\uBD84\uC131\uB0E5\uACFC
       \uC9C0\uC6B0\uAC1C \uD68D\uB4DD"
     sprite: 
-    rawEffects: '[{"Trigger":"Turn_Start","Target":"Extra_Match","Calc":"Add","Value":"RemainingMoves","Lifetime":"Battle"},{"Trigger":"Turn_Start","Target":"Eraser","Calc":"Add","Value":"RemainingMoves","Lifetime":"Battle"},{"Trigger":"Turn_Start","Target":"Movement","Calc":"Set","Value":0}]'
+    rawEffects: '[{"Trigger":"turn_start","Target":"extra_match","Calc":"add","Value":"RemainingMoves","Option":"","Condition":"","Chance":1.0,"Lifetime":"battle","Execution":"","Duration":0},{"Trigger":"turn_start","Target":"eraser","Calc":"add","Value":"RemainingMoves","Option":"","Condition":"","Chance":1.0,"Lifetime":"battle","Execution":"","Duration":0},{"Trigger":"turn_start","Target":"Movement","Calc":"set","Value":0.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Turn_Start
-      target: Extra_Match
-      calc: Add
+    - trigger: turn_start
+      target: extra_match
+      calc: add
       valueExpression: RemainingMoves
       hasNumericValue: 0
       numericValue: 0
       option: 
       condition: 
       chance: 1
-      lifetime: Battle
+      lifetime: battle
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Turn_Start","Target":"Extra_Match","Calc":"Add","Value":"RemainingMoves","Lifetime":"Battle"}'
-    - trigger: Turn_Start
-      target: Eraser
-      calc: Add
+      rawJson: '{"Trigger":"turn_start","Target":"extra_match","Calc":"add","Value":"RemainingMoves","Option":"","Condition":"","Chance":1.0,"Lifetime":"battle","Execution":"","Duration":0}'
+    - trigger: turn_start
+      target: eraser
+      calc: add
       valueExpression: RemainingMoves
       hasNumericValue: 0
       numericValue: 0
       option: 
       condition: 
       chance: 1
-      lifetime: Battle
+      lifetime: battle
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Turn_Start","Target":"Eraser","Calc":"Add","Value":"RemainingMoves","Lifetime":"Battle"}'
-    - trigger: Turn_Start
+      rawJson: '{"Trigger":"turn_start","Target":"eraser","Calc":"add","Value":"RemainingMoves","Option":"","Condition":"","Chance":1.0,"Lifetime":"battle","Execution":"","Duration":0}'
+    - trigger: turn_start
       target: Movement
-      calc: Set
+      calc: set
       valueExpression: 0
       hasNumericValue: 1
       numericValue: 0
@@ -1111,7 +1081,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Turn_Start","Target":"Movement","Calc":"Set","Value":0}'
+      rawJson: '{"Trigger":"turn_start","Target":"Movement","Calc":"set","Value":0.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 8
     target: 2
@@ -1122,19 +1092,18 @@ MonoBehaviour:
     dataCode: fan_upgrade_aquarius
     devName: "\uBB3C\uBCD1\uC790\uB9AC"
     nameStringId: 
-    descStringId: "\uBCF4\uC720\uC911\uC778 \uC18C\uBAA8\uD488\uC758 \uD569 10\uAC1C\uB2F9
-      \uD0C0\uC218 +1"
+    descStringId: 
     grade: 2
-    triggerType: Passive
+    triggerType: passive
     displayName: "\uBB3C\uBCD1\uC790\uB9AC"
     description: "\uBCF4\uC720\uC911\uC778 \uC18C\uBAA8\uD488\uC758 \uD569 10\uAC1C\uB2F9
       \uD0C0\uC218 +1"
     sprite: 
-    rawEffects: '[{"Trigger":"Passive","Target":"Attack_Count","Calc":"Add","Value":"ConsumableCount/10","Execution":"Modifier"}]'
+    rawEffects: '[{"Trigger":"passive","Target":"Attack_Count","Calc":"add","Value":"ConsumableCount/10","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"modifier","Duration":0}]'
     effects:
-    - trigger: Passive
+    - trigger: passive
       target: Attack_Count
-      calc: Add
+      calc: add
       valueExpression: ConsumableCount/10
       hasNumericValue: 0
       numericValue: 0
@@ -1142,9 +1111,9 @@ MonoBehaviour:
       condition: 
       chance: 1
       lifetime: 
-      execution: Modifier
+      execution: modifier
       duration: 0
-      rawJson: '{"Trigger":"Passive","Target":"Attack_Count","Calc":"Add","Value":"ConsumableCount/10","Execution":"Modifier"}'
+      rawJson: '{"Trigger":"passive","Target":"Attack_Count","Calc":"add","Value":"ConsumableCount/10","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"modifier","Duration":0}'
     isTemporary: 0
     trigger: 1
     target: 4
@@ -1155,17 +1124,17 @@ MonoBehaviour:
     dataCode: fan_attack_animalfriends
     devName: "\uB3D9\uBB3C\uCE5C\uAD6C\uB4E4"
     nameStringId: 
-    descStringId: "\uD0C0\uC218+4"
+    descStringId: 
     grade: 2
-    triggerType: Passive
+    triggerType: passive
     displayName: "\uB3D9\uBB3C\uCE5C\uAD6C\uB4E4"
     description: "\uD0C0\uC218+4"
     sprite: 
-    rawEffects: '[{"Trigger":"Passive","Target":"Attack_Count","Calc":"Add","Value":4.0},{"Trigger":"On_Acquire","Target":"Collection","Calc":"Combine","Value":1,"Option":"fan_rabbit_head,fan_turtle_head,fan_cat_head,fan_parrot_head","Execution":"Capability"},{"Trigger":"Passive","Target":"Availability","Calc":"Exclude","Value":1,"Execution":"Capability"}]'
+    rawEffects: '[{"Trigger":"passive","Target":"Attack_Count","Calc":"add","Value":4.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0},{"Trigger":"on_acquire","Target":"collection","Calc":"combine","Value":1.0,"Option":"fan_rabbit_head,fan_turtle_head,fan_cat_head,fan_parrot_head","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0},{"Trigger":"passive","Target":"availability","Calc":"exclude","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0}]'
     effects:
-    - trigger: Passive
+    - trigger: passive
       target: Attack_Count
-      calc: Add
+      calc: add
       valueExpression: 4
       hasNumericValue: 1
       numericValue: 4
@@ -1175,10 +1144,10 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Passive","Target":"Attack_Count","Calc":"Add","Value":4.0}'
-    - trigger: On_Acquire
-      target: Collection
-      calc: Combine
+      rawJson: '{"Trigger":"passive","Target":"Attack_Count","Calc":"add","Value":4.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
+    - trigger: on_acquire
+      target: collection
+      calc: combine
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -1186,12 +1155,12 @@ MonoBehaviour:
       condition: 
       chance: 1
       lifetime: 
-      execution: Capability
+      execution: capability
       duration: 0
-      rawJson: '{"Trigger":"On_Acquire","Target":"Collection","Calc":"Combine","Value":1,"Option":"fan_rabbit_head,fan_turtle_head,fan_cat_head,fan_parrot_head","Execution":"Capability"}'
-    - trigger: Passive
-      target: Availability
-      calc: Exclude
+      rawJson: '{"Trigger":"on_acquire","Target":"collection","Calc":"combine","Value":1.0,"Option":"fan_rabbit_head,fan_turtle_head,fan_cat_head,fan_parrot_head","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0}'
+    - trigger: passive
+      target: availability
+      calc: exclude
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -1199,9 +1168,9 @@ MonoBehaviour:
       condition: 
       chance: 1
       lifetime: 
-      execution: Capability
+      execution: capability
       duration: 0
-      rawJson: '{"Trigger":"Passive","Target":"Availability","Calc":"Exclude","Value":1,"Execution":"Capability"}'
+      rawJson: '{"Trigger":"passive","Target":"availability","Calc":"exclude","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0}'
     isTemporary: 0
     trigger: 1
     target: 4
@@ -1212,19 +1181,18 @@ MonoBehaviour:
     dataCode: fan_start_capricorn
     devName: "\uC5FC\uC18C\uC790\uB9AC"
     nameStringId: 
-    descStringId: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uC774\uB3D9\uD69F\uC218, \uC784\uC2DC
-      \uC9C0\uC6B0\uAC1C, \uC784\uC2DC \uC5EC\uBD84\uC131\uB0E5 +1"
+    descStringId: 
     grade: 2
-    triggerType: Battle_Start
+    triggerType: battle_start
     displayName: "\uC5FC\uC18C\uC790\uB9AC"
     description: "\uC804\uD22C \uC2DC\uC791 \uC2DC \uC774\uB3D9\uD69F\uC218, \uC784\uC2DC
       \uC9C0\uC6B0\uAC1C, \uC784\uC2DC \uC5EC\uBD84\uC131\uB0E5 +1"
     sprite: 
-    rawEffects: '[{"Trigger":"Battle_Start","Target":"Movement","Calc":"Add","Value":1.0,"Option":""},{"Trigger":"Battle_Start","Target":"Eraser","Calc":"Add","Value":1.0,"Option":""},{"Trigger":"Battle_Start","Target":"Extra_Match","Calc":"Add","Value":1.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"battle_start","Target":"Movement","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0},{"Trigger":"battle_start","Target":"eraser","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0},{"Trigger":"battle_start","Target":"extra_match","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Battle_Start
+    - trigger: battle_start
       target: Movement
-      calc: Add
+      calc: add
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -1234,10 +1202,10 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Battle_Start","Target":"Movement","Calc":"Add","Value":1.0,"Option":""}'
-    - trigger: Battle_Start
-      target: Eraser
-      calc: Add
+      rawJson: '{"Trigger":"battle_start","Target":"Movement","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
+    - trigger: battle_start
+      target: eraser
+      calc: add
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -1247,10 +1215,10 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Battle_Start","Target":"Eraser","Calc":"Add","Value":1.0,"Option":""}'
-    - trigger: Battle_Start
-      target: Extra_Match
-      calc: Add
+      rawJson: '{"Trigger":"battle_start","Target":"eraser","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
+    - trigger: battle_start
+      target: extra_match
+      calc: add
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -1260,7 +1228,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Battle_Start","Target":"Extra_Match","Calc":"Add","Value":1.0,"Option":""}'
+      rawJson: '{"Trigger":"battle_start","Target":"extra_match","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 2
     target: 9
@@ -1271,34 +1239,32 @@ MonoBehaviour:
     dataCode: fan_erase_sagittarius
     devName: "\uC0AC\uC218\uC790\uB9AC"
     nameStringId: 
-    descStringId: "\uBAA8\uB4E0 \uC0C1\uC790\uB97C \uBD84\uB9AC\uC2DC\uD0A4\uB294
-      \uB300\uC2E0, \uC804\uD22C\uB2F9 \uD55C \uBC88 \uC9C0\uC6B0\uAC1C\uB85C \uC0C1\uC790\uB97C
-      \uC9C0\uC6B8 \uC218 \uC788\uC74C"
+    descStringId: 
     grade: 2
-    triggerType: Passive
+    triggerType: passive
     displayName: "\uC0AC\uC218\uC790\uB9AC"
     description: "\uBAA8\uB4E0 \uC0C1\uC790\uB97C \uBD84\uB9AC\uC2DC\uD0A4\uB294
       \uB300\uC2E0, \uC804\uD22C\uB2F9 \uD55C \uBC88 \uC9C0\uC6B0\uAC1C\uB85C \uC0C1\uC790\uB97C
       \uC9C0\uC6B8 \uC218 \uC788\uC74C"
     sprite: 
-    rawEffects: '[{"Trigger":"Battle_Start","Target":"Eraser","Calc":"Add","Value":1.0,"Lifetime":"Battle"},{"Trigger":"Passive","Target":"Player_Boxes","Calc":"Split","Value":1,"Execution":"Capability"},{"Trigger":"Passive","Target":"Split_Digit_Erase","Calc":"Enable","Value":1,"Execution":"Capability"}]'
+    rawEffects: '[{"Trigger":"battle_start","Target":"eraser","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"battle","Execution":"","Duration":0},{"Trigger":"passive","Target":"player_boxes","Calc":"split","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0},{"Trigger":"passive","Target":"split_digit_erase","Calc":"enable","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0}]'
     effects:
-    - trigger: Battle_Start
-      target: Eraser
-      calc: Add
+    - trigger: battle_start
+      target: eraser
+      calc: add
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
       option: 
       condition: 
       chance: 1
-      lifetime: Battle
+      lifetime: battle
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Battle_Start","Target":"Eraser","Calc":"Add","Value":1.0,"Lifetime":"Battle"}'
-    - trigger: Passive
-      target: Player_Boxes
-      calc: Split
+      rawJson: '{"Trigger":"battle_start","Target":"eraser","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"battle","Execution":"","Duration":0}'
+    - trigger: passive
+      target: player_boxes
+      calc: split
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -1306,12 +1272,12 @@ MonoBehaviour:
       condition: 
       chance: 1
       lifetime: 
-      execution: Capability
+      execution: capability
       duration: 0
-      rawJson: '{"Trigger":"Passive","Target":"Player_Boxes","Calc":"Split","Value":1,"Execution":"Capability"}'
-    - trigger: Passive
-      target: Split_Digit_Erase
-      calc: Enable
+      rawJson: '{"Trigger":"passive","Target":"player_boxes","Calc":"split","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0}'
+    - trigger: passive
+      target: split_digit_erase
+      calc: enable
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -1319,9 +1285,9 @@ MonoBehaviour:
       condition: 
       chance: 1
       lifetime: 
-      execution: Capability
+      execution: capability
       duration: 0
-      rawJson: '{"Trigger":"Passive","Target":"Split_Digit_Erase","Calc":"Enable","Value":1,"Execution":"Capability"}'
+      rawJson: '{"Trigger":"passive","Target":"split_digit_erase","Calc":"enable","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0}'
     isTemporary: 0
     trigger: 2
     target: 2
@@ -1332,19 +1298,18 @@ MonoBehaviour:
     dataCode: fan_odd_gemini
     devName: "\uC30D\uB465\uC774\uC790\uB9AC"
     nameStringId: 
-    descStringId: "\uB0B4 \uD640\uC218\uC758 \uC218\uCE58 x2, \uC9DD\uC218\uB294
-      0\uC73C\uB85C \uCDE8\uAE09"
+    descStringId: 
     grade: 2
-    triggerType: Passive
+    triggerType: passive
     displayName: "\uC30D\uB465\uC774\uC790\uB9AC"
     description: "\uB0B4 \uD640\uC218\uC758 \uC218\uCE58 x2, \uC9DD\uC218\uB294 0\uC73C\uB85C
       \uCDE8\uAE09"
     sprite: 
-    rawEffects: '[{"Trigger":"Passive","Target":"Player_Number","Calc":"Multiply","Value":2.0,"Condition":"CurrentValueIsOdd"},{"Trigger":"Passive","Target":"Player_Number","Calc":"Set","Value":0,"Condition":"CurrentValueIsEven"}]'
+    rawEffects: '[{"Trigger":"passive","Target":"player_number","Calc":"multiply","Value":2.0,"Option":"","Condition":"CurrentValueIsOdd","Chance":1.0,"Lifetime":"","Execution":"","Duration":0},{"Trigger":"passive","Target":"player_number","Calc":"set","Value":0.0,"Option":"","Condition":"CurrentValueIsEven","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Passive
-      target: Player_Number
-      calc: Multiply
+    - trigger: passive
+      target: player_number
+      calc: multiply
       valueExpression: 2
       hasNumericValue: 1
       numericValue: 2
@@ -1354,10 +1319,10 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Passive","Target":"Player_Number","Calc":"Multiply","Value":2.0,"Condition":"CurrentValueIsOdd"}'
-    - trigger: Passive
-      target: Player_Number
-      calc: Set
+      rawJson: '{"Trigger":"passive","Target":"player_number","Calc":"multiply","Value":2.0,"Option":"","Condition":"CurrentValueIsOdd","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
+    - trigger: passive
+      target: player_number
+      calc: set
       valueExpression: 0
       hasNumericValue: 1
       numericValue: 0
@@ -1367,7 +1332,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Passive","Target":"Player_Number","Calc":"Set","Value":0,"Condition":"CurrentValueIsEven"}'
+      rawJson: '{"Trigger":"passive","Target":"player_number","Calc":"set","Value":0.0,"Option":"","Condition":"CurrentValueIsEven","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 1
     target: 9
@@ -1378,19 +1343,18 @@ MonoBehaviour:
     dataCode: fan_shop_stickyglove
     devName: "\uB048\uB048\uC774\uC7A5\uAC11"
     nameStringId: 
-    descStringId: "\uC0C1\uC810\uC5D0\uC11C \uC18C\uBAA8\uD488\uC744 \uAC01\uAC01
-      1\uD68C \uBB34\uB8CC\uB85C \uAD6C\uB9E4 \uAC00\uB2A5"
+    descStringId: 
     grade: 1
-    triggerType: Passive
+    triggerType: passive
     displayName: "\uB048\uB048\uC774\uC7A5\uAC11"
     description: "\uC0C1\uC810\uC5D0\uC11C \uC18C\uBAA8\uD488\uC744 \uAC01\uAC01
       1\uD68C \uBB34\uB8CC\uB85C \uAD6C\uB9E4 \uAC00\uB2A5"
     sprite: 
-    rawEffects: '[{"Trigger":"Passive","Target":"Item_Cost","Calc":"Add","Value":-100.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"passive","Target":"item_cost","Calc":"add","Value":-100.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Passive
-      target: Item_Cost
-      calc: Add
+    - trigger: passive
+      target: item_cost
+      calc: add
       valueExpression: -100
       hasNumericValue: 1
       numericValue: -100
@@ -1400,7 +1364,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Passive","Target":"Item_Cost","Calc":"Add","Value":-100.0,"Option":""}'
+      rawJson: '{"Trigger":"passive","Target":"item_cost","Calc":"add","Value":-100.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 1
     target: 8
@@ -1411,19 +1375,18 @@ MonoBehaviour:
     dataCode: fan_shop_stampcoupon
     devName: "\uC2A4\uD0EC\uD504\uCFE0\uD3F0"
     nameStringId: 
-    descStringId: "\uC0C1\uC810\uC5D0\uC11C \uCCB4\uB825 999 \uC18C\uBAA8 \uC2DC
-      \uB9E4 \uD134 \uACF5\uACA9 \uD69F\uC218 +1\uC758 \uD658\uC0C1\uC73C\uB85C \uBCC0\uACBD"
+    descStringId: 
     grade: 1
-    triggerType: Shop_Purchase
+    triggerType: shop_purchase
     displayName: "\uC2A4\uD0EC\uD504\uCFE0\uD3F0"
     description: "\uC0C1\uC810\uC5D0\uC11C \uCCB4\uB825 999 \uC18C\uBAA8 \uC2DC \uB9E4
       \uD134 \uACF5\uACA9 \uD69F\uC218 +1\uC758 \uD658\uC0C1\uC73C\uB85C \uBCC0\uACBD"
     sprite: 
-    rawEffects: '[{"Trigger":"Shop_Purchase","Target":"Health_Spent","Calc":"Transform","Value":999,"Option":"fan_turn_syringe","Execution":"Capability"}]'
+    rawEffects: '[{"Trigger":"shop_purchase","Target":"health_spent","Calc":"transform","Value":999.0,"Option":"fan_turn_syringe","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0}]'
     effects:
-    - trigger: Shop_Purchase
-      target: Health_Spent
-      calc: Transform
+    - trigger: shop_purchase
+      target: health_spent
+      calc: transform
       valueExpression: 999
       hasNumericValue: 1
       numericValue: 999
@@ -1431,9 +1394,9 @@ MonoBehaviour:
       condition: 
       chance: 1
       lifetime: 
-      execution: Capability
+      execution: capability
       duration: 0
-      rawJson: '{"Trigger":"Shop_Purchase","Target":"Health_Spent","Calc":"Transform","Value":999,"Option":"fan_turn_syringe","Execution":"Capability"}'
+      rawJson: '{"Trigger":"shop_purchase","Target":"health_spent","Calc":"transform","Value":999.0,"Option":"fan_turn_syringe","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0}'
     isTemporary: 0
     trigger: 7
     target: 9
@@ -1444,17 +1407,17 @@ MonoBehaviour:
     dataCode: fan_turn_syringe
     devName: "\uC8FC\uC0AC\uAE30"
     nameStringId: 
-    descStringId: "\uB9E4 \uD134 \uACF5\uACA9 \uD69F\uC218 +1"
+    descStringId: 
     grade: 1
-    triggerType: Passive
+    triggerType: passive
     displayName: "\uC8FC\uC0AC\uAE30"
     description: "\uB9E4 \uD134 \uACF5\uACA9 \uD69F\uC218 +1"
     sprite: 
-    rawEffects: '[{"Trigger":"Passive","Target":"Attack_Count","Calc":"Add","Value":1.0},{"Trigger":"Passive","Target":"Availability","Calc":"Exclude","Value":1,"Execution":"Capability"}]'
+    rawEffects: '[{"Trigger":"passive","Target":"Attack_Count","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0},{"Trigger":"passive","Target":"availability","Calc":"exclude","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0}]'
     effects:
-    - trigger: Passive
+    - trigger: passive
       target: Attack_Count
-      calc: Add
+      calc: add
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -1464,10 +1427,10 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Passive","Target":"Attack_Count","Calc":"Add","Value":1.0}'
-    - trigger: Passive
-      target: Availability
-      calc: Exclude
+      rawJson: '{"Trigger":"passive","Target":"Attack_Count","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
+    - trigger: passive
+      target: availability
+      calc: exclude
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -1475,9 +1438,9 @@ MonoBehaviour:
       condition: 
       chance: 1
       lifetime: 
-      execution: Capability
+      execution: capability
       duration: 0
-      rawJson: '{"Trigger":"Passive","Target":"Availability","Calc":"Exclude","Value":1,"Execution":"Capability"}'
+      rawJson: '{"Trigger":"passive","Target":"availability","Calc":"exclude","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0}'
     isTemporary: 0
     trigger: 1
     target: 4
@@ -1488,31 +1451,29 @@ MonoBehaviour:
     dataCode: fan_defend_paperboat
     devName: "\uC885\uC774 \uBC30"
     nameStringId: 
-    descStringId: "\uC801\uC758 \uAE30\uBCF8 \uD53C\uD574\uB7C9\uC774 \uB0B4 \uAE30\uBCF8
-      \uD53C\uD574\uB7C9 \uC774\uC0C1\uC778 \uACBD\uC6B0, \uBC1B\uB294 \uD53C\uD574
-      \uC808\uBC18"
+    descStringId: 
     grade: 1
-    triggerType: Passive
+    triggerType: passive
     displayName: "\uC885\uC774 \uBC30"
     description: "\uC801\uC758 \uAE30\uBCF8 \uD53C\uD574\uB7C9\uC774 \uB0B4 \uAE30\uBCF8
       \uD53C\uD574\uB7C9 \uC774\uC0C1\uC778 \uACBD\uC6B0, \uBC1B\uB294 \uD53C\uD574
       \uC808\uBC18"
     sprite: 
-    rawEffects: '[{"Trigger":"Take_Damage","Target":"Damage_Taken","Calc":"Multiply","Value":0.5,"Condition":"MonsterBaseDamage>=PlayerBaseDamage","Execution":"Modifier"}]'
+    rawEffects: '[{"Trigger":"take_damage","Target":"Damage_Taken","Calc":"multiply","Value":0.5,"Option":"","Condition":"monsterbasedamage>=playerbasedamage","Chance":1.0,"Lifetime":"","Execution":"modifier","Duration":0}]'
     effects:
-    - trigger: Take_Damage
+    - trigger: take_damage
       target: Damage_Taken
-      calc: Multiply
+      calc: multiply
       valueExpression: 0.5
       hasNumericValue: 1
       numericValue: 0.5
       option: 
-      condition: MonsterBaseDamage>=PlayerBaseDamage
+      condition: monsterbasedamage>=playerbasedamage
       chance: 1
       lifetime: 
-      execution: Modifier
+      execution: modifier
       duration: 0
-      rawJson: '{"Trigger":"Take_Damage","Target":"Damage_Taken","Calc":"Multiply","Value":0.5,"Condition":"MonsterBaseDamage>=PlayerBaseDamage","Execution":"Modifier"}'
+      rawJson: '{"Trigger":"take_damage","Target":"Damage_Taken","Calc":"multiply","Value":0.5,"Option":"","Condition":"monsterbasedamage>=playerbasedamage","Chance":1.0,"Lifetime":"","Execution":"modifier","Duration":0}'
     isTemporary: 0
     trigger: 8
     target: 9
@@ -1523,18 +1484,17 @@ MonoBehaviour:
     dataCode: fan_turn1_doll
     devName: "\uB300\uC5ED \uC778\uD615"
     nameStringId: 
-    descStringId: "\uCCAB \uD134\uB3D9\uC548 \uC801\uC758 \uD798 -2"
+    descStringId: 
     grade: 1
-    triggerType: Turn_1
+    triggerType: turn_1
     displayName: "\uB300\uC5ED \uC778\uD615"
     description: "\uCCAB \uD134\uB3D9\uC548 \uC801\uC758 \uD798 -2"
     sprite: 
-    rawEffects: '[{"Trigger":"Turn_1","Target":"Enemy_Strength","Calc":"Add","Value":-2.0,"Option":"",
-      "Duration": 1}]'
+    rawEffects: '[{"Trigger":"turn_1","Target":"Enemy_Strength","Calc":"add","Value":-2.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":1}]'
     effects:
-    - trigger: Turn_1
+    - trigger: turn_1
       target: Enemy_Strength
-      calc: Add
+      calc: add
       valueExpression: -2
       hasNumericValue: 1
       numericValue: -2
@@ -1544,7 +1504,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 1
-      rawJson: '{"Trigger":"Turn_1","Target":"Enemy_Strength","Calc":"Add","Value":-2.0,"Option":"","Duration":1}'
+      rawJson: '{"Trigger":"turn_1","Target":"Enemy_Strength","Calc":"add","Value":-2.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":1}'
     isTemporary: 0
     trigger: 8
     target: 5
@@ -1555,19 +1515,18 @@ MonoBehaviour:
     dataCode: fan_use_musicbox
     devName: "\uC624\uB974\uACE8"
     nameStringId: 
-    descStringId: "\uC18C\uBAA8\uD488\uC744 \uC0AC\uC6A9\uD560 \uB54C\uB9C8\uB2E4,
-      50% \uD655\uB960\uB85C \uADF8 \uC18C\uBAA8\uD488\uC758 \uBCF5\uC0AC\uBCF8 \uC0DD\uC131"
+    descStringId: 
     grade: 1
-    triggerType: Use_Item
+    triggerType: use_item
     displayName: "\uC624\uB974\uACE8"
     description: "\uC18C\uBAA8\uD488\uC744 \uC0AC\uC6A9\uD560 \uB54C\uB9C8\uB2E4,
       50% \uD655\uB960\uB85C \uADF8 \uC18C\uBAA8\uD488\uC758 \uBCF5\uC0AC\uBCF8 \uC0DD\uC131"
     sprite: 
-    rawEffects: '[{"Trigger":"Use_Item","Target":"Last_Used_Item","Calc":"Add","Value":1.0,"Chance":0.5}]'
+    rawEffects: '[{"Trigger":"use_item","Target":"last_used_item","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":0.5,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Use_Item
-      target: Last_Used_Item
-      calc: Add
+    - trigger: use_item
+      target: last_used_item
+      calc: add
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -1577,7 +1536,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Use_Item","Target":"Last_Used_Item","Calc":"Add","Value":1.0,"Chance":0.5}'
+      rawJson: '{"Trigger":"use_item","Target":"last_used_item","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":0.5,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 8
     target: 9
@@ -1588,19 +1547,18 @@ MonoBehaviour:
     dataCode: fan_damage_scythe
     devName: "\uB0AB"
     nameStringId: 
-    descStringId: "\uD53C\uD574\uB97C \uC785\uD790 \uB54C\uB9C8\uB2E4 \uCCB4\uB825
-      20\uC529 \uD68C\uBCF5"
+    descStringId: 
     grade: 1
-    triggerType: Deal_Damage
+    triggerType: deal_damage
     displayName: "\uB0AB"
     description: "\uD53C\uD574\uB97C \uC785\uD790 \uB54C\uB9C8\uB2E4 \uCCB4\uB825
       20\uC529 \uD68C\uBCF5"
     sprite: 
-    rawEffects: '[{"Trigger":"Deal_Damage","Target":"HP","Calc":"Add","Value":20.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"deal_damage","Target":"HP","Calc":"add","Value":20.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Deal_Damage
+    - trigger: deal_damage
       target: HP
-      calc: Add
+      calc: add
       valueExpression: 20
       hasNumericValue: 1
       numericValue: 20
@@ -1610,7 +1568,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Deal_Damage","Target":"HP","Calc":"Add","Value":20.0,"Option":""}'
+      rawJson: '{"Trigger":"deal_damage","Target":"HP","Calc":"add","Value":20.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 4
     target: 1
@@ -1621,19 +1579,18 @@ MonoBehaviour:
     dataCode: fan_end_fan
     devName: "\uBD80\uCC44"
     nameStringId: 
-    descStringId: "\uD134 \uC885\uB8CC \uC2DC \uB0B4 \uD604\uC7AC \uCCB4\uB825\uC758
-      10%\uB9CC\uD07C \uC801\uC5D0\uAC8C \uB370\uBBF8\uC9C0"
+    descStringId: 
     grade: 1
-    triggerType: Turn_End
+    triggerType: turn_end
     displayName: "\uBD80\uCC44"
     description: "\uD134 \uC885\uB8CC \uC2DC \uB0B4 \uD604\uC7AC \uCCB4\uB825\uC758
       10%\uB9CC\uD07C \uC801\uC5D0\uAC8C \uB370\uBBF8\uC9C0"
     sprite: 
-    rawEffects: '[{"Trigger":"Turn_End","Target":"Damage","Calc":"Add","Value":"HP*0.1"}]'
+    rawEffects: '[{"Trigger":"turn_end","Target":"damage","Calc":"add","Value":"HP*0.1","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Turn_End
-      target: Damage
-      calc: Add
+    - trigger: turn_end
+      target: damage
+      calc: add
       valueExpression: HP*0.1
       hasNumericValue: 0
       numericValue: 0
@@ -1643,7 +1600,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Turn_End","Target":"Damage","Calc":"Add","Value":"HP*0.1"}'
+      rawJson: '{"Trigger":"turn_end","Target":"damage","Calc":"add","Value":"HP*0.1","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 3
     target: 3
@@ -1654,21 +1611,19 @@ MonoBehaviour:
     dataCode: fan_end_firecracker
     devName: "\uD3ED\uC8FD"
     nameStringId: 
-    descStringId: "\uD134 \uC885\uB8CC\uC2DC \uC774\uBC88 \uC804\uD22C\uC5D0\uC11C
-      \uC18C\uBAA8\uD488\uC744 \uC0AC\uC6A9\uD55C \uD69F\uC218\uB9CC\uD07C 30\uC758
-      \uD53C\uD574"
+    descStringId: 
     grade: 1
-    triggerType: Turn_End
+    triggerType: turn_end
     displayName: "\uD3ED\uC8FD"
     description: "\uD134 \uC885\uB8CC\uC2DC \uC774\uBC88 \uC804\uD22C\uC5D0\uC11C
       \uC18C\uBAA8\uD488\uC744 \uC0AC\uC6A9\uD55C \uD69F\uC218\uB9CC\uD07C 30\uC758
       \uD53C\uD574"
     sprite: 
-    rawEffects: '[{"Trigger":"Turn_End","Target":"Damage","Calc":"Add","Value":"ItemUseCount*30"}]'
+    rawEffects: '[{"Trigger":"turn_end","Target":"damage","Calc":"add","Value":"ItemUseCount*30","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Turn_End
-      target: Damage
-      calc: Add
+    - trigger: turn_end
+      target: damage
+      calc: add
       valueExpression: ItemUseCount*30
       hasNumericValue: 0
       numericValue: 0
@@ -1678,7 +1633,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Turn_End","Target":"Damage","Calc":"Add","Value":"ItemUseCount*30"}'
+      rawJson: '{"Trigger":"turn_end","Target":"damage","Calc":"add","Value":"ItemUseCount*30","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 3
     target: 3
@@ -1689,31 +1644,29 @@ MonoBehaviour:
     dataCode: fan_end_paperplane
     devName: "\uC885\uC774 \uBE44\uD589\uAE30"
     nameStringId: 
-    descStringId: "\uD134 \uC885\uB8CC\uC2DC \uC801\uACFC \uB098\uC758 \uAE30\uBCF8
-      \uD53C\uD574\uB7C9\uC774 \uAC19\uC744 \uACBD\uC6B0, \uAC00\uD558\uB294 \uD53C\uD574\uB7C9
-      \uB450 \uBC30"
+    descStringId: 
     grade: 1
-    triggerType: Turn_End
+    triggerType: turn_end
     displayName: "\uC885\uC774 \uBE44\uD589\uAE30"
     description: "\uD134 \uC885\uB8CC\uC2DC \uC801\uACFC \uB098\uC758 \uAE30\uBCF8
       \uD53C\uD574\uB7C9\uC774 \uAC19\uC744 \uACBD\uC6B0, \uAC00\uD558\uB294 \uD53C\uD574\uB7C9
       \uB450 \uBC30"
     sprite: 
-    rawEffects: '[{"Trigger":"Turn_End","Target":"Additional_Damage","Calc":"Multiply","Value":2.0,"Condition":"PlayerBaseDamage==MonsterBaseDamage","Execution":"Modifier"}]'
+    rawEffects: '[{"Trigger":"turn_end","Target":"Additional_Damage","Calc":"multiply","Value":2.0,"Option":"","Condition":"playerbasedamage==monsterbasedamage","Chance":1.0,"Lifetime":"","Execution":"modifier","Duration":0}]'
     effects:
-    - trigger: Turn_End
+    - trigger: turn_end
       target: Additional_Damage
-      calc: Multiply
+      calc: multiply
       valueExpression: 2
       hasNumericValue: 1
       numericValue: 2
       option: 
-      condition: PlayerBaseDamage==MonsterBaseDamage
+      condition: playerbasedamage==monsterbasedamage
       chance: 1
       lifetime: 
-      execution: Modifier
+      execution: modifier
       duration: 0
-      rawJson: '{"Trigger":"Turn_End","Target":"Additional_Damage","Calc":"Multiply","Value":2.0,"Condition":"PlayerBaseDamage==MonsterBaseDamage","Execution":"Modifier"}'
+      rawJson: '{"Trigger":"turn_end","Target":"Additional_Damage","Calc":"multiply","Value":2.0,"Option":"","Condition":"playerbasedamage==monsterbasedamage","Chance":1.0,"Lifetime":"","Execution":"modifier","Duration":0}'
     isTemporary: 0
     trigger: 3
     target: 3
@@ -1724,19 +1677,18 @@ MonoBehaviour:
     dataCode: fan_start_cuestick
     devName: "\uD050\uB300"
     nameStringId: 
-    descStringId: "\uB9E4 \uD134 \uB0B4 \uAE30\uBCF8 \uD53C\uD574\uB7C9\uACFC \uD798
-      \uD53C\uD574\uB7C9 \uCCAB\uC9F8 \uC790\uB9AC \uC22B\uC790 8\uB85C \uACE0\uC815"
+    descStringId: 
     grade: 1
-    triggerType: Turn_Start
+    triggerType: turn_start
     displayName: "\uD050\uB300"
     description: "\uB9E4 \uD134 \uB0B4 \uAE30\uBCF8 \uD53C\uD574\uB7C9\uACFC \uD798
       \uD53C\uD574\uB7C9 \uCCAB\uC9F8 \uC790\uB9AC \uC22B\uC790 8\uB85C \uACE0\uC815"
     sprite: 
-    rawEffects: '[{"Trigger":"Turn_Start","Target":"Player_Base_Damage","Calc":"SetFirstDigit","Value":8.0,"Execution":"Modifier"}]'
+    rawEffects: '[{"Trigger":"turn_start","Target":"player_base_damage","Calc":"set_first_digit","Value":8.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"modifier","Duration":0}]'
     effects:
-    - trigger: Turn_Start
-      target: Player_Base_Damage
-      calc: SetFirstDigit
+    - trigger: turn_start
+      target: player_base_damage
+      calc: set_first_digit
       valueExpression: 8
       hasNumericValue: 1
       numericValue: 8
@@ -1744,9 +1696,9 @@ MonoBehaviour:
       condition: 
       chance: 1
       lifetime: 
-      execution: Modifier
+      execution: modifier
       duration: 0
-      rawJson: '{"Trigger":"Turn_Start","Target":"Player_Base_Damage","Calc":"SetFirstDigit","Value":8.0,"Execution":"Modifier"}'
+      rawJson: '{"Trigger":"turn_start","Target":"player_base_damage","Calc":"set_first_digit","Value":8.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"modifier","Duration":0}'
     isTemporary: 0
     trigger: 8
     target: 9
@@ -1757,17 +1709,17 @@ MonoBehaviour:
     dataCode: fan_turn4_clockwork
     devName: "\uC2DC\uACC4\uD0DC\uC5FD"
     nameStringId: 
-    descStringId: "\uCCAB \uD134\uC5D0 \uACF5\uACA9 \uD69F\uC218 +1"
+    descStringId: 
     grade: 1
-    triggerType: Battle_Start
+    triggerType: battle_start
     displayName: "\uC2DC\uACC4\uD0DC\uC5FD"
     description: "\uCCAB \uD134\uC5D0 \uACF5\uACA9 \uD69F\uC218 +1"
     sprite: 
-    rawEffects: '[{"Trigger":"Battle_Start","Target":"Attack_Count","Calc":"Add","Value":1.0,"Option":"","Duration":1}]'
+    rawEffects: '[{"Trigger":"battle_start","Target":"Attack_Count","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":1}]'
     effects:
-    - trigger: Battle_Start
+    - trigger: battle_start
       target: Attack_Count
-      calc: Add
+      calc: add
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -1777,7 +1729,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 1
-      rawJson: '{"Trigger":"Battle_Start","Target":"Attack_Count","Calc":"Add","Value":1.0,"Option":"","Duration":1}'
+      rawJson: '{"Trigger":"battle_start","Target":"Attack_Count","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":1}'
     isTemporary: 0
     trigger: 2
     target: 4
@@ -1788,21 +1740,19 @@ MonoBehaviour:
     dataCode: fan_acquire_blueprint
     devName: "\uCCAD\uC0AC\uC9C4"
     nameStringId: 
-    descStringId: "\uD68D\uB4DD\uC2DC \uBCF4\uC720\uD558\uACE0 \uC788\uB294 \uD658\uC0C1
-      \uC911 \uD558\uB098\uB85C \uC120\uD0DD\uD558\uC5EC \uADF8 \uBCF5\uC0AC\uBCF8\uC73C\uB85C
-      \uC601\uAD6C\uD788 \uBCC0\uACBD\uB428"
+    descStringId: 
     grade: 1
-    triggerType: On_Acquire
+    triggerType: on_acquire
     displayName: "\uCCAD\uC0AC\uC9C4"
     description: "\uD68D\uB4DD\uC2DC \uBCF4\uC720\uD558\uACE0 \uC788\uB294 \uD658\uC0C1
       \uC911 \uD558\uB098\uB85C \uC120\uD0DD\uD558\uC5EC \uADF8 \uBCF5\uC0AC\uBCF8\uC73C\uB85C
       \uC601\uAD6C\uD788 \uBCC0\uACBD\uB428"
     sprite: 
-    rawEffects: '[{"Trigger":"On_Acquire","Target":"Fantasy","Calc":"ReplaceWithCopy","Value":1.0}]'
+    rawEffects: '[{"Trigger":"on_acquire","Target":"fantasy","Calc":"replace_with_copy","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: On_Acquire
-      target: Fantasy
-      calc: ReplaceWithCopy
+    - trigger: on_acquire
+      target: fantasy
+      calc: replace_with_copy
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -1812,7 +1762,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"On_Acquire","Target":"Fantasy","Calc":"ReplaceWithCopy","Value":1.0}'
+      rawJson: '{"Trigger":"on_acquire","Target":"fantasy","Calc":"replace_with_copy","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 8
     target: 6
@@ -1823,17 +1773,17 @@ MonoBehaviour:
     dataCode: fan_rest_sleepmask
     devName: "\uC218\uBA74\uC548\uB300"
     nameStringId: 
-    descStringId: "\uD734\uC2DD\uC73C\uB85C \uC5BB\uB294 \uCCB4\uB825 x2"
+    descStringId: 
     grade: 1
-    triggerType: Rest
+    triggerType: rest
     displayName: "\uC218\uBA74\uC548\uB300"
     description: "\uD734\uC2DD\uC73C\uB85C \uC5BB\uB294 \uCCB4\uB825 x2"
     sprite: 
-    rawEffects: '[{"Trigger":"Rest","Target":"HP","Calc":"Multiply","Value":2.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"rest","Target":"HP","Calc":"multiply","Value":2.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Rest
+    - trigger: rest
       target: HP
-      calc: Multiply
+      calc: multiply
       valueExpression: 2
       hasNumericValue: 1
       numericValue: 2
@@ -1843,7 +1793,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Rest","Target":"HP","Calc":"Multiply","Value":2.0,"Option":""}'
+      rawJson: '{"Trigger":"rest","Target":"HP","Calc":"multiply","Value":2.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 6
     target: 1
@@ -1854,19 +1804,18 @@ MonoBehaviour:
     dataCode: fan_rest_marshmallow
     devName: "\uB9C8\uC2DC\uBA5C\uB85C"
     nameStringId: 
-    descStringId: "\uD734\uC2DD \uBC84\uD2BC\uC744 \uD55C \uBC88 \uB354 \uB204\uB97C
-      \uC218 \uC788\uC74C"
+    descStringId: 
     grade: 1
-    triggerType: Passive
+    triggerType: passive
     displayName: "\uB9C8\uC2DC\uBA5C\uB85C"
     description: "\uD734\uC2DD \uBC84\uD2BC\uC744 \uD55C \uBC88 \uB354 \uB204\uB97C
       \uC218 \uC788\uC74C"
     sprite: 
-    rawEffects: '[{"Trigger":"Passive","Target":"Rest_Count","Calc":"Add","Value":1.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"passive","Target":"Rest_Count","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Passive
+    - trigger: passive
       target: Rest_Count
-      calc: Add
+      calc: add
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
@@ -1876,7 +1825,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Passive","Target":"Rest_Count","Calc":"Add","Value":1.0,"Option":""}'
+      rawJson: '{"Trigger":"passive","Target":"Rest_Count","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 1
     target: 7
@@ -1887,19 +1836,18 @@ MonoBehaviour:
     dataCode: fan_damage_grapeshot
     devName: "\uD3EC\uB3C4\uD0C4"
     nameStringId: 
-    descStringId: "\uD53C\uD574\uB97C \uC785\uD790 \uB54C \uB9C8\uB2E4 \uD56D\uC0C1
-      60\uC529 \uCD94\uAC00\uB85C \uC785\uD798"
+    descStringId: 
     grade: 1
-    triggerType: Deal_Damage
+    triggerType: deal_damage
     displayName: "\uD3EC\uB3C4\uD0C4"
     description: "\uD53C\uD574\uB97C \uC785\uD790 \uB54C \uB9C8\uB2E4 \uD56D\uC0C1
       60\uC529 \uCD94\uAC00\uB85C \uC785\uD798"
     sprite: 
-    rawEffects: '[{"Trigger":"Deal_Damage","Target":"Additional_Damage","Calc":"Add","Value":60.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"deal_damage","Target":"Additional_Damage","Calc":"add","Value":60.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Deal_Damage
+    - trigger: deal_damage
       target: Additional_Damage
-      calc: Add
+      calc: add
       valueExpression: 60
       hasNumericValue: 1
       numericValue: 60
@@ -1909,7 +1857,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Deal_Damage","Target":"Additional_Damage","Calc":"Add","Value":60.0,"Option":""}'
+      rawJson: '{"Trigger":"deal_damage","Target":"Additional_Damage","Calc":"add","Value":60.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 4
     target: 3
@@ -1920,19 +1868,18 @@ MonoBehaviour:
     dataCode: fan_damage_Bottle
     devName: "\uBCD1 \uC18D\uC758 \uBC30"
     nameStringId: 
-    descStringId: "\uD53C\uD574\uB97C \uBC1B\uC744 \uB54C \uB9C8\uB2E4 \uC801\uC5D0\uAC8C
-      150 \uD53C\uD574\uB97C \uC785\uD798"
+    descStringId: 
     grade: 1
-    triggerType: Take_Damage
+    triggerType: take_damage
     displayName: "\uBCD1 \uC18D\uC758 \uBC30"
     description: "\uD53C\uD574\uB97C \uBC1B\uC744 \uB54C \uB9C8\uB2E4 \uC801\uC5D0\uAC8C
       150 \uD53C\uD574\uB97C \uC785\uD798"
     sprite: 
-    rawEffects: '[{"Trigger":"Take_Damage","Target":"Damage_Reflect","Calc":"Add","Value":150.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"take_damage","Target":"Damage_Reflect","Calc":"add","Value":150.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Take_Damage
+    - trigger: take_damage
       target: Damage_Reflect
-      calc: Add
+      calc: add
       valueExpression: 150
       hasNumericValue: 1
       numericValue: 150
@@ -1942,7 +1889,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Take_Damage","Target":"Damage_Reflect","Calc":"Add","Value":150.0,"Option":""}'
+      rawJson: '{"Trigger":"take_damage","Target":"Damage_Reflect","Calc":"add","Value":150.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 8
     target: 9
@@ -1953,19 +1900,18 @@ MonoBehaviour:
     dataCode: fan_number_domino
     devName: "\uB3C4\uBBF8\uB178"
     nameStringId: 
-    descStringId: "\uB0B4 5\uBCF4\uB2E4 \uC791\uC740 \uC22B\uC790\uAC00 \uBAA8\uB450
-      5\uB85C \uCDE8\uAE09\uB428"
+    descStringId: 
     grade: 1
-    triggerType: Passive
+    triggerType: passive
     displayName: "\uB3C4\uBBF8\uB178"
     description: "\uB0B4 5\uBCF4\uB2E4 \uC791\uC740 \uC22B\uC790\uAC00 \uBAA8\uB450
       5\uB85C \uCDE8\uAE09\uB428"
     sprite: 
-    rawEffects: '[{"Trigger":"Passive","Target":"Player_Number","Calc":"DigitMin","Value":5.0}]'
+    rawEffects: '[{"Trigger":"passive","Target":"player_number","Calc":"digit_min","Value":5.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Passive
-      target: Player_Number
-      calc: DigitMin
+    - trigger: passive
+      target: player_number
+      calc: digit_min
       valueExpression: 5
       hasNumericValue: 1
       numericValue: 5
@@ -1975,7 +1921,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Passive","Target":"Player_Number","Calc":"DigitMin","Value":5.0}'
+      rawJson: '{"Trigger":"passive","Target":"player_number","Calc":"digit_min","Value":5.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 1
     target: 9
@@ -1986,19 +1932,18 @@ MonoBehaviour:
     dataCode: fan_number_applepie
     devName: "\uC0AC\uACFC\uD30C\uC774"
     nameStringId: 
-    descStringId: "\uC801\uC758 5\uBCF4\uB2E4 \uD070 \uC22B\uC790\uAC00 \uBAA8\uB450
-      5\uB85C \uCDE8\uAE09\uB428"
+    descStringId: 
     grade: 1
-    triggerType: Passive
+    triggerType: passive
     displayName: "\uC0AC\uACFC\uD30C\uC774"
     description: "\uC801\uC758 5\uBCF4\uB2E4 \uD070 \uC22B\uC790\uAC00 \uBAA8\uB450
       5\uB85C \uCDE8\uAE09\uB428"
     sprite: 
-    rawEffects: '[{"Trigger":"Passive","Target":"Monster_Number","Calc":"DigitMax","Value":5.0}]'
+    rawEffects: '[{"Trigger":"passive","Target":"monster_number","Calc":"digit_max","Value":5.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Passive
-      target: Monster_Number
-      calc: DigitMax
+    - trigger: passive
+      target: monster_number
+      calc: digit_max
       valueExpression: 5
       hasNumericValue: 1
       numericValue: 5
@@ -2008,7 +1953,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Passive","Target":"Monster_Number","Calc":"DigitMax","Value":5.0}'
+      rawJson: '{"Trigger":"passive","Target":"monster_number","Calc":"digit_max","Value":5.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 1
     target: 9
@@ -2019,29 +1964,28 @@ MonoBehaviour:
     dataCode: fan_damage_mirror
     devName: "\uC190\uAC70\uC6B8"
     nameStringId: 
-    descStringId: "\uB0B4 \uAE30\uBCF8 \uD53C\uD574\uB7C9\uC774 \uAC19\uC740 \uC22B\uC790\uB85C\uB9CC
-      \uC774\uB8E8\uC5B4\uC838 \uC788\uC744 \uACBD\uC6B0, \uD0C0\uC218 1\uD68C \uCD94\uAC00"
+    descStringId: 
     grade: 1
-    triggerType: Turn_End
+    triggerType: turn_end
     displayName: "\uC190\uAC70\uC6B8"
     description: "\uB0B4 \uAE30\uBCF8 \uD53C\uD574\uB7C9\uC774 \uAC19\uC740 \uC22B\uC790\uB85C\uB9CC
       \uC774\uB8E8\uC5B4\uC838 \uC788\uC744 \uACBD\uC6B0, \uD0C0\uC218 1\uD68C \uCD94\uAC00"
     sprite: 
-    rawEffects: '[{"Trigger":"Turn_End","Target":"Attack_Count","Calc":"Add","Value":1.0,"Condition":"PlayerBaseDamageSameDigits==1","Execution":"Modifier"}]'
+    rawEffects: '[{"Trigger":"turn_end","Target":"Attack_Count","Calc":"add","Value":1.0,"Option":"","Condition":"playerbasedamagesamedigits==1","Chance":1.0,"Lifetime":"","Execution":"modifier","Duration":0}]'
     effects:
-    - trigger: Turn_End
+    - trigger: turn_end
       target: Attack_Count
-      calc: Add
+      calc: add
       valueExpression: 1
       hasNumericValue: 1
       numericValue: 1
       option: 
-      condition: PlayerBaseDamageSameDigits==1
+      condition: playerbasedamagesamedigits==1
       chance: 1
       lifetime: 
-      execution: Modifier
+      execution: modifier
       duration: 0
-      rawJson: '{"Trigger":"Turn_End","Target":"Attack_Count","Calc":"Add","Value":1.0,"Condition":"PlayerBaseDamageSameDigits==1","Execution":"Modifier"}'
+      rawJson: '{"Trigger":"turn_end","Target":"Attack_Count","Calc":"add","Value":1.0,"Option":"","Condition":"playerbasedamagesamedigits==1","Chance":1.0,"Lifetime":"","Execution":"modifier","Duration":0}'
     isTemporary: 0
     trigger: 3
     target: 4
@@ -2052,17 +1996,17 @@ MonoBehaviour:
     dataCode: fan_acquire_Candy
     devName: "\uCE94\uB514"
     nameStringId: 
-    descStringId: "\uD68D\uB4DD \uC2DC \uD604\uC7AC \uCCB4\uB825 +10%"
+    descStringId: 
     grade: 0
-    triggerType: Acquire
+    triggerType: acquire
     displayName: "\uCE94\uB514"
     description: "\uD68D\uB4DD \uC2DC \uD604\uC7AC \uCCB4\uB825 +10%"
     sprite: 
-    rawEffects: '[{"Trigger":"Acquire", "Target": "HP","Calc":"Add", "Value":"HP*0.1","Option":""}]'
+    rawEffects: '[{"Trigger":"acquire","Target":"HP","Calc":"add","Value":"HP*0.1","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Acquire
+    - trigger: acquire
       target: HP
-      calc: Add
+      calc: add
       valueExpression: HP*0.1
       hasNumericValue: 0
       numericValue: 0
@@ -2072,7 +2016,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Acquire","Target":"HP","Calc":"Add","Value":"HP*0.1","Option":""}'
+      rawJson: '{"Trigger":"acquire","Target":"HP","Calc":"add","Value":"HP*0.1","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 8
     target: 1
@@ -2083,17 +2027,17 @@ MonoBehaviour:
     dataCode: fan_damage_abacus
     devName: "\uC8FC\uD310"
     nameStringId: 
-    descStringId: "\uB9E4 \uD134 \uC774\uB3D9 \uD69F\uC218 +3"
+    descStringId: 
     grade: 1
-    triggerType: Passive
+    triggerType: passive
     displayName: "\uC8FC\uD310"
     description: "\uB9E4 \uD134 \uC774\uB3D9 \uD69F\uC218 +3"
     sprite: 
-    rawEffects: '[{"Trigger":"Turn_Start","Target":"Movement","Calc":"Add","Value":3.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"turn_start","Target":"Movement","Calc":"add","Value":3.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Turn_Start
+    - trigger: turn_start
       target: Movement
-      calc: Add
+      calc: add
       valueExpression: 3
       hasNumericValue: 1
       numericValue: 3
@@ -2103,7 +2047,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Turn_Start","Target":"Movement","Calc":"Add","Value":3.0,"Option":""}'
+      rawJson: '{"Trigger":"turn_start","Target":"Movement","Calc":"add","Value":3.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 8
     target: 9
@@ -2114,19 +2058,18 @@ MonoBehaviour:
     dataCode: fan_damage_poinsettia
     devName: "\uD3EC\uC778\uC138\uD2F0\uC544"
     nameStringId: 
-    descStringId: "\uD53C\uD574\uB97C \uC785\uC744 \uB54C \uB9C8\uB2E4 \uD56D\uC0C1
-      30\uC529 \uC801\uAC8C \uBC1B\uC74C"
+    descStringId: 
     grade: 1
-    triggerType: Take_Damage
+    triggerType: take_damage
     displayName: "\uD3EC\uC778\uC138\uD2F0\uC544"
     description: "\uD53C\uD574\uB97C \uC785\uC744 \uB54C \uB9C8\uB2E4 \uD56D\uC0C1
       30\uC529 \uC801\uAC8C \uBC1B\uC74C"
     sprite: 
-    rawEffects: '[{"Trigger":"Take_Damage","Target":"Damage_Taken","Calc":"Add","Value":-30.0,"Option":""}]'
+    rawEffects: '[{"Trigger":"take_damage","Target":"Damage_Taken","Calc":"add","Value":-30.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
     effects:
-    - trigger: Take_Damage
+    - trigger: take_damage
       target: Damage_Taken
-      calc: Add
+      calc: add
       valueExpression: -30
       hasNumericValue: 1
       numericValue: -30
@@ -2136,7 +2079,7 @@ MonoBehaviour:
       lifetime: 
       execution: 
       duration: 0
-      rawJson: '{"Trigger":"Take_Damage","Target":"Damage_Taken","Calc":"Add","Value":-30.0,"Option":""}'
+      rawJson: '{"Trigger":"take_damage","Target":"Damage_Taken","Calc":"add","Value":-30.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
     isTemporary: 0
     trigger: 8
     target: 9

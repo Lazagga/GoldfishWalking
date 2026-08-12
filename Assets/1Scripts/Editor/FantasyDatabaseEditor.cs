@@ -35,7 +35,7 @@ namespace GoldfishWalking.Editor
         private void DrawHeader()
         {
             EditorGUILayout.LabelField("Fantasy Database", EditorStyles.boldLabel);
-            EditorGUILayout.LabelField("Edit balance values in Effects. TSV import can overwrite this asset.", EditorStyles.miniLabel);
+            EditorGUILayout.LabelField("Generated from Assets/Data/Json/fantasies. Edit the source JSON, not this asset.", EditorStyles.miniLabel);
             searchText = EditorGUILayout.TextField("Search", searchText);
         }
 
@@ -88,24 +88,11 @@ namespace GoldfishWalking.Editor
                 EditorGUILayout.PropertyField(Find(fantasy, "triggerType"), new GUIContent("Default Trigger"));
 
                 EditorGUILayout.Space(4f);
-                EditorGUILayout.LabelField("Effects JSON (Runtime Source)", EditorStyles.boldLabel);
-                EditorGUILayout.HelpBox("Valid JSON is parsed immediately. The runtime executes the parsed preview below.", MessageType.Info);
+                EditorGUILayout.LabelField("Generated Compatibility JSON", EditorStyles.boldLabel);
+                EditorGUILayout.HelpBox("Read-only runtime preview. Edit the matching file under Assets/Data/Json/fantasies.", MessageType.Info);
                 SerializedProperty rawEffects = Find(fantasy, "rawEffects");
-                EditorGUI.BeginChangeCheck();
-                EditorGUILayout.PropertyField(rawEffects, GUIContent.none, GUILayout.MinHeight(100f));
-                bool jsonChanged = EditorGUI.EndChangeCheck();
-                if (jsonChanged)
-                {
-                    serializedObject.ApplyModifiedProperties();
-                    FantasyDatabase database = (FantasyDatabase)target;
-                    FantasyData data = database.fantasies[selectedIndex];
-                    if (EffectJsonInspectorParser.TryApply(data, out jsonError))
-                    {
-                        jsonError = string.Empty;
-                        EditorUtility.SetDirty(database);
-                        serializedObject.Update();
-                    }
-                }
+                using (new EditorGUI.DisabledScope(true))
+                    EditorGUILayout.PropertyField(rawEffects, GUIContent.none, GUILayout.MinHeight(100f));
                 if (!string.IsNullOrWhiteSpace(jsonError))
                     EditorGUILayout.HelpBox($"JSON was not applied: {jsonError}", MessageType.Error);
 
