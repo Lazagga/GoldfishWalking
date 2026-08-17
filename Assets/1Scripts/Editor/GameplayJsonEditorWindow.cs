@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using GoldfishWalking.Editor.DataImport;
@@ -217,8 +218,8 @@ namespace GoldfishWalking.Editor
                     target["actor"] = DrawKnownString("대상 Actor", ReadString(target, "actor"), Actors);
                     target["key"] = DrawKnownString("대상 Key", ReadString(target, "key"), TargetKeys);
                     SetOptionalString(effect, "type", EditorGUILayout.TextField("세부 타입", ReadString(effect, "type")));
-                    SetOptionalString(effect, "amount", EditorGUILayout.TextField("값/표현식", ReadToken(effect, "amount")));
-                    SetOptionalString(effect, "condition", EditorGUILayout.TextField("조건", ReadToken(effect, "condition")));
+                    DrawOptionalTokenField(effect, "amount", "값/표현식");
+                    DrawOptionalTokenField(effect, "condition", "조건");
                 }
             }
 
@@ -529,7 +530,46 @@ namespace GoldfishWalking.Editor
                 target[key] = value;
         }
 
+        private static void DrawOptionalTokenField(JObject target, string key, string label)
+        {
+            JToken token = target?[key];
+            if (token != null && !(token is JValue))
+            {
+                EditorGUILayout.LabelField(label, EditorStyles.miniBoldLabel);
+                EditorGUILayout.SelectableLabel(token.ToString(Formatting.Indented), EditorStyles.textArea, GUILayout.MinHeight(38f));
+                return;
+            }
+
+            string current = ReadToken(target, key);
+            string next = EditorGUILayout.TextField(label, current);
+            if (next == current)
+                return;
+
+            if (string.IsNullOrWhiteSpace(next))
+            {
+                target.Remove(key);
+                return;
+            }
+
+            if (token?.Type == JTokenType.Integer && long.TryParse(next, NumberStyles.Integer, CultureInfo.InvariantCulture, out long integer))
+                target[key] = integer;
+            else if (token?.Type == JTokenType.Float && double.TryParse(next, NumberStyles.Float, CultureInfo.InvariantCulture, out double number))
+                target[key] = number;
+            else if (token?.Type == JTokenType.Boolean && bool.TryParse(next, out bool boolean))
+                target[key] = boolean;
+            else
+                target[key] = next;
+        }
+
         private static string ReadString(JObject root, string key) { return root?.Value<string>(key) ?? string.Empty; }
-        private static string ReadToken(JObject root, string key) { return root?[key]?.ToString(Formatting.None) ?? string.Empty; }
+        private static string ReadToken(JObject root, string key)
+        {
+            JToken token = root?[key];
+            if (token == null)
+                return string.Empty;
+            if (token is JValue value)
+                return Convert.ToString(value.Value, CultureInfo.InvariantCulture) ?? string.Empty;
+            return token.ToString(Formatting.None);
+        }
     }
 }
