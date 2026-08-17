@@ -1,0 +1,36 @@
+{
+    "schemaVersion": 1,
+    "id": "fan_fantasy_leo",
+    "sourceId": 64,
+    "designerName": "사자자리",
+    "designerNote": "환상을 획득할 때마다 50% 확률로 복사본을 하나 더 얻거나,\n아무것도 획득하지 않음",
+    "enabled": true,
+    "localization": {
+        "name": "",
+        "description": ""
+    },
+    "presentation": {
+        "sprite": ""
+    },
+    "rarity": "red",
+    "tags": [
+        "on_acquire"
+    ],
+    "effects": [
+        {
+            "trigger": {
+                "event": "on_acquire"
+            },
+            "target": {
+                "key": "fantasy"
+            },
+            "operation": "duplicate_or_void_acquire",
+            "mode": "toggle",
+            "amount": 1.0,
+            "chance": {
+                "percent": 50
+            },
+            "execution": "capability"
+        }
+    ]
+}

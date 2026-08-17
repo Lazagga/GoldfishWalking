@@ -2301,3 +2301,403 @@ MonoBehaviour:
     target: 9
     value: -30
     specialHandler: 
+  - id: fan_damage_sandcastle
+    sourceId: 61
+    dataCode: fan_damage_sandcastle
+    devName: "\uBAA8\uB798\uC131"
+    nameStringId: 
+    descStringId: 
+    grade: 0
+    triggerType: turn_end
+    displayName: "\uBAA8\uB798\uC131"
+    description: "3\uBC88\uC9F8 \uD134 \uC885\uB8CC \uC2DC \uC801\uC5D0\uAC8C 300\uC758
+      \uD53C\uD574\uB97C \uC785\uD798"
+    sprite: 
+    rawEffects: '[{"Trigger":"turn_end","Target":"damage","Calc":"add","Value":300.0,"Option":"","Condition":"currentturn==3","Chance":1.0,"Lifetime":"","Execution":"modifier","Duration":0}]'
+    effects:
+    - timingKind: 6
+      targetKind: 16
+      operationKind: 1
+      trigger: turn_end
+      target: damage
+      calc: add
+      valueExpression: 300
+      hasNumericValue: 1
+      numericValue: 300
+      option: 
+      condition: currentturn==3
+      chance: 1
+      lifetime: 
+      execution: modifier
+      duration: 0
+      rawJson: '{"Trigger":"turn_end","Target":"damage","Calc":"add","Value":300.0,"Option":"","Condition":"currentturn==3","Chance":1.0,"Lifetime":"","Execution":"modifier","Duration":0}'
+    isTemporary: 0
+    trigger: 3
+    target: 3
+    value: 300
+    specialHandler: 
+  - id: fan_damage_humitcrab
+    sourceId: 62
+    dataCode: fan_damage_humitcrab
+    devName: "\uC18C\uB77C\uAC8C"
+    nameStringId: 
+    descStringId: 
+    grade: 0
+    triggerType: take_damage
+    displayName: "\uC18C\uB77C\uAC8C"
+    description: "100\uC758 \uD53C\uD574\uB97C \uBC1B\uC744 \uB54C\uB9C8\uB2E4 \uCCB4\uB825\uC744
+      20 \uC5BB\uC74C"
+    sprite: 
+    rawEffects: '[{"Trigger":"take_damage","Target":"HP","Calc":"add","Value":"floor(IncomingDamageAmount/100)*20","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
+    effects:
+    - timingKind: 8
+      targetKind: 4
+      operationKind: 1
+      trigger: take_damage
+      target: HP
+      calc: add
+      valueExpression: floor(IncomingDamageAmount/100)*20
+      hasNumericValue: 0
+      numericValue: 0
+      option: 
+      condition: 
+      chance: 1
+      lifetime: 
+      execution: 
+      duration: 0
+      rawJson: '{"Trigger":"take_damage","Target":"HP","Calc":"add","Value":"floor(IncomingDamageAmount/100)*20","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
+    isTemporary: 0
+    trigger: 8
+    target: 1
+    value: 0
+    specialHandler: 
+  - id: fan_damage_aries
+    sourceId: 63
+    dataCode: fan_damage_aries
+    devName: "\uC591\uC790\uB9AC"
+    nameStringId: 
+    descStringId: 
+    grade: 2
+    triggerType: deal_damage
+    displayName: "\uC591\uC790\uB9AC"
+    description: "\uACF5\uACA9\uC73C\uB85C \uAC19\uC740 \uD53C\uD574\uB97C \uC785\uD790
+      \uB54C\uB9C8\uB2E4 \uD53C\uD574\uB7C9 20\uC529 \uC99D\uAC00\n\uB2E4\uB978 \uD53C\uD574\uB97C
+      \uC785\uD790 \uC2DC \uCD08\uAE30\uD654(\uC5F0\uD0C0\uC5D0\uB3C4 \uC801\uC6A9)"
+    sprite: 
+    rawEffects: '[{"Trigger":"deal_damage","Target":"aries_combo_stack","Calc":"add","Value":20.0,"Option":"","Condition":"damageequalsprevious==1","Chance":1.0,"Lifetime":"battle","Execution":"modifier","Duration":0},{"Trigger":"deal_damage","Target":"aries_combo_stack","Calc":"set","Value":0.0,"Option":"","Condition":"damageequalsprevious==0","Chance":1.0,"Lifetime":"battle","Execution":"modifier","Duration":0},{"Trigger":"deal_damage","Target":"damage","Calc":"add","Value":"aries_combo_stack","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
+    effects:
+    - timingKind: 7
+      targetKind: 16
+      operationKind: 1
+      trigger: deal_damage
+      target: aries_combo_stack
+      calc: add
+      valueExpression: 20
+      hasNumericValue: 1
+      numericValue: 20
+      option: 
+      condition: damageequalsprevious==1
+      chance: 1
+      lifetime: battle
+      execution: modifier
+      duration: 0
+      rawJson: '{"Trigger":"deal_damage","Target":"aries_combo_stack","Calc":"add","Value":20.0,"Option":"","Condition":"damageequalsprevious==1","Chance":1.0,"Lifetime":"battle","Execution":"modifier","Duration":0}'
+    - timingKind: 7
+      targetKind: 16
+      operationKind: 2
+      trigger: deal_damage
+      target: aries_combo_stack
+      calc: set
+      valueExpression: 0
+      hasNumericValue: 1
+      numericValue: 0
+      option: 
+      condition: damageequalsprevious==0
+      chance: 1
+      lifetime: battle
+      execution: modifier
+      duration: 0
+      rawJson: '{"Trigger":"deal_damage","Target":"aries_combo_stack","Calc":"set","Value":0.0,"Option":"","Condition":"damageequalsprevious==0","Chance":1.0,"Lifetime":"battle","Execution":"modifier","Duration":0}'
+    - timingKind: 7
+      targetKind: 16
+      operationKind: 1
+      trigger: deal_damage
+      target: damage
+      calc: add
+      valueExpression: aries_combo_stack
+      hasNumericValue: 0
+      numericValue: 0
+      option: 
+      condition: 
+      chance: 1
+      lifetime: 
+      execution: 
+      duration: 0
+      rawJson: '{"Trigger":"deal_damage","Target":"damage","Calc":"add","Value":"aries_combo_stack","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
+    isTemporary: 0
+    trigger: 4
+    target: 9
+    value: 20
+    specialHandler: 
+  - id: fan_fantasy_leo
+    sourceId: 64
+    dataCode: fan_fantasy_leo
+    devName: "\uC0AC\uC790\uC790\uB9AC"
+    nameStringId: 
+    descStringId: 
+    grade: 2
+    triggerType: on_acquire
+    displayName: "\uC0AC\uC790\uC790\uB9AC"
+    description: "\uD658\uC0C1\uC744 \uD68D\uB4DD\uD560 \uB54C\uB9C8\uB2E4 50% \uD655\uB960\uB85C
+      \uBCF5\uC0AC\uBCF8\uC744 \uD558\uB098 \uB354 \uC5BB\uAC70\uB098,\n\uC544\uBB34\uAC83\uB3C4
+      \uD68D\uB4DD\uD558\uC9C0 \uC54A\uC74C"
+    sprite: 
+    rawEffects: '[{"Trigger":"on_acquire","Target":"fantasy","Calc":"toggle","Value":1.0,"Option":"","Condition":"","Chance":0.5,"Lifetime":"","Execution":"capability","Duration":0}]'
+    effects:
+    - timingKind: 10
+      targetKind: 14
+      operationKind: 0
+      trigger: on_acquire
+      target: fantasy
+      calc: toggle
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      condition: 
+      chance: 0.5
+      lifetime: 
+      execution: capability
+      duration: 0
+      rawJson: '{"Trigger":"on_acquire","Target":"fantasy","Calc":"toggle","Value":1.0,"Option":"","Condition":"","Chance":0.5,"Lifetime":"","Execution":"capability","Duration":0}'
+    isTemporary: 0
+    trigger: 8
+    target: 6
+    value: 1
+    specialHandler: 
+  - id: fan_damage_taurus
+    sourceId: 65
+    dataCode: fan_damage_taurus
+    devName: "\uD669\uC18C\uC790\uB9AC"
+    nameStringId: 
+    descStringId: 
+    grade: 2
+    triggerType: battle_start
+    displayName: "\uD669\uC18C\uC790\uB9AC"
+    description: "\uC801\uBCF4\uB2E4 \uB098\uC911\uC5D0 \uACF5\uACA9\uD558\uB294
+      \uB300\uC2E0, \uC801\uC774 \uD798\uC744 \uC5BB\uC744 \uB54C\uB9C8\uB2E4 \uB3D9\uC77C\uD55C
+      \uD798\uC744 \uC5BB\uC74C"
+    sprite: 
+    rawEffects: '[{"Trigger":"battle_start","Target":"enemy_acts_first","Calc":"enable","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0},{"Trigger":"enemy_strength_gain","Target":"Strength","Calc":"add","Value":"EnemyStrengthGainAmount","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
+    effects:
+    - timingKind: 4
+      targetKind: 16
+      operationKind: 0
+      trigger: battle_start
+      target: enemy_acts_first
+      calc: enable
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      condition: 
+      chance: 1
+      lifetime: 
+      execution: capability
+      duration: 0
+      rawJson: '{"Trigger":"battle_start","Target":"enemy_acts_first","Calc":"enable","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"capability","Duration":0}'
+    - timingKind: 10
+      targetKind: 5
+      operationKind: 1
+      trigger: enemy_strength_gain
+      target: Strength
+      calc: add
+      valueExpression: EnemyStrengthGainAmount
+      hasNumericValue: 0
+      numericValue: 0
+      option: 
+      condition: 
+      chance: 1
+      lifetime: 
+      execution: 
+      duration: 0
+      rawJson: '{"Trigger":"enemy_strength_gain","Target":"Strength","Calc":"add","Value":"EnemyStrengthGainAmount","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
+    isTemporary: 0
+    trigger: 2
+    target: 9
+    value: 1
+    specialHandler: 
+  - id: fan_damage_virgo
+    sourceId: 66
+    dataCode: fan_damage_virgo
+    devName: "\uCC98\uB140\uC790\uB9AC"
+    nameStringId: 
+    descStringId: 
+    grade: 2
+    triggerType: passive
+    displayName: "\uCC98\uB140\uC790\uB9AC"
+    description: "\uC804\uCCB4 \uC0C1\uC790\uC5D0\uC11C \uC22B\uC790\uAC00 \uC5F0\uC18D\uB41C
+      \uD69F\uC218\uB9CC\uD07C \uD0C0\uC218 \uCD94\uAC00(23 / 456\uC774\uBA74 4\uD0C0)"
+    sprite: 
+    rawEffects: '[{"Trigger":"passive","Target":"Attack_Count","Calc":"add","Value":"ConsecutiveDigitRunCount","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
+    effects:
+    - timingKind: 3
+      targetKind: 8
+      operationKind: 1
+      trigger: passive
+      target: Attack_Count
+      calc: add
+      valueExpression: ConsecutiveDigitRunCount
+      hasNumericValue: 0
+      numericValue: 0
+      option: 
+      condition: 
+      chance: 1
+      lifetime: 
+      execution: 
+      duration: 0
+      rawJson: '{"Trigger":"passive","Target":"Attack_Count","Calc":"add","Value":"ConsecutiveDigitRunCount","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
+    isTemporary: 0
+    trigger: 1
+    target: 4
+    value: 0
+    specialHandler: 
+  - id: fan_rest_cancer
+    sourceId: 67
+    dataCode: fan_rest_cancer
+    devName: "\uAC8C\uC790\uB9AC"
+    nameStringId: 
+    descStringId: 
+    grade: 2
+    triggerType: passive
+    displayName: "\uAC8C\uC790\uB9AC"
+    description: "\uCE58\uBA85\uC801\uC778 \uD53C\uD574\uB97C \uBC1B\uC744 \uACBD\uC6B0,
+      \uC804\uD22C \uC2DC\uC791 \uC2DC\uC758 \uD134\uC73C\uB85C \uB418\uB3CC\uC544\uAC10(\uC804\uD22C\uB2F9
+      1\uD68C)"
+    sprite: 
+    rawEffects: '[{"Trigger":"lethal_damage","Target":"battle_rewind","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"battle","Execution":"capability","Duration":0}]'
+    effects:
+    - timingKind: 10
+      targetKind: 16
+      operationKind: 1
+      trigger: lethal_damage
+      target: battle_rewind
+      calc: add
+      valueExpression: 1
+      hasNumericValue: 1
+      numericValue: 1
+      option: 
+      condition: 
+      chance: 1
+      lifetime: battle
+      execution: capability
+      duration: 0
+      rawJson: '{"Trigger":"lethal_damage","Target":"battle_rewind","Calc":"add","Value":1.0,"Option":"","Condition":"","Chance":1.0,"Lifetime":"battle","Execution":"capability","Duration":0}'
+    isTemporary: 0
+    trigger: 8
+    target: 9
+    value: 1
+    specialHandler: 
+  - id: fan_damage_scorpio
+    sourceId: 68
+    dataCode: fan_damage_scorpio
+    devName: "\uC804\uAC08\uC790\uB9AC"
+    nameStringId: 
+    descStringId: 
+    grade: 2
+    triggerType: take_damage
+    displayName: "\uC804\uAC08\uC790\uB9AC"
+    description: "\uBC1B\uB294 \uD53C\uD574\uC758 \uC808\uBC18\uC774 \uCD9C\uD608
+      \uC2A4\uD0DD\uC73C\uB85C \uC804\uD658\uB428"
+    sprite: 
+    rawEffects: '[{"Trigger":"take_damage","Target":"damage_taken","Calc":"multiply","Value":0.5,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0},{"Trigger":"take_damage","Target":"scorpio_bleed_stack","Calc":"add","Value":"IncomingDamageAmount*0.5","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0},{"Trigger":"turn_end","Target":"HP","Calc":"add","Value":"-scorpio_bleed_stack","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
+    effects:
+    - timingKind: 8
+      targetKind: 16
+      operationKind: 9
+      trigger: take_damage
+      target: damage_taken
+      calc: multiply
+      valueExpression: 0.5
+      hasNumericValue: 1
+      numericValue: 0.5
+      option: 
+      condition: 
+      chance: 1
+      lifetime: 
+      execution: 
+      duration: 0
+      rawJson: '{"Trigger":"take_damage","Target":"damage_taken","Calc":"multiply","Value":0.5,"Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
+    - timingKind: 8
+      targetKind: 16
+      operationKind: 1
+      trigger: take_damage
+      target: scorpio_bleed_stack
+      calc: add
+      valueExpression: IncomingDamageAmount*0.5
+      hasNumericValue: 0
+      numericValue: 0
+      option: 
+      condition: 
+      chance: 1
+      lifetime: 
+      execution: 
+      duration: 0
+      rawJson: '{"Trigger":"take_damage","Target":"scorpio_bleed_stack","Calc":"add","Value":"IncomingDamageAmount*0.5","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
+    - timingKind: 6
+      targetKind: 4
+      operationKind: 1
+      trigger: turn_end
+      target: HP
+      calc: add
+      valueExpression: -scorpio_bleed_stack
+      hasNumericValue: 0
+      numericValue: 0
+      option: 
+      condition: 
+      chance: 1
+      lifetime: 
+      execution: 
+      duration: 0
+      rawJson: '{"Trigger":"turn_end","Target":"HP","Calc":"add","Value":"-scorpio_bleed_stack","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
+    isTemporary: 0
+    trigger: 8
+    target: 9
+    value: 0
+    specialHandler: 
+  - id: fan_damage_seashell
+    sourceId: 69
+    dataCode: fan_damage_seashell
+    devName: "\uC870\uAC1C\uAECD\uB370\uAE30"
+    nameStringId: 
+    descStringId: 
+    grade: 0
+    triggerType: turn_end
+    displayName: "\uC870\uAC1C\uAECD\uB370\uAE30"
+    description: "\uD134 \uC885\uB8CC \uC2DC, \uAC00\uC9C0\uACE0 \uC788\uB294 \uC5EC\uBD84\uC131\uB0E5\uACFC
+      \uC9C0\uC6B0\uAC1C \uD558\uB098\uB2F9 10\uC758 \uD53C\uD574\uB97C \uCD94\uAC00\uB85C
+      \uC785\uD798"
+    sprite: 
+    rawEffects: '[{"Trigger":"turn_end","Target":"damage","Calc":"add","Value":"(ExtraMatchCount+EraserCount)*10","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}]'
+    effects:
+    - timingKind: 6
+      targetKind: 16
+      operationKind: 1
+      trigger: turn_end
+      target: damage
+      calc: add
+      valueExpression: (ExtraMatchCount+EraserCount)*10
+      hasNumericValue: 0
+      numericValue: 0
+      option: 
+      condition: 
+      chance: 1
+      lifetime: 
+      execution: 
+      duration: 0
+      rawJson: '{"Trigger":"turn_end","Target":"damage","Calc":"add","Value":"(ExtraMatchCount+EraserCount)*10","Option":"","Condition":"","Chance":1.0,"Lifetime":"","Execution":"","Duration":0}'
+    isTemporary: 0
+    trigger: 3
+    target: 3
+    value: 0
+    specialHandler: 

@@ -1,3 +1,5 @@
 ﻿<Solution>
-  <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="GoldfishWalking.Runtime.csproj" />
+  <Project Path="GoldfishWalking.Editor.Tests.csproj" />
+  <Project Path="GoldfishWalking.Editor.csproj" />
 </Solution>

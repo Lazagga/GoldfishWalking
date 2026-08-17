@@ -1,0 +1,34 @@
+{
+    "schemaVersion": 1,
+    "id": "fan_rest_cancer",
+    "sourceId": 67,
+    "designerName": "게자리",
+    "designerNote": "치명적인 피해를 받을 경우, 전투 시작 시의 턴으로 되돌아감(전투당 1회)",
+    "enabled": true,
+    "localization": {
+        "name": "",
+        "description": ""
+    },
+    "presentation": {
+        "sprite": ""
+    },
+    "rarity": "red",
+    "tags": [
+        "passive"
+    ],
+    "effects": [
+        {
+            "trigger": {
+                "event": "lethal_damage"
+            },
+            "target": {
+                "key": "battle_rewind"
+            },
+            "operation": "modify_value",
+            "mode": "add",
+            "amount": 1.0,
+            "lifetime": "battle",
+            "execution": "capability"
+        }
+    ]
+}

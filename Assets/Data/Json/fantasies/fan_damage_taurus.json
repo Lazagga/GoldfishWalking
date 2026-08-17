@@ -1,0 +1,49 @@
+{
+    "schemaVersion": 1,
+    "id": "fan_damage_taurus",
+    "sourceId": 65,
+    "designerName": "황소자리",
+    "designerNote": "적보다 나중에 공격하는 대신, 적이 힘을 얻을 때마다 동일한 힘을 얻음",
+    "enabled": true,
+    "localization": {
+        "name": "",
+        "description": ""
+    },
+    "presentation": {
+        "sprite": ""
+    },
+    "rarity": "red",
+    "tags": [
+        "battle_start",
+        "passive"
+    ],
+    "effects": [
+        {
+            "trigger": {
+                "event": "battle_start"
+            },
+            "target": {
+                "system": "battle",
+                "property": "enemy_acts_first"
+            },
+            "operation": "enable",
+            "mode": "enable",
+            "amount": 1.0,
+            "execution": "capability"
+        },
+        {
+            "trigger": {
+                "event": "enemy_strength_gain"
+            },
+            "target": {
+                "actor": "player",
+                "stat": "strength"
+            },
+            "operation": "modify_value",
+            "mode": "add",
+            "amount": {
+                "expression": "EnemyStrengthGainAmount"
+            }
+        }
+    ]
+}
