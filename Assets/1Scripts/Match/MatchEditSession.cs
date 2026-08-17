@@ -18,6 +18,7 @@ namespace GoldfishWalking.Match
         public int returnedAddedMatches;
 
         [NonSerialized] private bool splitDigits;
+        [NonSerialized] private bool matchesMovable = true;
         [NonSerialized] private Func<int, bool> isDigitLocked;
         private int heldOriginDigit = -1;
 
@@ -39,10 +40,11 @@ namespace GoldfishWalking.Match
             heldOriginDigit = -1;
         }
 
-        public void ConfigureStructuralRules(bool split, Func<int, bool> digitLocked)
+        public void ConfigureStructuralRules(bool split, Func<int, bool> digitLocked, bool allowMatchMovement = true)
         {
             splitDigits = split;
             isDigitLocked = digitLocked;
+            matchesMovable = allowMatchMovement;
         }
 
         public void SetValue(int value)
@@ -85,6 +87,9 @@ namespace GoldfishWalking.Match
 
             if (isDigitLocked?.Invoke(digitIndex) == true)
                 return MatchEditResult.Fail("That digit is locked.");
+
+            if (!matchesMovable)
+                return MatchEditResult.Fail("Matches in this box cannot be moved.");
 
             MatchSlot slot = FindSlot(digitIndex, segmentIndex);
             if (slot == null || slot.piece == null)

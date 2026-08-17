@@ -55,6 +55,8 @@ namespace GoldfishWalking.Match
             : valueValidationMessage;
         public bool Split => split;
         public int LockedDigitCount => lockedDigitCount;
+        public bool MatchesMovable { get; private set; } = true;
+        public bool Highlighted { get; private set; }
         internal bool IsDigitLocked(int digitIndex) => locked || (lockedDigitCount > 0 && digitIndex >= 0 && digitIndex < lockedDigitCount);
         
 public bool Locked => locked;
@@ -71,7 +73,7 @@ public bool Locked => locked;
             Redraw();
         }
 
-public void Configure(int initialValue, int minimumDigits, Color segmentColor, UnityAction<int> onValueChanged = null, bool isLocked = false, UnityAction<int> onDifferenceChanged = null, string savedSegmentState = null, Func<int, bool> onMoveCommitValidated = null, Func<bool> canInteract = null, bool isSplit = false, int structurallyLockedDigitCount = 0, Func<int, bool> onValueCommitValidated = null, string invalidValueMessage = null)
+public void Configure(int initialValue, int minimumDigits, Color segmentColor, UnityAction<int> onValueChanged = null, bool isLocked = false, UnityAction<int> onDifferenceChanged = null, string savedSegmentState = null, Func<int, bool> onMoveCommitValidated = null, Func<bool> canInteract = null, bool isSplit = false, int structurallyLockedDigitCount = 0, Func<int, bool> onValueCommitValidated = null, string invalidValueMessage = null, bool matchesMovable = true, bool highlighted = false)
         {
             value = Mathf.Max(0, initialValue);
             originalValue = value;
@@ -80,6 +82,8 @@ public void Configure(int initialValue, int minimumDigits, Color segmentColor, U
             locked = isLocked;
             split = isSplit;
             lockedDigitCount = Mathf.Max(0, structurallyLockedDigitCount);
+            MatchesMovable = matchesMovable;
+            Highlighted = highlighted;
             moveCommitValidator = onMoveCommitValidated;
             valueCommitValidator = onValueCommitValidated;
             valueValidationMessage = invalidValueMessage;
@@ -103,6 +107,7 @@ public void Configure(int initialValue, int minimumDigits, Color segmentColor, U
 
             rectTransform = GetComponent<RectTransform>();
             EnsureRaycastTarget();
+            RefreshHighlight();
             Redraw();
             differenceChanged.Invoke(DifferenceFromOriginal);
         }
@@ -321,6 +326,24 @@ public void Configure(int initialValue, int minimumDigits, Color segmentColor, U
             color.a = Mathf.Min(color.a, 0.01f);
             image.color = color;
             image.raycastTarget = true;
+        }
+
+        private void RefreshHighlight()
+        {
+            Outline outline = GetComponent<Outline>();
+            if (!Highlighted)
+            {
+                if (outline != null)
+                    outline.enabled = false;
+                return;
+            }
+
+            if (outline == null)
+                outline = gameObject.AddComponent<Outline>();
+            outline.enabled = true;
+            outline.effectColor = new Color(1f, 0.82f, 0.18f, 0.95f);
+            outline.effectDistance = new Vector2(3f, -3f);
+            outline.useGraphicAlpha = false;
         }
 
         private void SetDisplayFromValue(int number)
@@ -659,7 +682,7 @@ public void Configure(int initialValue, int minimumDigits, Color segmentColor, U
             editingBox.split = owner.Split;
             editingBox.lockedDigitCount = owner.LockedDigitCount;
             session.Open(editingBox);
-            session.ConfigureStructuralRules(owner.Split, owner.IsDigitLocked);
+            session.ConfigureStructuralRules(owner.Split, owner.IsDigitLocked, owner.MatchesMovable);
             PopulateSlotsFromOwner();
             StoreOriginalShape();
             owner.CopyCommittedItemErasuresTo(itemErasedOriginalAddresses);
@@ -985,7 +1008,7 @@ private void CommitPopup()
             RefundSpentItems();
             session.slots.Clear();
             session.Open(editingBox);
-            session.ConfigureStructuralRules(owner != null && owner.Split, owner != null ? owner.IsDigitLocked : null);
+            session.ConfigureStructuralRules(owner != null && owner.Split, owner != null ? owner.IsDigitLocked : null, owner == null || owner.MatchesMovable);
             PopulateSlotsFromOwner();
             StoreOriginalShape();
 

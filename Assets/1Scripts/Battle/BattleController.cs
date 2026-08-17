@@ -3,6 +3,7 @@ using GoldfishWalking.Data;
 using GoldfishWalking.Fantasy;
 using GoldfishWalking.Formula;
 using GoldfishWalking.Map;
+using GoldfishWalking.Match;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -23,6 +24,7 @@ namespace GoldfishWalking.Battle
         private readonly BattleFormulaBuilder formulaBuilder = new BattleFormulaBuilder();
         private readonly FantasyEffectRunner fantasyEffectRunner = new FantasyEffectRunner();
         private readonly BattleOutcomeService outcomeService = new BattleOutcomeService();
+        private readonly FormulaStructuralEffectExecutor structuralEffectExecutor = new FormulaStructuralEffectExecutor();
         private BattleContext context;
         private Coroutine resolutionCoroutine;
 
@@ -62,6 +64,8 @@ public int MonsterHitCount => bootstrap != null && bootstrap.RunContext != null 
             : 1;
 
         public bool PlayerBaseDamageSplit => GetFirstNumberBox(context?.playerFormula?.damageExpression)?.split == true;
+        public bool PlayerBaseDamageMatchesMovable => GetFirstNumberBox(context?.playerFormula?.damageExpression)?.matchesMovable != false;
+        public bool PlayerBaseDamageReactive => context?.monster?.IsReactiveEditBox("damage_base") == true;
         public bool PlayerBaseDamageLocked => GetFirstNumberBox(context?.playerFormula?.damageExpression)?.locked == true;
         public bool PlayerDebuffVisible => bootstrap?.RunContext?.currentBattle != null && !string.IsNullOrWhiteSpace(bootstrap.RunContext.currentBattle.playerDebuffOperator);
         public string PlayerDebuffOperator => bootstrap?.RunContext?.currentBattle?.playerDebuffOperator ?? string.Empty;
@@ -70,8 +74,12 @@ public int MonsterHitCount => bootstrap != null && bootstrap.RunContext != null 
         public string PlayerDebuffSegmentState => bootstrap?.RunContext?.currentBattle?.playerDebuffSegmentState ?? string.Empty;
         public int PlayerBaseDamageLockedDigitCount => GetFirstNumberBox(context?.playerFormula?.damageExpression)?.lockedDigitCount ?? 0;
         public bool MonsterBaseDamageSplit => GetFirstNumberBox(context?.monsterFormula?.damageExpression)?.split == true;
+        public bool MonsterBaseDamageMatchesMovable => GetFirstNumberBox(context?.monsterFormula?.damageExpression)?.matchesMovable != false;
+        public bool MonsterBaseDamageReactive => context?.monster?.IsReactiveEditBox("monster_damage") == true;
         public int MonsterBaseDamageLockedDigitCount => GetFirstNumberBox(context?.monsterFormula?.damageExpression)?.lockedDigitCount ?? 0;
         public bool MonsterHitCountSplit => GetFirstNumberBox(context?.monsterFormula?.hitCountExpression)?.split == true;
+        public bool MonsterHitCountMatchesMovable => GetFirstNumberBox(context?.monsterFormula?.hitCountExpression)?.matchesMovable != false;
+        public bool MonsterHitCountReactive => context?.monster?.IsReactiveEditBox("monster_hit_count") == true;
         public bool MonsterHitCountLocked => GetFirstNumberBox(context?.monsterFormula?.hitCountExpression)?.locked == true;
         public int MonsterHitCountLockedDigitCount => GetFirstNumberBox(context?.monsterFormula?.hitCountExpression)?.lockedDigitCount ?? 0;
 
@@ -96,10 +104,11 @@ public int MonsterHitCount => bootstrap != null && bootstrap.RunContext != null 
             && context.run != null
             && context.run.fantasyInventory != null
             && context.run.fantasyInventory.HasEffect("Player_Boxes", "Split");
-        public bool MonsterSpecialBoxVisible => PlayerAttackConditionVisible || (context != null && context.monster != null && context.monster.HasSpecialBox);
+        public bool MonsterSpecialBoxVisible => PlayerAttackConditionVisible || CosmicResetAvailable || (context != null && context.monster != null && context.monster.HasSpecialBox);
 
         public int MonsterSpecialBoxValue => PlayerAttackConditionVisible
             ? PlayerAttackConditionBoxValue
+            : CosmicResetAvailable ? 0
             : context != null && context.monster != null && context.monster.HasSpecialBox ? context.monster.SpecialBoxValue : 0;
 
         public int MonsterSpecialBoxDigitCount => PlayerAttackConditionVisible
@@ -108,13 +117,17 @@ public int MonsterHitCount => bootstrap != null && bootstrap.RunContext != null 
 
         public string MonsterSpecialBoxLabel => PlayerAttackConditionVisible
             ? PlayerAttackConditionLabel
+            : CosmicResetAvailable ? "RESET STR"
             : context != null && context.monster != null && context.monster.HasSpecialBox ? context.monster.SpecialBoxLabel : string.Empty;
 
         public string MonsterSpecialBoxSegmentState => PlayerAttackConditionVisible
             ? context?.run?.currentBattle?.playerAttackConditionSegmentState ?? string.Empty
             : bootstrap?.RunContext?.currentBattle?.monsterSpecialBoxSegmentState ?? string.Empty;
 
-        public bool MonsterSpecialBoxLocked => PlayerAttackConditionVisible && !PlayerAttackConditionEditable;
+        public bool MonsterSpecialBoxLocked => CosmicResetAvailable
+            || (PlayerAttackConditionVisible && !PlayerAttackConditionEditable)
+            || (!PlayerAttackConditionVisible && context?.monster?.HasSpecialBox == true && !context.monster.SpecialBoxEditable);
+        public bool CosmicResetAvailable => context?.monster?.Data?.oncePerBattleStrengthReset == true && !context.monster.OncePerBattleActionUsed;
 
         public string MonsterDisplayName
         {
@@ -155,6 +168,7 @@ public int MonsterHitCount => bootstrap != null && bootstrap.RunContext != null 
                 AppendStatus(builder, "CAP", context.monster.DamageCapPerHit);
                 AppendStatus(builder, "CAPDMG", context.monster.DamageCapAccumulatedDamage);
                 AppendStatus(builder, "FORTUNE", context.monster.FortuneStack);
+                AppendStatus(builder, "LOCK", context.monster.LockDebuffStacks);
                 
                 if (context.monster.Data != null && context.monster.Data.aimedShotMultiplier > 1)
                 {
@@ -163,6 +177,13 @@ public int MonsterHitCount => bootstrap != null && bootstrap.RunContext != null 
                     builder.Append("AIM ").Append(context.run?.currentBattle?.aimedShotValue ?? 0);
                 }
 AppendStatus(builder, "PROPHECY", context.monster.ProphecyStack);
+
+                if (context.monster.Data != null && context.monster.Data.hiddenAssignedDigitCount > 0)
+                {
+                    if (builder.Length > 0) builder.Append("  ");
+                    builder.Append("MOON ").Append(context.monster.HiddenDigitADiscovered ? context.monster.HiddenDigitA.ToString() : "?");
+                    builder.Append("  STAR ").Append(context.monster.HiddenDigitBDiscovered ? context.monster.HiddenDigitB.ToString() : "?");
+                }
 
                 return builder.Length > 0 ? builder.ToString() : "-";
             }
@@ -248,10 +269,14 @@ public string DamageDebugSummary
 
             bootstrap.RunContext.remainingMoveCount = Mathf.Max(0, bootstrap.RunContext.remainingMoveCount - Mathf.Max(0, usedMoveCount));
             bootstrap.RunContext.temporaryMoveBonus = 0;
+            if (context?.monster != null)
+                context.monster.LastTurnMoveCount = Mathf.Max(0, usedMoveCount);
         }
 
         private int CalculateCurrentMoveLimit()
         {
+            if (context?.monster?.Phase == 2 && context.monster.Data != null && context.monster.Data.phaseTwoMoveLimit >= 0)
+                return context.monster.Data.phaseTwoMoveLimit;
             int limit = 2;
             limit = fantasyEffectRunner.ModifyValue(bootstrap.RunContext, limit, "Passive", "Movement");
             limit = fantasyEffectRunner.ModifyValue(bootstrap.RunContext, limit, "Battle_Start", "Movement");
@@ -284,6 +309,7 @@ private IEnumerator ResolveBattleRoutine()
             BattleFormulaResult playerResult = formulaEvaluator.EvaluateBattleFormula(context.playerFormula);
             playerResult = ApplyPlayerDebuff(playerResult);
             playerResult = ApplyPlayerAttackCondition(playerResult);
+            playerResult = ApplyMonsterPlayerDamageRules(playerResult);
             BattleFormulaResult monsterResult = formulaEvaluator.EvaluateBattleFormula(context.monsterFormula);
             monsterResult = ApplyMonsterFormulaDecoy(monsterResult);
             monsterResult = ApplyAimedShot(monsterResult);
@@ -527,6 +553,8 @@ private IEnumerator ResolveBattleRoutine()
                 monster = new MonsterRuntime(selectedMonster),
                 state = BattleState.Editing
             };
+            context.monster.ConfigureReactiveEditBoxes(context.run, context.sourceNode?.id);
+            context.monster.ConfigureHiddenDigits(context.run, context.sourceNode?.id);
 
             BattleNumberState numbers = bootstrap.RunContext.EnsureBattleNumbers(monsterHitCount: 1);
             numbers.monsterId = selectedMonster != null ? selectedMonster.id : string.Empty;
@@ -590,6 +618,11 @@ public void SetPlayerDebuffValue(int value, string segmentState)
             }
         }
 
+        public bool NotifyFormulaBoxEdited(string boxId, int moveDifference)
+        {
+            return moveDifference > 0 && context?.monster?.TryReactToBoxEdit(boxId) == true;
+        }
+
         public void SetMonsterBaseDamage(int value)
         {
             SetMonsterBaseDamage(value, string.Empty);
@@ -618,6 +651,7 @@ public void SetPlayerDebuffValue(int value, string segmentState)
                 return;
 
             context.run.battleTurnNumber = Mathf.Max(1, turnNumber);
+            ApplyPhaseTransitionIfNeeded();
             context.run.currentTurnMoveLimit = CalculateCurrentMoveLimit();
             context.run.remainingMoveCount = context.run.currentTurnMoveLimit + Mathf.Max(0, context.run.temporaryMoveBonus);
 
@@ -637,8 +671,11 @@ public void SetPlayerDebuffValue(int value, string segmentState)
 RefreshAimedShotForTurn(numbers);
 RefreshPlayerDebuffForTurn(numbers);
             EnsurePlayerTurnDamage(numbers);
+            ApplyTurnStartMatchLocks(numbers);
+            EnsureRequiredSuffixBox(numbers);
             context.playerFormula = formulaBuilder.BuildPlayerFormula(context.run, numbers.playerBaseDamage);
             PrepareMonsterPatternFormula(numbers);
+            ApplyPersistentMonsterFormulaRules();
             monsterPatternRunner.ApplyScheduledEffects(context.monster, context.run, context.playerFormula, context.monsterFormula);
             SyncSpecialBoxToNumbers(numbers);
             numbers.CaptureEditSnapshot(context.run.battleTurnNumber);
@@ -752,8 +789,149 @@ private static void RestoreFormulaStateStructure(FormulaState source, FormulaSta
 
                 targetBox.split |= sourceBox.split;
                 targetBox.locked |= sourceBox.locked;
+                targetBox.matchesMovable &= sourceBox.matchesMovable;
                 targetBox.lockedDigitCount = Mathf.Max(targetBox.lockedDigitCount, sourceBox.lockedDigitCount);
             }
+        }
+
+        private void ApplyPersistentMonsterFormulaRules()
+        {
+            MonsterData data = context?.monster?.Data;
+            if (data == null)
+                return;
+
+            structuralEffectExecutor.SetMatchMovement("player", context.playerFormula, context.monsterFormula, data.playerMatchesMovable);
+            structuralEffectExecutor.SetMatchMovement("self", context.playerFormula, context.monsterFormula, data.monsterMatchesMovable);
+            if (data.alwaysSplitPlayerBoxes)
+                structuralEffectExecutor.SetSplit("player", context.playerFormula, context.monsterFormula);
+            if (data.lockAllPlayerMatchesOnStrengthReset && context.monster.OncePerBattleActionUsed)
+                structuralEffectExecutor.SetLocked("player", context.playerFormula, context.monsterFormula);
+            if (context.monster.Phase == 2 && data.phaseTwoSplitAllBoxes)
+            {
+                structuralEffectExecutor.SetSplit("player", context.playerFormula, context.monsterFormula);
+                structuralEffectExecutor.SetSplit("self", context.playerFormula, context.monsterFormula);
+            }
+        }
+
+        private BattleFormulaResult ApplyMonsterPlayerDamageRules(BattleFormulaResult result)
+        {
+            if (!result.isValid || context?.monster?.Data == null || context.run?.currentBattle == null)
+                return result;
+
+            MonsterData data = context.monster.Data;
+            int authoredDamage = Mathf.Max(0, context.run.currentBattle.playerBaseDamage);
+            int adjustedDamage = result.damagePerHit;
+            if (data.hiddenAssignedDigitCount > 0)
+                adjustedDamage = Mathf.FloorToInt(adjustedDamage * context.monster.EvaluateHiddenDigitDamageRatio(authoredDamage));
+
+            if (data.requiredPlayerDamageSuffixDigits > 0 && context.monster.Phase == 1)
+            {
+                int divisor = 1;
+                for (int i = 0; i < data.requiredPlayerDamageSuffixDigits; i++) divisor *= 10;
+                if (!context.monster.HasSpecialBox || authoredDamage % divisor != context.monster.SpecialBoxValue % divisor)
+                    adjustedDamage = 0;
+            }
+
+            if (data.zeroPlayerDigitsFromSpecialBox && context.monster.HasSpecialBox && authoredDamage > 0)
+            {
+                string blocked = context.monster.SpecialBoxValue.ToString();
+                string text = authoredDamage.ToString();
+                for (int i = 0; i < blocked.Length; i++)
+                    text = text.Replace(blocked[i], '0');
+                int zeroed = int.TryParse(text, out int parsed) ? parsed : 0;
+                adjustedDamage = Mathf.FloorToInt((float)adjustedDamage * zeroed / authoredDamage);
+            }
+
+            return BattleFormulaResult.Success(adjustedDamage, result.hitCount);
+        }
+
+        private void ApplyPhaseTransitionIfNeeded()
+        {
+            MonsterData data = context?.monster?.Data;
+            if (data == null || context.monster.Phase != 1 || data.phaseTwoHealthRate <= 0f)
+                return;
+            if (context.monster.CurrentHealth > Mathf.FloorToInt(data.baseHealth * data.phaseTwoHealthRate))
+                return;
+            context.monster.SetPhase(2);
+            context.monster.ClearSpecialBox();
+        }
+
+        private void EnsureRequiredSuffixBox(BattleNumberState numbers)
+        {
+            MonsterData data = context?.monster?.Data;
+            if (data == null || data.requiredPlayerDamageSuffixDigits <= 0 || context.monster.Phase != 1)
+                return;
+            int minimum = data.requiredPlayerDamageSuffixDigits <= 1 ? 0 : (int)Mathf.Pow(10, data.requiredPlayerDamageSuffixDigits - 1);
+            int maximum = (int)Mathf.Pow(10, data.requiredPlayerDamageSuffixDigits) - 1;
+            int value = context.run.RollValue($"monster.required_suffix.turn.{context.run.battleTurnNumber}", minimum, maximum);
+            context.monster.SetSpecialBox(value, data.requiredPlayerDamageSuffixDigits, "TARGET", false);
+            SyncSpecialBoxToNumbers(numbers);
+        }
+
+        private void ApplyTurnStartMatchLocks(BattleNumberState numbers)
+        {
+            MonsterData data = context?.monster?.Data;
+            if (data == null || numbers == null)
+                return;
+            if (context.run.battleTurnNumber > 1 && data.clearLockDebuffWithoutEdits && context.monster.LastTurnMoveCount == 0)
+                context.monster.ClearLockDebuffStacks();
+
+            int count = data.randomPlayerMatchLocksPerTurn + context.monster.LockDebuffStacks;
+            if (context.run.battleTurnNumber == 1)
+                count += data.randomPlayerMatchLocksAtBattleStart;
+            if (count <= 0)
+                return;
+            numbers.playerBaseDamageSegmentState = LockRandomSegments(
+                numbers.playerBaseDamageSegmentState,
+                numbers.playerBaseDamage,
+                numbers.playerBaseDamageDigitCount,
+                count,
+                $"monster.player_match_locks.turn.{context.run.battleTurnNumber}");
+        }
+
+        private string LockRandomSegments(string state, int value, int digitCount, int count, string purpose)
+        {
+            List<string> entries = new List<string>();
+            if (!string.IsNullOrWhiteSpace(state) && state.Contains("|"))
+                entries.AddRange(state.Substring(state.IndexOf('|') + 1).Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
+            else
+            {
+                string text = Mathf.Max(0, value).ToString().PadLeft(Mathf.Max(1, digitCount), '0');
+                for (int digit = 0; digit < text.Length; digit++)
+                {
+                    MatchPattern pattern = Array.Find(MatchPatternTable.DigitPatterns, item => item.value == text[digit] - '0');
+                    if (pattern == null) continue;
+                    for (int i = 0; i < pattern.segments.Length; i++)
+                        entries.Add($"{digit}:{pattern.segments[i]}:N");
+                }
+                digitCount = text.Length;
+            }
+
+            List<int> candidates = new List<int>();
+            for (int i = 0; i < entries.Count; i++)
+                if (!entries[i].EndsWith(":L", StringComparison.Ordinal)) candidates.Add(i);
+            for (int i = 0; i < count && candidates.Count > 0; i++)
+            {
+                int pick = context.run.RollValue($"{purpose}.{i}", 0, candidates.Count - 1);
+                int entryIndex = candidates[pick];
+                int kindSeparator = entries[entryIndex].LastIndexOf(':');
+                entries[entryIndex] = entries[entryIndex].Substring(0, kindSeparator + 1) + "L";
+                candidates.RemoveAt(pick);
+            }
+            entries.Sort(StringComparer.Ordinal);
+            return $"{Mathf.Max(1, digitCount)}|{string.Join(",", entries)}";
+        }
+
+        public bool ActivateOncePerBattleMonsterAction()
+        {
+            MonsterData data = context?.monster?.Data;
+            if (data == null || !data.oncePerBattleStrengthReset || !context.monster.TryUseOncePerBattleAction())
+                return false;
+            context.monster.SetStrength(data.baseStrength);
+            if (data.lockAllPlayerMatchesOnStrengthReset)
+                structuralEffectExecutor.SetLocked("player", context.playerFormula, context.monsterFormula);
+            BattlePresentationChanged?.Invoke();
+            return true;
         }
 
 
@@ -961,6 +1139,7 @@ numbers.monsterHitCountSegmentState = segmentState;
             numbers.monsterSpecialBoxValue = context.monster.SpecialBoxValue;
             numbers.monsterSpecialBoxDigitCount = Mathf.Max(1, context.monster.SpecialBoxDigitCount);
             numbers.monsterSpecialBoxLabel = context.monster.SpecialBoxLabel;
+            numbers.monsterSpecialBoxEditable = context.monster.SpecialBoxEditable;
             numbers.monsterSpecialBoxSegmentState = segmentState;
         }
 
@@ -997,7 +1176,8 @@ numbers.monsterHitCountSegmentState = segmentState;
             context.monster.SetSpecialBox(
                 numbers.monsterSpecialBoxValue,
                 Mathf.Max(1, numbers.monsterSpecialBoxDigitCount),
-                numbers.monsterSpecialBoxLabel);
+                numbers.monsterSpecialBoxLabel,
+                numbers.monsterSpecialBoxEditable);
         }
 
         private void ApplyFormulaToMonster(BattleFormulaResult result)
@@ -1341,6 +1521,8 @@ private void ApplyPlayerHit(BattleFormulaResult result, BattleHitStep hit)
 
             int modifiedDamage = fantasyEffectRunner.ModifyValue(context.run, hit.damage, "Turn_End", "Additional_Damage");
             int dealt = context.monster.ApplyDamage(modifiedDamage);
+            if (dealt > 0 && context.monster.Data?.lockDebuffOnDamageTaken == true)
+                context.monster.AddLockDebuffStack();
             context.run.AddBattleDamageDebug(GetHitLogLabel(hit.sourceFantasy), dealt);
             context.run.lastDamageDealt = dealt;
             context.run.battleDamageDealt += dealt;
@@ -1368,6 +1550,10 @@ private int ApplyMonsterHitToPlayer(int damagePerHit)
             int damage = Mathf.Max(0, fantasyEffectRunner.ModifyValue(context.run, damagePerHit, "Take_Damage", "Damage_Taken"));
             context.run.health -= damage;
             context.run.battleDamageTaken += damage;
+            if (damage > 0 && context.monster?.Data?.lockDebuffOnDamageDealt == true)
+                context.monster.AddLockDebuffStack();
+            if (damage == 0 && context.monster?.Data?.reduceStrengthOnZeroDamageTaken == true)
+                context.monster.ChangeStrength(-1);
             context.run.AddPlayerDamageDebug("Damage Taken", damage);
             return damage;
         }

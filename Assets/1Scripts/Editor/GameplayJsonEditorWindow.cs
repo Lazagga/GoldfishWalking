@@ -24,8 +24,11 @@ namespace GoldfishWalking.Editor
 
         private static readonly string[] PassiveOperations =
         {
-            "add_formula_decoy_digits", "aimed_shot", "countdown", "lifesteal",
-            "limit_incoming_damage", "lock_box", "require_formula_condition"
+            "accumulate_lock_debuff", "add_formula_decoy_digits", "aimed_shot", "assign_hidden_digits",
+            "countdown", "lifesteal", "limit_incoming_damage", "lock_box", "lock_random_player_matches",
+            "once_per_battle_strength_reset", "phase_transition", "react_to_box_edits", "react_to_zero_damage",
+            "require_formula_condition", "require_player_suffix", "set_match_mobility", "split_player_boxes",
+            "zero_player_special_digits"
         };
 
         private static readonly string[] Events =

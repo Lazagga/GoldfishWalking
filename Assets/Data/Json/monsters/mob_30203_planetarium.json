@@ -31,6 +31,11 @@
                             ]
            },
     "passives":  [
-
+                     {
+                         "operation":  "assign_hidden_digits",
+                         "count":  2,
+                         "distinct":  true,
+                         "damageRatioPerFound":  0.5
+                     }
                  ]
 }

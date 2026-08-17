@@ -16,13 +16,23 @@ namespace GoldfishWalking.Battle
         public int FortuneStack { get; private set; }
         public int ProphecyStack { get; private set; }
         public int Phase { get; private set; } = 1;
+        public int LockDebuffStacks { get; private set; }
+        public int LastTurnMoveCount { get; set; } = -1;
+        public bool OncePerBattleActionUsed { get; private set; }
+        public int HiddenDigitA { get; private set; } = -1;
+        public int HiddenDigitB { get; private set; } = -1;
+        public bool HiddenDigitADiscovered { get; private set; }
+        public bool HiddenDigitBDiscovered { get; private set; }
         public bool HasSpecialBox { get; private set; }
         public int SpecialBoxValue { get; private set; }
         public int SpecialBoxDigitCount { get; private set; }
         public string SpecialBoxLabel { get; private set; } = string.Empty;
+        public bool SpecialBoxEditable { get; private set; }
         public List<ScheduledMonsterPatternEffect> ScheduledEffects { get; } = new List<ScheduledMonsterPatternEffect>();
         public List<TimedStrengthModifier> TimedStrengthModifiers { get; } = new List<TimedStrengthModifier>();
         private readonly Dictionary<string, int> remainingPatternUses = new Dictionary<string, int>();
+        private readonly HashSet<string> reactiveEditBoxes = new HashSet<string>();
+        private readonly HashSet<string> reactedEditBoxes = new HashSet<string>();
         public int SelectedPatternTurn { get; private set; }
         public MonsterPatternData SelectedPattern { get; private set; }
 
@@ -55,6 +65,99 @@ namespace GoldfishWalking.Battle
             CurrentHealth = data != null ? data.baseHealth : 1;
             Strength = data != null ? data.baseStrength : 0;
             DamageCapPerHit = data != null ? System.Math.Max(0, data.damageCap) : 0;
+        }
+
+        public void ConfigureReactiveEditBoxes(RunContext runContext, string nodeId)
+        {
+            reactiveEditBoxes.Clear();
+            reactedEditBoxes.Clear();
+            string[] candidates = Data?.reactiveEditBoxIds;
+            int groupSize = Data != null ? Data.reactiveEditGroupSize : 0;
+            int countPerGroup = Data != null ? Data.reactiveEditSelectionCount : 0;
+            if (candidates == null || candidates.Length == 0 || groupSize <= 0 || countPerGroup <= 0)
+                return;
+
+            for (int groupStart = 0; groupStart < candidates.Length; groupStart += groupSize)
+            {
+                int groupCount = System.Math.Min(groupSize, candidates.Length - groupStart);
+                int selections = System.Math.Min(countPerGroup, groupCount);
+                List<int> available = new List<int>();
+                for (int i = 0; i < groupCount; i++)
+                    available.Add(i);
+
+                for (int selection = 0; selection < selections; selection++)
+                {
+                    int picked = DeterministicValue.Range(
+                        runContext?.seed ?? 0,
+                        runContext?.act ?? 1,
+                        runContext?.roomIndex ?? 0,
+                        nodeId,
+                        $"battle.monster.reactive_box.group.{groupStart / groupSize}.selection.{selection}",
+                        0,
+                        available.Count - 1);
+                    reactiveEditBoxes.Add(candidates[groupStart + available[picked]]);
+                    available.RemoveAt(picked);
+                }
+            }
+        }
+
+        public bool IsReactiveEditBox(string boxId)
+        {
+            return !string.IsNullOrWhiteSpace(boxId) && reactiveEditBoxes.Contains(boxId);
+        }
+
+        public bool TryReactToBoxEdit(string boxId)
+        {
+            if (!IsReactiveEditBox(boxId))
+                return false;
+            if (Data?.reactiveEditOncePerBox != false && !reactedEditBoxes.Add(boxId))
+                return false;
+
+            ChangeStrength(Data != null ? Data.reactiveEditStrength : 0);
+            return true;
+        }
+
+        public void ConfigureHiddenDigits(RunContext runContext, string nodeId)
+        {
+            if (Data == null || Data.hiddenAssignedDigitCount <= 0)
+                return;
+            HiddenDigitA = DeterministicValue.Range(runContext?.seed ?? 0, runContext?.act ?? 1,
+                runContext?.roomIndex ?? 0, nodeId, "battle.monster.hidden_digit.0", 0, 9);
+            HiddenDigitB = DeterministicValue.Range(runContext?.seed ?? 0, runContext?.act ?? 1,
+                runContext?.roomIndex ?? 0, nodeId, "battle.monster.hidden_digit.1", 0, 8);
+            if (HiddenDigitB >= HiddenDigitA)
+                HiddenDigitB++;
+        }
+
+        public float EvaluateHiddenDigitDamageRatio(int playerDamage)
+        {
+            if (Data == null || Data.hiddenAssignedDigitCount <= 0)
+                return 1f;
+            string digits = System.Math.Abs(playerDamage).ToString();
+            bool foundA = HiddenDigitA >= 0 && digits.IndexOf((char)('0' + HiddenDigitA)) >= 0;
+            bool foundB = HiddenDigitB >= 0 && digits.IndexOf((char)('0' + HiddenDigitB)) >= 0;
+            HiddenDigitADiscovered |= foundA;
+            HiddenDigitBDiscovered |= foundB;
+            int found = (foundA ? 1 : 0) + (foundB ? 1 : 0);
+            return System.Math.Min(1f, found * Data.damagePerAssignedDigitRatio);
+        }
+
+        public void AddLockDebuffStack()
+        {
+            LockDebuffStacks++;
+        }
+
+        public void ClearLockDebuffStacks()
+        {
+            LockDebuffStacks = 0;
+        }
+
+        public bool TryUseOncePerBattleAction()
+        {
+            if (OncePerBattleActionUsed)
+                return false;
+            OncePerBattleActionUsed = true;
+            return true;
         }
 
         public int ApplyDamage(int amount)
@@ -185,20 +288,21 @@ namespace GoldfishWalking.Battle
             Phase = System.Math.Max(1, value);
         }
 
-        public void SetSpecialBox(int value, int digitCount, string label)
+        public void SetSpecialBox(int value, int digitCount, string label, bool editable = true)
         {
             HasSpecialBox = true;
             SpecialBoxValue = System.Math.Max(0, value);
             SpecialBoxDigitCount = System.Math.Max(1, digitCount);
             SpecialBoxLabel = label ?? string.Empty;
+            SpecialBoxEditable = editable;
         }
 
-        public void AppendSpecialBoxDigit(int digit, string label)
+        public void AppendSpecialBoxDigit(int digit, string label, bool editable = false)
         {
             int clampedDigit = System.Math.Max(0, System.Math.Min(9, digit));
             if (!HasSpecialBox)
             {
-                SetSpecialBox(clampedDigit, 1, label);
+                SetSpecialBox(clampedDigit, 1, label, editable);
                 return;
             }
 
@@ -206,6 +310,7 @@ namespace GoldfishWalking.Battle
             SpecialBoxDigitCount = System.Math.Max(1, SpecialBoxDigitCount + 1);
             if (!string.IsNullOrWhiteSpace(label))
                 SpecialBoxLabel = label;
+            SpecialBoxEditable = editable;
         }
 
         public void SetSpecialBoxValue(int value)
@@ -222,6 +327,7 @@ namespace GoldfishWalking.Battle
             SpecialBoxValue = 0;
             SpecialBoxDigitCount = 0;
             SpecialBoxLabel = string.Empty;
+            SpecialBoxEditable = false;
         }
 
         public void AdvanceTurnDurations()

@@ -308,11 +308,12 @@ namespace GoldfishWalking.Battle
                 if (NormalizeLookup(effect.valueExpression) == "playerformularandomnumber")
                     value = SelectPlayerFormulaNumber(playerFormula, runContext);
 
+                int resolvedHitCount = NormalizeLookup(effect.valueExpression) == "stargazingmulti3" ? 3 : Mathf.Max(1, effect.hitCount);
                 if (target == "self")
                     monster.ApplyDamage(value);
                 else
                 {
-                    for (int hitIndex = 0; hitIndex < Mathf.Max(1, effect.hitCount); hitIndex++)
+                    for (int hitIndex = 0; hitIndex < resolvedHitCount; hitIndex++)
                         ApplyMonsterDamageToPlayer(monster, runContext, value);
                 }
                 return;
@@ -333,9 +334,9 @@ namespace GoldfishWalking.Battle
             if (action == "addbox")
             {
                 if (NormalizeLookup(effect.mode) == "append" && effect.count == 1)
-                    monster.AppendSpecialBoxDigit(value, effect.label);
+                    monster.AppendSpecialBoxDigit(value, effect.label, effect.editable);
                 else
-                    monster.SetSpecialBox(value, effect.count, effect.label);
+                    monster.SetSpecialBox(value, effect.count, effect.label, effect.editable);
                 return;
             }
 

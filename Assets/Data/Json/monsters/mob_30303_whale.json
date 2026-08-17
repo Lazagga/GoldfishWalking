@@ -30,6 +30,19 @@
                             ]
            },
     "passives":  [
-
+                     {
+                         "operation":  "require_player_suffix",
+                         "digits":  2
+                     },
+                     {
+                         "operation":  "phase_transition",
+                         "condition":  {
+                                           "healthRateAtMost":  0.5
+                                       },
+                         "phaseTwo":  {
+                                           "splitAllBoxes":  true,
+                                           "moveLimit":  2
+                                       }
+                     }
                  ]
 }

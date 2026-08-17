@@ -30,6 +30,16 @@
                             ]
            },
     "passives":  [
-
+                     {
+                         "operation":  "react_to_zero_damage",
+                         "reaction":  {
+                                          "stat":  "strength",
+                                          "amount":  -1
+                                      }
+                     },
+                     {
+                         "operation":  "once_per_battle_strength_reset",
+                         "lockAllPlayerMatches":  true
+                     }
                  ]
 }

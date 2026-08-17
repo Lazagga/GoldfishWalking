@@ -36,6 +36,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -76,6 +99,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -115,6 +161,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -156,6 +225,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -197,6 +289,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -237,6 +352,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -275,6 +413,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -317,6 +478,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: RABBIT
     specialBoxMin: 0
     specialBoxMax: 9
@@ -357,6 +541,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -399,6 +606,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -440,6 +670,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: HEART
     specialBoxMin: 0
     specialBoxMax: 9
@@ -481,6 +734,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 4
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -520,6 +796,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -560,6 +859,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -598,6 +920,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -637,6 +982,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -677,6 +1045,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -718,6 +1109,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -758,6 +1172,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -796,6 +1233,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -836,6 +1296,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -875,6 +1358,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -914,6 +1420,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -954,6 +1483,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -995,6 +1547,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -1036,6 +1611,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -1076,6 +1674,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 1
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -1116,6 +1737,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -1157,6 +1801,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -1196,6 +1863,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -1234,6 +1924,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 0
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -1273,6 +1986,32 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds:
+    - damage_base
+    - monster_damage
+    - monster_hit_count
+    reactiveEditGroupSize: 2
+    reactiveEditSelectionCount: 1
+    reactiveEditStrength: 1
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -1313,6 +2052,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 1
+    lockDebuffOnDamageTaken: 1
+    clearLockDebuffWithoutEdits: 1
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -1354,6 +2116,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0.3
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -1395,6 +2180,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 400
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -1436,6 +2244,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 2
+    damagePerAssignedDigitRatio: 0.5
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -1477,6 +2308,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 3
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 1
+    alwaysSplitPlayerBoxes: 1
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -1517,6 +2371,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 0
+    phaseTwoHealthRate: 0
+    phaseTwoSplitAllBoxes: 0
+    phaseTwoMoveLimit: -1
+    reduceStrengthOnZeroDamageTaken: 1
+    oncePerBattleStrengthReset: 1
+    lockAllPlayerMatchesOnStrengthReset: 1
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9
@@ -1557,6 +2434,29 @@ MonoBehaviour:
     damageCapBreakThreshold: 0
     lifestealRate: 0
     baseDamageLocked: 0
+    playerMatchesMovable: 1
+    monsterMatchesMovable: 1
+    reactiveEditBoxIds: []
+    reactiveEditGroupSize: 0
+    reactiveEditSelectionCount: 0
+    reactiveEditStrength: 0
+    reactiveEditOncePerBox: 1
+    randomPlayerMatchLocksAtBattleStart: 0
+    randomPlayerMatchLocksPerTurn: 0
+    lockDebuffOnDamageDealt: 0
+    lockDebuffOnDamageTaken: 0
+    clearLockDebuffWithoutEdits: 0
+    hiddenAssignedDigitCount: 0
+    damagePerAssignedDigitRatio: 0
+    requiredPlayerDamageSuffixDigits: 2
+    phaseTwoHealthRate: 0.5
+    phaseTwoSplitAllBoxes: 1
+    phaseTwoMoveLimit: 2
+    reduceStrengthOnZeroDamageTaken: 0
+    oncePerBattleStrengthReset: 0
+    lockAllPlayerMatchesOnStrengthReset: 0
+    zeroPlayerDigitsFromSpecialBox: 0
+    alwaysSplitPlayerBoxes: 0
     specialBoxLabel: 
     specialBoxMin: 0
     specialBoxMax: 9

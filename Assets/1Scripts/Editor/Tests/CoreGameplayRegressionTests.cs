@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
 using GoldfishWalking.Core;
 using GoldfishWalking.Battle;
 using GoldfishWalking.Data;
@@ -107,6 +109,47 @@ namespace GoldfishWalking.Editor.Tests
         }
 
         [Test]
+        public void MatchEditSession_ImmobileMatchesCanStillBeErasedAndAdded()
+        {
+            MatchEditSession session = new MatchEditSession();
+            session.Open(FormulaBox.Number("number", 1));
+            session.ConfigureStructuralRules(false, _ => false, false);
+            session.slots.Add(new MatchSlot { digitIndex = 0, segmentIndex = 0, piece = new MatchPiece() });
+
+            Assert.That(session.TryPickUp(0, 0).success, Is.False);
+            Assert.That(session.TryErase(0, 0).success, Is.True);
+            Assert.That(session.AddExtraMatch(new MatchPiece()).success, Is.True);
+            Assert.That(session.TryPlace(0, 1).success, Is.True);
+        }
+
+        [Test]
+        public void MonsterRuntime_ReactiveEditBoxesTriggerOnlyOncePerSelectedBox()
+        {
+            MonsterData data = new MonsterData
+            {
+                reactiveEditBoxIds = new[] { "a", "b", "c", "d" },
+                reactiveEditGroupSize = 2,
+                reactiveEditSelectionCount = 1,
+                reactiveEditStrength = 1
+            };
+            MonsterRuntime monster = new MonsterRuntime(data);
+            monster.ConfigureReactiveEditBoxes(new RunContext { seed = 17, act = 3, roomIndex = 4 }, "node");
+
+            int selectedCount = 0;
+            foreach (string boxId in data.reactiveEditBoxIds)
+            {
+                if (!monster.IsReactiveEditBox(boxId))
+                    continue;
+                selectedCount++;
+                Assert.That(monster.TryReactToBoxEdit(boxId), Is.True);
+                Assert.That(monster.TryReactToBoxEdit(boxId), Is.False);
+            }
+
+            Assert.That(selectedCount, Is.EqualTo(2));
+            Assert.That(monster.Strength, Is.EqualTo(2));
+        }
+
+        [Test]
         public void GeneratedDatabases_AreBackedByExpectedJsonCounts()
         {
             MonsterDatabase monsters = AssetDatabase.LoadAssetAtPath<MonsterDatabase>("Assets/Data/Generated/MonsterDatabase.asset");
@@ -116,9 +159,18 @@ namespace GoldfishWalking.Editor.Tests
             Assert.That(monsters, Is.Not.Null);
             Assert.That(patterns, Is.Not.Null);
             Assert.That(fantasies, Is.Not.Null);
-            Assert.That(monsters.monsters, Has.Count.EqualTo(39));
-            Assert.That(patterns.patterns, Has.Count.EqualTo(38));
-            Assert.That(fantasies.fantasies, Has.Count.EqualTo(60));
+            Assert.That(monsters.monsters, Has.Count.EqualTo(CountEnabledJson("Assets/Data/Json/monsters")));
+            Assert.That(patterns.patterns, Has.Count.EqualTo(CountEnabledJson("Assets/Data/Json/patterns")));
+            Assert.That(fantasies.fantasies, Has.Count.EqualTo(CountEnabledJson("Assets/Data/Json/fantasies")));
+            MonsterData golem = monsters.monsters.Find(monster => monster.id == "Mob_30105_Golem");
+            Assert.That(golem, Is.Not.Null);
+            Assert.That(golem.playerMatchesMovable, Is.False);
+            Assert.That(golem.monsterMatchesMovable, Is.True);
+            MonsterData anglerfish = monsters.monsters.Find(monster => monster.id == "Mob_30106_Anglerfish");
+            Assert.That(anglerfish, Is.Not.Null);
+            Assert.That(anglerfish.reactiveEditGroupSize, Is.EqualTo(2));
+            Assert.That(anglerfish.reactiveEditSelectionCount, Is.EqualTo(1));
+            Assert.That(anglerfish.reactiveEditStrength, Is.EqualTo(1));
         }
 
         [Test]
@@ -149,11 +201,39 @@ namespace GoldfishWalking.Editor.Tests
             Assert.That(evaluator.EvaluateValue("5 / 0", null, null, 0), Is.EqualTo(0));
         }
 
+        [Test]
+        public void MonsterEffectExpressionEvaluator_ResolvesSpecialMonsterExpressions()
+        {
+            RunContext run = new RunContext { seed = 9, act = 3, roomIndex = 2, health = 100 };
+            run.battleTurnNumber = 4;
+            MonsterRuntime monster = new MonsterRuntime(new MonsterData());
+            monster.SetSpecialBox(123, 3, "STAR", false);
+            MonsterEffectExpressionEvaluator evaluator = new MonsterEffectExpressionEvaluator();
+
+            Assert.That(evaluator.EvaluateValue("Stargazing_Multi_3", monster, run, 0), Is.EqualTo(123));
+            Assert.That(evaluator.EvaluateValue("CosmictreeHeal", monster, run, 0), Is.EqualTo(1));
+            float hpDamage = evaluator.EvaluateValue("PlayerHP_Multi_2", monster, run, 0);
+            Assert.That(hpDamage, Is.InRange(10, 99));
+            Assert.That(monster.SpecialBoxEditable, Is.False);
+        }
+
         private static FormulaState Formula(params FormulaBox[] boxes)
         {
             FormulaState state = new FormulaState();
             state.boxes.AddRange(boxes);
             return state;
+        }
+
+        private static int CountEnabledJson(string directory)
+        {
+            int count = 0;
+            foreach (string path in Directory.GetFiles(directory, "*.json"))
+            {
+                string json = File.ReadAllText(path);
+                if (!Regex.IsMatch(json, "\\\"enabled\\\"\\s*:\\s*false", RegexOptions.IgnoreCase))
+                    count++;
+            }
+            return count;
         }
 
         private static void AddDigit(List<MatchSlot> slots, int digitIndex, int digit)

@@ -137,6 +137,49 @@ namespace GoldfishWalking.Editor.DataImport
                     case "lockbox":
                         monster.baseDamageLocked = true;
                         break;
+                    case "setmatchmobility":
+                        ApplyMatchMobility(monster, Object(passive, "target"), ReadBool(passive, "movable", true));
+                        break;
+                    case "reacttoboxedits":
+                        ApplyBoxEditReaction(monster, passive);
+                        break;
+                    case "lockrandomplayermatches":
+                        string timing = Normalize(ReadString(passive, "timing"));
+                        int lockCount = Mathf.Max(0, ReadInt(passive, "count"));
+                        if (timing == "battlestart") monster.randomPlayerMatchLocksAtBattleStart += lockCount;
+                        else monster.randomPlayerMatchLocksPerTurn += lockCount;
+                        break;
+                    case "accumulatelockdebuff":
+                        monster.lockDebuffOnDamageDealt = ReadBool(Object(passive, "triggers"), "damageDealt", true);
+                        monster.lockDebuffOnDamageTaken = ReadBool(Object(passive, "triggers"), "damageTaken", true);
+                        monster.clearLockDebuffWithoutEdits = ReadBool(passive, "clearWithoutEdits", true);
+                        break;
+                    case "assignhiddendigits":
+                        monster.hiddenAssignedDigitCount = Mathf.Max(0, ReadInt(passive, "count", 2));
+                        monster.damagePerAssignedDigitRatio = Mathf.Clamp01(ReadFloat(passive, "damageRatioPerFound", 0.5f));
+                        break;
+                    case "requireplayersuffix":
+                        monster.requiredPlayerDamageSuffixDigits = Mathf.Max(1, ReadInt(passive, "digits", 2));
+                        break;
+                    case "phasetransition":
+                        monster.phaseTwoHealthRate = Mathf.Clamp01(ReadFloat(Object(passive, "condition"), "healthRateAtMost", 0.5f));
+                        monster.phaseTwoSplitAllBoxes = ReadBool(Object(passive, "phaseTwo"), "splitAllBoxes");
+                        monster.phaseTwoMoveLimit = ReadInt(Object(passive, "phaseTwo"), "moveLimit", -1);
+                        break;
+                    case "reacttozerodamage":
+                        monster.reduceStrengthOnZeroDamageTaken = Normalize(ReadString(Object(passive, "reaction"), "stat")) == "strength"
+                            && ReadInt(Object(passive, "reaction"), "amount", -1) < 0;
+                        break;
+                    case "onceperbattlestrengthreset":
+                        monster.oncePerBattleStrengthReset = true;
+                        monster.lockAllPlayerMatchesOnStrengthReset = ReadBool(passive, "lockAllPlayerMatches", true);
+                        break;
+                    case "zeroplayerspecialdigits":
+                        monster.zeroPlayerDigitsFromSpecialBox = true;
+                        break;
+                    case "splitplayerboxes":
+                        monster.alwaysSplitPlayerBoxes = true;
+                        break;
                     case "aimedshot":
                         monster.aimedShotMultiplier = Mathf.Max(1, ReadInt(passive, "multiplier", 1));
                         break;
@@ -169,6 +212,39 @@ namespace GoldfishWalking.Editor.DataImport
                         break;
                 }
             }
+        }
+
+        private static void ApplyMatchMobility(MonsterData monster, JObject target, bool movable)
+        {
+            string actor = Normalize(ReadString(target, "actor"));
+            if (actor == "self" || actor == "monster")
+                monster.monsterMatchesMovable = movable;
+            else
+                monster.playerMatchesMovable = movable;
+        }
+
+        private static void ApplyBoxEditReaction(MonsterData monster, JObject passive)
+        {
+            monster.reactiveEditBoxIds = Array(passive, "boxes")
+                .Values<string>()
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .Select(MapFormulaBoxId)
+                .ToArray();
+            monster.reactiveEditGroupSize = Mathf.Max(1, ReadInt(Object(passive, "selection"), "groupSize", 2));
+            monster.reactiveEditSelectionCount = Mathf.Clamp(ReadInt(Object(passive, "selection"), "countPerGroup", 1), 1, monster.reactiveEditGroupSize);
+            monster.reactiveEditStrength = ReadInt(Object(passive, "reaction"), "strength", 1);
+            monster.reactiveEditOncePerBox = ReadBool(Object(passive, "reaction"), "oncePerBox", true);
+        }
+
+        private static string MapFormulaBoxId(string authoredId)
+        {
+            return Normalize(authoredId).Replace(".", string.Empty) switch
+            {
+                "playerdamage" => "damage_base",
+                "monsterdamage" => "monster_damage",
+                "monsterhits" => "monster_hit_count",
+                _ => authoredId
+            };
         }
 
         private static void ApplySpecialBox(MonsterData monster, JObject box)

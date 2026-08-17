@@ -8,6 +8,7 @@ namespace GoldfishWalking.Formula
         public string id;
         public FormulaBoxType boxType;
         public bool locked;
+        public bool matchesMovable = true;
         public int lockedDigitCount;
         
 public bool split;

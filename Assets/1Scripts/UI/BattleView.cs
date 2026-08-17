@@ -513,7 +513,9 @@ private string BuildPlayerConditionStatus()
                     battleController != null ? battleController.PlayerBaseDamageSegmentState : string.Empty,
                     CanCommitPlayerDamageDifference, null,
                     battleController != null && battleController.PlayerBaseDamageSplit,
-                    battleController != null ? battleController.PlayerBaseDamageLockedDigitCount : 0);
+                    battleController != null ? battleController.PlayerBaseDamageLockedDigitCount : 0,
+                    matchesMovable: battleController == null || battleController.PlayerBaseDamageMatchesMovable,
+                    highlighted: battleController != null && battleController.PlayerBaseDamageReactive);
 RefreshPlayerDebuffBox();
             if (monsterDamageBox != null)
                 monsterDamageBox.Configure(GetMonsterBaseDamage(), battleController != null ? battleController.MonsterBaseDamageDigitCount : 1,
@@ -521,14 +523,18 @@ RefreshPlayerDebuffBox();
                     OnMonsterDamageDifferenceChanged, battleController != null ? battleController.MonsterBaseDamageSegmentState : string.Empty,
                     CanCommitMonsterDamageDifference, null,
                     battleController != null && battleController.MonsterBaseDamageSplit,
-                    battleController != null ? battleController.MonsterBaseDamageLockedDigitCount : 0);
+                    battleController != null ? battleController.MonsterBaseDamageLockedDigitCount : 0,
+                    matchesMovable: battleController == null || battleController.MonsterBaseDamageMatchesMovable,
+                    highlighted: battleController != null && battleController.MonsterBaseDamageReactive);
             if (monsterHitCountBox != null)
                 monsterHitCountBox.Configure(GetMonsterHitCount(), battleController != null ? battleController.MonsterHitCountDigitCount : 1, healthColor, OnMonsterHitCountEdited,
                     battleController != null && battleController.MonsterHitCountLocked, OnMonsterHitDifferenceChanged,
                     battleController != null ? battleController.MonsterHitCountSegmentState : string.Empty,
                     CanCommitMonsterHitDifference, null,
                     battleController != null && battleController.MonsterHitCountSplit,
-                    battleController != null ? battleController.MonsterHitCountLockedDigitCount : 0);
+                    battleController != null ? battleController.MonsterHitCountLockedDigitCount : 0,
+                    matchesMovable: battleController == null || battleController.MonsterHitCountMatchesMovable,
+                    highlighted: battleController != null && battleController.MonsterHitCountReactive);
             RefreshMonsterSpecialBox();
         }
 
@@ -597,6 +603,7 @@ private void RefreshPlayerConditionBox()
                     : battleController.MonsterSpecialBoxLabel;
 
             if (monsterSpecialBox != null)
+            {
                 monsterSpecialBox.Configure(
                     battleController.MonsterSpecialBoxValue,
                     battleController.MonsterSpecialBoxDigitCount,
@@ -608,6 +615,21 @@ private void RefreshPlayerConditionBox()
                     CanCommitMonsterSpecialBoxDifference,
                     null,
                     battleController.AllFormulaBoxesSplit);
+                Button actionButton = monsterSpecialBox.GetComponent<Button>();
+                if (battleController.CosmicResetAvailable)
+                {
+                    if (actionButton == null)
+                        actionButton = monsterSpecialBox.gameObject.AddComponent<Button>();
+                    actionButton.enabled = true;
+                    actionButton.onClick.RemoveAllListeners();
+                    actionButton.onClick.AddListener(() => battleController.ActivateOncePerBattleMonsterAction());
+                }
+                else if (actionButton != null)
+                {
+                    actionButton.onClick.RemoveAllListeners();
+                    actionButton.enabled = false;
+                }
+            }
         }
 
         private void RefreshMoveCounter()
@@ -644,7 +666,10 @@ private void RefreshPlayerConditionBox()
         private void OnPlayerDamageEdited(int value)
         {
             if (battleController != null)
+            {
                 battleController.SetPlayerBaseDamage(value, playerDamageBox != null ? playerDamageBox.SegmentState : string.Empty);
+                ReactToCommittedBoxEdit("damage_base", playerDamageBox);
+            }
         }
 
 private void OnPlayerDebuffEdited(int value)
@@ -674,13 +699,25 @@ private bool IsValidPlayerDebuffValue(int value)
         private void OnMonsterDamageEdited(int value)
         {
             if (battleController != null)
+            {
                 battleController.SetMonsterBaseDamage(value, monsterDamageBox != null ? monsterDamageBox.SegmentState : string.Empty);
+                ReactToCommittedBoxEdit("monster_damage", monsterDamageBox);
+            }
         }
 
         private void OnMonsterHitCountEdited(int value)
         {
             if (battleController != null)
+            {
                 battleController.SetMonsterHitCount(value, monsterHitCountBox != null ? monsterHitCountBox.SegmentState : string.Empty);
+                ReactToCommittedBoxEdit("monster_hit_count", monsterHitCountBox);
+            }
+        }
+
+        private void ReactToCommittedBoxEdit(string boxId, EditableSevenSegmentBox box)
+        {
+            if (battleController != null && battleController.NotifyFormulaBoxEdited(boxId, box != null ? box.DifferenceFromOriginal : 0))
+                RefreshMonsterStatus();
         }
 
         private void OnMonsterSpecialBoxEdited(int value)

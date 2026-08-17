@@ -14,6 +14,11 @@ namespace GoldfishWalking.Battle
             ApplyToNumberBoxes(SelectFormula(target, playerFormula, monsterFormula), box => box.locked = true);
         }
 
+        public void SetMatchMovement(string target, BattleFormulaState playerFormula, BattleFormulaState monsterFormula, bool movable)
+        {
+            ApplyToNumberBoxes(SelectFormula(target, playerFormula, monsterFormula), box => box.matchesMovable = movable);
+        }
+
         public void LockLeadingDigits(string target, BattleFormulaState playerFormula, BattleFormulaState monsterFormula, int digitCount)
         {
             BattleFormulaState formula = SelectFormula(target, playerFormula, monsterFormula);

@@ -29,6 +29,21 @@
                             ]
            },
     "passives":  [
-
+                     {
+                         "operation":  "react_to_box_edits",
+                         "boxes":  [
+                                       "player.damage",
+                                       "monster.damage",
+                                       "monster.hits"
+                                   ],
+                         "selection":  {
+                                           "groupSize":  2,
+                                           "countPerGroup":  1
+                                       },
+                         "reaction":  {
+                                          "strength":  1,
+                                          "oncePerBox":  true
+                                      }
+                     }
                  ]
 }

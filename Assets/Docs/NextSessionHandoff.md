@@ -1,6 +1,21 @@
 ﻿# Next Session Handoff
 
-Last updated: 2026-08-12
+Last updated: 2026-08-17
+
+## Latest 2026-08-17 Missing Monster Completion Pass
+
+- Golem uses JSON-authored match mobility: matches cannot move but can still be erased or added.
+- Anglerfish deterministically highlights one reactive box per two candidates and gains strength once per edited highlighted box.
+- Witch now locks four random player matches at battle start.
+- Shadow accumulates lock debuff stacks when dealing or taking positive damage, applies random player-match locks at turn start, and clears stacks after a turn with no edits.
+- Planetarium assigns two distinct hidden digits and applies 0/50/100% player damage according to how many are present, revealing found digits in status text.
+- Vampire's `PlayerHP_Multi_2` expression now rolls and displays a locked two-digit HP percentage and deals the corresponding floored current-HP damage.
+- Stargazer splits player boxes, locks three random player matches each turn, treats accumulated special-box digits as zero in player damage, and resolves `Stargazing_Multi_3` as three hits.
+- Cosmic Tree reduces strength when it deals zero damage and exposes its once-per-battle strength reset action, which locks all player matches.
+- Whale requires the displayed two-digit suffix during phase 1, transitions at 50% HP, then splits all boxes and fixes movement to two.
+- Current pattern JSON remains authoritative where historical planning text differs.
+
+Validation: `dotnet build GoldfishWalking.sln --no-restore` passes with 0 warnings and 0 errors. Unity EditMode regression tests pass 14/14. `GumBwing_Er.unity` play-mode smoke reports 0 errors and 0 warnings.
 
 ## Latest 2026-08-12 Architecture Refactor Handoff
 

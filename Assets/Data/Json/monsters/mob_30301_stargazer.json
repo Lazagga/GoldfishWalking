@@ -31,6 +31,16 @@
                             ]
            },
     "passives":  [
-
+                     {
+                         "operation":  "split_player_boxes"
+                     },
+                     {
+                         "operation":  "lock_random_player_matches",
+                         "timing":  "turn_start",
+                         "count":  3
+                     },
+                     {
+                         "operation":  "zero_player_special_digits"
+                     }
                  ]
 }

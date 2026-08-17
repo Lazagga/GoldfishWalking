@@ -31,6 +31,10 @@
                             ]
            },
     "passives":  [
-
+                     {
+                         "operation":  "lock_random_player_matches",
+                         "timing":  "battle_start",
+                         "count":  4
+                     }
                  ]
 }

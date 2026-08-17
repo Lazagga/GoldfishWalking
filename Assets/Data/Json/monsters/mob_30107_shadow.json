@@ -30,6 +30,13 @@
                             ]
            },
     "passives":  [
-
+                     {
+                         "operation":  "accumulate_lock_debuff",
+                         "triggers":  {
+                                          "damageDealt":  true,
+                                          "damageTaken":  true
+                                      },
+                         "clearWithoutEdits":  true
+                     }
                  ]
 }

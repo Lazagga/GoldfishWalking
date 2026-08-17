@@ -28,6 +28,12 @@
                             ]
            },
     "passives":  [
-
+                     {
+                         "operation":  "set_match_mobility",
+                         "target":  {
+                                        "actor":  "player"
+                                    },
+                         "movable":  false
+                     }
                  ]
 }

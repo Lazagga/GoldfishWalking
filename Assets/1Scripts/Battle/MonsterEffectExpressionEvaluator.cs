@@ -74,6 +74,18 @@ namespace GoldfishWalking.Battle
 
             switch (NormalizeLookup(text))
             {
+                case "playerhpmulti2":
+                {
+                    int percent = runContext != null
+                        ? runContext.RollValue($"monster.player_hp_percent.turn.{Mathf.Max(1, runContext.battleTurnNumber)}", 10, 99)
+                        : 10;
+                    monster?.SetSpecialBox(percent, 2, "HP %", false);
+                    return runContext != null ? Mathf.Floor(runContext.health * percent / 100f) : 0f;
+                }
+                case "stargazingmulti3":
+                    return monster != null && monster.HasSpecialBox ? monster.SpecialBoxValue : 0f;
+                case "cosmictreeheal":
+                    return 1f;
                 case "damagedealt": return Mathf.Max(0, damageDealt);
                 case "damagetaken":
                     return monster != null ? monster.DamageCapAccumulatedDamage
