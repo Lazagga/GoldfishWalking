@@ -389,9 +389,7 @@ private void PrepareRewardList()
             if (!hasFantasyReward || fantasy == null || bootstrap == null || bootstrap.RunContext == null)
                 return;
 
-            bootstrap.RunContext.fantasyInventory.Add(fantasy);
-            fantasyEffectRunner.Apply(fantasy, bootstrap.RunContext, "On_Acquire");
-            fantasyEffectRunner.Apply(fantasy, bootstrap.RunContext, "Acquire");
+            fantasyEffectRunner.AddFantasyWithAcquireEffects(bootstrap.RunContext, fantasy);
             FantasyCollectionRules.ApplyPostAcquireTransforms(bootstrap.RunContext.fantasyInventory, fantasyDatabase);
             GameEventHub.RaiseFantasyInventoryChanged();
             hasFantasyReward = false;

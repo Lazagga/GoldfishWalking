@@ -47,6 +47,39 @@ namespace GoldfishWalking.Fantasy
             GameEventHub.RaiseItemInventoryChanged();
         }
 
+        public bool AddFantasyWithAcquireEffects(RunContext runContext, FantasyData fantasy, bool allowDuplicate = false)
+        {
+            if (runContext == null || fantasy == null || runContext.fantasyInventory == null)
+                return false;
+
+            int countBefore = runContext.fantasyInventory.ownedFantasies.Count;
+            if (allowDuplicate)
+                runContext.fantasyInventory.AddDuplicate(fantasy);
+            else
+                runContext.fantasyInventory.Add(fantasy);
+
+            if (runContext.fantasyInventory.ownedFantasies.Count == countBefore)
+                return false;
+
+            Apply(fantasy, runContext, "On_Acquire");
+            Apply(fantasy, runContext, "Acquire");
+
+            FantasyEffectData acquireFork = FindAcquireFork(runContext);
+            if (acquireFork != null)
+            {
+                int acquireIndex = runContext.battleSession.GetCounter("fantasy_acquire_index") + 1;
+                runContext.battleSession.SetCounter("fantasy_acquire_index", acquireIndex);
+                int threshold = Mathf.FloorToInt(Mathf.Clamp01(acquireFork.chance) * 10000f);
+                bool duplicate = runContext.RollValue($"fantasy.acquire_fork.{acquireIndex}.{fantasy.id}", 0, 9999) < threshold;
+                if (duplicate)
+                    runContext.fantasyInventory.AddDuplicate(fantasy);
+                else
+                    runContext.fantasyInventory.Remove(fantasy);
+            }
+
+            return runContext.fantasyInventory.ownedFantasies.Contains(fantasy);
+        }
+
         public void ApplyItemUsedEffects(RunContext runContext, ItemType itemType)
         {
             if (runContext == null)
@@ -216,6 +249,12 @@ namespace GoldfishWalking.Fantasy
                 case "temporarymovement":
                     runContext.battleSession.temporaryMoveBonus = ApplyCalculation(runContext.battleSession.temporaryMoveBonus, calc, value);
                     break;
+                case "enemyactsfirst":
+                    runContext.battleSession.enemyActsFirst = ApplyCalculation(runContext.battleSession.enemyActsFirst ? 1 : 0, calc, value) > 0;
+                    break;
+                case "battlerewind":
+                    runContext.battleSession.SetCounter(target, ApplyCalculation(runContext.battleSession.GetCounter(target), calc, value));
+                    break;
                 case "lastuseditem":
                     runContext.itemInventory.Add(runContext.battleSession.lastUsedItemType, Mathf.FloorToInt(value));
                     GameEventHub.RaiseItemInventoryChanged();
@@ -223,7 +262,32 @@ namespace GoldfishWalking.Fantasy
                 case "fantasy":
                     ApplyFantasyOperation(fantasy, effect, runContext);
                     break;
+                default:
+                    if (!string.IsNullOrWhiteSpace(target))
+                        runContext.battleSession.SetCounter(target, ApplyCalculation(runContext.battleSession.GetCounter(target), calc, value));
+                    break;
             }
+        }
+
+        private static FantasyEffectData FindAcquireFork(RunContext runContext)
+        {
+            IReadOnlyList<FantasyData> owned = runContext?.fantasyInventory?.ownedFantasies;
+            if (owned == null)
+                return null;
+            for (int i = 0; i < owned.Count; i++)
+            {
+                FantasyEffectData[] effects = owned[i]?.effects;
+                if (effects == null)
+                    continue;
+                for (int j = 0; j < effects.Length; j++)
+                {
+                    FantasyEffectData effect = effects[j];
+                    if (effect != null && TriggerMatches(effect.trigger, "On_Acquire")
+                        && NormalizeTrigger(effect.operation) == "duplicateorvoidacquire")
+                        return effect;
+                }
+            }
+            return null;
         }
 
         private static bool TriggerMatches(string effectTrigger, string requestedTrigger)
@@ -497,7 +561,7 @@ namespace GoldfishWalking.Fantasy
             if (float.TryParse(text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float numericValue))
                 return numericValue;
 
-            return EvaluateSimpleExpression(text, runContext, currentValue);
+            return new ExpressionParser(text, runContext, currentValue).Parse();
         }
 
         private static float EvaluateSimpleExpression(string expression, RunContext runContext, int currentValue)
@@ -547,6 +611,21 @@ namespace GoldfishWalking.Fantasy
                 case "damagedealt":
                 case "lastdamagedealt":
                     return runContext != null ? runContext.battleSession.lastDamageDealt : 0f;
+                case "incomingdamageamount":
+                    return runContext != null ? runContext.battleSession.incomingDamageAmount : 0f;
+                case "enemystrengthgainamount":
+                    return runContext != null ? runContext.battleSession.enemyStrengthGainAmount : 0f;
+                case "damageequalsprevious":
+                    return runContext != null && runContext.battleSession.hasPreviousDamageDealt
+                        && runContext.battleSession.lastDamageDealt == runContext.battleSession.previousDamageDealt ? 1f : 0f;
+                case "currentturn":
+                    return runContext != null ? runContext.battleSession.turnNumber : 0f;
+                case "consecutivedigitruncount":
+                    return runContext != null ? runContext.battleSession.consecutiveDigitRunCount : 0f;
+                case "extramatchcount":
+                    return runContext != null ? runContext.itemInventory.GetCount(ItemType.ExtraMatch) : 0f;
+                case "erasercount":
+                    return runContext != null ? runContext.itemInventory.GetCount(ItemType.Eraser) : 0f;
                 case "totaldamagedealt":
                     return runContext != null ? runContext.battleSession.totalDamageDealt : 0f;
                 case "damagetaken":
@@ -570,7 +649,96 @@ namespace GoldfishWalking.Fantasy
                     return runContext?.currentBattle != null && HasSameDigits(runContext.currentBattle.playerBaseDamage)
                         && HasSameVisibleDigits(runContext.currentBattle.playerBaseDamage, runContext.currentBattle.playerBaseDamageSegmentState) ? 1f : 0f;
                 default:
-                    return 0f;
+                    return runContext != null ? runContext.battleSession.GetCounter(NormalizeTrigger(value)) : 0f;
+            }
+        }
+
+        private sealed class ExpressionParser
+        {
+            private readonly string text;
+            private readonly RunContext runContext;
+            private readonly int currentValue;
+            private int index;
+
+            public ExpressionParser(string text, RunContext runContext, int currentValue)
+            {
+                this.text = text ?? string.Empty;
+                this.runContext = runContext;
+                this.currentValue = currentValue;
+            }
+
+            public float Parse() => ParseAddSubtract();
+
+            private float ParseAddSubtract()
+            {
+                float value = ParseMultiplyDivide();
+                while (true)
+                {
+                    SkipSpaces();
+                    if (Take('+')) value += ParseMultiplyDivide();
+                    else if (Take('-')) value -= ParseMultiplyDivide();
+                    else return value;
+                }
+            }
+
+            private float ParseMultiplyDivide()
+            {
+                float value = ParseUnary();
+                while (true)
+                {
+                    SkipSpaces();
+                    if (Take('*')) value *= ParseUnary();
+                    else if (Take('/'))
+                    {
+                        float divisor = ParseUnary();
+                        value = Mathf.Approximately(divisor, 0f) ? 0f : value / divisor;
+                    }
+                    else return value;
+                }
+            }
+
+            private float ParseUnary()
+            {
+                SkipSpaces();
+                if (Take('-')) return -ParseUnary();
+                if (Take('+')) return ParseUnary();
+                return ParsePrimary();
+            }
+
+            private float ParsePrimary()
+            {
+                SkipSpaces();
+                if (Take('('))
+                {
+                    float value = ParseAddSubtract();
+                    Take(')');
+                    return value;
+                }
+
+                int start = index;
+                while (index < text.Length && (char.IsLetterOrDigit(text[index]) || text[index] == '_' || text[index] == '.')) index++;
+                string token = text.Substring(start, index - start);
+                SkipSpaces();
+                if (string.Equals(token, "floor", System.StringComparison.OrdinalIgnoreCase) && Take('('))
+                {
+                    float value = ParseAddSubtract();
+                    Take(')');
+                    return Mathf.Floor(value);
+                }
+                return ResolveValueToken(token, runContext, currentValue);
+            }
+
+            private bool Take(char expected)
+            {
+                SkipSpaces();
+                if (index >= text.Length || text[index] != expected) return false;
+                index++;
+                return true;
+            }
+
+            private void SkipSpaces()
+            {
+                while (index < text.Length && char.IsWhiteSpace(text[index])) index++;
             }
         }
 

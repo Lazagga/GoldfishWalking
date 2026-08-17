@@ -29,6 +29,8 @@ namespace GoldfishWalking.Battle
         private Coroutine resolutionCoroutine;
 
         [SerializeField, Min(0f)] private float attackStepDelay = 0.2f;
+        [SerializeField, Range(0.1f, 1f)] private float attackStepDelayMultiplier = 0.85f;
+        [SerializeField, Min(0f)] private float minimumAttackStepDelay = 0.025f;
         [SerializeField, Min(0f)] private float phaseStepDelay = 0.1f;
 
         public event Action<BattleState> ResolutionPhaseChanged;
@@ -321,6 +323,17 @@ private IEnumerator ResolveBattleRoutine()
                 yield break;
             }
 
+            bool enemyActedFirst = context.run.battleSession.enemyActsFirst;
+            if (enemyActedFirst)
+            {
+                yield return ResolveMonsterActionRoutine(monsterResult);
+                if (resolutionEndedDuringMonsterAction)
+                {
+                    resolutionCoroutine = null;
+                    yield break;
+                }
+            }
+
             context.run.ClearCommittedBattleEditItems();
             SetResolutionPhase(BattleState.PlayerAttack);
             List<BattleHitStep> playerHits = BuildPlayerHitSteps(playerResult);
@@ -328,8 +341,9 @@ private IEnumerator ResolveBattleRoutine()
             {
                 BattleHitStep hit = playerHits[i];
                 PlayerHitPresented?.Invoke(hit);
-                if (attackStepDelay > 0f)
-                    yield return new WaitForSeconds(attackStepDelay);
+                float playerHitDelay = CalculateAcceleratedHitDelay(attackStepDelay, minimumAttackStepDelay, attackStepDelayMultiplier, i);
+                if (playerHitDelay > 0f)
+                    yield return new WaitForSeconds(playerHitDelay);
 
                 ApplyPlayerHit(playerResult, hit);
                 BattlePresentationChanged?.Invoke();
@@ -348,49 +362,14 @@ private IEnumerator ResolveBattleRoutine()
                 yield break;
             }
 
-            SetResolutionPhase(BattleState.MonsterAction);
-            if (monsterPatternRunner.IsAttackPattern(context.monsterPattern) && monsterPatternRunner.CanMonsterAct(context.monster))
+            if (!enemyActedFirst)
             {
-                int totalDamage = 0;
-                int damagePerHit = Mathf.Max(0, monsterResult.damagePerHit);
-                for (int i = 0; i < Mathf.Max(0, monsterResult.hitCount); i++)
+                yield return ResolveMonsterActionRoutine(monsterResult);
+                if (resolutionEndedDuringMonsterAction)
                 {
-                    MonsterHitPresented?.Invoke(i, damagePerHit);
-                    if (attackStepDelay > 0f)
-                        yield return new WaitForSeconds(attackStepDelay);
-
-                    int damageTaken = ApplyMonsterHitToPlayer(damagePerHit);
-                    totalDamage += damageTaken;
-                    context.run.lastDamageTaken = damageTaken;
-
-                    if (damageTaken > 0)
-                    {
-                        fantasyEffectRunner.ApplyTrigger(context.run, "Take_Damage");
-                        ApplyPendingMonsterDamage();
-                    }
-
-                    BattlePresentationChanged?.Invoke();
-                    if ((context.monster != null && context.monster.IsDead) || context.run.health <= 0)
-                    {
-                        if (CompleteBattleResolution())
-                        {
-                            resolutionCoroutine = null;
-                            yield break;
-                        }
-                    }
+                    resolutionCoroutine = null;
+                    yield break;
                 }
-
-                SetResolutionPhase(BattleState.MonsterEffects);
-                context.run.lastDamageTaken = totalDamage;
-                ApplyVampireHeal(totalDamage);
-                monsterPatternRunner.ApplyPatternEffects(context.monster, context.run, context.monsterPattern,
-                    context.playerFormula, context.monsterFormula, "Immediate", totalDamage);
-                BattlePresentationChanged?.Invoke();
-            }
-            else
-            {
-                ApplyMonsterNonAttack(monsterResult);
-                BattlePresentationChanged?.Invoke();
             }
 
             ProcessMonsterSelfDestruct();
@@ -429,12 +408,77 @@ private IEnumerator ResolveBattleRoutine()
             FinishResolutionAsEditing();
         }
 
+        private bool resolutionEndedDuringMonsterAction;
+
+        private IEnumerator ResolveMonsterActionRoutine(BattleFormulaResult monsterResult)
+        {
+            resolutionEndedDuringMonsterAction = false;
+            SetResolutionPhase(BattleState.MonsterAction);
+            if (monsterPatternRunner.IsAttackPattern(context.monsterPattern) && monsterPatternRunner.CanMonsterAct(context.monster))
+            {
+                int totalDamage = 0;
+                int damagePerHit = Mathf.Max(0, monsterResult.damagePerHit);
+                int processedHitCount = CalculateProcessedAttackHitCount(damagePerHit, monsterResult.hitCount);
+                for (int i = 0; i < processedHitCount; i++)
+                {
+                    MonsterHitPresented?.Invoke(i, damagePerHit);
+                    float monsterHitDelay = CalculateAcceleratedHitDelay(attackStepDelay, minimumAttackStepDelay, attackStepDelayMultiplier, i);
+                    if (monsterHitDelay > 0f)
+                        yield return new WaitForSeconds(monsterHitDelay);
+
+                    int damageTaken = ApplyMonsterHitToPlayer(damagePerHit);
+                    totalDamage += damageTaken;
+                    context.run.lastDamageTaken = damageTaken;
+                    if (damageTaken > 0)
+                    {
+                        fantasyEffectRunner.ApplyTrigger(context.run, "Take_Damage");
+                        ApplyPendingMonsterDamage();
+                    }
+
+                    BattlePresentationChanged?.Invoke();
+                    if ((context.monster != null && context.monster.IsDead) || context.run.health <= 0)
+                    {
+                        if (CompleteBattleResolution())
+                        {
+                            resolutionEndedDuringMonsterAction = true;
+                            yield break;
+                        }
+                    }
+                }
+
+                SetResolutionPhase(BattleState.MonsterEffects);
+                context.run.lastDamageTaken = totalDamage;
+                ApplyVampireHeal(totalDamage);
+                monsterPatternRunner.ApplyPatternEffects(context.monster, context.run, context.monsterPattern,
+                    context.playerFormula, context.monsterFormula, "Immediate", totalDamage);
+                BattlePresentationChanged?.Invoke();
+            }
+            else
+            {
+                ApplyMonsterNonAttack(monsterResult);
+                BattlePresentationChanged?.Invoke();
+            }
+        }
+
         private void SetResolutionPhase(BattleState phase)
         {
             if (context == null)
                 return;
             context.state = phase;
             ResolutionPhaseChanged?.Invoke(phase);
+        }
+
+        public static float CalculateAcceleratedHitDelay(float baseDelay, float minimumDelay, float multiplier, int hitIndex)
+        {
+            float safeBase = Mathf.Max(0f, baseDelay);
+            float floor = Mathf.Min(safeBase, Mathf.Max(0f, minimumDelay));
+            float decay = Mathf.Pow(Mathf.Clamp(multiplier, 0.1f, 1f), Mathf.Max(0, hitIndex));
+            return Mathf.Max(floor, safeBase * decay);
+        }
+
+        public static int CalculateProcessedAttackHitCount(int damagePerHit, int hitCount)
+        {
+            return damagePerHit > 0 ? Mathf.Max(0, hitCount) : 0;
         }
 
         private void FinishResolutionAsEditing()
@@ -545,7 +589,9 @@ private IEnumerator ResolveBattleRoutine()
                     ? bootstrap.RunContext.currentNode.nodeType
                     : MapNodeType.NormalBattle);
 
+            int battleStartHealth = bootstrap.RunContext.health;
             bootstrap.RunContext.ClearBattleRuntimeValues();
+            bootstrap.RunContext.battleSession.battleStartHealth = battleStartHealth;
             context = new BattleContext
             {
                 run = bootstrap.RunContext,
@@ -553,6 +599,7 @@ private IEnumerator ResolveBattleRoutine()
                 monster = new MonsterRuntime(selectedMonster),
                 state = BattleState.Editing
             };
+            context.monster.StrengthIncreased += OnMonsterStrengthIncreased;
             context.monster.ConfigureReactiveEditBoxes(context.run, context.sourceNode?.id);
             context.monster.ConfigureHiddenDigits(context.run, context.sourceNode?.id);
 
@@ -708,6 +755,16 @@ RefreshPlayerDebuffForTurn(numbers);
             }
 
             context.run.pendingEnemyStrengthModifiers.Clear();
+        }
+
+        private void OnMonsterStrengthIncreased(int amount)
+        {
+            if (context?.run == null || amount <= 0)
+                return;
+
+            context.run.battleSession.enemyStrengthGainAmount = amount;
+            fantasyEffectRunner.ApplyTrigger(context.run, "Enemy_Strength_Gain");
+            context.run.battleSession.enemyStrengthGainAmount = 0;
         }
 
         private void AdvanceFantasyEffectDurations()
@@ -1199,6 +1256,8 @@ numbers.monsterHitCountSegmentState = segmentState;
                     fantasyEffectRunner.ApplyTrigger(context.run, "Deal_Damage");
                     fantasyEffectRunner.ApplyTrigger(context.run, "On_Hit");
                     ApplyPendingMonsterDamage();
+                    context.run.battleSession.previousDamageDealt = dealt;
+                    context.run.battleSession.hasPreviousDamageDealt = true;
                 }
                 else
                 {
@@ -1234,7 +1293,10 @@ numbers.monsterHitCountSegmentState = segmentState;
             int damagePerHit = Mathf.Max(0, result.damagePerHit);
             int hitCount = Mathf.Max(0, result.hitCount);
             for (int hitIndex = 0; hitIndex < hitCount; hitIndex++)
+            {
+                context.run.battleSession.incomingDamageAmount = damagePerHit;
                 incomingDamage += Mathf.Max(0, fantasyEffectRunner.ModifyValue(context.run, damagePerHit, "Take_Damage", "Damage_Taken"));
+            }
 
             context.run.lastDamageTaken = incomingDamage;
             context.run.health -= incomingDamage;
@@ -1412,6 +1474,8 @@ private static bool IsSelfDestructPattern(MonsterPatternData pattern)
             BattleOutcome outcome = outcomeService.EvaluateCombatants(context);
             if (outcome == BattleOutcome.PlayerLost)
             {
+                if (TryRewindLethalBattle())
+                    return true;
                 CleanupBattleTemporaryState();
                 context.state = BattleState.Lost;
                 GameEventHub.RaiseBattleLost();
@@ -1429,6 +1493,65 @@ private static bool IsSelfDestructPattern(MonsterPatternData pattern)
             }
 
             return false;
+        }
+
+        private bool TryRewindLethalBattle()
+        {
+            if (context?.run == null || context.run.battleSession.battleRewindUsed)
+                return false;
+
+            fantasyEffectRunner.ApplyTrigger(context.run, "Lethal_Damage");
+            if (context.run.battleSession.GetCounter("battlerewind") <= 0)
+                return false;
+
+            int restoredHealth = Mathf.Max(1, context.run.battleSession.battleStartHealth);
+            context.run.health = restoredHealth;
+            context.run.currentBattle = null;
+            StartBattle();
+            context.run.battleSession.battleRewindUsed = true;
+            return true;
+        }
+
+        public static int CountIncreasingDigitTransitions(BattleFormulaState playerFormula, BattleFormulaState monsterFormula)
+        {
+            if (playerFormula == null && monsterFormula == null)
+                return 0;
+
+            var digits = new List<int>();
+            AppendBattleFormulaDigits(playerFormula, digits);
+            AppendBattleFormulaDigits(monsterFormula, digits);
+            int count = 0;
+            for (int i = 1; i < digits.Count; i++)
+            {
+                if (digits[i] == digits[i - 1] + 1)
+                    count++;
+            }
+            return count;
+        }
+
+        private static void AppendBattleFormulaDigits(BattleFormulaState formula, List<int> digits)
+        {
+            if (formula == null)
+                return;
+            AppendFormulaDigits(formula.damageExpression, digits);
+            AppendFormulaDigits(formula.hitCountExpression, digits);
+        }
+
+        private static void AppendFormulaDigits(FormulaState formula, List<int> digits)
+        {
+            if (formula?.boxes == null)
+                return;
+
+            for (int i = 0; i < formula.boxes.Count; i++)
+            {
+                FormulaBox box = formula.boxes[i];
+                if (box == null || box.boxType != FormulaBoxType.Number)
+                    continue;
+                int width = Mathf.Max(1, box.digitCount);
+                string number = Mathf.Max(0, box.numberValue).ToString($"D{width}");
+                for (int j = 0; j < number.Length; j++)
+                    digits.Add(number[j] - '0');
+            }
         }
 
         private void CleanupBattleTemporaryState()
@@ -1470,6 +1593,8 @@ private static bool IsSelfDestructPattern(MonsterPatternData pattern)
         private List<BattleHitStep> BuildPlayerHitSteps(BattleFormulaResult result)
         {
             var hits = new List<BattleHitStep>();
+            if (context?.run != null)
+                context.run.battleSession.consecutiveDigitRunCount = CountIncreasingDigitTransitions(context.playerFormula, context.monsterFormula);
             int runningCount = Mathf.Max(0, result.hitCount);
             AddHits(hits, null, runningCount, result.damagePerHit);
             if (context?.run?.fantasyInventory == null)
@@ -1530,6 +1655,8 @@ private void ApplyPlayerHit(BattleFormulaResult result, BattleHitStep hit)
             fantasyEffectRunner.ApplyTrigger(context.run, "Deal_Damage");
             fantasyEffectRunner.ApplyTrigger(context.run, "On_Hit");
             ApplyPendingMonsterDamage();
+            context.run.battleSession.previousDamageDealt = dealt;
+            context.run.battleSession.hasPreviousDamageDealt = true;
         }
 
         private static string GetHitLogLabel(FantasyData fantasy)
@@ -1547,6 +1674,7 @@ private void ApplyPlayerHit(BattleFormulaResult result, BattleHitStep hit)
 
 private int ApplyMonsterHitToPlayer(int damagePerHit)
         {
+            context.run.battleSession.incomingDamageAmount = Mathf.Max(0, damagePerHit);
             int damage = Mathf.Max(0, fantasyEffectRunner.ModifyValue(context.run, damagePerHit, "Take_Damage", "Damage_Taken"));
             context.run.health -= damage;
             context.run.battleDamageTaken += damage;

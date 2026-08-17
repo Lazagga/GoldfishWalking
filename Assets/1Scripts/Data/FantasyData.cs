@@ -45,6 +45,7 @@ namespace GoldfishWalking.Data
         public GameplayEffectOperation operationKind;
         public string trigger;
         public string target;
+        public string operation;
         public string calc;
         public string valueExpression;
         public bool hasNumericValue;

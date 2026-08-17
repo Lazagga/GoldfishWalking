@@ -870,9 +870,7 @@ private bool IsValidPlayerDebuffValue(int value)
                 return;
             }
 
-            bootstrap.RunContext.fantasyInventory.AddDuplicate(fantasy);
-            fantasyEffectRunner.Apply(fantasy, bootstrap.RunContext, "On_Acquire");
-            fantasyEffectRunner.Apply(fantasy, bootstrap.RunContext, "Acquire");
+            fantasyEffectRunner.AddFantasyWithAcquireEffects(bootstrap.RunContext, fantasy, true);
             FantasyDatabase database = fantasyDatabase != null ? fantasyDatabase : FindFirstFantasyDatabase();
             FantasyCollectionRules.ApplyPostAcquireTransforms(bootstrap.RunContext.fantasyInventory, database);
 

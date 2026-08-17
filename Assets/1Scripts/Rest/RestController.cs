@@ -87,9 +87,7 @@ namespace GoldfishWalking.Rest
             if (selected == null)
                 return false;
 
-            bootstrap.RunContext.fantasyInventory.Add(selected);
-            fantasyEffectRunner.Apply(selected, bootstrap.RunContext, "On_Acquire");
-            fantasyEffectRunner.Apply(selected, bootstrap.RunContext, "Acquire");
+            fantasyEffectRunner.AddFantasyWithAcquireEffects(bootstrap.RunContext, selected);
             FantasyCollectionRules.ApplyPostAcquireTransforms(bootstrap.RunContext.fantasyInventory, fantasyDatabase);
             return true;
         }

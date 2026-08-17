@@ -11284,6 +11284,8 @@ MonoBehaviour:
   monsterDatabase: {fileID: 11400000, guid: 20fd1f87d57201b438ddeab9e8ab650c, type: 2}
   monsterPatternDatabase: {fileID: 11400000, guid: a0459bc139be9ab4faeffdd3f31f5fca, type: 2}
   attackStepDelay: 0.2
+  attackStepDelayMultiplier: 0.85
+  minimumAttackStepDelay: 0.025
   phaseStepDelay: 0.1
 --- !u!4 &905325250
 Transform:

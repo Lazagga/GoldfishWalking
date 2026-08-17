@@ -2,6 +2,20 @@
 
 Last updated: 2026-08-17
 
+## Latest 2026-08-17 New Fantasy Completion Pass
+
+- Implemented JSON fantasies 61-69: Sandcastle, Hermit Crab, Aries, Leo, Taurus, Virgo, Cancer, Scorpio, and Seashell.
+- The fantasy expression runner now supports precedence, parentheses, unary signs, `floor(...)`, inventory variables, incoming damage, enemy strength gain, current turn, previous-damage comparison, consecutive digit transitions, and generic battle counters. Virgo concatenates the player damage/hit formula followed by the monster damage/hit formula, ignores operators, and counts only transitions that increase by exactly one.
+- Damage modifiers run against the authored incoming amount before HP loss; take-damage triggers then apply healing, counters, and reactive effects.
+- Fantasy acquisition is centralized across reward, shop, rest, and debug flows. Leo's authored 50% branch either duplicates the acquired fantasy or voids it.
+- Monster strength increases emit a reusable event; Taurus mirrors the exact gain and switches the battle to enemy-first resolution.
+- Cancer intercepts lethal outcomes once per battle and reconstructs the battle at its starting health and turn.
+- Fantasy JSON import now preserves the authored operation name in generated runtime effects.
+- Player and monster multi-hit presentation now accelerates by 15% per hit from the authored 0.2-second delay, capped at a 0.025-second minimum; hit evaluation remains one-by-one.
+- Monster attacks with zero or negative per-hit damage skip all hit presentation, delays, damage application, and take-damage triggers regardless of authored hit count; post-attack pattern effects and turn progression still run.
+
+Validation: `dotnet build GoldfishWalking.sln --no-restore` passes with 0 warnings and 0 errors. Unity EditMode regression tests pass 20/20. `GumBwing_Er.unity` play-mode smoke reports 0 errors and 0 warnings.
+
 ## Latest 2026-08-17 Missing Monster Completion Pass
 
 - Golem uses JSON-authored match mobility: matches cannot move but can still be erased or added.

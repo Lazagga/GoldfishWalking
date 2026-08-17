@@ -5,6 +5,8 @@ using GoldfishWalking.Core;
 using GoldfishWalking.Battle;
 using GoldfishWalking.Data;
 using GoldfishWalking.Formula;
+using GoldfishWalking.Fantasy;
+using GoldfishWalking.Item;
 using GoldfishWalking.Match;
 using NUnit.Framework;
 using UnityEditor;
@@ -215,6 +217,102 @@ namespace GoldfishWalking.Editor.Tests
             float hpDamage = evaluator.EvaluateValue("PlayerHP_Multi_2", monster, run, 0);
             Assert.That(hpDamage, Is.InRange(10, 99));
             Assert.That(monster.SpecialBoxEditable, Is.False);
+        }
+
+        [Test]
+        public void FantasyEffectRunner_EvaluatesFloorParenthesesAndRuntimeVariables()
+        {
+            RunContext run = new RunContext { health = 100 };
+            run.battleSession.incomingDamageAmount = 250;
+            FantasyData fantasy = Fantasy("heal", new FantasyEffectData
+            {
+                trigger = "Take_Damage", target = "HP", calc = "Add",
+                valueExpression = "floor(IncomingDamageAmount/100)*20"
+            });
+
+            new FantasyEffectRunner().Apply(fantasy, run, "Take_Damage");
+
+            Assert.That(run.health, Is.EqualTo(140));
+        }
+
+        [Test]
+        public void FantasyEffectRunner_UsesGenericCountersAndNegativeExpressions()
+        {
+            RunContext run = new RunContext { health = 100 };
+            run.battleSession.incomingDamageAmount = 30;
+            FantasyData fantasy = Fantasy("bleed",
+                new FantasyEffectData { trigger = "Take_Damage", target = "scorpio_bleed_stack", calc = "Add", valueExpression = "IncomingDamageAmount*0.5" },
+                new FantasyEffectData { trigger = "Turn_End", target = "HP", calc = "Add", valueExpression = "-scorpio_bleed_stack" });
+            FantasyEffectRunner runner = new FantasyEffectRunner();
+
+            runner.Apply(fantasy, run, "Take_Damage");
+            runner.Apply(fantasy, run, "Turn_End");
+
+            Assert.That(run.battleSession.GetCounter("scorpiobleedstack"), Is.EqualTo(15));
+            Assert.That(run.health, Is.EqualTo(85));
+        }
+
+        [Test]
+        public void FantasyEffectRunner_AcquireForkProducesDuplicateOrVoid()
+        {
+            RunContext run = new RunContext { seed = 17 };
+            FantasyData leo = Fantasy("leo", new FantasyEffectData
+            {
+                trigger = "On_Acquire", target = "Fantasy", operation = "duplicate_or_void_acquire",
+                calc = "Toggle", chance = 0.5f, execution = "capability"
+            });
+            FantasyData acquired = Fantasy("candidate");
+            run.fantasyInventory.Add(leo);
+
+            new FantasyEffectRunner().AddFantasyWithAcquireEffects(run, acquired);
+
+            int count = run.fantasyInventory.ownedFantasies.FindAll(item => item == acquired).Count;
+            Assert.That(count, Is.EqualTo(0).Or.EqualTo(2));
+        }
+
+        [Test]
+        public void Virgo_CountsOnlyIncreasingTransitionsAcrossBothFormulas()
+        {
+            BattleFormulaState player = new BattleFormulaState
+            {
+                damageExpression = Formula(FormulaBox.Number("p12", 12)),
+                hitCountExpression = Formula(FormulaBox.Number("p3", 3))
+            };
+            BattleFormulaState monster = new BattleFormulaState
+            {
+                damageExpression = Formula(FormulaBox.Number("m45", 45)),
+                hitCountExpression = Formula(FormulaBox.Number("m6", 6))
+            };
+
+            Assert.That(BattleController.CountIncreasingDigitTransitions(player, monster), Is.EqualTo(5));
+
+            BattleFormulaState descending = new BattleFormulaState
+            {
+                damageExpression = Formula(FormulaBox.Number("descending", 654321)),
+                hitCountExpression = Formula()
+            };
+            Assert.That(BattleController.CountIncreasingDigitTransitions(descending, null), Is.EqualTo(0));
+        }
+
+        [Test]
+        public void BattleHitPresentation_AcceleratesButNeverPassesMinimumDelay()
+        {
+            Assert.That(BattleController.CalculateAcceleratedHitDelay(0.2f, 0.025f, 0.85f, 0), Is.EqualTo(0.2f).Within(0.0001f));
+            Assert.That(BattleController.CalculateAcceleratedHitDelay(0.2f, 0.025f, 0.85f, 5), Is.LessThan(0.2f));
+            Assert.That(BattleController.CalculateAcceleratedHitDelay(0.2f, 0.025f, 0.85f, 100), Is.EqualTo(0.025f).Within(0.0001f));
+        }
+
+        [Test]
+        public void MonsterAttack_ZeroDamageSkipsEveryHitRegardlessOfHitCount()
+        {
+            Assert.That(BattleController.CalculateProcessedAttackHitCount(0, 999), Is.EqualTo(0));
+            Assert.That(BattleController.CalculateProcessedAttackHitCount(-10, 999), Is.EqualTo(0));
+            Assert.That(BattleController.CalculateProcessedAttackHitCount(1, 999), Is.EqualTo(999));
+        }
+
+        private static FantasyData Fantasy(string id, params FantasyEffectData[] effects)
+        {
+            return new FantasyData { id = id, effects = effects };
         }
 
         private static FormulaState Formula(params FormulaBox[] boxes)

@@ -6,6 +6,7 @@ namespace GoldfishWalking.Battle
 {
     public sealed class MonsterRuntime
     {
+        public event System.Action<int> StrengthIncreased;
         public MonsterData Data { get; }
         public int CurrentHealth { get; private set; }
         public int Strength { get; private set; }
@@ -191,6 +192,8 @@ namespace GoldfishWalking.Battle
         public void ChangeStrength(int amount)
         {
             Strength += amount;
+            if (amount > 0)
+                StrengthIncreased?.Invoke(amount);
         }
 
         public void AddTimedStrengthModifier(int amount, int duration)
@@ -227,7 +230,10 @@ namespace GoldfishWalking.Battle
 
         public void SetStrength(int value)
         {
+            int increase = value - Strength;
             Strength = value;
+            if (increase > 0)
+                StrengthIncreased?.Invoke(increase);
         }
 
         public void ChangeStun(int amount)

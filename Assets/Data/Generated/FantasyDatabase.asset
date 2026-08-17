@@ -32,6 +32,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: passive
       target: cosmetic
+      operation: modify_value
       calc: add
       valueExpression: 0
       hasNumericValue: 1
@@ -67,6 +68,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: passive
       target: cosmetic
+      operation: modify_value
       calc: add
       valueExpression: 0
       hasNumericValue: 1
@@ -102,6 +104,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: passive
       target: cosmetic
+      operation: modify_value
       calc: add
       valueExpression: 0
       hasNumericValue: 1
@@ -137,6 +140,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: passive
       target: cosmetic
+      operation: modify_value
       calc: add
       valueExpression: 0
       hasNumericValue: 1
@@ -171,6 +175,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: passive
       target: Shop_Movement
+      operation: modify_value
       calc: add
       valueExpression: 1
       hasNumericValue: 1
@@ -206,6 +211,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: shop_enter
       target: HP
+      operation: modify_value
       calc: add
       valueExpression: 300
       hasNumericValue: 1
@@ -240,6 +246,7 @@ MonoBehaviour:
       operationKind: 9
       trigger: passive
       target: Price
+      operation: modify_value
       calc: multiply
       valueExpression: 0.85
       hasNumericValue: 1
@@ -277,6 +284,7 @@ MonoBehaviour:
       operationKind: 0
       trigger: passive
       target: shop_extra_fantasy_slot
+      operation: enable
       calc: enable
       valueExpression: 1
       hasNumericValue: 1
@@ -312,6 +320,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: battle_start
       target: extra_match
+      operation: modify_value
       calc: add
       valueExpression: 1
       hasNumericValue: 1
@@ -347,6 +356,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: battle_start
       target: eraser
+      operation: modify_value
       calc: add
       valueExpression: 1
       hasNumericValue: 1
@@ -382,6 +392,7 @@ MonoBehaviour:
       operationKind: 9
       trigger: battle_reward
       target: Item_Chance
+      operation: modify_value
       calc: multiply
       valueExpression: 2
       hasNumericValue: 1
@@ -417,6 +428,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: acquire_item
       target: item
+      operation: modify_value
       calc: add
       valueExpression: 1
       hasNumericValue: 1
@@ -453,6 +465,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: turn_end
       target: damage
+      operation: modify_value
       calc: add
       valueExpression: BattleDigit8Count*40
       hasNumericValue: 0
@@ -487,6 +500,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: turn_even
       target: Attack_Count
+      operation: modify_value
       calc: add
       valueExpression: 1
       hasNumericValue: 1
@@ -522,6 +536,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: take_damage
       target: Damage_Taken
+      operation: modify_value
       calc: add
       valueExpression: -20
       hasNumericValue: 1
@@ -557,6 +572,7 @@ MonoBehaviour:
       operationKind: 9
       trigger: take_damage
       target: Damage_Reflect
+      operation: modify_value
       calc: multiply
       valueExpression: 50
       hasNumericValue: 1
@@ -591,6 +607,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: turn_start
       target: Movement
+      operation: modify_value
       calc: add
       valueExpression: 2
       hasNumericValue: 1
@@ -627,6 +644,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: turn_end
       target: temporary_movement
+      operation: modify_value
       calc: add
       valueExpression: RemainingMoves
       hasNumericValue: 0
@@ -643,6 +661,7 @@ MonoBehaviour:
       operationKind: 2
       trigger: turn_end
       target: Movement
+      operation: set_value
       calc: set
       valueExpression: 0
       hasNumericValue: 1
@@ -678,6 +697,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: deal_damage
       target: Additional_Damage
+      operation: modify_value
       calc: add
       valueExpression: 30
       hasNumericValue: 1
@@ -713,6 +733,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: turn_end
       target: damage
+      operation: modify_value
       calc: add
       valueExpression: 50
       hasNumericValue: 1
@@ -747,6 +768,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: turn_4
       target: Strength
+      operation: modify_value
       calc: add
       valueExpression: 1
       hasNumericValue: 1
@@ -781,6 +803,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: battle_start
       target: Enemy_Strength
+      operation: modify_value
       calc: add
       valueExpression: -1
       hasNumericValue: 1
@@ -815,6 +838,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: on_acquire
       target: HP
+      operation: modify_value
       calc: add
       valueExpression: 200
       hasNumericValue: 1
@@ -849,6 +873,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: battle_end
       target: HP
+      operation: modify_value
       calc: add
       valueExpression: 30
       hasNumericValue: 1
@@ -884,6 +909,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: turn_end
       target: HP
+      operation: modify_value
       calc: add
       valueExpression: RemainingMoves*5
       hasNumericValue: 0
@@ -919,6 +945,7 @@ MonoBehaviour:
       operationKind: 0
       trigger: battle_start
       target: fantasy
+      operation: copy_temporary
       calc: copy_temporary
       valueExpression: 1
       hasNumericValue: 1
@@ -954,6 +981,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: battle_end
       target: Fantasy_Reroll
+      operation: modify_value
       calc: add
       valueExpression: 1
       hasNumericValue: 1
@@ -989,6 +1017,7 @@ MonoBehaviour:
       operationKind: 0
       trigger: passive
       target: rest_fantasy_alternative
+      operation: enable
       calc: enable
       valueExpression: 1
       hasNumericValue: 1
@@ -1024,6 +1053,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: passive
       target: Strength
+      operation: modify_value
       calc: add
       valueExpression: 1
       hasNumericValue: 1
@@ -1059,6 +1089,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: passive
       target: HP
+      operation: modify_value
       calc: add
       valueExpression: 70
       hasNumericValue: 1
@@ -1095,6 +1126,7 @@ MonoBehaviour:
       operationKind: 2
       trigger: 
       target: Base_Damage
+      operation: set_value
       calc: set
       valueExpression: 200
       hasNumericValue: 1
@@ -1111,6 +1143,7 @@ MonoBehaviour:
       operationKind: 9
       trigger: 
       target: Base_Damage
+      operation: modify_value
       calc: multiply
       valueExpression: 0.5
       hasNumericValue: 1
@@ -1147,6 +1180,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: turn_start
       target: extra_match
+      operation: modify_value
       calc: add
       valueExpression: RemainingMoves
       hasNumericValue: 0
@@ -1163,6 +1197,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: turn_start
       target: eraser
+      operation: modify_value
       calc: add
       valueExpression: RemainingMoves
       hasNumericValue: 0
@@ -1179,6 +1214,7 @@ MonoBehaviour:
       operationKind: 2
       trigger: turn_start
       target: Movement
+      operation: set_value
       calc: set
       valueExpression: 0
       hasNumericValue: 1
@@ -1214,6 +1250,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: passive
       target: Attack_Count
+      operation: modify_value
       calc: add
       valueExpression: ConsumableCount/10
       hasNumericValue: 0
@@ -1248,6 +1285,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: passive
       target: Attack_Count
+      operation: modify_value
       calc: add
       valueExpression: 4
       hasNumericValue: 1
@@ -1264,6 +1302,7 @@ MonoBehaviour:
       operationKind: 15
       trigger: on_acquire
       target: collection
+      operation: combine_fantasies
       calc: combine
       valueExpression: 1
       hasNumericValue: 1
@@ -1280,6 +1319,7 @@ MonoBehaviour:
       operationKind: 0
       trigger: passive
       target: availability
+      operation: exclude
       calc: exclude
       valueExpression: 1
       hasNumericValue: 1
@@ -1315,6 +1355,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: battle_start
       target: Movement
+      operation: modify_value
       calc: add
       valueExpression: 1
       hasNumericValue: 1
@@ -1331,6 +1372,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: battle_start
       target: eraser
+      operation: modify_value
       calc: add
       valueExpression: 1
       hasNumericValue: 1
@@ -1347,6 +1389,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: battle_start
       target: extra_match
+      operation: modify_value
       calc: add
       valueExpression: 1
       hasNumericValue: 1
@@ -1383,6 +1426,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: battle_start
       target: eraser
+      operation: modify_value
       calc: add
       valueExpression: 1
       hasNumericValue: 1
@@ -1399,6 +1443,7 @@ MonoBehaviour:
       operationKind: 11
       trigger: passive
       target: player_boxes
+      operation: split_box
       calc: split
       valueExpression: 1
       hasNumericValue: 1
@@ -1415,6 +1460,7 @@ MonoBehaviour:
       operationKind: 0
       trigger: passive
       target: split_digit_erase
+      operation: enable
       calc: enable
       valueExpression: 1
       hasNumericValue: 1
@@ -1450,6 +1496,7 @@ MonoBehaviour:
       operationKind: 9
       trigger: passive
       target: player_number
+      operation: modify_value
       calc: multiply
       valueExpression: 2
       hasNumericValue: 1
@@ -1466,6 +1513,7 @@ MonoBehaviour:
       operationKind: 2
       trigger: passive
       target: player_number
+      operation: set_value
       calc: set
       valueExpression: 0
       hasNumericValue: 1
@@ -1501,6 +1549,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: passive
       target: item_cost
+      operation: modify_value
       calc: add
       valueExpression: -100
       hasNumericValue: 1
@@ -1536,6 +1585,7 @@ MonoBehaviour:
       operationKind: 3
       trigger: shop_purchase
       target: health_spent
+      operation: transform_value
       calc: transform
       valueExpression: 999
       hasNumericValue: 1
@@ -1570,6 +1620,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: passive
       target: Attack_Count
+      operation: modify_value
       calc: add
       valueExpression: 1
       hasNumericValue: 1
@@ -1586,6 +1637,7 @@ MonoBehaviour:
       operationKind: 0
       trigger: passive
       target: availability
+      operation: exclude
       calc: exclude
       valueExpression: 1
       hasNumericValue: 1
@@ -1622,6 +1674,7 @@ MonoBehaviour:
       operationKind: 9
       trigger: take_damage
       target: Damage_Taken
+      operation: modify_value
       calc: multiply
       valueExpression: 0.5
       hasNumericValue: 1
@@ -1656,6 +1709,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: turn_1
       target: Enemy_Strength
+      operation: modify_value
       calc: add
       valueExpression: -2
       hasNumericValue: 1
@@ -1691,6 +1745,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: use_item
       target: last_used_item
+      operation: modify_value
       calc: add
       valueExpression: 1
       hasNumericValue: 1
@@ -1726,6 +1781,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: deal_damage
       target: HP
+      operation: modify_value
       calc: add
       valueExpression: 20
       hasNumericValue: 1
@@ -1761,6 +1817,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: turn_end
       target: damage
+      operation: modify_value
       calc: add
       valueExpression: HP*0.1
       hasNumericValue: 0
@@ -1797,6 +1854,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: turn_end
       target: damage
+      operation: modify_value
       calc: add
       valueExpression: ItemUseCount*30
       hasNumericValue: 0
@@ -1833,6 +1891,7 @@ MonoBehaviour:
       operationKind: 9
       trigger: turn_end
       target: Additional_Damage
+      operation: modify_value
       calc: multiply
       valueExpression: 2
       hasNumericValue: 1
@@ -1868,6 +1927,7 @@ MonoBehaviour:
       operationKind: 0
       trigger: turn_start
       target: player_base_damage
+      operation: set_first_digit
       calc: set_first_digit
       valueExpression: 8
       hasNumericValue: 1
@@ -1902,6 +1962,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: battle_start
       target: Attack_Count
+      operation: modify_value
       calc: add
       valueExpression: 1
       hasNumericValue: 1
@@ -1938,6 +1999,7 @@ MonoBehaviour:
       operationKind: 0
       trigger: on_acquire
       target: fantasy
+      operation: replace_with_copy
       calc: replace_with_copy
       valueExpression: 1
       hasNumericValue: 1
@@ -1972,6 +2034,7 @@ MonoBehaviour:
       operationKind: 9
       trigger: rest
       target: HP
+      operation: modify_value
       calc: multiply
       valueExpression: 2
       hasNumericValue: 1
@@ -2007,6 +2070,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: passive
       target: Rest_Count
+      operation: modify_value
       calc: add
       valueExpression: 1
       hasNumericValue: 1
@@ -2042,6 +2106,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: deal_damage
       target: Additional_Damage
+      operation: modify_value
       calc: add
       valueExpression: 60
       hasNumericValue: 1
@@ -2077,6 +2142,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: take_damage
       target: Damage_Reflect
+      operation: modify_value
       calc: add
       valueExpression: 150
       hasNumericValue: 1
@@ -2112,6 +2178,7 @@ MonoBehaviour:
       operationKind: 0
       trigger: passive
       target: player_number
+      operation: digit_min
       calc: digit_min
       valueExpression: 5
       hasNumericValue: 1
@@ -2147,6 +2214,7 @@ MonoBehaviour:
       operationKind: 0
       trigger: passive
       target: monster_number
+      operation: digit_max
       calc: digit_max
       valueExpression: 5
       hasNumericValue: 1
@@ -2182,6 +2250,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: turn_end
       target: Attack_Count
+      operation: modify_value
       calc: add
       valueExpression: 1
       hasNumericValue: 1
@@ -2216,6 +2285,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: acquire
       target: HP
+      operation: modify_value
       calc: add
       valueExpression: HP*0.1
       hasNumericValue: 0
@@ -2250,6 +2320,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: turn_start
       target: Movement
+      operation: modify_value
       calc: add
       valueExpression: 3
       hasNumericValue: 1
@@ -2285,6 +2356,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: take_damage
       target: Damage_Taken
+      operation: modify_value
       calc: add
       valueExpression: -30
       hasNumericValue: 1
@@ -2320,6 +2392,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: turn_end
       target: damage
+      operation: modify_value
       calc: add
       valueExpression: 300
       hasNumericValue: 1
@@ -2355,6 +2428,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: take_damage
       target: HP
+      operation: modify_value
       calc: add
       valueExpression: floor(IncomingDamageAmount/100)*20
       hasNumericValue: 0
@@ -2391,6 +2465,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: deal_damage
       target: aries_combo_stack
+      operation: modify_value
       calc: add
       valueExpression: 20
       hasNumericValue: 1
@@ -2407,6 +2482,7 @@ MonoBehaviour:
       operationKind: 2
       trigger: deal_damage
       target: aries_combo_stack
+      operation: set_value
       calc: set
       valueExpression: 0
       hasNumericValue: 1
@@ -2423,6 +2499,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: deal_damage
       target: damage
+      operation: modify_value
       calc: add
       valueExpression: aries_combo_stack
       hasNumericValue: 0
@@ -2459,6 +2536,7 @@ MonoBehaviour:
       operationKind: 0
       trigger: on_acquire
       target: fantasy
+      operation: duplicate_or_void_acquire
       calc: toggle
       valueExpression: 1
       hasNumericValue: 1
@@ -2495,6 +2573,7 @@ MonoBehaviour:
       operationKind: 0
       trigger: battle_start
       target: enemy_acts_first
+      operation: enable
       calc: enable
       valueExpression: 1
       hasNumericValue: 1
@@ -2511,6 +2590,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: enemy_strength_gain
       target: Strength
+      operation: modify_value
       calc: add
       valueExpression: EnemyStrengthGainAmount
       hasNumericValue: 0
@@ -2546,6 +2626,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: passive
       target: Attack_Count
+      operation: modify_value
       calc: add
       valueExpression: ConsecutiveDigitRunCount
       hasNumericValue: 0
@@ -2582,6 +2663,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: lethal_damage
       target: battle_rewind
+      operation: modify_value
       calc: add
       valueExpression: 1
       hasNumericValue: 1
@@ -2617,6 +2699,7 @@ MonoBehaviour:
       operationKind: 9
       trigger: take_damage
       target: damage_taken
+      operation: modify_value
       calc: multiply
       valueExpression: 0.5
       hasNumericValue: 1
@@ -2633,6 +2716,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: take_damage
       target: scorpio_bleed_stack
+      operation: modify_value
       calc: add
       valueExpression: IncomingDamageAmount*0.5
       hasNumericValue: 0
@@ -2649,6 +2733,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: turn_end
       target: HP
+      operation: modify_value
       calc: add
       valueExpression: -scorpio_bleed_stack
       hasNumericValue: 0
@@ -2685,6 +2770,7 @@ MonoBehaviour:
       operationKind: 1
       trigger: turn_end
       target: damage
+      operation: modify_value
       calc: add
       valueExpression: (ExtraMatchCount+EraserCount)*10
       hasNumericValue: 0

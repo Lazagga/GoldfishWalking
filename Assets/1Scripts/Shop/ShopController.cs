@@ -181,18 +181,13 @@ public bool IsFreeConsumablePurchaseAvailable(string itemId)
             if (alreadyPurchased || (!isStencilSlot && alreadyOwned) || !TrySpendHealth(price))
                 return false;
 
-            if (isStencilSlot)
-                bootstrap.RunContext.fantasyInventory.AddDuplicate(fantasy);
-            else
-                bootstrap.RunContext.fantasyInventory.Add(fantasy);
+            fantasyEffectRunner.AddFantasyWithAcquireEffects(bootstrap.RunContext, fantasy, isStencilSlot);
 
             if (bootstrap.RunContext.currentShop == null)
                 bootstrap.RunContext.currentShop = new ShopNumberState();
             if (!bootstrap.RunContext.currentShop.purchasedFantasyIds.Contains(purchaseKey))
                 bootstrap.RunContext.currentShop.purchasedFantasyIds.Add(purchaseKey);
 
-            fantasyEffectRunner.Apply(fantasy, bootstrap.RunContext, "On_Acquire");
-            fantasyEffectRunner.Apply(fantasy, bootstrap.RunContext, "Acquire");
             FantasyCollectionRules.ApplyPostAcquireTransforms(bootstrap.RunContext.fantasyInventory, fantasyDatabase);
             return true;
         }

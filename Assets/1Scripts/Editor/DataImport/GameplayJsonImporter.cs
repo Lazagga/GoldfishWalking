@@ -443,6 +443,7 @@ namespace GoldfishWalking.Editor.DataImport
             {
                 trigger = trigger,
                 target = FantasyTargetToLegacy(Object(source, "target")),
+                operation = ReadString(source, "operation"),
                 calc = calc,
                 valueExpression = ValueToLegacy(source["amount"]),
                 option = OptionsToLegacy(source["options"]),
