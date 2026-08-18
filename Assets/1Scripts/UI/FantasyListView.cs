@@ -9,11 +9,18 @@ namespace GoldfishWalking.UI
     {
         [SerializeField] private RectTransform contentRoot;
         [SerializeField] private FantasyTooltipView tooltipView;
+        [SerializeField] private UiSkinData uiSkin;
         private bool dynamicSlotsInitialized;
         private Vector2 slotSize = new Vector2(68f, 68f);
         private Vector2 initialContentSize;
         private Color slotColor = new Color(0.20f, 0.22f, 0.29f, 0.96f);
-        private const float SlotSpacing = 8f;
+        private const float SlotSpacing = 0f;
+
+        public void ConfigureSkin(UiSkinData skin)
+        {
+            uiSkin = skin;
+            ApplySlotSkins();
+        }
 
         public void Bind(RectTransform root, FantasyTooltipView tooltip, int slotCount)
         {
@@ -36,6 +43,7 @@ namespace GoldfishWalking.UI
             SetSlotCount(fantasyCount);
             for (int i = 0; i < fantasyCount; i++)
                 BindSlot(contentRoot.GetChild(i), fantasies[i]);
+            ApplySlotSkins();
             LayoutSlots();
         }
 
@@ -123,8 +131,27 @@ private System.Collections.IEnumerator HighlightSlot(RectTransform slot)
             rect.sizeDelta = slotSize;
 
             Image image = slotObject.GetComponent<Image>();
-            image.color = slotColor;
+            image.color = Color.white;
             image.raycastTarget = true;
+        }
+
+        private void ApplySlotSkins()
+        {
+            if (contentRoot == null || uiSkin == null)
+                return;
+            int count = contentRoot.childCount;
+            for (int i = 0; i < count; i++)
+            {
+                Image image = contentRoot.GetChild(i).GetComponent<Image>();
+                if (image == null)
+                    continue;
+                image.sprite = count == 1 ? uiSkin.connectedMiddleButton
+                    : i == 0 ? uiSkin.connectedLeftButton
+                    : i == count - 1 ? uiSkin.connectedRightButton
+                    : uiSkin.connectedMiddleButton;
+                image.type = Image.Type.Sliced;
+                image.color = Color.white;
+            }
         }
 
         private void LayoutSlots()

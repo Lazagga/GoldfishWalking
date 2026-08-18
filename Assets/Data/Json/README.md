@@ -7,6 +7,11 @@
 자동으로 검사한 뒤 `Assets/Data/Generated`의 런타임 데이터베이스를 다시
 생성합니다. 기존 TSV 자료는 더 이상 importer나 게임에서 사용하지 않습니다.
 
+몬스터 이미지 파일은 `Assets/Art/enemy`에 두고 `presentation.sprite`에는
+파일 이름을 적습니다. JSON을 가져오면 Unity가 Sprite, AnimationClip,
+AnimatorController를 자동 생성해 런타임 데이터베이스에 직접 연결합니다.
+자세한 이미지 규칙은 `Assets/Art/README.md`를 참고합니다.
+
 ## 폴더 구성
 
 ### `monsters/`

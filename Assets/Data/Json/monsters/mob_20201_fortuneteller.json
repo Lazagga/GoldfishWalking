@@ -10,7 +10,7 @@
                          "description":  ""
                      },
     "presentation":  {
-                         "sprite":  ""
+                         "sprite": "Art/Enemies/Mob_20201_FortuneTeller"
                      },
     "encounter":  {
                       "act":  2,

@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace GoldfishWalking.Data
 {
@@ -43,6 +44,10 @@ namespace GoldfishWalking.Data
         public string[] patternIds;
         public string rawPatternArray;
         public string sprite;
+        public int spriteIdleFrames = 1;
+        public float spriteFramesPerSecond = 4f;
+        public Sprite portraitSprite;
+        public RuntimeAnimatorController portraitAnimatorController;
         public int damageCap;
         public int damageCapBreakThreshold;
         public float lifestealRate;

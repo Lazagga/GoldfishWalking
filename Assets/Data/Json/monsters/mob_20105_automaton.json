@@ -10,7 +10,7 @@
                          "description":  ""
                      },
     "presentation":  {
-                         "sprite":  ""
+                         "sprite": "Art/Enemies/Mob_20105_Automaton"
                      },
     "encounter":  {
                       "act":  2,

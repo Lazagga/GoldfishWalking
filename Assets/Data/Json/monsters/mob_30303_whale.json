@@ -10,7 +10,9 @@
                          "description":  ""
                      },
     "presentation":  {
-                         "sprite":  ""
+                         "sprite": "Art/Enemies/Mob_30303_Whale",
+                         "idleFrames": 2,
+                         "framesPerSecond": 2
                      },
     "encounter":  {
                       "act":  3,

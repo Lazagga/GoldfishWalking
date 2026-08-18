@@ -10,7 +10,7 @@
                          "description":  ""
                      },
     "presentation":  {
-                         "sprite":  ""
+                         "sprite": "Art/Enemies/Mob_20102_Robber"
                      },
     "encounter":  {
                       "act":  2,

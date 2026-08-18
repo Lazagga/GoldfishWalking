@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c28982d57dc1ee4995efa9ac702ddcd, type: 3}
+  m_Name: UiSkinData
+  m_EditorClassIdentifier: GoldfishWalking.Runtime::GoldfishWalking.Data.UiSkinData
+  nextButton: {fileID: 2075820481771795541, guid: 6ffccac0428716947a7d026b9fc5e4c4, type: 3}
+  resetButton: {fileID: -8941539034623090896, guid: 6ffccac0428716947a7d026b9fc5e4c4, type: 3}
+  closeButton: {fileID: 549642883792983776, guid: 6ffccac0428716947a7d026b9fc5e4c4, type: 3}
+  textPanel: {fileID: 4524393653323254463, guid: 6ffccac0428716947a7d026b9fc5e4c4, type: 3}
+  singleButton: {fileID: 3221881740649451050, guid: 6ffccac0428716947a7d026b9fc5e4c4, type: 3}
+  connectedLeftButton: {fileID: -3182279152725491169, guid: 6ffccac0428716947a7d026b9fc5e4c4, type: 3}
+  connectedMiddleButton: {fileID: 7927236967648448076, guid: 6ffccac0428716947a7d026b9fc5e4c4, type: 3}
+  connectedRightButton: {fileID: -892157802309158907, guid: 6ffccac0428716947a7d026b9fc5e4c4, type: 3}

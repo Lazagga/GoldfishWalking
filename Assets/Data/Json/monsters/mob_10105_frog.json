@@ -10,7 +10,7 @@
                          "description":  ""
                      },
     "presentation":  {
-                         "sprite":  ""
+                         "sprite": "Art/Enemies/Mob_10105_Frog"
                      },
     "encounter":  {
                       "act":  1,

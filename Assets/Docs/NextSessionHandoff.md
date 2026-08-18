@@ -1,6 +1,28 @@
 ﻿# Next Session Handoff
 
-Last updated: 2026-08-17
+Last updated: 2026-08-19
+
+## Latest 2026-08-19 Direct Art Reference Pass
+
+- Vertical match art now rotates -90 degrees. Held matches use the real Match Sprite at the cursor center, preserve the source 21:4 aspect ratio, and smoothly rotate toward the hovered slot orientation. Empty popup slots intentionally retain their rectangular placeholder graphic.
+- The existing popup item slots are reused and normalized to 88x104, use the solo-button skin, and share their visual RectTransform with their Button hit area. Cancel and Done are edge-connected; non-target child graphics no longer intercept button clicks.
+- Monster name/health text now wraps/truncates with best-fit sizing inside its panel. Fantasy hover tooltip text receives 16px horizontal inset to avoid touching the left/right frame.
+- Player source PNGs are forced to single full 32x32 sprites and the Image animation references each main sprite rather than legacy tight-cropped sub-sprites, eliminating apparent scale changes between idle frames. Idle playback was reduced from 12 FPS to 8 FPS.
+- Match sprites now keep one horizontal 78:14 layout for every segment; vertical segments rotate that same rectangle by 90 degrees instead of stretching the horizontal art into a tall rectangle. Normal matches use the PNG's original color, added matches retain their required distinct blue state, and locked matches are pure black.
+- Match segments now use the direct Sprite reference from `Assets/Image/Match.png` through a scene-serialized `MatchstickVisualSettings`; both display and popup segments retain their existing state tint.
+- Player idle/attack PNGs were moved from `Assets/New Folder` to `Assets/Art/player` with their GUIDs preserved. Seven idle frames generate an Image-bound player idle controller under `Assets/Art/Generated/Player`, replacing the text placeholder in Battle.
+- Player and monster formula panels were raised from y=92 to y=155. Player presentation is now 260x260 and monster presentation is 340x340.
+- Runtime FantasyListView slots use the connected-left/middle/right UI sprites with zero gap, including dynamically rebuilt fantasy inventories.
+- The 160x64 UI atlas is now authored as eight named sprites in this order: next, reset, close, text panel, single button, connected-left, connected-middle, connected-right. Embedded `solo/left/mid/right` guide text is excluded from the button sprite rectangles.
+- `UiSkinData.asset` is generated under `Assets/Art/Generated/UI`. The main-scene art binder applies special icons by button role, connected skins to sibling button groups, the single skin to standalone buttons, and the sliced text-panel skin to panel/tooltip/description backgrounds.
+- Final PNG sources now live under `Assets/Art/enemy`, `Assets/Art/shop`, and `Assets/Art/ui`; the temporary duplicate `Assets/Resources/Art` tree was removed.
+- Gameplay JSON import now slices monster sheets on a grade-based 32/48/64 pixel grid, creates idle AnimationClips and AnimatorControllers under `Assets/Art/Generated`, and serializes direct Sprite/controller references into every generated MonsterData entry.
+- `BattleView` now presents the current monster through a standard UI `Image` and `Animator`. The temporary `PixelArtSheetPlayer`, `RawImage` UV animation, and runtime `Resources.Load` path were removed.
+- The shopkeeper is also a scene-serialized `Image` + `Animator` using generated direct asset references.
+- The main-scene binding can be regenerated with `GoldfishWalking > Art > Apply Direct Art References To Main Scene`; normal content updates only require `GoldfishWalking > Data > Import All Gameplay JSON`.
+- Added a Korean designer guide at `Assets/Art/README.md`. The mixed-layout UI atlas remains intentionally unsliced until its rectangle/purpose mapping is authored.
+
+Validation: JSON import reports 39 monsters, 38 patterns, and 69 fantasies with no errors. All 39 MonsterData entries contain non-null Sprite and AnimatorController references; 39 monster clips/controllers plus the shopkeeper assets were generated. `dotnet build GoldfishWalking.sln --no-restore` passes with 0 warnings and 0 errors. `GumBwing_Er.unity` play-mode smoke reports 0 errors.
 
 ## Latest 2026-08-17 New Fantasy Completion Pass
 
@@ -1168,6 +1190,18 @@ Unity MCP tools are now exposed and working.
   `read_console`, `manage_scene`, `manage_gameobject`, and `manage_asset`.
 
 ## Next Recommended Steps
+
+## 2026-08-19 UI Regression Fixes
+
+- Match segments now resolve `MatchstickVisualSettings` lazily, so formula UI
+  created before the settings component's `Awake` still receives
+  `Assets/Image/Match.png` instead of a white fallback rectangle.
+- `MatchstickView.Awake` reapplies the configured sprite as a secondary guard
+  for runtime-created segments.
+- Battle and match-edit consumable slots now share the single-button skin and
+  the same 88 x 104 slot size; their containing panel is 132 pixels tall.
+- Enemy name and health now use padded 62/38 stretched regions inside
+  `MonsterStatusPanel`, with best-fit text and a `RectMask2D` hard boundary.
 
 1. Keep tests deferred for now per user direction unless the user asks for test
    coverage.

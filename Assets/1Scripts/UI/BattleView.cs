@@ -23,6 +23,9 @@ namespace GoldfishWalking.UI
         [SerializeField] private Button resolveBattleButton;
         [SerializeField] private Button resetButton;
         [SerializeField] private Button debugConsoleButton;
+        [SerializeField] private Sprite act1Background;
+        [SerializeField] private Sprite act2Background;
+        [SerializeField] private Sprite act3Background;
 
         private readonly Color backgroundColor = new Color(0.07f, 0.08f, 0.11f, 1f);
         private readonly Color panelColor = new Color(0.14f, 0.16f, 0.20f, 0.94f);
@@ -34,6 +37,7 @@ namespace GoldfishWalking.UI
         private readonly FantasyEffectRunner fantasyEffectRunner = new FantasyEffectRunner();
 
         private RectTransform layoutRoot;
+        private Image battleBackgroundImage;
         private RectTransform fantasyContent;
         private RectTransform consumablePanel;
         private Text healthText;
@@ -41,6 +45,9 @@ namespace GoldfishWalking.UI
         private Text monsterHealthText;
         private Text monsterBuffText;
         private Text playerBuffText;
+        private Image monsterPortrait;
+        private Animator monsterPortraitAnimator;
+        private RuntimeAnimatorController boundMonsterAnimatorController;
         
         private RectTransform playerConditionPanel;
         private Text playerConditionLabel;
@@ -157,6 +164,8 @@ private void OnBattlePresentationChanged()
 
         private void ResolveReferences()
         {
+            if (battleBackgroundImage == null)
+                battleBackgroundImage = GetComponent<Image>();
             if (battleController == null)
                 Debug.LogError("[BattleView] BattleController must be assigned in GumBwing_Er.unity.", this);
             if (bootstrap == null)
@@ -220,6 +229,9 @@ private void OnBattlePresentationChanged()
             healthText = FindComponent<Text>("StatusPanel/Health");
             monsterNameText = FindComponent<Text>("MonsterStatusPanel/MonsterName");
             monsterHealthText = FindComponent<Text>("MonsterStatusPanel/MonsterHealth");
+            ConfigureMonsterStatusLayout();
+            monsterPortrait = FindComponent<Image>("MonsterPortrait");
+            monsterPortraitAnimator = FindComponent<Animator>("MonsterPortrait");
             monsterBuffText = FindComponent<Text>("MonsterFormulaPanel/MonsterBuffs");
             playerBuffText = FindComponent<Text>("PlayerFormulaPanel/PlayerBuffs");
             monsterSpecialBoxPanel = FindRect("MonsterSpecialBoxPanel");
@@ -249,6 +261,7 @@ private void OnBattlePresentationChanged()
             resetButton = FindComponent<Button>("ResetButton");
             resolveBattleButton = FindComponent<Button>("ResolveBattleButton");
             debugConsoleButton = FindComponent<Button>("DebugFantasyConsole/AddButton");
+            ConfigureConsumableSlotVisuals();
             SetButtonLabel(resolveBattleButton, "턴\n종료", 26);
         }
 
@@ -420,6 +433,7 @@ playerDebuffPanel = FindRect("PlayerDebuffPanel");
 
         private void Refresh()
         {
+            RefreshBattleBackground();
             if (healthText != null)
                 healthText.text = bootstrap != null && bootstrap.RunContext != null ? bootstrap.RunContext.health.ToString() : "0";
             RefreshMonsterStatus();
@@ -430,8 +444,48 @@ playerDebuffPanel = FindRect("PlayerDebuffPanel");
             RefreshMoveCounter();
         }
 
+        public void ConfigureBackgrounds(Sprite act1, Sprite act2, Sprite act3)
+        {
+            act1Background = act1;
+            act2Background = act2;
+            act3Background = act3;
+            RefreshBattleBackground();
+        }
+
+        private void RefreshBattleBackground()
+        {
+            if (battleBackgroundImage == null)
+                battleBackgroundImage = GetComponent<Image>();
+            if (battleBackgroundImage == null)
+                return;
+
+            int act = bootstrap != null && bootstrap.RunContext != null ? bootstrap.RunContext.act : 1;
+            Sprite background = act <= 1 ? act1Background : act == 2 ? act2Background : act3Background;
+            battleBackgroundImage.sprite = background;
+            battleBackgroundImage.type = Image.Type.Simple;
+            battleBackgroundImage.preserveAspect = false;
+            battleBackgroundImage.color = background != null ? Color.white : backgroundColor;
+        }
+
         private void RefreshMonsterStatus()
         {
+            MonsterData monsterData = battleController != null ? battleController.CurrentMonsterData : null;
+            if (monsterPortrait != null)
+            {
+                monsterPortrait.sprite = monsterData?.portraitSprite;
+                monsterPortrait.enabled = monsterPortrait.sprite != null;
+                RuntimeAnimatorController controller = monsterData?.portraitAnimatorController;
+                if (monsterPortraitAnimator != null && boundMonsterAnimatorController != controller)
+                {
+                    boundMonsterAnimatorController = controller;
+                    monsterPortraitAnimator.runtimeAnimatorController = controller;
+                    if (controller != null)
+                    {
+                        monsterPortraitAnimator.Rebind();
+                        monsterPortraitAnimator.Play(0, 0, 0f);
+                    }
+                }
+            }
             if (monsterNameText != null)
                 monsterNameText.text = battleController != null ? battleController.MonsterDisplayName : "Monster";
             if (monsterHealthText != null)
@@ -442,6 +496,63 @@ playerDebuffPanel = FindRect("PlayerDebuffPanel");
                 monsterBuffText.text = battleController != null ? battleController.MonsterStatusSummary : "-";
             if (playerBuffText != null)
                 playerBuffText.text = battleController != null ? battleController.PlayerStatusSummary : "-";
+        }
+
+        private static void ConfigureBoundedText(Text text)
+        {
+            if (text == null)
+                return;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
+            text.resizeTextForBestFit = true;
+            text.resizeTextMinSize = 12;
+            text.resizeTextMaxSize = Mathf.Max(12, text.fontSize);
+        }
+
+        private void ConfigureMonsterStatusLayout()
+        {
+            RectTransform panel = FindRect("MonsterStatusPanel");
+            if (panel == null)
+                return;
+            if (panel.GetComponent<RectMask2D>() == null)
+                panel.gameObject.AddComponent<RectMask2D>();
+
+            ConfigureBoundedText(monsterNameText);
+            ConfigureBoundedText(monsterHealthText);
+            SetStatusTextRect(monsterNameText, new Vector2(0f, 0f), new Vector2(0.62f, 1f), new Vector2(14f, 8f), new Vector2(-6f, -8f));
+            SetStatusTextRect(monsterHealthText, new Vector2(0.62f, 0f), new Vector2(1f, 1f), new Vector2(6f, 8f), new Vector2(-14f, -8f));
+        }
+
+        private static void SetStatusTextRect(Text text, Vector2 anchorMin, Vector2 anchorMax, Vector2 offsetMin, Vector2 offsetMax)
+        {
+            if (text == null)
+                return;
+            RectTransform rect = text.rectTransform;
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.offsetMin = offsetMin;
+            rect.offsetMax = offsetMax;
+        }
+
+        private void ConfigureConsumableSlotVisuals()
+        {
+            if (consumablePanel == null)
+                return;
+            consumablePanel.sizeDelta = new Vector2(Mathf.Max(364f, consumablePanel.sizeDelta.x), 132f);
+            for (int i = 0; i < consumablePanel.childCount; i++)
+            {
+                RectTransform slot = consumablePanel.GetChild(i) as RectTransform;
+                if (slot == null)
+                    continue;
+                float width = slot.sizeDelta.x > 0f ? slot.sizeDelta.x : 88f;
+                slot.sizeDelta = new Vector2(width, width);
+                MatchstickVisualSettings.ApplySoloButton(slot.GetComponent<Image>());
+
+                Text icon = slot.Find("Icon")?.GetComponent<Text>();
+                if (icon != null)
+                    icon.text = "■";
+            }
         }
 
 private string BuildPlayerConditionStatus()

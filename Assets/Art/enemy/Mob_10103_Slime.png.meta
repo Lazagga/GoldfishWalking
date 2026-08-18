@@ -1,0 +1,625 @@
+fileFormatVersion: 2
+guid: a4f1cd1a22de34340985119dad5b5337
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -4879232929399983868
+    second: Mob_10103_Slime_0
+  - first:
+      213: -9091905536603109081
+    second: Mob_10103_Slime_1
+  - first:
+      213: 5438431974084033395
+    second: Mob_10103_Slime_2
+  - first:
+      213: 4915562153109533705
+    second: Mob_10103_Slime_3
+  - first:
+      213: 8753472643663640537
+    second: Mob_10103_Slime_4
+  - first:
+      213: 1739374672895478736
+    second: Mob_10103_Slime_5
+  - first:
+      213: -930304511453433249
+    second: Mob_10103_Slime_6
+  - first:
+      213: 4147329100119798604
+    second: Mob_10103_Slime_7
+  - first:
+      213: 8327565233906267167
+    second: Mob_10103_Slime_8
+  - first:
+      213: 2691844771706820138
+    second: Mob_10103_Slime_9
+  - first:
+      213: 8469835834842165788
+    second: Mob_10103_Slime_10
+  - first:
+      213: -3297424175678560947
+    second: Mob_10103_Slime_00
+  - first:
+      213: -4628045643289630045
+    second: Mob_10103_Slime_01
+  - first:
+      213: -3985724866717748231
+    second: Mob_10103_Slime_02
+  - first:
+      213: -4937849484169865972
+    second: Mob_10103_Slime_03
+  - first:
+      213: -2581353058294810227
+    second: Mob_10103_Slime_04
+  - first:
+      213: 6495749685551618272
+    second: Mob_10103_Slime_05
+  - first:
+      213: 5218927600456459964
+    second: Mob_10103_Slime_06
+  - first:
+      213: -4130482946657028189
+    second: Mob_10103_Slime_07
+  - first:
+      213: -443855054437873060
+    second: Mob_10103_Slime_08
+  - first:
+      213: 1601974821965089373
+    second: Mob_10103_Slime_09
+  - first:
+      213: -6395651849392444762
+    second: Mob_10103_Slime_11
+  - first:
+      213: 6708739997010125192
+    second: Mob_10103_Slime_12
+  - first:
+      213: -1757387101215849993
+    second: Mob_10103_Slime_13
+  - first:
+      213: -7764556273262105429
+    second: Mob_10103_Slime_14
+  - first:
+      213: 6264835122200474588
+    second: Mob_10103_Slime_15
+  - first:
+      213: -6443721372143681960
+    second: Mob_10103_Slime_16
+  - first:
+      213: -2635390809725682684
+    second: Mob_10103_Slime_17
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 32
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Mob_10103_Slime_00
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 32
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d45e4e6ce223d32d0800000000000000
+      internalID: -3297424175678560947
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mob_10103_Slime_01
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 32
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3aa6d630201e5cfb0800000000000000
+      internalID: -4628045643289630045
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mob_10103_Slime_02
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 32
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9f3f8dad95cdfa8c0800000000000000
+      internalID: -3985724866717748231
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mob_10103_Slime_03
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 32
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c0595b55e0c397bb0800000000000000
+      internalID: -4937849484169865972
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mob_10103_Slime_04
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 32
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d893870f1113d2cd0800000000000000
+      internalID: -2581353058294810227
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mob_10103_Slime_05
+      rect:
+        serializedVersion: 2
+        x: 160
+        y: 32
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e8d82d4ce9852a50800000000000000
+      internalID: 6495749685551618272
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mob_10103_Slime_06
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 32
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb660b5600b5d6840800000000000000
+      internalID: 5218927600456459964
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mob_10103_Slime_07
+      rect:
+        serializedVersion: 2
+        x: 224
+        y: 32
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a7f2bde4a39da6c0800000000000000
+      internalID: -4130482946657028189
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mob_10103_Slime_08
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 32
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c5a087cfd2c17d9f0800000000000000
+      internalID: -443855054437873060
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mob_10103_Slime_09
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d5a495aec9b5b3610800000000000000
+      internalID: 1601974821965089373
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mob_10103_Slime_10
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 0
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c1234a111d6ea8570800000000000000
+      internalID: 8469835834842165788
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mob_10103_Slime_11
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 0
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6aaa4e157841e37a0800000000000000
+      internalID: -6395651849392444762
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mob_10103_Slime_12
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 0
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8816e3c9b7b3a1d50800000000000000
+      internalID: 6708739997010125192
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mob_10103_Slime_13
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 0
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7f10d231eb18c97e0800000000000000
+      internalID: -1757387101215849993
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mob_10103_Slime_14
+      rect:
+        serializedVersion: 2
+        x: 160
+        y: 0
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bac6ea53531ce3490800000000000000
+      internalID: -7764556273262105429
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mob_10103_Slime_15
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 0
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cd37623e95a21f650800000000000000
+      internalID: 6264835122200474588
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mob_10103_Slime_16
+      rect:
+        serializedVersion: 2
+        x: 224
+        y: 0
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 85e78c56d8d4396a0800000000000000
+      internalID: -6443721372143681960
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mob_10103_Slime_17
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 0
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 40cb8fd75063d6bd0800000000000000
+      internalID: -2635390809725682684
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Mob_10103_Slime_0: -4879232929399983868
+      Mob_10103_Slime_00: -3297424175678560947
+      Mob_10103_Slime_01: -4628045643289630045
+      Mob_10103_Slime_02: -3985724866717748231
+      Mob_10103_Slime_03: -4937849484169865972
+      Mob_10103_Slime_04: -2581353058294810227
+      Mob_10103_Slime_05: 6495749685551618272
+      Mob_10103_Slime_06: 5218927600456459964
+      Mob_10103_Slime_07: -4130482946657028189
+      Mob_10103_Slime_08: -443855054437873060
+      Mob_10103_Slime_09: 1601974821965089373
+      Mob_10103_Slime_1: -9091905536603109081
+      Mob_10103_Slime_10: 8469835834842165788
+      Mob_10103_Slime_11: -6395651849392444762
+      Mob_10103_Slime_12: 6708739997010125192
+      Mob_10103_Slime_13: -1757387101215849993
+      Mob_10103_Slime_14: -7764556273262105429
+      Mob_10103_Slime_15: 6264835122200474588
+      Mob_10103_Slime_16: -6443721372143681960
+      Mob_10103_Slime_17: -2635390809725682684
+      Mob_10103_Slime_2: 5438431974084033395
+      Mob_10103_Slime_3: 4915562153109533705
+      Mob_10103_Slime_4: 8753472643663640537
+      Mob_10103_Slime_5: 1739374672895478736
+      Mob_10103_Slime_6: -930304511453433249
+      Mob_10103_Slime_7: 4147329100119798604
+      Mob_10103_Slime_8: 8327565233906267167
+      Mob_10103_Slime_9: 2691844771706820138
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

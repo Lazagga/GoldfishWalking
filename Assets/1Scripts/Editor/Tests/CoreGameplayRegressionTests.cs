@@ -10,6 +10,7 @@ using GoldfishWalking.Item;
 using GoldfishWalking.Match;
 using NUnit.Framework;
 using UnityEditor;
+using UnityEngine;
 
 namespace GoldfishWalking.Editor.Tests
 {
@@ -173,6 +174,38 @@ namespace GoldfishWalking.Editor.Tests
             Assert.That(anglerfish.reactiveEditGroupSize, Is.EqualTo(2));
             Assert.That(anglerfish.reactiveEditSelectionCount, Is.EqualTo(1));
             Assert.That(anglerfish.reactiveEditStrength, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void MonsterArt_AllGeneratedMonstersUseDirectSpriteAndAnimatorReferences()
+        {
+            MonsterDatabase database = AssetDatabase.LoadAssetAtPath<MonsterDatabase>("Assets/Data/Generated/MonsterDatabase.asset");
+            Assert.That(database, Is.Not.Null);
+            Assert.That(database.monsters, Has.Count.EqualTo(39));
+
+            foreach (MonsterData monster in database.monsters)
+            {
+                Assert.That(monster.sprite, Is.Not.Empty, $"{monster.id} has no authored art key.");
+                Assert.That(monster.portraitSprite, Is.Not.Null, $"{monster.id} has no generated Sprite reference.");
+                Assert.That(monster.portraitAnimatorController, Is.Not.Null, $"{monster.id} has no generated AnimatorController reference.");
+                Assert.That(AssetDatabase.GetAssetPath(monster.portraitSprite), Does.StartWith("Assets/Art/enemy/"));
+                Assert.That(AssetDatabase.GetAssetPath(monster.portraitAnimatorController), Does.StartWith("Assets/Art/Generated/Enemies/"));
+            }
+        }
+
+        [Test]
+        public void UiArt_GeneratedSkinContainsAllEightAuthoredSprites()
+        {
+            UiSkinData skin = AssetDatabase.LoadAssetAtPath<UiSkinData>("Assets/Art/Generated/UI/UiSkinData.asset");
+            Assert.That(skin, Is.Not.Null);
+            Assert.That(skin.nextButton, Is.Not.Null);
+            Assert.That(skin.resetButton, Is.Not.Null);
+            Assert.That(skin.closeButton, Is.Not.Null);
+            Assert.That(skin.textPanel, Is.Not.Null);
+            Assert.That(skin.singleButton, Is.Not.Null);
+            Assert.That(skin.connectedLeftButton, Is.Not.Null);
+            Assert.That(skin.connectedMiddleButton, Is.Not.Null);
+            Assert.That(skin.connectedRightButton, Is.Not.Null);
         }
 
         [Test]

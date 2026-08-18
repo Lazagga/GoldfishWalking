@@ -10,7 +10,7 @@
                          "description":  ""
                      },
     "presentation":  {
-                         "sprite":  ""
+                         "sprite": "Art/Enemies/Mob_30201_Vampire"
                      },
     "encounter":  {
                       "act":  3,

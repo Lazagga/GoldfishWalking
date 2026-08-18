@@ -10,7 +10,7 @@
                          "description":  ""
                      },
     "presentation":  {
-                         "sprite":  ""
+                         "sprite": "Art/Enemies/Mob_10106_BigBird"
                      },
     "encounter":  {
                       "act":  1,

@@ -23,7 +23,7 @@ namespace GoldfishWalking.Match
 [SerializeField] private bool locked;
         [SerializeField] private Color matchColor = new Color(1f, 0.74f, 0.33f, 1f);
         [SerializeField] private Color addedMatchColor = new Color(0.38f, 0.82f, 1f, 1f);
-        [SerializeField] private Color lockedMatchColor = new Color(0.05f, 0.05f, 0.055f, 1f);
+        [SerializeField] private Color lockedMatchColor = Color.black;
         [SerializeField] private UnityEvent<int> valueChanged = new UnityEvent<int>();
         [SerializeField] private UnityEvent<int> differenceChanged = new UnityEvent<int>();
 
@@ -306,7 +306,7 @@ public void Configure(int initialValue, int minimumDigits, Color segmentColor, U
                 if (slot == null || slot.piece == null || slot.digitIndex != digitIndex)
                     continue;
 
-                Color color = matchColor;
+                Color color = Color.white;
                 if (slot.piece.kind == MatchPieceKind.Added)
                     color = addedMatchColor;
                 else if (slot.piece.kind == MatchPieceKind.Locked || IsDigitLocked(digitIndex))
@@ -572,11 +572,19 @@ public void Configure(int initialValue, int minimumDigits, Color segmentColor, U
         private RectTransform editPanel;
         private RectTransform digitRoot;
         private RectTransform heldPreview;
+        private float heldPreviewTargetAngle;
         private Canvas canvas;
         private Text messageText;
         private Text movesText;
         private Text extraMatchCountText;
         private Text eraserCountText;
+        private RectTransform sharedConsumablePanel;
+        private Canvas sharedConsumableCanvas;
+        private GraphicRaycaster sharedConsumableRaycaster;
+        private bool addedSharedConsumableCanvas;
+        private bool addedSharedConsumableRaycaster;
+        private bool previousSharedOverrideSorting;
+        private int previousSharedSortingOrder;
         private int spentExtraMatches;
         private int spentErasers;
         private int spentTemporaryExtraMatches;
@@ -651,6 +659,7 @@ public void Configure(int initialValue, int minimumDigits, Color segmentColor, U
             if (overlay == null)
                 overlay = popupObject.AddComponent<Image>();
             overlay.color = new Color(0.02f, 0.025f, 0.035f, 0.82f);
+            overlay.raycastTarget = false;
         }
 
         private void Initialize(EditableSevenSegmentBox source)
@@ -659,6 +668,7 @@ public void Configure(int initialValue, int minimumDigits, Color segmentColor, U
             {
                 RefundSpentItems();
                 HideHeldPreview();
+                RestoreSharedConsumablePanel();
             }
 
             gameObject.SetActive(true);
@@ -687,6 +697,7 @@ public void Configure(int initialValue, int minimumDigits, Color segmentColor, U
             StoreOriginalShape();
             owner.CopyCommittedItemErasuresTo(itemErasedOriginalAddresses);
             EnsureLayout();
+            AttachBattleConsumablePanel();
             ShowMessage(string.Empty);
             RefreshSlots();
         }
@@ -773,12 +784,144 @@ public void Configure(int initialValue, int minimumDigits, Color segmentColor, U
             BindButton(panel, "DoneButton", CommitPopup);
             BindButton(panel, "ItemPanel/ExtraMatchButton", () => SelectItemMode(ItemEditMode.ExtraMatch));
             BindButton(panel, "ItemPanel/EraserButton", () => SelectItemMode(ItemEditMode.Eraser));
+            ConfigureExistingPopupLayout(panel);
+        }
+
+        private static void ConfigureExistingPopupLayout(RectTransform panel)
+        {
+            RectTransform itemPanel = panel.Find("ItemPanel") as RectTransform;
+            if (itemPanel != null)
+                itemPanel.sizeDelta = new Vector2(Mathf.Max(364f, itemPanel.sizeDelta.x), 132f);
+            ConfigureItemButton(panel.Find("ItemPanel/ExtraMatchButton") as RectTransform, new Vector2(-58f, 0f));
+            ConfigureItemButton(panel.Find("ItemPanel/EraserButton") as RectTransform, new Vector2(58f, 0f));
+
+            RectTransform cancel = panel.Find("CancelButton") as RectTransform;
+            RectTransform done = panel.Find("DoneButton") as RectTransform;
+            if (cancel != null && done != null)
+            {
+                float halfTotal = (cancel.rect.width + done.rect.width) * 0.25f;
+                cancel.anchoredPosition = new Vector2(-halfTotal, cancel.anchoredPosition.y);
+                done.anchoredPosition = new Vector2(halfTotal, done.anchoredPosition.y);
+            }
+        }
+
+        private static void ConfigureItemButton(RectTransform rect, Vector2 position)
+        {
+            if (rect == null)
+                return;
+            rect.anchoredPosition = position;
+            rect.sizeDelta = new Vector2(88f, 88f);
+            Image image = rect.GetComponent<Image>();
+            MatchstickVisualSettings.ApplySoloButton(image);
+            Button button = rect.GetComponent<Button>();
+            if (button != null && image != null)
+                button.targetGraphic = image;
+
+            Text icon = rect.Find("Icon")?.GetComponent<Text>();
+            if (icon != null)
+                icon.text = "■";
         }
 
         private static Text FindText(Transform root, string path)
         {
             Transform child = root != null ? root.Find(path) : null;
             return child != null ? child.GetComponent<Text>() : null;
+        }
+
+        private void AttachBattleConsumablePanel()
+        {
+            RestoreSharedConsumablePanel();
+
+            RectTransform[] candidates = canvas != null
+                ? canvas.GetComponentsInChildren<RectTransform>(true)
+                : FindObjectsByType<RectTransform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            for (int i = 0; i < candidates.Length; i++)
+            {
+                RectTransform candidate = candidates[i];
+                if (candidate == null || candidate.name != "ConsumablePanel" || candidate.IsChildOf(transform))
+                    continue;
+                if (candidate.GetComponentInParent<GoldfishWalking.UI.BattleView>(true) == null)
+                    continue;
+                sharedConsumablePanel = candidate;
+                break;
+            }
+
+            if (sharedConsumablePanel == null || editPanel == null)
+                return;
+
+            RectTransform placeholder = editPanel.Find("ItemPanel") as RectTransform;
+            if (placeholder != null)
+                placeholder.gameObject.SetActive(false);
+
+            sharedConsumableCanvas = sharedConsumablePanel.GetComponent<Canvas>();
+            addedSharedConsumableCanvas = sharedConsumableCanvas == null;
+            if (sharedConsumableCanvas == null)
+                sharedConsumableCanvas = sharedConsumablePanel.gameObject.AddComponent<Canvas>();
+            previousSharedOverrideSorting = sharedConsumableCanvas.overrideSorting;
+            previousSharedSortingOrder = sharedConsumableCanvas.sortingOrder;
+            sharedConsumableCanvas.overrideSorting = true;
+            sharedConsumableCanvas.sortingOrder = (canvas != null ? canvas.sortingOrder : 0) + 100;
+
+            sharedConsumableRaycaster = sharedConsumablePanel.GetComponent<GraphicRaycaster>();
+            addedSharedConsumableRaycaster = sharedConsumableRaycaster == null;
+            if (sharedConsumableRaycaster == null)
+                sharedConsumableRaycaster = sharedConsumablePanel.gameObject.AddComponent<GraphicRaycaster>();
+
+            BindSharedConsumableButton(0, ItemEditMode.ExtraMatch, out extraMatchCountText);
+            BindSharedConsumableButton(1, ItemEditMode.Eraser, out eraserCountText);
+        }
+
+        private void BindSharedConsumableButton(int index, ItemEditMode mode, out Text countText)
+        {
+            countText = null;
+            if (sharedConsumablePanel == null || index < 0 || index >= sharedConsumablePanel.childCount)
+                return;
+
+            RectTransform slot = sharedConsumablePanel.GetChild(index) as RectTransform;
+            if (slot == null)
+                return;
+            Button button = slot.GetComponent<Button>();
+            if (button == null)
+                button = slot.gameObject.AddComponent<Button>();
+            button.targetGraphic = slot.GetComponent<Image>();
+            button.interactable = true;
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() => SelectItemMode(mode));
+            countText = slot.Find("Badge/Count")?.GetComponent<Text>();
+        }
+
+        private void RestoreSharedConsumablePanel()
+        {
+            if (sharedConsumablePanel == null)
+                return;
+
+            for (int i = 0; i < sharedConsumablePanel.childCount; i++)
+            {
+                Button button = sharedConsumablePanel.GetChild(i).GetComponent<Button>();
+                if (button == null)
+                    continue;
+                button.onClick.RemoveAllListeners();
+                button.interactable = false;
+            }
+
+            if (sharedConsumableCanvas != null)
+            {
+                if (addedSharedConsumableCanvas)
+                    Destroy(sharedConsumableCanvas);
+                else
+                {
+                    sharedConsumableCanvas.overrideSorting = previousSharedOverrideSorting;
+                    sharedConsumableCanvas.sortingOrder = previousSharedSortingOrder;
+                }
+            }
+            if (sharedConsumableRaycaster != null && addedSharedConsumableRaycaster)
+                Destroy(sharedConsumableRaycaster);
+
+            sharedConsumablePanel = null;
+            sharedConsumableCanvas = null;
+            sharedConsumableRaycaster = null;
+            addedSharedConsumableCanvas = false;
+            addedSharedConsumableRaycaster = false;
         }
 
         private static void BindButton(Transform root, string path, UnityAction action)
@@ -815,10 +958,10 @@ public void Configure(int initialValue, int minimumDigits, Color segmentColor, U
             Button resetButton = CreateButton("ResetButton", panel, "Reset", new Vector2(-202f, -258f), new Vector2(156f, 72f));
             resetButton.onClick.AddListener(ResetPopup);
 
-            Button cancelButton = CreateButton("CancelButton", panel, "Cancel", new Vector2(0f, -258f), new Vector2(156f, 72f));
+            Button cancelButton = CreateButton("CancelButton", panel, "Cancel", new Vector2(-78f, -258f), new Vector2(156f, 72f));
             cancelButton.onClick.AddListener(ClosePopup);
 
-            Button doneButton = CreateButton("DoneButton", panel, "Done", new Vector2(202f, -258f), new Vector2(156f, 72f));
+            Button doneButton = CreateButton("DoneButton", panel, "Done", new Vector2(78f, -258f), new Vector2(156f, 72f));
             doneButton.onClick.AddListener(CommitPopup);
 
             CreateItemPanel(panel);
@@ -828,7 +971,7 @@ public void Configure(int initialValue, int minimumDigits, Color segmentColor, U
         {
             RectTransform itemPanel = SevenSegmentUI.CreatePanel("ItemPanel", parent, new Color(0.14f, 0.16f, 0.20f, 0.94f));
             itemPanel.anchoredPosition = new Vector2(0f, -158f);
-            itemPanel.sizeDelta = new Vector2(364f, 116f);
+            itemPanel.sizeDelta = new Vector2(364f, 132f);
 
             CreateItemButton(itemPanel, "ExtraMatchButton", new Vector2(-58f, 0f), new Color(1f, 0.28f, 0.28f, 1f), ItemEditMode.ExtraMatch, out extraMatchCountText);
             CreateItemButton(itemPanel, "EraserButton", new Vector2(58f, 0f), new Color(0.95f, 0.97f, 1f, 1f), ItemEditMode.Eraser, out eraserCountText);
@@ -840,11 +983,13 @@ public void Configure(int initialValue, int minimumDigits, Color segmentColor, U
             RectTransform slot = SevenSegmentUI.CreatePanel(name, parent, new Color(0.20f, 0.22f, 0.29f, 0.96f));
             slot.anchoredPosition = position;
             slot.sizeDelta = new Vector2(88f, 88f);
+            MatchstickVisualSettings.ApplySoloButton(slot.GetComponent<Image>());
 
             Button button = slot.gameObject.AddComponent<Button>();
+            button.targetGraphic = slot.GetComponent<Image>();
             button.onClick.AddListener(() => SelectItemMode(mode));
 
-            Text icon = SevenSegmentUI.CreateText("Icon", slot, mode == ItemEditMode.ExtraMatch ? "+" : "-", 31, itemColor, TextAnchor.MiddleCenter);
+            Text icon = SevenSegmentUI.CreateText("Icon", slot, "■", 31, itemColor, TextAnchor.MiddleCenter);
             SetRect(icon.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
 
             RectTransform badge = SevenSegmentUI.CreatePanel("Badge", slot, new Color(0.12f, 0.13f, 0.17f, 0.98f));
@@ -1028,7 +1173,13 @@ private void CommitPopup()
             HideHeldPreview();
             itemMode = ItemEditMode.None;
             owner = null;
+            RestoreSharedConsumablePanel();
             gameObject.SetActive(false);
+        }
+
+        private void OnDisable()
+        {
+            RestoreSharedConsumablePanel();
         }
 
         private void SelectItemMode(ItemEditMode mode)
@@ -1461,9 +1612,9 @@ private void RefundErasedAddedMatch()
                 return;
             }
 
-            Color previewColor = session.heldPiece != null && session.heldPiece.IsAdded ? owner.AddedMatchColor : owner.MatchColor;
+            Color previewColor = session.heldPiece != null && session.heldPiece.IsAdded ? owner.AddedMatchColor : Color.white;
             heldPreview = SevenSegmentUI.CreatePanel("HeldMatch", transform, previewColor);
-            heldPreview.sizeDelta = new Vector2(104f, 18f);
+            heldPreview.sizeDelta = new Vector2(105f, 20f);
             heldPreview.SetAsLastSibling();
 
             CanvasGroup canvasGroup = heldPreview.gameObject.AddComponent<CanvasGroup>();
@@ -1472,7 +1623,13 @@ private void RefundErasedAddedMatch()
 
             Image image = heldPreview.GetComponent<Image>();
             if (image != null)
+            {
+                MatchstickVisualSettings.Apply(image);
                 image.raycastTarget = false;
+            }
+
+            heldPreviewTargetAngle = HeldOriginAngle();
+            heldPreview.localEulerAngles = new Vector3(0f, 0f, heldPreviewTargetAngle);
 
             UpdateHeldPreviewPosition();
         }
@@ -1561,7 +1718,29 @@ private void RefundErasedAddedMatch()
                 Input.mousePosition,
                 GetEventCamera(),
                 out Vector2 localPoint);
-            heldPreview.anchoredPosition = localPoint + new Vector2(26f, -18f);
+            heldPreview.anchoredPosition = localPoint;
+            heldPreviewTargetAngle = HoveredSlotAngle();
+            float angle = Mathf.LerpAngle(heldPreview.localEulerAngles.z, heldPreviewTargetAngle, 1f - Mathf.Exp(-18f * Time.unscaledDeltaTime));
+            heldPreview.localEulerAngles = new Vector3(0f, 0f, angle);
+        }
+
+        private float HoveredSlotAngle()
+        {
+            Camera eventCamera = GetEventCamera();
+            for (int i = 0; i < slotViews.Count; i++)
+            {
+                SevenSegmentPopupSlot slot = slotViews[i];
+                if (slot == null || !(slot.transform is RectTransform rect))
+                    continue;
+                if (RectTransformUtility.RectangleContainsScreenPoint(rect, Input.mousePosition, eventCamera))
+                    return SevenSegmentUI.SegmentRotation(slot.SegmentIndex);
+            }
+            return HeldOriginAngle();
+        }
+
+        private float HeldOriginAngle()
+        {
+            return heldOriginSegment >= 0 ? SevenSegmentUI.SegmentRotation(heldOriginSegment) : 0f;
         }
 
         private Camera GetEventCamera()
@@ -1636,16 +1815,21 @@ private void NormalizeStructuralLocksBeforeCommit()
 
             if (slot == null || slot.piece == null)
             {
-                image.color = new Color(1f, 1f, 1f, 0.11f);
+                image.sprite = null;
+                image.type = Image.Type.Simple;
+                image.preserveAspect = false;
+                image.color = Color.clear;
                 return;
             }
 
+            MatchstickVisualSettings.Apply(image);
+
             if (slot.piece.kind == MatchPieceKind.Locked)
-                image.color = lockedColor;
+                image.color = Color.black;
             else if (slot.piece.kind == MatchPieceKind.Added)
                 image.color = addedColor;
             else
-                image.color = normalColor;
+                image.color = Color.white;
         }
 
         public void OnPointerClick(PointerEventData eventData)
@@ -1746,7 +1930,10 @@ private void NormalizeStructuralLocksBeforeCommit()
             rect.localEulerAngles = new Vector3(0f, 0f, SegmentRotation(segment));
 
             if (!asSlot)
+            {
+                MatchstickVisualSettings.Apply(rect.GetComponent<Image>());
                 rect.gameObject.AddComponent<MatchstickView>();
+            }
 
             return rect;
         }
@@ -1778,21 +1965,26 @@ private void NormalizeStructuralLocksBeforeCommit()
         private static Vector2 SegmentSize(MatchSegment segment, float height)
         {
             float scale = Mathf.Max(0.1f, height / 178f);
+            return new Vector2(78f, 78f * 4f / 21f) * scale;
+        }
+
+        public static float SegmentRotation(int segmentIndex)
+        {
+            return SegmentRotation((MatchSegment)segmentIndex);
+        }
+
+        private static float SegmentRotation(MatchSegment segment)
+        {
             switch (segment)
             {
                 case MatchSegment.UpperRight:
                 case MatchSegment.LowerRight:
                 case MatchSegment.LowerLeft:
                 case MatchSegment.UpperLeft:
-                    return new Vector2(14f, 72f) * scale;
+                    return -90f;
                 default:
-                    return new Vector2(78f, 14f) * scale;
+                    return 0f;
             }
-        }
-
-        private static float SegmentRotation(MatchSegment segment)
-        {
-            return 0f;
         }
     }
 }

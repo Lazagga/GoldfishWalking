@@ -10,7 +10,7 @@
                          "description":  ""
                      },
     "presentation":  {
-                         "sprite":  ""
+                         "sprite": "Art/Enemies/Mob_30102_Jellyfish"
                      },
     "encounter":  {
                       "act":  3,

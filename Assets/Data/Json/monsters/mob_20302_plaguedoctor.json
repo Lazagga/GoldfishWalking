@@ -10,7 +10,7 @@
                          "description":  ""
                      },
     "presentation":  {
-                         "sprite":  ""
+                         "sprite": "Art/Enemies/Mob_20302_PlagueDoctor"
                      },
     "encounter":  {
                       "act":  2,

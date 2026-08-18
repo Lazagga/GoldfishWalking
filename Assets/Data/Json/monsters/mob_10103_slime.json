@@ -10,7 +10,9 @@
                          "description":  ""
                      },
     "presentation":  {
-                         "sprite":  ""
+                         "sprite": "Art/Enemies/Mob_10103_Slime",
+                         "idleFrames": 2,
+                         "framesPerSecond": 4
                      },
     "encounter":  {
                       "act":  1,

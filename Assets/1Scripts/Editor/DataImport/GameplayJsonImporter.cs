@@ -43,6 +43,7 @@ namespace GoldfishWalking.Editor.DataImport
                 List<MonsterPatternData> patterns = ImportPatterns(report);
                 List<MonsterData> monsters = ImportMonsters(report);
                 List<FantasyData> fantasies = ImportFantasies(report);
+                MonsterArtAssetBuilder.Build(monsters, report.errors, report.warnings);
                 ValidateReferences(monsters, patterns, report);
 
                 report.importedMonsterCount = monsters.Count;
@@ -100,6 +101,8 @@ namespace GoldfishWalking.Editor.DataImport
                     nameStringId = ReadString(localization, "name"),
                     descStringId = ReadString(localization, "description"),
                     sprite = ReadString(presentation, "sprite"),
+                    spriteIdleFrames = Mathf.Max(1, ReadInt(presentation, "idleFrames", 1)),
+                    spriteFramesPerSecond = Mathf.Max(0f, ReadFloat(presentation, "framesPerSecond", 4f)),
                     act = Mathf.Max(1, ReadInt(encounter, "act", 1)),
                     grade = ParseMonsterGrade(ReadString(encounter, "grade"), source.Path, report),
                     difficulty = ParseMonsterDifficulty(ReadString(encounter, "difficulty"), source.Path, report),

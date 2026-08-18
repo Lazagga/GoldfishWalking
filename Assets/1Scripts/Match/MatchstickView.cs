@@ -8,6 +8,11 @@ namespace GoldfishWalking.Match
 
         public bool Locked => locked;
 
+        private void Awake()
+        {
+            MatchstickVisualSettings.Apply(GetComponent<UnityEngine.UI.Image>());
+        }
+
         public void SetLocked(bool value)
         {
             locked = value;

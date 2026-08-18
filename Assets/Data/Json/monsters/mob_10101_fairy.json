@@ -10,7 +10,9 @@
                          "description":  ""
                      },
     "presentation":  {
-                         "sprite":  ""
+                         "sprite": "Art/Enemies/Mob_10101_Fairy",
+                         "idleFrames": 4,
+                         "framesPerSecond": 4
                      },
     "encounter":  {
                       "act":  1,

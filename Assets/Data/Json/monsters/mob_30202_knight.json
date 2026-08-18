@@ -10,7 +10,9 @@
                          "description":  ""
                      },
     "presentation":  {
-                         "sprite":  ""
+                         "sprite": "Art/Enemies/Mob_30202_Knight",
+                         "idleFrames": 2,
+                         "framesPerSecond": 3
                      },
     "encounter":  {
                       "act":  3,

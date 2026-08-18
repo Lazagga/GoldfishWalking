@@ -10,7 +10,7 @@
                          "description":  ""
                      },
     "presentation":  {
-                         "sprite":  ""
+                         "sprite": "Art/Enemies/Mob_20203_Conductor"
                      },
     "encounter":  {
                       "act":  2,

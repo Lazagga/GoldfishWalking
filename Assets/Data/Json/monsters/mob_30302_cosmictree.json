@@ -10,7 +10,7 @@
                          "description":  ""
                      },
     "presentation":  {
-                         "sprite":  ""
+                         "sprite": "Art/Enemies/Mob_30302_CosmicTree"
                      },
     "encounter":  {
                       "act":  3,

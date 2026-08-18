@@ -170,7 +170,6 @@ namespace GoldfishWalking.UI
             if (fantasyListView != null)
                 fantasyListView.Bind(fantasyContentRoot, tooltipView, 10);
             closeButton = FindComponent<Button>("CloseButton");
-
             priceBoxes.Clear();
             itemButtons.Clear();
             itemRoots.Clear();

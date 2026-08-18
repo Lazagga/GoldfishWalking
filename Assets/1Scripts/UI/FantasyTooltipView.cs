@@ -15,6 +15,7 @@ namespace GoldfishWalking.UI
         private RectTransform canvasRect;
         private Canvas canvas;
         private bool visible;
+        private bool paddingApplied;
 
         private void Awake()
         {
@@ -81,6 +82,30 @@ namespace GoldfishWalking.UI
                 canvasRect = canvas.transform as RectTransform;
 
             DisableRaycasts();
+            ApplyHorizontalPadding();
+        }
+
+        private void ApplyHorizontalPadding()
+        {
+            if (paddingApplied)
+                return;
+            ApplyPadding(titleText);
+            ApplyPadding(descriptionText);
+            ApplyPadding(effectText);
+            paddingApplied = titleText != null || descriptionText != null || effectText != null;
+        }
+
+        private static void ApplyPadding(Text text)
+        {
+            if (text == null)
+                return;
+            RectTransform rect = text.rectTransform;
+            Vector2 min = rect.offsetMin;
+            Vector2 max = rect.offsetMax;
+            min.x = Mathf.Max(min.x, 16f);
+            max.x = Mathf.Min(max.x, -16f);
+            rect.offsetMin = min;
+            rect.offsetMax = max;
         }
 
         private void DisableRaycasts()
