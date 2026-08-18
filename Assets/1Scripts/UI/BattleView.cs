@@ -164,8 +164,7 @@ private void OnBattlePresentationChanged()
 
         private void ResolveReferences()
         {
-            if (battleBackgroundImage == null)
-                battleBackgroundImage = GetComponent<Image>();
+            ResolveBattleBackgroundImage();
             if (battleController == null)
                 Debug.LogError("[BattleView] BattleController must be assigned in GumBwing_Er.unity.", this);
             if (bootstrap == null)
@@ -454,17 +453,26 @@ playerDebuffPanel = FindRect("PlayerDebuffPanel");
 
         private void RefreshBattleBackground()
         {
-            if (battleBackgroundImage == null)
-                battleBackgroundImage = GetComponent<Image>();
+            ResolveBattleBackgroundImage();
             if (battleBackgroundImage == null)
                 return;
 
             int act = bootstrap != null && bootstrap.RunContext != null ? bootstrap.RunContext.act : 1;
             Sprite background = act <= 1 ? act1Background : act == 2 ? act2Background : act3Background;
             battleBackgroundImage.sprite = background;
+            battleBackgroundImage.enabled = true;
             battleBackgroundImage.type = Image.Type.Simple;
             battleBackgroundImage.preserveAspect = false;
             battleBackgroundImage.color = background != null ? Color.white : backgroundColor;
+        }
+
+        private void ResolveBattleBackgroundImage()
+        {
+            Transform background = transform.Find("BattleRuntimeLayout/Background");
+            if (background != null)
+                battleBackgroundImage = background.GetComponent<Image>();
+            else if (battleBackgroundImage == null)
+                battleBackgroundImage = GetComponent<Image>();
         }
 
         private void RefreshMonsterStatus()
