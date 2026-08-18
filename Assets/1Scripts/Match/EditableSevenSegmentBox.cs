@@ -1795,7 +1795,8 @@ private void NormalizeStructuralLocksBeforeCommit()
     public sealed class SevenSegmentPopupSlot : MonoBehaviour, IPointerClickHandler
     {
         private System.Action<SevenSegmentPopupSlot> clicked;
-        private Image image;
+        private Image hitAreaImage;
+        private Image matchImage;
 
         public int DigitIndex { get; private set; }
         public int SegmentIndex { get; private set; }
@@ -1805,31 +1806,37 @@ private void NormalizeStructuralLocksBeforeCommit()
             DigitIndex = digitIndex;
             SegmentIndex = segmentIndex;
             clicked = onClicked;
-            image = GetComponent<Image>();
+            hitAreaImage = GetComponent<Image>();
+            matchImage = transform.Find("MatchVisual")?.GetComponent<Image>();
+            if (hitAreaImage != null)
+            {
+                hitAreaImage.color = Color.clear;
+                hitAreaImage.raycastTarget = true;
+            }
         }
 
         public void SetOccupied(MatchSlot slot, Color normalColor, Color addedColor, Color lockedColor)
         {
-            if (image == null)
-                image = GetComponent<Image>();
+            if (matchImage == null)
+                matchImage = transform.Find("MatchVisual")?.GetComponent<Image>();
+            if (matchImage == null)
+                return;
 
             if (slot == null || slot.piece == null)
             {
-                image.sprite = null;
-                image.type = Image.Type.Simple;
-                image.preserveAspect = false;
-                image.color = Color.clear;
+                matchImage.enabled = false;
                 return;
             }
 
-            MatchstickVisualSettings.Apply(image);
+            matchImage.enabled = true;
+            MatchstickVisualSettings.Apply(matchImage);
 
             if (slot.piece.kind == MatchPieceKind.Locked)
-                image.color = Color.black;
+                matchImage.color = Color.black;
             else if (slot.piece.kind == MatchPieceKind.Added)
-                image.color = addedColor;
+                matchImage.color = addedColor;
             else
-                image.color = Color.white;
+                matchImage.color = Color.white;
         }
 
         public void OnPointerClick(PointerEventData eventData)
@@ -1904,7 +1911,19 @@ private void NormalizeStructuralLocksBeforeCommit()
 
         public static SevenSegmentPopupSlot CreateSlot(RectTransform digitRoot, int digitIndex, int segmentIndex, Color color, System.Action<SevenSegmentPopupSlot> clicked)
         {
-            RectTransform rect = CreateSegment(digitRoot, segmentIndex, color, true);
+            MatchSegment segment = (MatchSegment)segmentIndex;
+            RectTransform rect = CreatePanel($"Segment{segmentIndex}", digitRoot, Color.clear);
+            rect.anchoredPosition = SegmentPosition(segment, digitRoot.rect.height);
+            rect.sizeDelta = SlotSize(digitRoot.rect.height);
+            rect.localEulerAngles = new Vector3(0f, 0f, SegmentRotation(segment));
+            rect.GetComponent<Image>().raycastTarget = true;
+
+            RectTransform visual = CreatePanel("MatchVisual", rect, color);
+            visual.anchoredPosition = Vector2.zero;
+            visual.sizeDelta = SegmentSize(segment, digitRoot.rect.height);
+            visual.localEulerAngles = Vector3.zero;
+            visual.GetComponent<Image>().raycastTarget = false;
+
             SevenSegmentPopupSlot slot = rect.gameObject.AddComponent<SevenSegmentPopupSlot>();
             slot.Initialize(digitIndex, segmentIndex, clicked);
             return slot;
@@ -1966,6 +1985,13 @@ private void NormalizeStructuralLocksBeforeCommit()
         {
             float scale = Mathf.Max(0.1f, height / 178f);
             return new Vector2(78f, 78f * 4f / 21f) * scale;
+        }
+
+        private static Vector2 SlotSize(float height)
+        {
+            float scale = Mathf.Max(0.1f, height / 178f);
+            float side = 42f * scale;
+            return new Vector2(side, side);
         }
 
         public static float SegmentRotation(int segmentIndex)
