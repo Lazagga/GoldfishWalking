@@ -556,10 +556,9 @@ playerDebuffPanel = FindRect("PlayerDebuffPanel");
                 float width = slot.sizeDelta.x > 0f ? slot.sizeDelta.x : 88f;
                 slot.sizeDelta = new Vector2(width, width);
                 MatchstickVisualSettings.ApplySoloButton(slot.GetComponent<Image>());
-
-                Text icon = slot.Find("Icon")?.GetComponent<Text>();
-                if (icon != null)
-                    icon.text = "■";
+                UiArtSettings art = UiArtSettings.Resolve();
+                if (art != null)
+                    UiArtSettings.ApplyIcon(slot, i == 0 ? art.MatchItemIcon : art.EraserIcon);
             }
         }
 

@@ -44,6 +44,7 @@ namespace GoldfishWalking.Editor.DataImport
                 List<MonsterData> monsters = ImportMonsters(report);
                 List<FantasyData> fantasies = ImportFantasies(report);
                 MonsterArtAssetBuilder.Build(monsters, report.errors, report.warnings);
+                FantasyArtAssetBuilder.Build(fantasies, report.errors, report.warnings);
                 ValidateReferences(monsters, patterns, report);
 
                 report.importedMonsterCount = monsters.Count;

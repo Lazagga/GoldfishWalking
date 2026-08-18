@@ -275,6 +275,26 @@ namespace GoldfishWalking.UI
             Button button = nodeObject.GetComponent<Button>();
             button.transition = Selectable.Transition.None;
 
+            UiArtSettings art = UiArtSettings.Resolve();
+            Sprite mapIcon = null;
+            if (art != null)
+            {
+                if (node.nodeType == MapNodeType.Rest)
+                    mapIcon = art.CampfireIcon;
+                else if (node.nodeType == MapNodeType.Boss)
+                    mapIcon = art.BossIcon;
+                else if (node.nodeType == MapNodeType.NormalBattle || node.nodeType == MapNodeType.EliteBattle)
+                    mapIcon = art.BattleIcon;
+            }
+            if (mapIcon != null)
+            {
+                Image nodeImage = nodeObject.GetComponent<Image>();
+                nodeImage.sprite = mapIcon;
+                nodeImage.type = Image.Type.Simple;
+                nodeImage.preserveAspect = true;
+                nodeImage.color = Color.white;
+            }
+
             Text label = CreateText("Label", rect, GetNodeLabel(node), 22, Color.white);
             label.fontStyle = FontStyle.Bold;
 

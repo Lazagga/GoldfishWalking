@@ -42,6 +42,7 @@ namespace GoldfishWalking.Editor
             ConfigurePortrait(shopkeeperPortrait, shopkeeperSprite, shopkeeperController);
 
             ApplyUiSkin(scene);
+            ApplyAddedUiArt(scene);
             ApplyGameFont(scene);
             ApplyBattleBackgrounds(scene);
             ApplyBattleLayout(scene);
@@ -49,6 +50,104 @@ namespace GoldfishWalking.Editor
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
             Debug.Log("GumBwing_Er.unity의 몬스터/상점 초상을 Image + Animator 직접 참조 방식으로 전환했습니다.");
+        }
+
+        private static void ApplyAddedUiArt(Scene scene)
+        {
+            Sprite campfire = LoadNamedSprite("Assets/Art/ui/campfire_icon.png", "campfire_icon_0");
+            Sprite battle = LoadNamedSprite("Assets/Art/ui/battle_icon.png", "battle_icon_0");
+            Sprite boss = LoadNamedSprite("Assets/Art/ui/boss_icon.png", "boss_icon_0");
+            Sprite eraser = LoadNamedSprite("Assets/Art/ui/eraser_item_icon.png", "eraser_item_icon_0");
+            Sprite matchItem = LoadNamedSprite("Assets/Art/ui/match_item_icon.png", "match_item_icon_0");
+            Sprite panel = LoadNamedSprite("Assets/Art/ui/jeongwangpan.png", "jeongwangpan_0");
+            Sprite left = LoadNamedSprite("Assets/Art/ui/text_container_left.png", "text_container_left_0");
+            Sprite middle = LoadNamedSprite("Assets/Art/ui/text_container_middle.png", "text_container_middle_0");
+            Sprite right = LoadNamedSprite("Assets/Art/ui/text_container_right.png", "text_container_right_0");
+            if (new[] { campfire, battle, boss, eraser, matchItem, panel, left, middle, right }.Any(sprite => sprite == null))
+                throw new InvalidOperationException("새 UI Sprite 중 하나 이상을 찾을 수 없습니다.");
+
+            GameObject[] roots = scene.GetRootGameObjects();
+            GameBootstrap bootstrap = roots.SelectMany(root => root.GetComponentsInChildren<GameBootstrap>(true)).FirstOrDefault();
+            UiArtSettings settings = bootstrap != null ? bootstrap.GetComponent<UiArtSettings>() : null;
+            if (bootstrap == null)
+                throw new InvalidOperationException("GameBootstrap을 찾을 수 없습니다.");
+            if (settings == null)
+                settings = bootstrap.gameObject.AddComponent<UiArtSettings>();
+            settings.Configure(campfire, battle, boss, eraser, matchItem, panel, left, middle, right);
+            EditorUtility.SetDirty(settings);
+
+            foreach (Transform consumable in roots.SelectMany(root => root.GetComponentsInChildren<Transform>(true))
+                         .Where(item => item.name == "ConsumablePanel"))
+            {
+                for (int i = 0; i < Mathf.Min(2, consumable.childCount); i++)
+                    UiArtSettings.ApplyIcon(consumable.GetChild(i), i == 0 ? matchItem : eraser);
+            }
+
+            GameObject restButton = FindInScene(scene, "RestButton");
+            if (restButton != null)
+                UiArtSettings.ApplyIcon(restButton.transform, campfire, 56f);
+
+            GameObject popup = FindInScene(scene, "SevenSegmentEditPopup");
+            ApplyPanelSprite(popup != null ? popup.transform.Find("Panel")?.GetComponent<Image>() : null, panel);
+            ApplyPanelSprite(FindInScene(scene, "RewardList")?.GetComponent<Image>(), panel);
+
+            foreach (RectTransform counter in roots.SelectMany(root => root.GetComponentsInChildren<RectTransform>(true))
+                         .Where(item => item.name == "MoveCounter"))
+                ApplyTextContainer(counter, left, middle, right);
+        }
+
+        private static Sprite LoadNamedSprite(string path, string name)
+        {
+            return AssetDatabase.LoadAllAssetsAtPath(path).OfType<Sprite>()
+                .FirstOrDefault(sprite => sprite.name == name);
+        }
+
+        private static void ApplyPanelSprite(Image image, Sprite sprite)
+        {
+            if (image == null)
+                return;
+            image.sprite = sprite;
+            image.type = Image.Type.Simple;
+            image.preserveAspect = false;
+            image.color = Color.white;
+            EditorUtility.SetDirty(image);
+        }
+
+        private static void ApplyTextContainer(RectTransform root, Sprite left, Sprite middle, Sprite right)
+        {
+            Image background = root.GetComponent<Image>();
+            if (background != null)
+                background.enabled = false;
+            float height = Mathf.Max(1f, root.rect.height);
+            float edgeWidth = height * 19f / 15f;
+            CreateContainerPiece(root, "ContainerLeft", left, new Vector2(0f, 0f), new Vector2(0f, 1f),
+                Vector2.zero, new Vector2(edgeWidth, 0f), Image.Type.Simple);
+            CreateContainerPiece(root, "ContainerMiddle", middle, Vector2.zero, Vector2.one,
+                new Vector2(edgeWidth, 0f), new Vector2(-edgeWidth, 0f), Image.Type.Simple);
+            CreateContainerPiece(root, "ContainerRight", right, new Vector2(1f, 0f), Vector2.one,
+                new Vector2(-edgeWidth, 0f), Vector2.zero, Image.Type.Simple);
+        }
+
+        private static void CreateContainerPiece(RectTransform root, string name, Sprite sprite,
+            Vector2 anchorMin, Vector2 anchorMax, Vector2 offsetMin, Vector2 offsetMax, Image.Type type)
+        {
+            Transform existing = root.Find(name);
+            GameObject go = existing != null ? existing.gameObject
+                : new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            if (existing == null)
+                go.transform.SetParent(root, false);
+            Image image = go.GetComponent<Image>();
+            image.sprite = sprite;
+            image.type = type;
+            image.color = Color.white;
+            image.raycastTarget = false;
+            RectTransform rect = image.rectTransform;
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.offsetMin = offsetMin;
+            rect.offsetMax = offsetMax;
+            rect.SetAsFirstSibling();
+            EditorUtility.SetDirty(go);
         }
 
         private static void ApplyGameFont(Scene scene)

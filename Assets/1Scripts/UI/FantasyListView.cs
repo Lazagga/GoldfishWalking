@@ -186,15 +186,11 @@ private System.Collections.IEnumerator HighlightSlot(RectTransform slot)
                 return;
 
             slot.gameObject.SetActive(true);
-            Text icon = slot.GetComponentInChildren<Text>(true);
-            if (icon == null)
-                icon = CreateIcon(slot);
+            Image icon = GetOrCreateIcon(slot);
             if (icon != null)
             {
-                icon.text = fantasy != null ? "★" : string.Empty;
-                icon.color = fantasy != null
-                    ? FantasyText.GradeColor(fantasy.grade, Color.white, new Color(0.24f, 0.74f, 0.90f, 1f), new Color(1f, 0.32f, 0.32f, 1f))
-                    : Color.white;
+                icon.sprite = fantasy != null ? fantasy.iconSprite : null;
+                icon.enabled = icon.sprite != null;
             }
 
             FantasyTooltipTrigger trigger = slot.GetComponent<FantasyTooltipTrigger>();
@@ -203,21 +199,22 @@ private System.Collections.IEnumerator HighlightSlot(RectTransform slot)
             trigger.Initialize(tooltipView, fantasy);
         }
 
-        private static Text CreateIcon(Transform slot)
+        private static Image GetOrCreateIcon(Transform slot)
         {
-            GameObject iconObject = new GameObject("FantasyIcon", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+            Transform existing = slot.Find("FantasyIconImage");
+            if (existing != null)
+                return existing.GetComponent<Image>();
+            Text oldIcon = slot.GetComponentInChildren<Text>(true);
+            if (oldIcon != null)
+                oldIcon.enabled = false;
+            GameObject iconObject = new GameObject("FantasyIconImage", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
             RectTransform rect = iconObject.GetComponent<RectTransform>();
             rect.SetParent(slot, false);
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
-
-            Text icon = iconObject.GetComponent<Text>();
-            icon.font = GameFontSettings.ResolveFont();
-            icon.fontSize = 34;
-            icon.fontStyle = FontStyle.Bold;
-            icon.alignment = TextAnchor.MiddleCenter;
+            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = Vector2.zero;
+            rect.sizeDelta = new Vector2(48f, 48f);
+            Image icon = iconObject.GetComponent<Image>();
+            icon.preserveAspect = true;
             icon.raycastTarget = false;
             return icon;
         }

@@ -161,6 +161,9 @@ namespace GoldfishWalking.UI
             else if (fantasyContentRoot != null)
                 Debug.LogWarning("[RestView] Missing FantasyListView on FantasySlots/Viewport/Content.");
             restButton = FindComponent<Button>("RestButton");
+            UiArtSettings art = UiArtSettings.Resolve();
+            if (restButton != null && art != null)
+                UiArtSettings.ApplyIcon(restButton.transform, art.CampfireIcon, 56f);
             coffeeButton = FindComponent<Button>("CoffeeButton");
             nextButton = FindComponent<Button>("NextButton");
         }

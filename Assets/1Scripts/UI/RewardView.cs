@@ -370,8 +370,14 @@ private void PrepareRewardList()
             button.onClick.AddListener(() => SelectReward(fantasy));
 
             RectTransform iconPanel = CreatePanel("IconPanel", card, slotColor, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -166f), new Vector2(250f, 250f));
-            Text icon = CreateText("Icon", iconPanel, "★", 92, GradeColor(fantasy.grade), TextAnchor.MiddleCenter);
-            SetRect(icon.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            GameObject iconObject = new GameObject("FantasyIcon", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            RectTransform iconRect = iconObject.GetComponent<RectTransform>();
+            iconRect.SetParent(iconPanel, false);
+            SetRect(iconRect, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            Image icon = iconObject.GetComponent<Image>();
+            icon.sprite = fantasy.iconSprite;
+            icon.preserveAspect = true;
+            icon.raycastTarget = false;
 
             RectTransform descPanel = CreatePanel("DescriptionPanel", card, slotColor, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 142f), new Vector2(264f, 210f));
             Text name = CreateText("Name", descPanel, FantasyText.DisplayName(fantasy), 24, textColor, TextAnchor.UpperCenter);

@@ -418,7 +418,36 @@ namespace GoldfishWalking.UI
                     continue;
 
                 titleText.text = GetItemTitle(item);
+
+                if (TryGetShopFantasy(item, out FantasyData fantasy)
+                    && itemRoots.TryGetValue(item.id, out RectTransform root))
+                {
+                    Transform iconPanel = root.Find("IconPanel");
+                    ApplyFantasyProductIcon(iconPanel, fantasy);
+                }
             }
+        }
+
+        private static void ApplyFantasyProductIcon(Transform iconPanel, FantasyData fantasy)
+        {
+            if (iconPanel == null)
+                return;
+            Transform existing = iconPanel.Find("FantasyIconImage");
+            GameObject go = existing != null ? existing.gameObject
+                : new GameObject("FantasyIconImage", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            if (existing == null)
+                go.transform.SetParent(iconPanel, false);
+            Image image = go.GetComponent<Image>();
+            image.sprite = fantasy != null ? fantasy.iconSprite : null;
+            image.enabled = image.sprite != null;
+            image.preserveAspect = true;
+            image.raycastTarget = false;
+            RectTransform rect = image.rectTransform;
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = new Vector2(12f, 12f);
+            rect.offsetMax = new Vector2(-12f, -12f);
+            rect.SetAsLastSibling();
         }
 
 private int GetCurrentPrice(ShopItem item)

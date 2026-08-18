@@ -73,6 +73,7 @@ namespace GoldfishWalking.Data
         public string displayName;
         [TextArea] public string description;
         public string sprite;
+        public Sprite iconSprite;
         [TextArea] public string rawEffects;
         public FantasyEffectData[] effects = Array.Empty<FantasyEffectData>();
         public bool isTemporary;
