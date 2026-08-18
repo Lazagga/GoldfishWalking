@@ -43,7 +43,7 @@ namespace GoldfishWalking.UI
             if (bootstrap == null)
                 Debug.LogError("[SeedDisplayView] GameBootstrap must be assigned in GumBwing_Er.unity.", this);
             if (labelFont == null)
-                labelFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+                labelFont = GameFontSettings.ResolveFont();
         }
 
         private void EnsureLayout()

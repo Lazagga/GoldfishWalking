@@ -42,12 +42,36 @@ namespace GoldfishWalking.Editor
             ConfigurePortrait(shopkeeperPortrait, shopkeeperSprite, shopkeeperController);
 
             ApplyUiSkin(scene);
+            ApplyGameFont(scene);
             ApplyBattleBackgrounds(scene);
             ApplyBattleLayout(scene);
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
             Debug.Log("GumBwing_Er.unity의 몬스터/상점 초상을 Image + Animator 직접 참조 방식으로 전환했습니다.");
+        }
+
+        private static void ApplyGameFont(Scene scene)
+        {
+            Font font = AssetDatabase.LoadAssetAtPath<Font>("Assets/Thaleah_PixelFont/Materials/ThaleahFat_TTF.ttf");
+            if (font == null)
+                throw new InvalidOperationException("Free Pixel Font - Thaleah Font 에셋을 찾을 수 없습니다.");
+
+            GameObject[] roots = scene.GetRootGameObjects();
+            foreach (Text text in roots.SelectMany(root => root.GetComponentsInChildren<Text>(true)))
+            {
+                text.font = font;
+                EditorUtility.SetDirty(text);
+            }
+
+            GameBootstrap bootstrap = roots.SelectMany(root => root.GetComponentsInChildren<GameBootstrap>(true)).FirstOrDefault();
+            if (bootstrap == null)
+                throw new InvalidOperationException("GameBootstrap을 찾을 수 없습니다.");
+            GameFontSettings settings = bootstrap.GetComponent<GameFontSettings>();
+            if (settings == null)
+                settings = bootstrap.gameObject.AddComponent<GameFontSettings>();
+            settings.Configure(font);
+            EditorUtility.SetDirty(settings);
         }
 
         private static void ApplyBattleBackgrounds(Scene scene)

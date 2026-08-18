@@ -50,7 +50,7 @@ namespace GoldfishWalking.UI
             textRect.offsetMax = new Vector2(-14f, -10f);
 
             logText = textObject.GetComponent<Text>();
-            logText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            logText.font = GameFontSettings.ResolveFont();
             logText.fontSize = 18;
             logText.alignment = TextAnchor.UpperLeft;
             logText.color = Color.white;

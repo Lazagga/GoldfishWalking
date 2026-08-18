@@ -350,7 +350,7 @@ playerDebuffPanel = FindRect("PlayerDebuffPanel");
         {
             RectTransform rect = CreateDebugRect(objectName, parent, Vector2.zero);
             Text text = rect.gameObject.AddComponent<Text>();
-            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.font = GameFontSettings.ResolveFont();
             text.fontSize = fontSize;
             text.alignment = alignment;
             text.color = textColor;

@@ -614,7 +614,7 @@ private void PrepareRewardList()
             go.transform.SetParent(parent, false);
             Text text = go.GetComponent<Text>();
             text.text = value;
-            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.font = GameFontSettings.ResolveFont();
             text.fontSize = fontSize;
             text.fontStyle = FontStyle.Bold;
             text.alignment = alignment;

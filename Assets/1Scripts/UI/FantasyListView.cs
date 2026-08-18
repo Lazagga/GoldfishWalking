@@ -214,7 +214,7 @@ private System.Collections.IEnumerator HighlightSlot(RectTransform slot)
             rect.offsetMax = Vector2.zero;
 
             Text icon = iconObject.GetComponent<Text>();
-            icon.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            icon.font = GameFontSettings.ResolveFont();
             icon.fontSize = 34;
             icon.fontStyle = FontStyle.Bold;
             icon.alignment = TextAnchor.MiddleCenter;
