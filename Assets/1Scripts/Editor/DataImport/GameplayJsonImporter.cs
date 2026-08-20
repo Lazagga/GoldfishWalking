@@ -103,6 +103,7 @@ namespace GoldfishWalking.Editor.DataImport
                     descStringId = ReadString(localization, "description"),
                     sprite = ReadString(presentation, "sprite"),
                     spriteIdleFrames = Mathf.Max(1, ReadInt(presentation, "idleFrames", 1)),
+                    spritePhaseCount = Mathf.Max(0, ReadInt(presentation, "phaseSprites", 0)),
                     spriteFramesPerSecond = Mathf.Max(0f, ReadFloat(presentation, "framesPerSecond", 4f)),
                     act = Mathf.Max(1, ReadInt(encounter, "act", 1)),
                     grade = ParseMonsterGrade(ReadString(encounter, "grade"), source.Path, report),

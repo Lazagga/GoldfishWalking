@@ -21,6 +21,7 @@ namespace GoldfishWalking.UI
         public Sprite BossIcon => bossIcon;
         public Sprite EraserIcon => eraserIcon;
         public Sprite MatchItemIcon => matchItemIcon;
+        public Sprite ExpandedPanel => expandedPanel;
 
         private void Awake() => Instance = this;
 

@@ -33,8 +33,10 @@ MonoBehaviour:
     rawPatternArray: 2_Single, 2_Multi_1
     sprite: Art/Enemies/Mob_10101_Fairy
     spriteIdleFrames: 4
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: 5259214876525815816, guid: 27346a664f3b19c4e86183ff855dcc3f, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: c45b1364abb1d0042803427dcc588b38, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -100,8 +102,10 @@ MonoBehaviour:
     rawPatternArray: 2_Single, 2_Single, Str_1
     sprite: Art/Enemies/Mob_10102_WildDog
     spriteIdleFrames: 2
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: -5754180114389748799, guid: b8e300c21ea9714428f26295fa5ef0c6, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: 9494d2cc26588ae4a8e58dc76cb0fd38, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -166,8 +170,10 @@ MonoBehaviour:
     rawPatternArray: SlimeSingle, 2_Single
     sprite: Art/Enemies/Mob_10103_Slime
     spriteIdleFrames: 2
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: -3297424175678560947, guid: a4f1cd1a22de34340985119dad5b5337, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: 124789ff51ec3a74ab9e8fe8f097ee9a, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -234,8 +240,10 @@ MonoBehaviour:
     rawPatternArray: MushroomLock, 2_Single, Str_1, 2_Multi_1
     sprite: Art/Enemies/Mob_10104_MushroomMan
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: 3959172602523208970, guid: 0b333f394eaf4174f8ce3decfdbec999, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: 9da680e678a0b6a438e89864751d785f, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -302,8 +310,10 @@ MonoBehaviour:
     rawPatternArray: Skip, Skip, Skip, 3_Single
     sprite: Art/Enemies/Mob_10105_Frog
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: 7153221799262004103, guid: 38fbf9d36c9d97d4bae380a955dff714, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: d597a202e1ce0af43b6113e240696e27, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -369,8 +379,10 @@ MonoBehaviour:
     rawPatternArray: 2_Multi_1, Str_1, 2_Single
     sprite: Art/Enemies/Mob_10106_BigBird
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: 3296909962634363499, guid: 1dab70c7a922c3a4aa57897316266414, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: 018f04cf91567bd4ab2e467cf0b9c711, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -434,8 +446,10 @@ MonoBehaviour:
     rawPatternArray: BanditSingle
     sprite: Art/Enemies/Mob_10107_Bandit
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: -5308044900521269575, guid: ccb06aab9d2c03349b5d7eb9525333f4, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: 6ec9b76d7766cc040854d08aa0a41178, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -503,8 +517,10 @@ MonoBehaviour:
     rawPatternArray: 2_Multi_1, 2_Single, 2_Multi_1, 2_Single, Str_2
     sprite: Art/Enemies/Mob_10201_WhiteRabbit
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: 5657064068202232540, guid: 99ce02e6daa79c14ea7c6223572e1b6b, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: 164ca8b1efbe82c449e95b7f31606aca, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -570,8 +586,10 @@ MonoBehaviour:
     rawPatternArray: LittleWitchSkill, 2_Single, 2_Single
     sprite: Art/Enemies/Mob_10202_LittleWitch
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: 2335515652634480518, guid: c67d95f8bfdde7a42a9818068c76901e, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: 5d7f83f6fb926ce40ae019836759c279, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -639,8 +657,10 @@ MonoBehaviour:
     rawPatternArray: HunterSingle, HunterSingle, 2_Single, 2_Single, Str_1
     sprite: Art/Enemies/Mob_10203_Hunter
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: 4553618143057434125, guid: c10d45c66f7c8c649bd1c504c3e71e74, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: 79b2a11be0e1df745958dcae0fef9f75, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -707,8 +727,10 @@ MonoBehaviour:
     rawPatternArray: 2_Single, 2_Multi_1, Str_1, HeartQueenSkill
     sprite: Art/Enemies/Mob_10301_HeartQueen
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: 2745836127309418630, guid: deb07e571c54c8948a8161310449dcb9, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: 372fae01946edf3459a7000f9dfabccd, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -775,8 +797,10 @@ MonoBehaviour:
     rawPatternArray: WitchSkill, 2_Single, 2_Multi_1, Str_1
     sprite: Art/Enemies/Mob_10302_Witch
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: 2116500296129886694, guid: 1888a5b956f17114a9742157e0a06179, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: ba206f8cc3b28364e926398edd974291, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -841,8 +865,10 @@ MonoBehaviour:
     rawPatternArray: 2_Single, 2_Multi_2
     sprite: Art/Enemies/Mob_10303_Elf
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: 7594481369187595962, guid: 7a8b4e6a175aff442b4aae325983b82a, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: 142e416d8efd7ce4b8569ff1cc31b1ec, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -908,8 +934,10 @@ MonoBehaviour:
     rawPatternArray: 2_Multi_1, 2_Multi_2, 3_Single
     sprite: Art/Enemies/Mob_20101_Snowman
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: 8609736451283521817, guid: a891308c6dc27a0409ca7eed972e86e5, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: 42789eb2499b9d34cb662f2043834ee8, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -973,8 +1001,10 @@ MonoBehaviour:
     rawPatternArray: RobberSingle
     sprite: Art/Enemies/Mob_20102_Robber
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: 6625817561771832392, guid: 38c0881ab230663498dc210de665fcc4, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: 5487dc2779566b444be15b1d92829e5f, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -1039,8 +1069,10 @@ MonoBehaviour:
     rawPatternArray: GhostSingle, GhostMulti
     sprite: Art/Enemies/Mob_20103_Ghost
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: 191146637322582114, guid: 74f954f1f0fcc3e45b3dc3478e6f775e, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: 665b4b6bd1d9d4b42a508a8155a021dc, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -1106,8 +1138,10 @@ MonoBehaviour:
     rawPatternArray: 2_Multi_1, 2_Multi_2, 2_Single
     sprite: Art/Enemies/Mob_20104_Magician
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: 6472870599680813941, guid: 77ab2c11dfd8730408b3ff18af2f365c, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: a5967f2bb9a1b5d468f1e70b53203fc6, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -1174,8 +1208,10 @@ MonoBehaviour:
     rawPatternArray: AutomatonSingle, AutomatonSingle, AutomatonSingle, AutomatonSingleStun
     sprite: Art/Enemies/Mob_20105_Automaton
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: -432222514596262733, guid: b1fc8264a8138fd45aae67bb1c1cf26c, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: 39bf33804f36f03459f3f266905f726b, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -1241,8 +1277,10 @@ MonoBehaviour:
     rawPatternArray: 2_Single, 2_Multi_1, GiantRatSkill
     sprite: Art/Enemies/Mob_20106_GiantRat
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: -2873799134659556546, guid: f6b27acb4bd8c59418a3b33986780fbf, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: 871946ca2d3125a48a7277df849523e1, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -1306,8 +1344,10 @@ MonoBehaviour:
     rawPatternArray: 2_Single
     sprite: Art/Enemies/Mob_20107_Guard
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: 2896096059534622469, guid: 11dd59934b0d4d243be87c69d6419e84, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: 3b0561e9e2f28664ebcf21d0cc662160, type: 2}
     damageCap: 45
     damageCapBreakThreshold: 0
@@ -1373,8 +1413,10 @@ MonoBehaviour:
     rawPatternArray: FortuneTellerSingle, FortuneTellerMulti, FortuneTellerExplode
     sprite: Art/Enemies/Mob_20201_FortuneTeller
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: -6974466102843701627, guid: 3b3c12159a25e2b4fbf98e302373db0d, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: 35f694623fa25e04bad73fa4a49d3810, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -1439,8 +1481,10 @@ MonoBehaviour:
     rawPatternArray: AlchemistSingle, AlchemistSkill
     sprite: Art/Enemies/Mob_20202_Alchemist
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: -814171590312980430, guid: 6a6128544c64a3f4abf35eaa69386a1d, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: fc0a8055a0ec3da45a43bb624678a7ce, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -1505,8 +1549,10 @@ MonoBehaviour:
     rawPatternArray: 2_Single, 2_Multi_2
     sprite: Art/Enemies/Mob_20203_Conductor
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: -4056099975623765944, guid: f33e9527a4c793142a4669249d54d8cd, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: 127bf4f4c648b71499f286ad9d64797a, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -1572,8 +1618,10 @@ MonoBehaviour:
     rawPatternArray: Str_1, 2_Single, 2_Multi_2
     sprite: Art/Enemies/Mob_20301_PiedPiper
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: 8115201013465068583, guid: bf0d85b14a107874b8c2429e4981da85, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: 1e9cdff07b7cfb9419f5a9f4058e0794, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -1640,8 +1688,10 @@ MonoBehaviour:
     rawPatternArray: PlagueDoctorSingle, PlagueDoctorSkill
     sprite: Art/Enemies/Mob_20302_PlagueDoctor
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: -1812855394891268555, guid: 6af9b4fbf7bb42e4c9f6629df80fd4f5, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: dab0a0042f5772c4d9eb5732d319d8ce, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -1708,8 +1758,10 @@ MonoBehaviour:
     rawPatternArray: ProphetSingle, ProphetMulti, ProphetSingle, ProphetExplode
     sprite: Art/Enemies/Mob_20303_Prophet
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: 8061370162238238944, guid: 0470b843b7b5b8f40b997ab596559623, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: 8ba4831081dff074e8d3c5008584edf9, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -1775,8 +1827,10 @@ MonoBehaviour:
     rawPatternArray: Str_1, 2_Multi_1, 2_Multi_2
     sprite: Art/Enemies/Mob_30101_SteelScarecrow
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: 3199471221887680125, guid: ca73c789bafe7354ab29a76d972a9e27, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: e6c3c9d7e4ade4749844640fcb1d214c, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -1842,8 +1896,10 @@ MonoBehaviour:
     rawPatternArray: JellyfishSingle, JellyfishSingle, JellyfishSkill
     sprite: Art/Enemies/Mob_30102_Jellyfish
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: -1281798813623773006, guid: 4bb41cff3e18cc54690c374bcd8fd431, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: e12e120329a01aa4fbc51c34aacb6810, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -1910,8 +1966,10 @@ MonoBehaviour:
     rawPatternArray: 2_Multi_1, 2_Multi_2, 2_Multi_3, OrbSkill
     sprite: Art/Enemies/Mob_30103_Orb
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: 4147396773302812002, guid: a6a8420e56a6795479b46a83e6d2475c, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: 5b87f4cada682d44a914631a300325ff, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -1976,8 +2034,10 @@ MonoBehaviour:
     rawPatternArray: LibrarianSingle, LibrarianMulti
     sprite: Art/Enemies/Mob_30104_Librarian
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: -349103785088711201, guid: 06501839befd48c409a71e8bfe41b06d, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: fb4a2acde3bff714f8b5f777fc9dc497, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -2041,8 +2101,10 @@ MonoBehaviour:
     rawPatternArray: 2_Single
     sprite: Art/Enemies/Mob_30105_Golem
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: -7031279065679806696, guid: b19fccafe1a73094baa539f6a0dc2510, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: e0eb84a6a5d5bc844b8923b24a77313c, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -2107,8 +2169,10 @@ MonoBehaviour:
     rawPatternArray: 2_Single, 2_Multi_3
     sprite: Art/Enemies/Mob_30106_Anglerfish
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: -3260963340040441600, guid: fe3ddd75240454446959f099b7e6f59d, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: d9a908811722f384d8fdbe374eafe534, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -2177,8 +2241,10 @@ MonoBehaviour:
     rawPatternArray: 3_Single, 3_Single, 3_Multi_1
     sprite: Art/Enemies/Mob_30107_Shadow
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: 1176641442684228901, guid: ab0a3975e7d77564f9b76992f6064fe5, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: b5ce83eca16c2e94abeca6a5d57c3485, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -2245,8 +2311,10 @@ MonoBehaviour:
     rawPatternArray: 2_Single, 2_Single, 2_Multi_3, VampireSkill
     sprite: Art/Enemies/Mob_30201_Vampire
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: 224692995970061623, guid: 2606c966e34f18d4d9c5957d2289d225, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: f62dfa41546b3034a9e250d8b3f44386, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -2313,8 +2381,10 @@ MonoBehaviour:
     rawPatternArray: 2_Single, 2_Single, 2_Multi_3, KnightSkill
     sprite: Art/Enemies/Mob_30202_Knight
     spriteIdleFrames: 2
+    spritePhaseCount: 0
     spriteFramesPerSecond: 3
     portraitSprite: {fileID: 7954166068200407007, guid: adfab2c81b12b4d418e57b70c46bf745, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: a0186bb58de5a1f43bcf93577cb6e585, type: 2}
     damageCap: 20
     damageCapBreakThreshold: 400
@@ -2381,8 +2451,10 @@ MonoBehaviour:
     rawPatternArray: 2_Multi_2, 3_Single, 2_Multi_3, 3_Single
     sprite: Art/Enemies/Mob_30203_Planetarium
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: -6336091951782106273, guid: ce6463c67a9d59447a99da45303a7fdb, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: a0188e8f1370781469436b4ec774d50f, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -2449,8 +2521,10 @@ MonoBehaviour:
     rawPatternArray: StargazerSingle, StargazerSingle, StargazerSingle, StargazerSkill
     sprite: Art/Enemies/Mob_30301_Stargazer
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: 4135960086499131403, guid: c220ebf0b9893e0479c8fd63cd18ef80, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: 2c4d1a2b48daad048bbac509f0d7dfff, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -2516,8 +2590,10 @@ MonoBehaviour:
     rawPatternArray: CosmictreeSingle, CosmictreeSingle, CosmictreeHeal
     sprite: Art/Enemies/Mob_30302_CosmicTree
     spriteIdleFrames: 1
+    spritePhaseCount: 0
     spriteFramesPerSecond: 4
     portraitSprite: {fileID: 2672759975768453052, guid: 93c14a180da38004ab7aa3a5af3f6d47, type: 3}
+    phasePortraitSprites: []
     portraitAnimatorController: {fileID: 9100000, guid: c24210d1e7640374dae876f27bd78c5c, type: 2}
     damageCap: 0
     damageCapBreakThreshold: 0
@@ -2582,10 +2658,14 @@ MonoBehaviour:
     - WhaleMulti
     rawPatternArray: WhaleSingle, WhalePhase2, WhaleMulti
     sprite: Art/Enemies/Mob_30303_Whale
-    spriteIdleFrames: 2
+    spriteIdleFrames: 1
+    spritePhaseCount: 2
     spriteFramesPerSecond: 2
     portraitSprite: {fileID: 3358165730313069998, guid: 0d2cddfaf4cb86e4984d8402458abbb7, type: 3}
-    portraitAnimatorController: {fileID: 9100000, guid: 0528433602b52c24086ba0bbd2de5b1e, type: 2}
+    phasePortraitSprites:
+    - {fileID: 3358165730313069998, guid: 0d2cddfaf4cb86e4984d8402458abbb7, type: 3}
+    - {fileID: 5808651756225939879, guid: 0d2cddfaf4cb86e4984d8402458abbb7, type: 3}
+    portraitAnimatorController: {fileID: 0}
     damageCap: 0
     damageCapBreakThreshold: 0
     lifestealRate: 0

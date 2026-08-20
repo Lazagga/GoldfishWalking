@@ -158,6 +158,8 @@ namespace GoldfishWalking.UI
 
             rewardListRoot = FindRect("RewardList");
             rewardCardRoot = FindRect("RewardCards");
+            ApplyExpandedPanel(rewardListRoot != null ? rewardListRoot.GetComponent<Image>() : null);
+            ConfigureRewardPanelLayout();
             fantasySlotsRoot = FindRect("FantasySlots");
             consumablePanel = FindRect("ConsumablePanel");
             overlayImage = FindComponent<Image>("Overlay");
@@ -240,8 +242,8 @@ private void PrepareRewardList()
             ClearChildren(rewardListRoot);
             rewardListRoot.gameObject.SetActive(true);
 
-            float rowY = -102f;
-            const float rowStep = 145f;
+            float rowY = -122f;
+            const float rowStep = 162f;
             if (hasFantasyReward)
             {
                 CreateRewardListRow("FantasyReward", "★", GradeColor(FantasyGrade.White), rowY, OpenFantasyChoices);
@@ -268,7 +270,8 @@ private void PrepareRewardList()
 
         private void CreateRewardListRow(string name, string iconText, Color iconColor, float y, UnityEngine.Events.UnityAction onClick)
         {
-            RectTransform row = CreatePanel(name, rewardListRoot, slotColor, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, y), new Vector2(420f, 124f));
+            RectTransform row = CreatePanel(name, rewardListRoot, slotColor, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, y), new Vector2(590f, 138f));
+            GoldfishWalking.Match.MatchstickVisualSettings.ApplySoloButton(row.GetComponent<Image>());
             Button button = row.gameObject.AddComponent<Button>();
             button.onClick.AddListener(onClick);
 
@@ -297,7 +300,8 @@ private void PrepareRewardList()
 
         private void CreateCloseButton()
         {
-            RectTransform panel = CreatePanel("CloseButton", rewardListRoot, slotColor, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 78f), new Vector2(232f, 96f));
+            RectTransform panel = CreatePanel("CloseButton", rewardListRoot, slotColor, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 94f), new Vector2(300f, 108f));
+            GoldfishWalking.Match.MatchstickVisualSettings.ApplySoloButton(panel.GetComponent<Image>());
             Button closeButton = panel.gameObject.AddComponent<Button>();
             closeButton.onClick.AddListener(CloseRewardList);
             Text closeText = CreateText("Label", panel, "Close", 31, textColor, TextAnchor.MiddleCenter);
@@ -352,9 +356,9 @@ private void PrepareRewardList()
 
             Vector2[] positions =
             {
-                new Vector2(-440f, -50f),
-                new Vector2(0f, -50f),
-                new Vector2(440f, -50f)
+                new Vector2(-600f, -20f),
+                new Vector2(0f, -20f),
+                new Vector2(600f, -20f)
             };
 
             for (int i = 0; i < RewardCount; i++)
@@ -365,11 +369,12 @@ private void PrepareRewardList()
 
         private void CreateRewardCard(FantasyData fantasy, Vector2 position)
         {
-            RectTransform card = CreatePanel($"RewardCard_{fantasy.id}", rewardCardRoot, panelColor, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), position, new Vector2(354f, 592f));
+            RectTransform card = CreatePanel($"RewardCard_{fantasy.id}", rewardCardRoot, panelColor, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), position, new Vector2(560f, 760f));
+            ApplyExpandedPanel(card.GetComponent<Image>());
             Button button = card.gameObject.AddComponent<Button>();
             button.onClick.AddListener(() => SelectReward(fantasy));
 
-            RectTransform iconPanel = CreatePanel("IconPanel", card, slotColor, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -166f), new Vector2(250f, 250f));
+            RectTransform iconPanel = CreatePanel("IconPanel", card, slotColor, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -184f), new Vector2(292f, 292f));
             GameObject iconObject = new GameObject("FantasyIcon", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
             RectTransform iconRect = iconObject.GetComponent<RectTransform>();
             iconRect.SetParent(iconPanel, false);
@@ -379,15 +384,32 @@ private void PrepareRewardList()
             icon.preserveAspect = true;
             icon.raycastTarget = false;
 
-            RectTransform descPanel = CreatePanel("DescriptionPanel", card, slotColor, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 142f), new Vector2(264f, 210f));
+            RectTransform descPanel = CreatePanel("DescriptionPanel", card, slotColor, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 154f), new Vector2(440f, 226f));
             Text name = CreateText("Name", descPanel, FantasyText.DisplayName(fantasy), 24, textColor, TextAnchor.UpperCenter);
+            name.color = FantasyText.GradeColor(fantasy.grade);
             SetRect(name.rectTransform, new Vector2(0f, 0.64f), Vector2.one, new Vector2(0f, -18f), new Vector2(-26f, -16f));
 
             Text description = CreateText("Description", descPanel, FantasyText.Description(fantasy), 18, textColor, TextAnchor.UpperLeft);
-            SetRect(description.rectTransform, new Vector2(0f, 0.24f), new Vector2(1f, 0.70f), new Vector2(0f, -8f), new Vector2(-28f, -8f));
+            SetRect(description.rectTransform, new Vector2(0f, 0.06f), new Vector2(1f, 0.70f), new Vector2(0f, 8f), new Vector2(-28f, -8f));
+        }
 
-            Text effect = CreateText("Effect", descPanel, FantasyText.EffectSummary(fantasy), 15, cyanColor, TextAnchor.UpperLeft);
-            SetRect(effect.rectTransform, Vector2.zero, new Vector2(1f, 0.28f), new Vector2(0f, 8f), new Vector2(-28f, -8f));
+        private static void ApplyExpandedPanel(Image image)
+        {
+            UiArtSettings art = UiArtSettings.Resolve();
+            if (image == null || art == null || art.ExpandedPanel == null)
+                return;
+            image.sprite = art.ExpandedPanel;
+            image.type = Image.Type.Simple;
+            image.preserveAspect = false;
+            image.color = Color.white;
+        }
+
+        private void ConfigureRewardPanelLayout()
+        {
+            if (rewardListRoot == null)
+                return;
+            rewardListRoot.anchoredPosition = new Vector2(0f, -8f);
+            rewardListRoot.sizeDelta = new Vector2(720f, 920f);
         }
 
         private void SelectReward(FantasyData fantasy)

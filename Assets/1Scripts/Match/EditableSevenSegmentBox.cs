@@ -904,6 +904,9 @@ public void Configure(int initialValue, int minimumDigits, Color segmentColor, U
                 button.interactable = false;
             }
 
+            if (sharedConsumableRaycaster != null && addedSharedConsumableRaycaster)
+                Destroy(sharedConsumableRaycaster);
+
             if (sharedConsumableCanvas != null)
             {
                 if (addedSharedConsumableCanvas)
@@ -914,8 +917,6 @@ public void Configure(int initialValue, int minimumDigits, Color segmentColor, U
                     sharedConsumableCanvas.sortingOrder = previousSharedSortingOrder;
                 }
             }
-            if (sharedConsumableRaycaster != null && addedSharedConsumableRaycaster)
-                Destroy(sharedConsumableRaycaster);
 
             sharedConsumablePanel = null;
             sharedConsumableCanvas = null;

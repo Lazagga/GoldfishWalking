@@ -53,5 +53,14 @@ namespace GoldfishWalking.UI
                     return whiteColor;
             }
         }
+
+        public static Color GradeColor(FantasyGrade grade)
+        {
+            return GradeColor(
+                grade,
+                new Color(0.95f, 0.97f, 1f, 1f),
+                new Color(0.24f, 0.74f, 0.90f, 1f),
+                new Color(1f, 0.30f, 0.30f, 1f));
+        }
     }
 }

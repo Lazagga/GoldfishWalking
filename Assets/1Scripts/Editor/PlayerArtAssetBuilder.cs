@@ -57,10 +57,15 @@ namespace GoldfishWalking.Editor
             importer.spritePixelsPerUnit = 32f;
             importer.spritePivot = new Vector2(0.5f, 0.5f);
             importer.alphaIsTransparency = true;
+            importer.isReadable = true;
             importer.mipmapEnabled = false;
             importer.filterMode = FilterMode.Point;
             importer.wrapMode = TextureWrapMode.Clamp;
             importer.textureCompression = TextureImporterCompression.Uncompressed;
+            TextureImporterSettings settings = new TextureImporterSettings();
+            importer.ReadTextureSettings(settings);
+            settings.spriteMeshType = SpriteMeshType.Tight;
+            importer.SetTextureSettings(settings);
             importer.SaveAndReimport();
         }
 

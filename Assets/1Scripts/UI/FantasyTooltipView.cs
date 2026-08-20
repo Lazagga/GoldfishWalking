@@ -45,6 +45,8 @@ namespace GoldfishWalking.UI
                 return;
 
             Show(FantasyText.DisplayName(fantasy), FantasyText.Description(fantasy), FantasyText.EffectSummary(fantasy));
+            if (titleText != null)
+                titleText.color = FantasyText.GradeColor(fantasy.grade);
         }
 
         public void Show(string title, string description, string effect)
@@ -52,11 +54,14 @@ namespace GoldfishWalking.UI
             ResolveReferences();
 
             if (titleText != null)
+            {
                 titleText.text = title ?? string.Empty;
+                titleText.color = FantasyText.GradeColor(FantasyGrade.White);
+            }
             if (descriptionText != null)
                 descriptionText.text = description ?? string.Empty;
             if (effectText != null)
-                effectText.text = effect ?? string.Empty;
+                effectText.text = string.Empty;
 
             visible = true;
             gameObject.SetActive(true);
@@ -82,7 +87,37 @@ namespace GoldfishWalking.UI
                 canvasRect = canvas.transform as RectTransform;
 
             DisableRaycasts();
+            ApplyDescriptionPresentation();
             ApplyHorizontalPadding();
+        }
+
+        private void ApplyDescriptionPresentation()
+        {
+            if (descriptionText == null)
+                return;
+
+            descriptionText.fontSize = 20;
+            descriptionText.alignment = TextAnchor.MiddleCenter;
+            descriptionText.horizontalOverflow = HorizontalWrapMode.Wrap;
+            descriptionText.verticalOverflow = VerticalWrapMode.Truncate;
+
+            if (effectText == null)
+                return;
+
+            RectTransform descriptionRect = descriptionText.rectTransform;
+            RectTransform effectRect = effectText.rectTransform;
+            if (descriptionRect.parent == effectRect.parent)
+            {
+                Vector2 anchorMin = descriptionRect.anchorMin;
+                Vector2 offsetMin = descriptionRect.offsetMin;
+                anchorMin.y = Mathf.Min(anchorMin.y, effectRect.anchorMin.y);
+                offsetMin.y = Mathf.Min(offsetMin.y, effectRect.offsetMin.y);
+                descriptionRect.anchorMin = anchorMin;
+                descriptionRect.offsetMin = offsetMin;
+            }
+
+            effectText.text = string.Empty;
+            effectText.gameObject.SetActive(false);
         }
 
         private void ApplyHorizontalPadding()

@@ -149,6 +149,7 @@ public int MonsterHitCount => bootstrap != null && bootstrap.RunContext != null 
         }
 
         public MonsterData CurrentMonsterData => context?.monster?.Data;
+        public int CurrentMonsterPhase => context?.monster?.Phase ?? 1;
 
         public int MonsterCurrentHealth => context != null && context.monster != null
             ? Mathf.Max(0, context.monster.CurrentHealth)

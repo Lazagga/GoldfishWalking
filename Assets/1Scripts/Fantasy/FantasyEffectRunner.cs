@@ -52,6 +52,9 @@ namespace GoldfishWalking.Fantasy
             if (runContext == null || fantasy == null || runContext.fantasyInventory == null)
                 return false;
 
+            // Acquisition reactions must come from fantasies owned before this acquisition.
+            // In particular, Leo must not duplicate or void itself as it enters the inventory.
+            FantasyEffectData acquireFork = FindAcquireFork(runContext, fantasy.id);
             int countBefore = runContext.fantasyInventory.ownedFantasies.Count;
             if (allowDuplicate)
                 runContext.fantasyInventory.AddDuplicate(fantasy);
@@ -64,7 +67,6 @@ namespace GoldfishWalking.Fantasy
             Apply(fantasy, runContext, "On_Acquire");
             Apply(fantasy, runContext, "Acquire");
 
-            FantasyEffectData acquireFork = FindAcquireFork(runContext);
             if (acquireFork != null)
             {
                 int acquireIndex = runContext.battleSession.GetCounter("fantasy_acquire_index") + 1;
@@ -77,7 +79,9 @@ namespace GoldfishWalking.Fantasy
                     runContext.fantasyInventory.Remove(fantasy);
             }
 
-            return runContext.fantasyInventory.ownedFantasies.Contains(fantasy);
+            bool retained = runContext.fantasyInventory.ownedFantasies.Contains(fantasy);
+            GameEventHub.RaiseFantasyInventoryChanged();
+            return retained;
         }
 
         public void ApplyItemUsedEffects(RunContext runContext, ItemType itemType)
@@ -269,14 +273,18 @@ namespace GoldfishWalking.Fantasy
             }
         }
 
-        private static FantasyEffectData FindAcquireFork(RunContext runContext)
+        private static FantasyEffectData FindAcquireFork(RunContext runContext, string acquiredFantasyId)
         {
             IReadOnlyList<FantasyData> owned = runContext?.fantasyInventory?.ownedFantasies;
             if (owned == null)
                 return null;
             for (int i = 0; i < owned.Count; i++)
             {
-                FantasyEffectData[] effects = owned[i]?.effects;
+                FantasyData owner = owned[i];
+                if (owner == null || NormalizeId(owner.id) == NormalizeId(acquiredFantasyId))
+                    continue;
+
+                FantasyEffectData[] effects = owner.effects;
                 if (effects == null)
                     continue;
                 for (int j = 0; j < effects.Length; j++)

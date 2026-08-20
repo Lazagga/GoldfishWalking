@@ -11,7 +11,8 @@
                      },
     "presentation":  {
                          "sprite": "Art/Enemies/Mob_30303_Whale",
-                         "idleFrames": 2,
+                         "idleFrames": 1,
+                         "phaseSprites": 2,
                          "framesPerSecond": 2
                      },
     "encounter":  {

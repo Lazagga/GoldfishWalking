@@ -26,6 +26,9 @@ namespace GoldfishWalking.UI
         };
 
         [SerializeField] private ShopController shopController;
+        [SerializeField] private Sprite act1Background;
+        [SerializeField] private Sprite act2Background;
+        [SerializeField] private Sprite act3Background;
 
         private readonly Color backgroundColor = new Color(0.07f, 0.08f, 0.11f, 1f);
         private readonly Color panelColor = new Color(0.14f, 0.16f, 0.20f, 0.94f);
@@ -39,6 +42,7 @@ namespace GoldfishWalking.UI
         private RectTransform fantasySlotsRoot;
         private RectTransform fantasyContentRoot;
         private RectTransform tooltipRoot;
+        private Image merchantBackgroundImage;
         private Text healthText;
         private Text moveCountText;
         private Text spendFloatText;
@@ -155,6 +159,7 @@ namespace GoldfishWalking.UI
             fantasySlotsRoot = FindRect("FantasySlots");
             fantasyContentRoot = FindRect("FantasySlots/Viewport/Content");
             tooltipRoot = FindRect("ShopTooltip");
+            merchantBackgroundImage = FindComponent<Image>("MerchantPanel/MerchantBackground");
             healthText = FindComponent<Text>("StatusPanel/Health");
             spendFloatText = FindComponent<Text>("StatusPanel/SpendFloat");
             moveCountText = FindComponent<Text>("MoveCounter/MoveCount");
@@ -176,6 +181,38 @@ namespace GoldfishWalking.UI
             itemTitleTexts.Clear();
             for (int i = 0; i < shopItems.Length; i++)
                 BindShopItem(shopItems[i]);
+
+            RefreshMerchantBackground();
+        }
+
+        public void ConfigureBackgrounds(Sprite act1, Sprite act2, Sprite act3)
+        {
+            act1Background = act1;
+            act2Background = act2;
+            act3Background = act3;
+            RefreshMerchantBackground();
+        }
+
+        private void RefreshMerchantBackground()
+        {
+            if (merchantBackgroundImage == null)
+                return;
+
+            int act = shopController != null ? shopController.CurrentAct : 1;
+            Sprite background = act <= 1 ? act1Background : act == 2 ? act2Background : act3Background;
+            merchantBackgroundImage.sprite = background;
+            merchantBackgroundImage.enabled = background != null;
+            merchantBackgroundImage.type = Image.Type.Simple;
+            merchantBackgroundImage.preserveAspect = false;
+            merchantBackgroundImage.color = Color.white;
+            merchantBackgroundImage.raycastTarget = false;
+            merchantBackgroundImage.rectTransform.SetAsFirstSibling();
+
+            AspectRatioFitter fitter = merchantBackgroundImage.GetComponent<AspectRatioFitter>();
+            if (fitter == null)
+                fitter = merchantBackgroundImage.gameObject.AddComponent<AspectRatioFitter>();
+            fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+            fitter.aspectRatio = background.rect.width / Mathf.Max(1f, background.rect.height);
         }
 
         private void BindShopItem(ShopItem item)
@@ -281,6 +318,7 @@ namespace GoldfishWalking.UI
 
         private void Refresh()
         {
+            RefreshMerchantBackground();
             if (healthText != null)
                 healthText.text = shopController != null ? shopController.CurrentHealth.ToString() : "0";
             if (moveCountText != null)
@@ -422,6 +460,7 @@ namespace GoldfishWalking.UI
                 if (TryGetShopFantasy(item, out FantasyData fantasy)
                     && itemRoots.TryGetValue(item.id, out RectTransform root))
                 {
+                    titleText.color = FantasyText.GradeColor(fantasy.grade);
                     Transform iconPanel = root.Find("IconPanel");
                     ApplyFantasyProductIcon(iconPanel, fantasy);
                 }
@@ -432,6 +471,14 @@ namespace GoldfishWalking.UI
         {
             if (iconPanel == null)
                 return;
+
+            for (int i = 0; i < iconPanel.childCount; i++)
+            {
+                Transform child = iconPanel.GetChild(i);
+                if (child.name != "FantasyIconImage")
+                    child.gameObject.SetActive(false);
+            }
+
             Transform existing = iconPanel.Find("FantasyIconImage");
             GameObject go = existing != null ? existing.gameObject
                 : new GameObject("FantasyIconImage", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
@@ -542,7 +589,8 @@ private int GetCurrentPrice(ShopItem item)
             if (fantasy == null)
                 return;
 
-            ShowTooltip(FantasyText.DisplayName(fantasy), FantasyText.Description(fantasy), FantasyText.EffectSummary(fantasy));
+            if (tooltipView != null)
+                tooltipView.Show(fantasy);
         }
 
         private void ShowShopItemTooltip(ShopItem item)

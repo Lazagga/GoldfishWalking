@@ -177,7 +177,7 @@ namespace GoldfishWalking.Editor.Tests
         }
 
         [Test]
-        public void MonsterArt_AllGeneratedMonstersUseDirectSpriteAndAnimatorReferences()
+        public void MonsterArt_AllGeneratedMonstersUseDirectPresentationReferences()
         {
             MonsterDatabase database = AssetDatabase.LoadAssetAtPath<MonsterDatabase>("Assets/Data/Generated/MonsterDatabase.asset");
             Assert.That(database, Is.Not.Null);
@@ -187,10 +187,31 @@ namespace GoldfishWalking.Editor.Tests
             {
                 Assert.That(monster.sprite, Is.Not.Empty, $"{monster.id} has no authored art key.");
                 Assert.That(monster.portraitSprite, Is.Not.Null, $"{monster.id} has no generated Sprite reference.");
-                Assert.That(monster.portraitAnimatorController, Is.Not.Null, $"{monster.id} has no generated AnimatorController reference.");
                 Assert.That(AssetDatabase.GetAssetPath(monster.portraitSprite), Does.StartWith("Assets/Art/enemy/"));
-                Assert.That(AssetDatabase.GetAssetPath(monster.portraitAnimatorController), Does.StartWith("Assets/Art/Generated/Enemies/"));
+                if (monster.spritePhaseCount > 0)
+                {
+                    Assert.That(monster.phasePortraitSprites, Has.Length.EqualTo(monster.spritePhaseCount));
+                    Assert.That(monster.phasePortraitSprites, Has.All.Not.Null);
+                    Assert.That(monster.portraitAnimatorController, Is.Null, $"{monster.id} phase sprites must not use an AnimatorController.");
+                }
+                else
+                {
+                    Assert.That(monster.portraitAnimatorController, Is.Not.Null, $"{monster.id} has no generated AnimatorController reference.");
+                    Assert.That(AssetDatabase.GetAssetPath(monster.portraitAnimatorController), Does.StartWith("Assets/Art/Generated/Enemies/"));
+                }
             }
+        }
+
+        [Test]
+        public void FantasyArt_CosmeticsAreDataDrivenAndHaveDirectSprites()
+        {
+            FantasyDatabase database = AssetDatabase.LoadAssetAtPath<FantasyDatabase>("Assets/Data/Generated/FantasyDatabase.asset");
+            Assert.That(database, Is.Not.Null);
+
+            List<FantasyData> cosmetics = database.fantasies
+                .FindAll(fantasy => FantasyInventory.DataHasEffect(fantasy, "cosmetic"));
+            Assert.That(cosmetics, Has.Count.EqualTo(4));
+            Assert.That(cosmetics, Has.All.Matches<FantasyData>(fantasy => fantasy.iconSprite != null));
         }
 
         [Test]
@@ -301,6 +322,22 @@ namespace GoldfishWalking.Editor.Tests
 
             int count = run.fantasyInventory.ownedFantasies.FindAll(item => item == acquired).Count;
             Assert.That(count, Is.EqualTo(0).Or.EqualTo(2));
+        }
+
+        [Test]
+        public void FantasyEffectRunner_LeoDoesNotDuplicateOrVoidItselfOnAcquire()
+        {
+            RunContext run = new RunContext { seed = 17 };
+            FantasyData leo = Fantasy("leo", new FantasyEffectData
+            {
+                trigger = "On_Acquire", target = "Fantasy", operation = "duplicate_or_void_acquire",
+                calc = "Toggle", chance = 0.5f, execution = "capability"
+            });
+
+            bool added = new FantasyEffectRunner().AddFantasyWithAcquireEffects(run, leo);
+
+            Assert.That(added, Is.True);
+            Assert.That(run.fantasyInventory.ownedFantasies.FindAll(item => item == leo).Count, Is.EqualTo(1));
         }
 
         [Test]

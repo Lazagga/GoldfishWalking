@@ -67,6 +67,7 @@ public bool IsFreeConsumablePurchaseAvailable(string itemId)
 
 
         public int CurrentHealth => bootstrap != null && bootstrap.RunContext != null ? bootstrap.RunContext.health : 0;
+        public int CurrentAct => bootstrap != null && bootstrap.RunContext != null ? bootstrap.RunContext.act : 1;
         public IReadOnlyList<FantasyData> OwnedFantasies => bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.fantasyInventory != null
             ? bootstrap.RunContext.fantasyInventory.ownedFantasies
             : null;

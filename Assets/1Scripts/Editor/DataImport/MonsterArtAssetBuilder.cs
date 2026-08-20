@@ -47,6 +47,7 @@ namespace GoldfishWalking.Editor.DataImport
             foreach (MonsterData monster in monsters)
             {
                 monster.portraitSprite = null;
+                monster.phasePortraitSprites = Array.Empty<Sprite>();
                 monster.portraitAnimatorController = null;
                 if (string.IsNullOrWhiteSpace(monster.sprite))
                     continue;
@@ -62,6 +63,16 @@ namespace GoldfishWalking.Editor.DataImport
                 Sprite[] frames = SliceAndLoad(texturePath, cellSize, errors);
                 if (frames.Length == 0)
                     continue;
+
+                if (monster.spritePhaseCount > 0)
+                {
+                    int phaseCount = Mathf.Clamp(monster.spritePhaseCount, 1, frames.Length);
+                    if (phaseCount != monster.spritePhaseCount)
+                        warnings.Add($"[{monster.id}] phaseSprites {monster.spritePhaseCount}를 실제 스프라이트 수 {frames.Length}에 맞췄습니다.");
+                    monster.phasePortraitSprites = frames.Take(phaseCount).ToArray();
+                    monster.portraitSprite = monster.phasePortraitSprites[0];
+                    continue;
+                }
 
                 int frameCount = Mathf.Clamp(monster.spriteIdleFrames, 1, frames.Length);
                 if (frameCount != monster.spriteIdleFrames)

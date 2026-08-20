@@ -189,6 +189,52 @@ namespace GoldfishWalking.Editor
 
             battleView.ConfigureBackgrounds(act1, act2, act3);
             EditorUtility.SetDirty(battleView);
+            ApplyShopBackgrounds(scene, act1, act2, act3);
+        }
+
+        private static void ApplyShopBackgrounds(Scene scene, Sprite act1, Sprite act2, Sprite act3)
+        {
+            ShopView shopView = scene.GetRootGameObjects()
+                .SelectMany(root => root.GetComponentsInChildren<ShopView>(true))
+                .FirstOrDefault();
+            if (shopView == null)
+                throw new InvalidOperationException("ShopView not found.");
+
+            Transform merchantPanel = shopView.transform.Find("ShopRuntimeLayout/MerchantPanel");
+            if (merchantPanel == null)
+                throw new InvalidOperationException("ShopRuntimeLayout/MerchantPanel not found.");
+
+            if (merchantPanel.GetComponent<RectMask2D>() == null)
+                merchantPanel.gameObject.AddComponent<RectMask2D>();
+
+            Transform existing = merchantPanel.Find("MerchantBackground");
+            GameObject backgroundObject = existing != null ? existing.gameObject
+                : new GameObject("MerchantBackground", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            if (existing == null)
+                backgroundObject.transform.SetParent(merchantPanel, false);
+
+            Image backgroundImage = backgroundObject.GetComponent<Image>();
+            RectTransform backgroundRect = backgroundImage.rectTransform;
+            backgroundRect.anchorMin = Vector2.zero;
+            backgroundRect.anchorMax = Vector2.one;
+            backgroundRect.offsetMin = Vector2.zero;
+            backgroundRect.offsetMax = Vector2.zero;
+            backgroundRect.SetAsFirstSibling();
+            backgroundImage.sprite = act1;
+            backgroundImage.type = Image.Type.Simple;
+            backgroundImage.preserveAspect = false;
+            backgroundImage.color = Color.white;
+            backgroundImage.raycastTarget = false;
+            AspectRatioFitter backgroundFitter = backgroundObject.GetComponent<AspectRatioFitter>();
+            if (backgroundFitter == null)
+                backgroundFitter = backgroundObject.AddComponent<AspectRatioFitter>();
+            backgroundFitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+            backgroundFitter.aspectRatio = act1.rect.width / Mathf.Max(1f, act1.rect.height);
+
+            shopView.ConfigureBackgrounds(act1, act2, act3);
+            EditorUtility.SetDirty(merchantPanel.gameObject);
+            EditorUtility.SetDirty(backgroundObject);
+            EditorUtility.SetDirty(shopView);
         }
 
         private static Sprite LoadFirstSprite(string path)
@@ -282,8 +328,8 @@ namespace GoldfishWalking.Editor
         {
             SetRect(scene, "PlayerFormulaPanel", new Vector2(-560f, 155f), new Vector2(304f, 126f));
             SetRect(scene, "MonsterFormulaPanel", new Vector2(-374f, 155f), new Vector2(504f, 126f));
-            SetRect(scene, "PlayerPortrait", new Vector2(-560f, -165f), new Vector2(260f, 260f));
-            SetRect(scene, "MonsterPortrait", new Vector2(560f, -125f), new Vector2(340f, 340f));
+            SetRect(scene, "PlayerPortrait", new Vector2(-560f, -265f), new Vector2(260f, 260f));
+            SetRect(scene, "MonsterPortrait", new Vector2(560f, -225f), new Vector2(340f, 340f));
         }
 
         private static void SetRect(Scene scene, string objectName, Vector2 anchoredPosition, Vector2 size)

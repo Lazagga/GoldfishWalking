@@ -35,6 +35,7 @@ namespace GoldfishWalking.UI
         private readonly Color greenColor = new Color(0.13f, 0.86f, 0.43f, 1f);
         private readonly Color cyanColor = new Color(0.24f, 0.74f, 0.90f, 1f);
         private readonly FantasyEffectRunner fantasyEffectRunner = new FantasyEffectRunner();
+        private readonly Dictionary<Sprite, float> playerHeadTopPixelCache = new Dictionary<Sprite, float>();
 
         private RectTransform layoutRoot;
         private Image battleBackgroundImage;
@@ -48,6 +49,9 @@ namespace GoldfishWalking.UI
         private Image monsterPortrait;
         private Animator monsterPortraitAnimator;
         private RuntimeAnimatorController boundMonsterAnimatorController;
+        private RectTransform playerPortrait;
+        private Image playerPortraitImage;
+        private RectTransform playerCosmeticStack;
         
         private RectTransform playerConditionPanel;
         private Text playerConditionLabel;
@@ -58,6 +62,8 @@ private RectTransform playerDebuffPanel;
         private Text moveCountText;
         private Text damageDebugText;
         private InputField debugFantasyInput;
+        private RectTransform damageDebugRoot;
+        private RectTransform debugConsoleRoot;
         private RectTransform fantasyTooltipRoot;
         private Text fantasyTooltipName;
         private Text fantasyTooltipDescription;
@@ -151,10 +157,17 @@ private void OnBattlePresentationChanged()
 
 
 
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.BackQuote))
+                ToggleDeveloperPanels();
+        }
+
         private void LateUpdate()
         {
             if (healthText != null && bootstrap != null && bootstrap.RunContext != null)
                 healthText.text = bootstrap.RunContext.health.ToString();
+            UpdatePlayerCosmeticLayout();
         }
 
         private void OnDestroy()
@@ -231,11 +244,16 @@ private void OnBattlePresentationChanged()
             ConfigureMonsterStatusLayout();
             monsterPortrait = FindComponent<Image>("MonsterPortrait");
             monsterPortraitAnimator = FindComponent<Animator>("MonsterPortrait");
+            playerPortrait = FindRect("PlayerPortrait");
+            playerPortraitImage = playerPortrait != null ? playerPortrait.GetComponent<Image>() : null;
+            EnsurePlayerCosmeticStack();
             monsterBuffText = FindComponent<Text>("MonsterFormulaPanel/MonsterBuffs");
             playerBuffText = FindComponent<Text>("PlayerFormulaPanel/PlayerBuffs");
             monsterSpecialBoxPanel = FindRect("MonsterSpecialBoxPanel");
             monsterSpecialBoxLabel = FindComponent<Text>("MonsterSpecialBoxPanel/Label");
             moveCountText = FindComponent<Text>("MoveCounter/MoveCount");
+            damageDebugRoot = FindRect("DamageDebugPanel");
+            debugConsoleRoot = FindRect("DebugFantasyConsole");
             damageDebugText = FindComponent<Text>("DamageDebugPanel/DamageDebugText");
             if (damageDebugText != null)
                 damageDebugText.supportRichText = true;
@@ -262,6 +280,21 @@ private void OnBattlePresentationChanged()
             debugConsoleButton = FindComponent<Button>("DebugFantasyConsole/AddButton");
             ConfigureConsumableSlotVisuals();
             SetButtonLabel(resolveBattleButton, "턴\n종료", 26);
+        }
+
+        private void ToggleDeveloperPanels()
+        {
+            if (damageDebugRoot == null || debugConsoleRoot == null)
+                return;
+
+            bool show = !damageDebugRoot.gameObject.activeSelf || !debugConsoleRoot.gameObject.activeSelf;
+            damageDebugRoot.gameObject.SetActive(show);
+            debugConsoleRoot.gameObject.SetActive(show);
+            if (show)
+            {
+                RefreshDamageDebug();
+                debugFantasyInput?.ActivateInputField();
+            }
         }
 
 private void EnsurePlayerDebuffUI()
@@ -480,9 +513,15 @@ playerDebuffPanel = FindRect("PlayerDebuffPanel");
             MonsterData monsterData = battleController != null ? battleController.CurrentMonsterData : null;
             if (monsterPortrait != null)
             {
-                monsterPortrait.sprite = monsterData?.portraitSprite;
+                Sprite[] phaseSprites = monsterData?.phasePortraitSprites;
+                int phaseIndex = battleController != null ? Mathf.Max(0, battleController.CurrentMonsterPhase - 1) : 0;
+                monsterPortrait.sprite = phaseSprites != null && phaseSprites.Length > 0
+                    ? phaseSprites[Mathf.Min(phaseIndex, phaseSprites.Length - 1)]
+                    : monsterData?.portraitSprite;
                 monsterPortrait.enabled = monsterPortrait.sprite != null;
-                RuntimeAnimatorController controller = monsterData?.portraitAnimatorController;
+                RuntimeAnimatorController controller = phaseSprites != null && phaseSprites.Length > 0
+                    ? null
+                    : monsterData?.portraitAnimatorController;
                 if (monsterPortraitAnimator != null && boundMonsterAnimatorController != controller)
                 {
                     boundMonsterAnimatorController = controller;
@@ -576,6 +615,7 @@ private string BuildPlayerConditionStatus()
 
         private void RefreshFantasySlots()
         {
+            RefreshPlayerCosmetics();
             if (fantasyListView != null)
             {
                 fantasyListView.Bind(fantasyContent, fantasyTooltipView, 10);
@@ -586,6 +626,184 @@ private string BuildPlayerConditionStatus()
             }
 
             Debug.LogWarning("[BattleView] Missing FantasyListView on FantasySlots/Viewport/Content.");
+        }
+
+        private void EnsurePlayerCosmeticStack()
+        {
+            if (playerPortrait == null || layoutRoot == null)
+                return;
+
+            Transform existing = playerPortrait.Find("PlayerCosmeticStack") ?? layoutRoot.Find("PlayerCosmeticStack")
+                ?? playerPortrait.Find("CosmeticStack");
+            if (existing is RectTransform existingRect)
+            {
+                playerCosmeticStack = existingRect;
+                playerCosmeticStack.name = "PlayerCosmeticStack";
+                playerCosmeticStack.SetParent(layoutRoot, false);
+            }
+            else
+            {
+                GameObject stack = new GameObject("PlayerCosmeticStack", typeof(RectTransform), typeof(CanvasRenderer));
+                playerCosmeticStack = stack.GetComponent<RectTransform>();
+                playerCosmeticStack.SetParent(layoutRoot, false);
+            }
+
+            Canvas cosmeticCanvas = playerCosmeticStack.GetComponent<Canvas>();
+            if (cosmeticCanvas != null)
+            {
+                cosmeticCanvas.enabled = false;
+                Destroy(cosmeticCanvas);
+            }
+            playerCosmeticStack.anchorMin = playerCosmeticStack.anchorMax = playerPortrait.anchorMin;
+            playerCosmeticStack.pivot = new Vector2(0.5f, 0f);
+            playerCosmeticStack.anchoredPosition = Vector2.zero;
+            Transform background = layoutRoot.Find("Background");
+            int cosmeticLayerIndex = background != null ? background.GetSiblingIndex() + 1 : 0;
+            playerCosmeticStack.SetSiblingIndex(cosmeticLayerIndex);
+            UpdatePlayerCosmeticLayout();
+        }
+
+        private void RefreshPlayerCosmetics()
+        {
+            EnsurePlayerCosmeticStack();
+            if (playerCosmeticStack == null)
+                return;
+
+            for (int i = playerCosmeticStack.childCount - 1; i >= 0; i--)
+            {
+                GameObject oldItem = playerCosmeticStack.GetChild(i).gameObject;
+                oldItem.SetActive(false);
+                Destroy(oldItem);
+            }
+
+            List<FantasyData> owned = bootstrap?.RunContext?.fantasyInventory?.ownedFantasies;
+            if (owned == null)
+                return;
+
+            List<FantasyData> cosmetics = new List<FantasyData>();
+            for (int i = 0; i < owned.Count; i++)
+            {
+                FantasyData fantasy = owned[i];
+                if (fantasy == null || fantasy.iconSprite == null || !FantasyInventory.DataHasEffect(fantasy, "cosmetic"))
+                    continue;
+                cosmetics.Add(fantasy);
+            }
+            cosmetics.Sort((left, right) => GetCosmeticStackRank(left).CompareTo(GetCosmeticStackRank(right)));
+
+            // Create top-to-bottom so the lower animal is drawn later and appears in front.
+            for (int i = cosmetics.Count - 1; i >= 0; i--)
+            {
+                FantasyData fantasy = cosmetics[i];
+                GameObject item = new GameObject($"Cosmetic_{GetCosmeticStackRank(fantasy)}", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+                RectTransform rect = item.GetComponent<RectTransform>();
+                rect.SetParent(playerCosmeticStack, false);
+                rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0f);
+                rect.pivot = new Vector2(0.5f, 0f);
+                rect.anchoredPosition = Vector2.zero;
+
+                Image image = item.GetComponent<Image>();
+                image.sprite = fantasy.iconSprite;
+                image.preserveAspect = true;
+                image.raycastTarget = false;
+                image.maskable = false;
+            }
+            UpdatePlayerCosmeticLayout();
+        }
+
+        private static int GetCosmeticStackRank(FantasyData fantasy)
+        {
+            if (fantasy?.effects == null)
+                return int.MaxValue;
+            for (int i = 0; i < fantasy.effects.Length; i++)
+            {
+                FantasyEffectData effect = fantasy.effects[i];
+                if (effect == null || NormalizeCosmeticValue(effect.target) != "cosmetic")
+                    continue;
+                switch (NormalizeCosmeticValue(effect.option))
+                {
+                    case "turtle": return 0;
+                    case "cat": return 1;
+                    case "rabbit": return 2;
+                    case "parrot": return 3;
+                }
+            }
+            return int.MaxValue;
+        }
+
+        private static string NormalizeCosmeticValue(string value)
+        {
+            return (value ?? string.Empty).Trim().Replace("_", string.Empty).Replace("-", string.Empty).Replace(" ", string.Empty).ToLowerInvariant();
+        }
+
+        private void UpdatePlayerCosmeticLayout()
+        {
+            if (playerPortrait == null || playerPortraitImage == null || playerPortraitImage.sprite == null
+                || playerCosmeticStack == null)
+                return;
+
+            Sprite playerSprite = playerPortraitImage.sprite;
+            float playerPixelScale = playerSprite.rect.height > 0f
+                ? playerPortrait.rect.height / playerSprite.rect.height
+                : 1f;
+            float headTopPixels = GetPlayerHeadTopPixels(playerSprite);
+
+            const float cosmeticSourcePixels = 16f;
+            float cosmeticSize = cosmeticSourcePixels * playerPixelScale;
+            float stackStep = (cosmeticSourcePixels * 0.4f - 1f) * playerPixelScale;
+            int activeCount = 0;
+            for (int i = 0; i < playerCosmeticStack.childCount; i++)
+                if (playerCosmeticStack.GetChild(i).gameObject.activeSelf)
+                    activeCount++;
+            playerCosmeticStack.anchoredPosition = playerPortrait.anchoredPosition
+                + new Vector2(0f, (headTopPixels - 6f) * playerPixelScale);
+            playerCosmeticStack.sizeDelta = new Vector2(cosmeticSize, cosmeticSize + Mathf.Max(0, activeCount - 1) * stackStep);
+
+            int activeOrdinal = 0;
+            for (int i = 0; i < playerCosmeticStack.childCount; i++)
+            {
+                RectTransform cosmetic = playerCosmeticStack.GetChild(i) as RectTransform;
+                if (cosmetic == null || !cosmetic.gameObject.activeSelf)
+                    continue;
+                cosmetic.sizeDelta = new Vector2(cosmeticSize, cosmeticSize);
+                int bottomUpIndex = activeCount - 1 - activeOrdinal;
+                cosmetic.anchoredPosition = new Vector2(0f, bottomUpIndex * stackStep);
+                activeOrdinal++;
+            }
+        }
+
+        private float GetPlayerHeadTopPixels(Sprite sprite)
+        {
+            if (playerHeadTopPixelCache.TryGetValue(sprite, out float cached))
+                return cached;
+
+            float headTop = sprite.rect.height * 0.5f;
+            try
+            {
+                Rect rect = sprite.rect;
+                int xMin = Mathf.RoundToInt(rect.x);
+                int yMin = Mathf.RoundToInt(rect.y);
+                int width = Mathf.RoundToInt(rect.width);
+                int height = Mathf.RoundToInt(rect.height);
+                int highestOpaqueY = -1;
+                for (int y = height - 1; y >= 0 && highestOpaqueY < 0; y--)
+                for (int x = 0; x < width; x++)
+                {
+                    if (sprite.texture.GetPixel(xMin + x, yMin + y).a <= 0f)
+                        continue;
+                    highestOpaqueY = y;
+                    break;
+                }
+
+                if (highestOpaqueY >= 0)
+                    headTop = highestOpaqueY + 1f - sprite.pivot.y;
+            }
+            catch (UnityException)
+            {
+                // Existing external player sprites may not be readable; their full-rect top is a safe fallback.
+            }
+
+            playerHeadTopPixelCache[sprite] = headTop;
+            return headTop;
         }
 
         private void RefreshDamageDebug()

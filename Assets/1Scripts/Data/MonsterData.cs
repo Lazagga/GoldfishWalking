@@ -45,8 +45,10 @@ namespace GoldfishWalking.Data
         public string rawPatternArray;
         public string sprite;
         public int spriteIdleFrames = 1;
+        public int spritePhaseCount;
         public float spriteFramesPerSecond = 4f;
         public Sprite portraitSprite;
+        public Sprite[] phasePortraitSprites = Array.Empty<Sprite>();
         public RuntimeAnimatorController portraitAnimatorController;
         public int damageCap;
         public int damageCapBreakThreshold;
