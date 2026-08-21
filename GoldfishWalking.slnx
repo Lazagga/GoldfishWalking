@@ -1,5 +1,5 @@
 ﻿<Solution>
   <Project Path="GoldfishWalking.Runtime.csproj" />
-  <Project Path="GoldfishWalking.Editor.Tests.csproj" />
   <Project Path="GoldfishWalking.Editor.csproj" />
+  <Project Path="GoldfishWalking.Editor.Tests.csproj" />
 </Solution>
