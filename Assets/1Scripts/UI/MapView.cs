@@ -17,7 +17,6 @@ namespace GoldfishWalking.UI
         [SerializeField] private RectTransform contentRoot;
         [SerializeField] private RectTransform lineRoot;
         [SerializeField] private RectTransform nodeRoot;
-        [SerializeField] private Font labelFont;
 
         private const int VisibleFloorRadius = 2;
         private const int VisibleLineRadius = 3;
@@ -132,8 +131,6 @@ namespace GoldfishWalking.UI
             if (gameBootstrap == null)
                 Debug.LogError("[MapView] GameBootstrap must be assigned in GumBwing_Er.unity.", this);
 
-            if (labelFont == null)
-                labelFont = GameFontSettings.ResolveFont();
         }
 
         private void EnsureRoots()
@@ -380,7 +377,7 @@ namespace GoldfishWalking.UI
 
             Text label = textObject.GetComponent<Text>();
             label.text = text;
-            label.font = labelFont;
+            label.font = GameFontSettings.ResolveFont();
             label.fontSize = fontSize;
             label.color = color;
             label.alignment = TextAnchor.MiddleCenter;

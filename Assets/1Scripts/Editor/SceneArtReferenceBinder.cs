@@ -152,24 +152,20 @@ namespace GoldfishWalking.Editor
 
         private static void ApplyGameFont(Scene scene)
         {
-            Font font = AssetDatabase.LoadAssetAtPath<Font>("Assets/Thaleah_PixelFont/Materials/ThaleahFat_TTF.ttf");
-            if (font == null)
+            Font defaultFont = AssetDatabase.LoadAssetAtPath<Font>("Assets/Thaleah_PixelFont/Materials/ThaleahFat_TTF.ttf");
+            if (defaultFont == null)
                 throw new InvalidOperationException("Free Pixel Font - Thaleah Font 에셋을 찾을 수 없습니다.");
 
             GameObject[] roots = scene.GetRootGameObjects();
-            foreach (Text text in roots.SelectMany(root => root.GetComponentsInChildren<Text>(true)))
-            {
-                text.font = font;
-                EditorUtility.SetDirty(text);
-            }
-
             GameBootstrap bootstrap = roots.SelectMany(root => root.GetComponentsInChildren<GameBootstrap>(true)).FirstOrDefault();
             if (bootstrap == null)
                 throw new InvalidOperationException("GameBootstrap을 찾을 수 없습니다.");
             GameFontSettings settings = bootstrap.GetComponent<GameFontSettings>();
             if (settings == null)
                 settings = bootstrap.gameObject.AddComponent<GameFontSettings>();
-            settings.Configure(font);
+            settings.ConfigureDefault(defaultFont);
+            foreach (Text text in roots.SelectMany(root => root.GetComponentsInChildren<Text>(true)))
+                EditorUtility.SetDirty(text);
             EditorUtility.SetDirty(settings);
         }
 
@@ -330,6 +326,17 @@ namespace GoldfishWalking.Editor
             SetRect(scene, "MonsterFormulaPanel", new Vector2(-374f, 155f), new Vector2(504f, 126f));
             SetRect(scene, "PlayerPortrait", new Vector2(-560f, -265f), new Vector2(260f, 260f));
             SetRect(scene, "MonsterPortrait", new Vector2(560f, -225f), new Vector2(340f, 340f));
+            SetActive(scene, "DamageDebugPanel", false);
+            SetActive(scene, "DebugFantasyConsole", false);
+        }
+
+        private static void SetActive(Scene scene, string objectName, bool active)
+        {
+            GameObject target = FindInScene(scene, objectName);
+            if (target == null)
+                return;
+            target.SetActive(active);
+            EditorUtility.SetDirty(target);
         }
 
         private static void SetRect(Scene scene, string objectName, Vector2 anchoredPosition, Vector2 size)

@@ -81,11 +81,13 @@ private RectTransform playerDebuffPanel;
         private int monsterDamageDifference;
         private int monsterHitDifference;
         private int monsterSpecialBoxDifference;
+        private bool developerPanelsVisible;
 
         private void Awake()
         {
             ResolveReferences();
             EnsureLayout();
+            SetDeveloperPanelsVisible(false);
             BindButtons();
         }
 
@@ -96,6 +98,7 @@ private void OnEnable()
             ResolveReferences();
             SubscribeBattlePresentation();
             EnsureLayout();
+            SetDeveloperPanelsVisible(false);
             if (battleController != null)
                 OnResolutionPhaseChanged(battleController.State);
             else
@@ -287,10 +290,17 @@ private void OnBattlePresentationChanged()
             if (damageDebugRoot == null || debugConsoleRoot == null)
                 return;
 
-            bool show = !damageDebugRoot.gameObject.activeSelf || !debugConsoleRoot.gameObject.activeSelf;
-            damageDebugRoot.gameObject.SetActive(show);
-            debugConsoleRoot.gameObject.SetActive(show);
-            if (show)
+            SetDeveloperPanelsVisible(!developerPanelsVisible);
+        }
+
+        private void SetDeveloperPanelsVisible(bool visible)
+        {
+            developerPanelsVisible = visible;
+            if (damageDebugRoot != null)
+                damageDebugRoot.gameObject.SetActive(visible);
+            if (debugConsoleRoot != null)
+                debugConsoleRoot.gameObject.SetActive(visible);
+            if (visible)
             {
                 RefreshDamageDebug();
                 debugFantasyInput?.ActivateInputField();
