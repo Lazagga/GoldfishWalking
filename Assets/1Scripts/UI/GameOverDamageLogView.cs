@@ -1,6 +1,10 @@
 using GoldfishWalking.Core;
 using UnityEngine;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+using UnityEditor;
+using UnityEditor.SceneManagement;
+#endif
 
 namespace GoldfishWalking.UI
 {
@@ -8,11 +12,15 @@ namespace GoldfishWalking.UI
     {
         private GameBootstrap bootstrap;
         private Text logText;
+        private Button restartButton;
+        private Button homeButton;
 
         private void Awake()
         {
             bootstrap = FindFirstObjectByType<GameBootstrap>(FindObjectsInactive.Include);
             EnsureLogPanel();
+            EnsureActionButtons();
+            BindButtons();
         }
 
         private void OnEnable()
@@ -21,7 +29,14 @@ namespace GoldfishWalking.UI
                 bootstrap = FindFirstObjectByType<GameBootstrap>(FindObjectsInactive.Include);
 
             EnsureLogPanel();
+            EnsureActionButtons();
+            BindButtons();
             Refresh();
+        }
+
+        private void OnDestroy()
+        {
+            UnbindButtons();
         }
 
         private void EnsureLogPanel()
@@ -70,5 +85,98 @@ namespace GoldfishWalking.UI
                 : "Damage log -";
             logText.text = "Damage Log\n" + summary;
         }
+
+        private void EnsureActionButtons()
+        {
+            restartButton = GetOrCreateButton("RestartButton", "RESTART", new Vector2(-180f, 100f));
+            homeButton = GetOrCreateButton("HomeButton", "HOME", new Vector2(180f, 100f));
+        }
+
+        private Button GetOrCreateButton(string objectName, string label, Vector2 position)
+        {
+            Transform existing = transform.Find(objectName);
+            GameObject buttonObject = existing != null ? existing.gameObject
+                : new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+            if (existing == null)
+                buttonObject.transform.SetParent(transform, false);
+
+            RectTransform rect = buttonObject.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = position;
+            rect.sizeDelta = new Vector2(300f, 100f);
+
+            Image image = buttonObject.GetComponent<Image>();
+            image.color = Color.white;
+            GoldfishWalking.Match.MatchstickVisualSettings.ApplySoloButton(image);
+
+            Transform labelTransform = buttonObject.transform.Find("Label");
+            GameObject labelObject = labelTransform != null ? labelTransform.gameObject
+                : new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+            if (labelTransform == null)
+                labelObject.transform.SetParent(buttonObject.transform, false);
+
+            Text text = labelObject.GetComponent<Text>();
+            text.text = label;
+            text.font = GameFontSettings.ResolveFont();
+            text.fontSize = 30;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.color = Color.white;
+            text.raycastTarget = false;
+            RectTransform textRect = text.rectTransform;
+            textRect.anchorMin = Vector2.zero;
+            textRect.anchorMax = Vector2.one;
+            textRect.offsetMin = Vector2.zero;
+            textRect.offsetMax = Vector2.zero;
+
+            return buttonObject.GetComponent<Button>();
+        }
+
+        private void BindButtons()
+        {
+            if (restartButton != null)
+            {
+                restartButton.onClick.RemoveListener(OnRestartClicked);
+                restartButton.onClick.AddListener(OnRestartClicked);
+            }
+            if (homeButton != null)
+            {
+                homeButton.onClick.RemoveListener(OnHomeClicked);
+                homeButton.onClick.AddListener(OnHomeClicked);
+            }
+        }
+
+        private void UnbindButtons()
+        {
+            if (restartButton != null)
+                restartButton.onClick.RemoveListener(OnRestartClicked);
+            if (homeButton != null)
+                homeButton.onClick.RemoveListener(OnHomeClicked);
+        }
+
+        private void OnRestartClicked()
+        {
+            bootstrap?.RestartWithNewSeed();
+        }
+
+        private void OnHomeClicked()
+        {
+            bootstrap?.ReturnToTitle();
+        }
+
+#if UNITY_EDITOR
+        [ContextMenu("Build Scene UI Layout")]
+        public void BuildSceneUILayout()
+        {
+            if (bootstrap == null)
+                bootstrap = FindFirstObjectByType<GameBootstrap>(FindObjectsInactive.Include);
+            EnsureLogPanel();
+            EnsureActionButtons();
+            EditorUtility.SetDirty(gameObject);
+            EditorUtility.SetDirty(restartButton.gameObject);
+            EditorUtility.SetDirty(homeButton.gameObject);
+            EditorSceneManager.MarkSceneDirty(gameObject.scene);
+        }
+#endif
     }
 }

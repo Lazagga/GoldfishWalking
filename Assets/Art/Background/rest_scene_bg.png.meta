@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: cde04695baf30604693346b6eee65179
+guid: dd7a3efea2ac0b746a548d5fee96c54c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6429094579590035986
-    second: rest_scene_bg_less_bright_0
+      213: 3353316170724002749
+    second: rest_scene_bg_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -96,24 +96,11 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: Android
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: rest_scene_bg_less_bright_0
+      name: rest_scene_bg_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 21a7ad3157bb83950800000000000000
-      internalID: 6429094579590035986
+      spriteID: dbbc3976a4f598e20800000000000000
+      internalID: 3353316170724002749
       vertices: []
       indices: 
       edges: []
@@ -148,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      rest_scene_bg_less_bright_0: 6429094579590035986
+      rest_scene_bg_0: 3353316170724002749
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

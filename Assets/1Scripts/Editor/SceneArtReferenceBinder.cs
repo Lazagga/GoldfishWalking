@@ -45,6 +45,7 @@ namespace GoldfishWalking.Editor
             ApplyAddedUiArt(scene);
             ApplyGameFont(scene);
             ApplyBattleBackgrounds(scene);
+            ApplyRestSceneArt(scene);
             ApplyBattleLayout(scene);
 
             EditorSceneManager.MarkSceneDirty(scene);
@@ -54,6 +55,22 @@ namespace GoldfishWalking.Editor
 
         private static void ApplyAddedUiArt(Scene scene)
         {
+            GameOverDamageLogView gameOverView = scene.GetRootGameObjects()
+                .SelectMany(root => root.GetComponentsInChildren<GameOverDamageLogView>(true))
+                .FirstOrDefault();
+            if (gameOverView != null)
+                gameOverView.BuildSceneUILayout();
+
+            GameObject mainCanvas = FindInScene(scene, "MainCanvas");
+            if (mainCanvas != null)
+            {
+                PauseMenuView pauseMenu = mainCanvas.GetComponent<PauseMenuView>();
+                if (pauseMenu == null)
+                    pauseMenu = mainCanvas.AddComponent<PauseMenuView>();
+                pauseMenu.BuildSceneUILayout();
+                EditorUtility.SetDirty(pauseMenu);
+            }
+
             Sprite campfire = LoadNamedSprite("Assets/Art/ui/campfire_icon.png", "campfire_icon_0");
             Sprite battle = LoadNamedSprite("Assets/Art/ui/battle_icon.png", "battle_icon_0");
             Sprite boss = LoadNamedSprite("Assets/Art/ui/boss_icon.png", "boss_icon_0");
@@ -85,7 +102,14 @@ namespace GoldfishWalking.Editor
 
             GameObject restButton = FindInScene(scene, "RestButton");
             if (restButton != null)
-                UiArtSettings.ApplyIcon(restButton.transform, campfire, 56f);
+            {
+                Transform restIcon = restButton.transform.Find("ArtIcon");
+                if (restIcon != null)
+                {
+                    restIcon.gameObject.SetActive(false);
+                    EditorUtility.SetDirty(restIcon.gameObject);
+                }
+            }
 
             GameObject popup = FindInScene(scene, "SevenSegmentEditPopup");
             ApplyPanelSprite(popup != null ? popup.transform.Find("Panel")?.GetComponent<Image>() : null, panel);
@@ -231,6 +255,130 @@ namespace GoldfishWalking.Editor
             EditorUtility.SetDirty(merchantPanel.gameObject);
             EditorUtility.SetDirty(backgroundObject);
             EditorUtility.SetDirty(shopView);
+        }
+
+        private static void ApplyRestSceneArt(Scene scene)
+        {
+            RestView restView = scene.GetRootGameObjects()
+                .SelectMany(root => root.GetComponentsInChildren<RestView>(true))
+                .FirstOrDefault();
+            if (restView == null)
+                throw new InvalidOperationException("RestView not found.");
+
+            string[] campfirePaths =
+            {
+                "Assets/Art/Background/rest_scene_campfire_0000.png",
+                "Assets/Art/Background/rest_scene_campfire_0001.png",
+                "Assets/Art/Background/rest_scene_campfire_0002.png"
+            };
+            foreach (string path in campfirePaths)
+                ConfigureFullFrameSprite(path);
+
+            Sprite background = LoadFirstSprite("Assets/Art/Background/rest_scene_bg.png");
+            Sprite lessBright = LoadFirstSprite("Assets/Art/Background/rest_scene_bg_less_bright.png");
+            Sprite[] campfireFrames = campfirePaths.Select(LoadFirstSprite).ToArray();
+            if (background == null || lessBright == null || campfireFrames.Any(sprite => sprite == null))
+                throw new InvalidOperationException("Rest scene background or campfire sprites not found.");
+
+            Transform layout = restView.transform.Find("RestRuntimeLayout");
+            if (layout == null)
+                throw new InvalidOperationException("RestRuntimeLayout not found.");
+
+            Transform oldBackground = layout.Find("Background");
+            Image oldBackgroundImage = oldBackground != null ? oldBackground.GetComponent<Image>() : null;
+            if (oldBackgroundImage != null)
+            {
+                oldBackgroundImage.enabled = false;
+                oldBackgroundImage.raycastTarget = false;
+                EditorUtility.SetDirty(oldBackgroundImage);
+            }
+
+            GameObject artObject = GetOrCreateImageObject(layout, "RestSceneArt");
+            RectTransform artRect = artObject.GetComponent<RectTransform>();
+            artRect.anchorMin = Vector2.zero;
+            artRect.anchorMax = Vector2.one;
+            artRect.offsetMin = Vector2.zero;
+            artRect.offsetMax = Vector2.zero;
+            artRect.SetAsFirstSibling();
+            Image artImage = artObject.GetComponent<Image>();
+            artImage.enabled = false;
+            artImage.raycastTarget = false;
+            AspectRatioFitter fitter = artObject.GetComponent<AspectRatioFitter>();
+            if (fitter == null)
+                fitter = artObject.AddComponent<AspectRatioFitter>();
+            fitter.aspectMode = AspectRatioFitter.AspectMode.WidthControlsHeight;
+            fitter.aspectRatio = 4f / 3f;
+
+            GameObject backgroundObject = GetOrCreateImageObject(artObject.transform, "Background");
+            StretchImage(backgroundObject.GetComponent<Image>(), background);
+
+            GameObject campfireObject = GetOrCreateImageObject(artObject.transform, "Campfire");
+            Image campfireImage = campfireObject.GetComponent<Image>();
+            campfireImage.sprite = campfireFrames[0];
+            campfireImage.preserveAspect = true;
+            campfireImage.raycastTarget = false;
+            RectTransform fireRect = campfireImage.rectTransform;
+            fireRect.anchorMin = new Vector2(104f / 240f, 1f - 144f / 180f);
+            fireRect.anchorMax = new Vector2(136f / 240f, 1f - 112f / 180f);
+            fireRect.offsetMin = Vector2.zero;
+            fireRect.offsetMax = Vector2.zero;
+            fireRect.SetAsLastSibling();
+
+            restView.ConfigureSceneArt(background, lessBright, campfireFrames);
+            EditorUtility.SetDirty(artObject);
+            EditorUtility.SetDirty(backgroundObject);
+            EditorUtility.SetDirty(campfireObject);
+            EditorUtility.SetDirty(restView);
+        }
+
+        private static void ConfigureFullFrameSprite(string path)
+        {
+            TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+            if (importer == null)
+                return;
+
+            TextureImporterSettings settings = new TextureImporterSettings();
+            importer.ReadTextureSettings(settings);
+            bool changed = importer.spriteImportMode != SpriteImportMode.Single
+                || settings.spriteMeshType != SpriteMeshType.FullRect
+                || importer.filterMode != FilterMode.Point
+                || importer.textureCompression != TextureImporterCompression.Uncompressed;
+            if (!changed)
+                return;
+
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePivot = new Vector2(0.5f, 0.5f);
+            importer.filterMode = FilterMode.Point;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            settings.spriteMode = (int)SpriteImportMode.Single;
+            settings.spriteMeshType = SpriteMeshType.FullRect;
+            importer.SetTextureSettings(settings);
+            importer.SaveAndReimport();
+        }
+
+        private static GameObject GetOrCreateImageObject(Transform parent, string name)
+        {
+            Transform existing = parent.Find(name);
+            GameObject target = existing != null ? existing.gameObject
+                : new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            if (existing == null)
+                target.transform.SetParent(parent, false);
+            return target;
+        }
+
+        private static void StretchImage(Image image, Sprite sprite)
+        {
+            image.sprite = sprite;
+            image.type = Image.Type.Simple;
+            image.preserveAspect = false;
+            image.color = Color.white;
+            image.raycastTarget = false;
+            RectTransform rect = image.rectTransform;
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
         }
 
         private static Sprite LoadFirstSprite(string path)

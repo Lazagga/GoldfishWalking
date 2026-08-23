@@ -55,6 +55,37 @@ namespace GoldfishWalking.Core
         public void StartNewRun()
         {
             int seed = useFixedSeed || mapSeed != 0 ? mapSeed : Random.Range(1, int.MaxValue);
+            StartRun(seed);
+        }
+
+        public void RestartWithNewSeed()
+        {
+            int previousSeed = RunContext != null ? RunContext.seed : 0;
+            int seed;
+            do
+            {
+                seed = Random.Range(1, int.MaxValue);
+            }
+            while (seed == previousSeed);
+
+            StartRun(seed);
+        }
+
+        public void RestartWithCurrentSeed()
+        {
+            int seed = RunContext != null && RunContext.seed != 0
+                ? RunContext.seed
+                : (useFixedSeed || mapSeed != 0 ? mapSeed : Random.Range(1, int.MaxValue));
+            StartRun(seed);
+        }
+
+        public void ReturnToTitle()
+        {
+            StateMachine.ChangeState(GameState.Title);
+        }
+
+        private void StartRun(int seed)
+        {
             RunContext.StartNewRun(seed, startingHealth);
             RunContext.map = new MapGenerator().Generate(seed, RunContext.act, mapRoomCount);
             StateMachine.ChangeState(GameState.Map);

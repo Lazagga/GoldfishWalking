@@ -17,6 +17,10 @@ namespace GoldfishWalking.UI
 
         [SerializeField] private RestController restController;
         [SerializeField] private int healAmount = DefaultHealAmount;
+        [SerializeField] private Sprite restBackground;
+        [SerializeField] private Sprite restBackgroundLessBright;
+        [SerializeField] private Sprite[] campfireFrames;
+        [SerializeField] private float campfireFrameDuration = 0.16f;
 
         private readonly Color backgroundColor = new Color(0.58f, 0.66f, 0.72f, 1f);
         private readonly Color panelColor = new Color(0.14f, 0.16f, 0.20f, 0.92f);
@@ -30,6 +34,8 @@ namespace GoldfishWalking.UI
         private RectTransform fantasyContentRoot;
         private RectTransform matchNumberRoot;
         private RectTransform fantasyTooltipRoot;
+        private Image restBackgroundImage;
+        private Image campfireImage;
         private Text healthText;
         private Text moveCountText;
         private Text healFloatText;
@@ -42,6 +48,7 @@ namespace GoldfishWalking.UI
         private Button coffeeButton;
         private Button nextButton;
         private Coroutine healFloatRoutine;
+        private Coroutine campfireRoutine;
         private int restUseCount;
         private int healMoveDifference;
 
@@ -62,6 +69,16 @@ namespace GoldfishWalking.UI
             EnsureLayout();
             BindExistingLayout();
             Refresh();
+            RestartCampfireAnimation();
+        }
+
+        private void OnDisable()
+        {
+            if (campfireRoutine != null)
+            {
+                StopCoroutine(campfireRoutine);
+                campfireRoutine = null;
+            }
         }
 
         private void OnDestroy()
@@ -144,6 +161,8 @@ namespace GoldfishWalking.UI
             fantasyContentRoot = FindRect("FantasySlots/Viewport/Content");
             matchNumberRoot = FindRect("MatchNumber");
             fantasyTooltipRoot = FindRect("FantasyTooltip");
+            restBackgroundImage = FindComponent<Image>("RestSceneArt/Background");
+            campfireImage = FindComponent<Image>("RestSceneArt/Campfire");
             healthText = FindComponent<Text>("StatusPanel/Health");
             moveCountText = FindComponent<Text>("MoveCounter/MoveCount");
             healFloatText = FindComponent<Text>("StatusPanel/HealFloat");
@@ -161,11 +180,62 @@ namespace GoldfishWalking.UI
             else if (fantasyContentRoot != null)
                 Debug.LogWarning("[RestView] Missing FantasyListView on FantasySlots/Viewport/Content.");
             restButton = FindComponent<Button>("RestButton");
-            UiArtSettings art = UiArtSettings.Resolve();
-            if (restButton != null && art != null)
-                UiArtSettings.ApplyIcon(restButton.transform, art.CampfireIcon, 56f);
+            Transform restIcon = restButton != null ? restButton.transform.Find("ArtIcon") : null;
+            if (restIcon != null)
+                restIcon.gameObject.SetActive(false);
             coffeeButton = FindComponent<Button>("CoffeeButton");
             nextButton = FindComponent<Button>("NextButton");
+            ApplyRestSceneFrame(0);
+        }
+
+        public void ConfigureSceneArt(Sprite background, Sprite lessBrightBackground, Sprite[] fireFrames)
+        {
+            restBackground = background;
+            restBackgroundLessBright = lessBrightBackground;
+            campfireFrames = fireFrames;
+            ApplyRestSceneFrame(0);
+        }
+
+        private void RestartCampfireAnimation()
+        {
+            if (campfireRoutine != null)
+                StopCoroutine(campfireRoutine);
+            if (campfireFrames == null || campfireFrames.Length == 0)
+                return;
+            campfireRoutine = StartCoroutine(CampfireAnimationRoutine());
+        }
+
+        private IEnumerator CampfireAnimationRoutine()
+        {
+            int[] sequence = { 0, 1, 2, 1 };
+            int sequenceIndex = 0;
+            while (true)
+            {
+                int frame = Mathf.Min(sequence[sequenceIndex], campfireFrames.Length - 1);
+                ApplyRestSceneFrame(frame);
+                yield return new WaitForSeconds(Mathf.Max(0.02f, campfireFrameDuration));
+                sequenceIndex = (sequenceIndex + 1) % sequence.Length;
+            }
+        }
+
+        private void ApplyRestSceneFrame(int frame)
+        {
+            if (restBackgroundImage != null)
+            {
+                restBackgroundImage.sprite = frame == 0 && restBackgroundLessBright != null
+                    ? restBackgroundLessBright
+                    : restBackground;
+                restBackgroundImage.enabled = restBackgroundImage.sprite != null;
+            }
+
+            if (campfireImage != null)
+            {
+                Sprite fire = campfireFrames != null && campfireFrames.Length > 0
+                    ? campfireFrames[Mathf.Clamp(frame, 0, campfireFrames.Length - 1)]
+                    : null;
+                campfireImage.sprite = fire;
+                campfireImage.enabled = fire != null;
+            }
         }
 
         private RectTransform FindRect(string path)
