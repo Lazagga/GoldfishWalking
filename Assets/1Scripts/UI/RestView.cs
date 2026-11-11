@@ -31,25 +31,19 @@ namespace GoldfishWalking.UI
 
         private RectTransform layoutRoot;
         private RectTransform statusPanel;
-        private RectTransform fantasyContentRoot;
         private RectTransform matchNumberRoot;
-        private RectTransform fantasyTooltipRoot;
         private Image restBackgroundImage;
         private Image campfireImage;
         private Text healthText;
         private Text moveCountText;
         private Text healFloatText;
-        private Text fantasyTooltipName;
-        private Text fantasyTooltipDescription;
-        private Text fantasyTooltipEffect;
-        private FantasyTooltipView fantasyTooltipView;
-        private FantasyListView fantasyListView;
         private Button restButton;
         private Button coffeeButton;
         private Button nextButton;
         private Coroutine healFloatRoutine;
         private Coroutine campfireRoutine;
         private int restUseCount;
+        private bool coffeeFantasyClaimed;
         private int healMoveDifference;
 
         private void Awake()
@@ -64,6 +58,7 @@ namespace GoldfishWalking.UI
         private void OnEnable()
         {
             restUseCount = 0;
+            coffeeFantasyClaimed = false;
             ResolveReferences();
             HideScenePlaceholders();
             EnsureLayout();
@@ -158,27 +153,12 @@ namespace GoldfishWalking.UI
                 return;
 
             statusPanel = FindRect("StatusPanel");
-            fantasyContentRoot = FindRect("FantasySlots/Viewport/Content");
             matchNumberRoot = FindRect("MatchNumber");
-            fantasyTooltipRoot = FindRect("FantasyTooltip");
             restBackgroundImage = FindComponent<Image>("RestSceneArt/Background");
             campfireImage = FindComponent<Image>("RestSceneArt/Campfire");
             healthText = FindComponent<Text>("StatusPanel/Health");
             moveCountText = FindComponent<Text>("MoveCounter/MoveCount");
             healFloatText = FindComponent<Text>("StatusPanel/HealFloat");
-            fantasyTooltipName = FindComponent<Text>("FantasyTooltip/Name");
-            fantasyTooltipDescription = FindComponent<Text>("FantasyTooltip/Description");
-            fantasyTooltipEffect = FindComponent<Text>("FantasyTooltip/Effect");
-            fantasyTooltipView = fantasyTooltipRoot != null ? fantasyTooltipRoot.GetComponent<FantasyTooltipView>() : null;
-            if (fantasyTooltipView != null)
-                fantasyTooltipView.Bind(fantasyTooltipName, fantasyTooltipDescription, fantasyTooltipEffect);
-            else if (fantasyTooltipRoot != null)
-                Debug.LogWarning("[RestView] Missing FantasyTooltipView on FantasyTooltip.");
-            fantasyListView = fantasyContentRoot != null ? fantasyContentRoot.GetComponent<FantasyListView>() : null;
-            if (fantasyListView != null)
-                fantasyListView.Bind(fantasyContentRoot, fantasyTooltipView, 10);
-            else if (fantasyContentRoot != null)
-                Debug.LogWarning("[RestView] Missing FantasyListView on FantasySlots/Viewport/Content.");
             restButton = FindComponent<Button>("RestButton");
             Transform restIcon = restButton != null ? restButton.transform.Find("ArtIcon") : null;
             if (restIcon != null)
@@ -284,16 +264,17 @@ namespace GoldfishWalking.UI
 
         private void CompleteRest()
         {
-            if (restController != null)
+            if (restController != null && restUseCount >= restController.MaxRestCount)
                 restController.CompleteRest();
         }
 
         private void ClaimCoffeeFantasy()
         {
-            if (restController == null || restUseCount > 0 || !restController.TryClaimCoffeeFantasy())
+            if (restController == null || coffeeFantasyClaimed || restUseCount > 0
+                || !restController.TryClaimCoffeeFantasy())
                 return;
 
-            restUseCount = restController.MaxRestCount;
+            coffeeFantasyClaimed = true;
             Refresh();
         }
 
@@ -304,27 +285,16 @@ namespace GoldfishWalking.UI
             if (restButton != null)
                 restButton.interactable = restController != null && restUseCount < restController.MaxRestCount;
             if (coffeeButton != null)
-                coffeeButton.interactable = restController != null && restUseCount == 0 && restController.CanClaimCoffeeFantasy;
+                coffeeButton.interactable = restController != null && !coffeeFantasyClaimed
+                    && restUseCount == 0 && restController.CanClaimCoffeeFantasy;
+            if (nextButton != null)
+                nextButton.interactable = restController != null && restUseCount >= restController.MaxRestCount;
             if (healFloatText != null && restUseCount == 0)
                 healFloatText.gameObject.SetActive(false);
 
-            RefreshFantasySlots();
-            HideFantasyTooltip();
             healAmount = restController != null ? restController.CurrentHealAmount : healAmount;
             DrawMatchNumber(healAmount);
             RefreshMoveCounter();
-        }
-
-        private void RefreshFantasySlots()
-        {
-            if (fantasyListView != null)
-            {
-                fantasyListView.Bind(fantasyContentRoot, fantasyTooltipView, 10);
-                fantasyListView.Refresh(restController != null ? restController.OwnedFantasies : null);
-                return;
-            }
-
-            Debug.LogWarning("[RestView] Missing FantasyListView on FantasySlots/Viewport/Content.");
         }
 
         private void PlayHealFloat(int amount)
@@ -405,18 +375,6 @@ namespace GoldfishWalking.UI
             healAmount = Mathf.Max(0, newValue);
             if (restController != null)
                 restController.SetHealAmount(healAmount);
-        }
-
-        private void ShowFantasyTooltip(FantasyData fantasy)
-        {
-            if (fantasyTooltipView != null)
-                fantasyTooltipView.Show(fantasy);
-        }
-
-        private void HideFantasyTooltip()
-        {
-            if (fantasyTooltipView != null)
-                fantasyTooltipView.Hide();
         }
 
     }

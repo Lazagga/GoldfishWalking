@@ -39,7 +39,6 @@ namespace GoldfishWalking.UI
 
         private RectTransform layoutRoot;
         private Image battleBackgroundImage;
-        private RectTransform fantasyContent;
         private RectTransform consumablePanel;
         private Text healthText;
         private Text monsterNameText;
@@ -64,12 +63,6 @@ private RectTransform playerDebuffPanel;
         private InputField debugFantasyInput;
         private RectTransform damageDebugRoot;
         private RectTransform debugConsoleRoot;
-        private RectTransform fantasyTooltipRoot;
-        private Text fantasyTooltipName;
-        private Text fantasyTooltipDescription;
-        private Text fantasyTooltipEffect;
-        private FantasyTooltipView fantasyTooltipView;
-        private FantasyListView fantasyListView;
         private EditableSevenSegmentBox playerDebuffBox;
         private Text playerDebuffOperatorText;
         private EditableSevenSegmentBox playerDamageBox;
@@ -94,11 +87,15 @@ private RectTransform playerDebuffPanel;
 private void OnEnable()
         {
             GameEventHub.ItemInventoryChanged += RefreshConsumables;
-            GameEventHub.FantasyInventoryChanged += RefreshFantasySlots;
+            GameEventHub.FantasyInventoryChanged += RefreshPlayerCosmetics;
+            GameEventHub.StateChanged += OnGameStateChanged;
             ResolveReferences();
             SubscribeBattlePresentation();
             EnsureLayout();
             SetDeveloperPanelsVisible(false);
+            if (resolveBattleButton != null)
+                resolveBattleButton.gameObject.SetActive(
+                    bootstrap?.StateMachine?.CurrentState == GameState.Battle);
             if (battleController != null)
                 OnResolutionPhaseChanged(battleController.State);
             else
@@ -108,8 +105,15 @@ private void OnEnable()
 private void OnDisable()
         {
             GameEventHub.ItemInventoryChanged -= RefreshConsumables;
-            GameEventHub.FantasyInventoryChanged -= RefreshFantasySlots;
+            GameEventHub.FantasyInventoryChanged -= RefreshPlayerCosmetics;
+            GameEventHub.StateChanged -= OnGameStateChanged;
             UnsubscribeBattlePresentation();
+        }
+
+        private void OnGameStateChanged(GameState previous, GameState next)
+        {
+            if (resolveBattleButton != null)
+                resolveBattleButton.gameObject.SetActive(next == GameState.Battle);
         }
 
 private void SubscribeBattlePresentation()
@@ -136,7 +140,7 @@ private void UnsubscribeBattlePresentation()
 private void OnPlayerHitPresented(BattleHitStep hit)
         {
             if (hit != null && hit.sourceFantasy != null)
-                fantasyListView?.Emphasize(hit.sourceFantasy);
+                SharedFantasyInventoryView.Instance?.Emphasize(hit.sourceFantasy);
         }
 
 private void OnBattlePresentationChanged()
@@ -151,7 +155,8 @@ private void OnBattlePresentationChanged()
         {
             bool editing = phase == BattleState.Editing;
             if (resolveBattleButton != null)
-                resolveBattleButton.interactable = editing;
+                resolveBattleButton.interactable = editing
+                    && bootstrap?.StateMachine?.CurrentState == GameState.Battle;
             if (resetButton != null)
                 resetButton.interactable = editing;
             Refresh();
@@ -239,7 +244,6 @@ private void OnBattlePresentationChanged()
 
             EnsureDevelopmentDebugUI();
 
-            fantasyContent = FindRect("FantasySlots/Viewport/Content");
             consumablePanel = FindRect("ConsumablePanel");
             healthText = FindComponent<Text>("StatusPanel/Health");
             monsterNameText = FindComponent<Text>("MonsterStatusPanel/MonsterName");
@@ -261,18 +265,6 @@ private void OnBattlePresentationChanged()
             if (damageDebugText != null)
                 damageDebugText.supportRichText = true;
             debugFantasyInput = FindComponent<InputField>("DebugFantasyConsole/Input");
-            fantasyTooltipRoot = FindRect("FantasyTooltip");
-            fantasyTooltipName = FindComponent<Text>("FantasyTooltip/Name");
-            fantasyTooltipDescription = FindComponent<Text>("FantasyTooltip/Description");
-            fantasyTooltipEffect = FindComponent<Text>("FantasyTooltip/Effect");
-            fantasyTooltipView = fantasyTooltipRoot != null ? fantasyTooltipRoot.GetComponent<FantasyTooltipView>() : null;
-            if (fantasyTooltipView != null)
-                fantasyTooltipView.Bind(fantasyTooltipName, fantasyTooltipDescription, fantasyTooltipEffect);
-            else if (fantasyTooltipRoot != null)
-                Debug.LogWarning("[BattleView] Missing FantasyTooltipView on FantasyTooltip.");
-            fantasyListView = fantasyContent != null ? fantasyContent.GetComponent<FantasyListView>() : null;
-            if (fantasyListView != null)
-                fantasyListView.Bind(fantasyContent, fantasyTooltipView, 10);
             EnsurePlayerDebuffUI();
             playerDamageBox = FindComponent<EditableSevenSegmentBox>("PlayerFormulaPanel/PlayerDamage");
             monsterDamageBox = FindComponent<EditableSevenSegmentBox>("MonsterFormulaPanel/FormulaContent/MonsterDamage");
@@ -480,7 +472,7 @@ playerDebuffPanel = FindRect("PlayerDebuffPanel");
                 healthText.text = bootstrap != null && bootstrap.RunContext != null ? bootstrap.RunContext.health.ToString() : "0";
             RefreshMonsterStatus();
             RefreshFormulaValues();
-            RefreshFantasySlots();
+            RefreshPlayerCosmetics();
             RefreshConsumables();
             RefreshDamageDebug();
             RefreshMoveCounter();
@@ -622,21 +614,6 @@ private string BuildPlayerConditionStatus()
             return status == "-" ? $"RULE {condition}" : $"{status}  RULE {condition}";
         }
 
-
-        private void RefreshFantasySlots()
-        {
-            RefreshPlayerCosmetics();
-            if (fantasyListView != null)
-            {
-                fantasyListView.Bind(fantasyContent, fantasyTooltipView, 10);
-                fantasyListView.Refresh(bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.fantasyInventory != null
-                    ? bootstrap.RunContext.fantasyInventory.ownedFantasies
-                    : null);
-                return;
-            }
-
-            Debug.LogWarning("[BattleView] Missing FantasyListView on FantasySlots/Viewport/Content.");
-        }
 
         private void EnsurePlayerCosmeticStack()
         {
@@ -1332,18 +1309,6 @@ private bool IsValidPlayerDebuffValue(int value)
 #else
             return null;
 #endif
-        }
-
-        private void ShowFantasyTooltip(FantasyData fantasy)
-        {
-            if (fantasyTooltipView != null)
-                fantasyTooltipView.Show(fantasy);
-        }
-
-        private void HideFantasyTooltip()
-        {
-            if (fantasyTooltipView != null)
-                fantasyTooltipView.Hide();
         }
 
         private void OnResolveBattleClicked()

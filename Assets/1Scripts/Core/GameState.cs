@@ -10,6 +10,7 @@ namespace GoldfishWalking.Core
         Rest,
         Shop,
         GameOver,
-        RunClear
+        RunClear,
+        EmberReward
     }
 }

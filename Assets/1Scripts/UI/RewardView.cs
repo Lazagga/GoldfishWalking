@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using GoldfishWalking.Core;
 using GoldfishWalking.Data;
 using GoldfishWalking.Fantasy;
+using GoldfishWalking.Map;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 #if UNITY_EDITOR
@@ -20,6 +22,8 @@ namespace GoldfishWalking.UI
         private readonly FantasyRewardSelector rewardSelector = new FantasyRewardSelector();
         private readonly FantasyEffectRunner fantasyEffectRunner = new FantasyEffectRunner();
         private readonly List<FantasyData> currentRewards = new List<FantasyData>();
+        private readonly List<RectTransform> currentRewardCards = new List<RectTransform>();
+        private readonly List<RectTransform> transitioningEmbers = new List<RectTransform>();
         private readonly Color overlayColor = new Color(0.03f, 0.035f, 0.05f, 0.78f);
         private readonly Color panelColor = new Color(0.14f, 0.16f, 0.20f, 0.94f);
         private readonly Color slotColor = new Color(0.20f, 0.22f, 0.29f, 0.96f);
@@ -31,22 +35,16 @@ namespace GoldfishWalking.UI
         private RectTransform layoutRoot;
         private RectTransform rewardListRoot;
         private RectTransform rewardCardRoot;
-        private RectTransform fantasySlotsRoot;
         private RectTransform consumablePanel;
-        private RectTransform fantasyTooltipRoot;
         private Image overlayImage;
         private Text healthText;
-        private Text fantasyTooltipName;
-        private Text fantasyTooltipDescription;
-        private Text fantasyTooltipEffect;
-        private FantasyTooltipView fantasyTooltipView;
-        private FantasyListView fantasyListView;
         private Image screenBackgroundImage;
         private Button nextButton;
         private Button rerollButton;
         private bool hasFantasyReward;
         private bool hasExtraMatchReward;
         private bool hasEraserReward;
+        private bool isRevealingEmberChoices;
 
         private void Awake()
         {
@@ -61,6 +59,7 @@ namespace GoldfishWalking.UI
 
         private void OnEnable()
         {
+            isRevealingEmberChoices = false;
             transform.SetAsLastSibling();
             ResolveReferences();
             HideScenePlaceholders();
@@ -72,6 +71,9 @@ namespace GoldfishWalking.UI
             SetRewardChromeVisible(true);
             CloseFantasyChoices();
             RebuildRewardList();
+            if (IsEmberFantasyReward())
+                OpenFantasyChoices();
+            PositionNextButtonOverTurnButton();
             Refresh();
         }
 
@@ -82,7 +84,25 @@ namespace GoldfishWalking.UI
 
         public void CompleteReward()
         {
+            if (bootstrap?.RunContext != null)
+                bootstrap.RunContext.ForfeitPendingFantasyReward();
             GameEventHub.RaiseRewardCompleted();
+        }
+
+        private void PositionNextButtonOverTurnButton()
+        {
+            if (nextButton == null)
+                return;
+            RectTransform[] rects = FindObjectsByType<RectTransform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            for (int i = 0; i < rects.Length; i++)
+            {
+                if (rects[i].name != "ResolveBattleButton")
+                    continue;
+                nextButton.transform.position = rects[i].position;
+                nextButton.transform.rotation = rects[i].rotation;
+                nextButton.gameObject.SetActive(true);
+                return;
+            }
         }
 
         private void ResolveReferences()
@@ -160,21 +180,10 @@ namespace GoldfishWalking.UI
             rewardCardRoot = FindRect("RewardCards");
             ApplyExpandedPanel(rewardListRoot != null ? rewardListRoot.GetComponent<Image>() : null);
             ConfigureRewardPanelLayout();
-            fantasySlotsRoot = FindRect("FantasySlots");
             consumablePanel = FindRect("ConsumablePanel");
             overlayImage = FindComponent<Image>("Overlay");
             rerollButton = FindComponent<Button>("RerollButton");
             nextButton = FindComponent<Button>("NextButton");
-            fantasyListView = FindComponent<FantasyListView>("FantasySlots/Viewport/Content");
-            fantasyTooltipRoot = FindRect("FantasyTooltip");
-            fantasyTooltipName = FindComponent<Text>("FantasyTooltip/Name");
-            fantasyTooltipDescription = FindComponent<Text>("FantasyTooltip/Description");
-            fantasyTooltipEffect = FindComponent<Text>("FantasyTooltip/Effect");
-            fantasyTooltipView = fantasyTooltipRoot != null ? fantasyTooltipRoot.GetComponent<FantasyTooltipView>() : null;
-            if (fantasyTooltipView != null)
-                fantasyTooltipView.Bind(fantasyTooltipName, fantasyTooltipDescription, fantasyTooltipEffect);
-            else if (fantasyTooltipRoot != null)
-                Debug.LogWarning("[RewardView] Missing FantasyTooltipView on FantasyTooltip.");
             screenBackgroundImage = GetComponent<Image>();
             HideRewardChrome();
         }
@@ -205,7 +214,7 @@ namespace GoldfishWalking.UI
 
 private void PrepareRewardList()
         {
-            hasFantasyReward = true;
+            hasFantasyReward = ShouldOfferFantasyReward();
             if (bootstrap != null && bootstrap.RunContext != null)
             {
                 BattleNumberState numbers = bootstrap.RunContext.currentBattle;
@@ -231,6 +240,16 @@ private void PrepareRewardList()
 
             hasExtraMatchReward = false;
             hasEraserReward = false;
+        }
+
+        private bool ShouldOfferFantasyReward()
+        {
+            if (bootstrap?.RunContext?.currentNode == null)
+                return true;
+            if (bootstrap.RunContext.currentNode.nodeType != MapNodeType.NormalBattle)
+                return true;
+            return bootstrap.RunContext.pendingFantasyRewardGrades != null
+                && bootstrap.RunContext.pendingFantasyRewardGrades.Count == RewardCount;
         }
 
         private void RebuildRewardList()
@@ -323,24 +342,48 @@ private void PrepareRewardList()
         {
             currentRewards.Clear();
             if (bootstrap != null && bootstrap.RunContext != null)
-                currentRewards.AddRange(rewardSelector.SelectRewards(
-                    fantasyDatabase,
-                    bootstrap.RunContext.fantasyInventory,
-                    RewardCount,
-                    bootstrap.RunContext,
-                    excludedFantasyIds));
-
-            for (int i = currentRewards.Count; i < RewardCount; i++)
             {
-                currentRewards.Add(new FantasyData
+                if (bootstrap.RunContext.currentNode?.nodeType == MapNodeType.NormalBattle
+                    && bootstrap.RunContext.pendingFantasyRewardGrades.Count == RewardCount)
+                {
+                    currentRewards.AddRange(rewardSelector.SelectRewardsForGrades(
+                        fantasyDatabase,
+                        bootstrap.RunContext.fantasyInventory,
+                        bootstrap.RunContext.pendingFantasyRewardGrades,
+                        bootstrap.RunContext,
+                        excludedFantasyIds));
+                }
+                else
+                {
+                    currentRewards.AddRange(rewardSelector.SelectRewards(
+                        fantasyDatabase,
+                        bootstrap.RunContext.fantasyInventory,
+                        RewardCount,
+                        bootstrap.RunContext,
+                        excludedFantasyIds));
+                }
+            }
+
+            for (int i = 0; i < RewardCount; i++)
+            {
+                if (i < currentRewards.Count && currentRewards[i] != null)
+                    continue;
+                FantasyGrade fallbackGrade = IsEmberFantasyReward()
+                    ? bootstrap.RunContext.pendingFantasyRewardGrades[i]
+                    : FantasyGrade.White;
+                FantasyData fallback = new FantasyData
                 {
                     id = $"prototype_reward_{i + 1}",
                     displayName = $"환상 {i + 1}",
-                    grade = FantasyGrade.White,
+                    grade = fallbackGrade,
                     description = "임시 환상 보상",
                     trigger = FantasyTrigger.None,
                     target = FantasyTarget.None
-                });
+                };
+                if (i < currentRewards.Count)
+                    currentRewards[i] = fallback;
+                else
+                    currentRewards.Add(fallback);
             }
 
             RebuildRewardCards();
@@ -352,6 +395,7 @@ private void PrepareRewardList()
                 return;
 
             ClearChildren(rewardCardRoot);
+            currentRewardCards.Clear();
             rewardCardRoot.gameObject.SetActive(true);
 
             Vector2[] positions =
@@ -362,12 +406,15 @@ private void PrepareRewardList()
             };
 
             for (int i = 0; i < RewardCount; i++)
-                CreateRewardCard(currentRewards[i], positions[i]);
+                currentRewardCards.Add(CreateRewardCard(currentRewards[i], positions[i]));
+
+            if (IsEmberFantasyReward())
+                StartCoroutine(RevealEmberRewardCards(positions));
 
             Refresh();
         }
 
-        private void CreateRewardCard(FantasyData fantasy, Vector2 position)
+        private RectTransform CreateRewardCard(FantasyData fantasy, Vector2 position)
         {
             RectTransform card = CreatePanel($"RewardCard_{fantasy.id}", rewardCardRoot, panelColor, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), position, new Vector2(560f, 760f));
             ApplyExpandedPanel(card.GetComponent<Image>());
@@ -391,6 +438,113 @@ private void PrepareRewardList()
 
             Text description = CreateText("Description", descPanel, FantasyText.Description(fantasy), 18, textColor, TextAnchor.UpperLeft);
             SetRect(description.rectTransform, new Vector2(0f, 0.06f), new Vector2(1f, 0.70f), new Vector2(0f, 8f), new Vector2(-28f, -8f));
+            return card;
+        }
+
+        private bool IsEmberFantasyReward()
+        {
+            return bootstrap?.RunContext?.currentNode?.nodeType == MapNodeType.NormalBattle
+                && bootstrap.RunContext.pendingFantasyRewardGrades != null
+                && bootstrap.RunContext.pendingFantasyRewardGrades.Count == RewardCount;
+        }
+
+        private IEnumerator RevealEmberRewardCards(IReadOnlyList<Vector2> destinations)
+        {
+            isRevealingEmberChoices = true;
+            Refresh();
+            CanvasGroup[] cardGroups = new CanvasGroup[currentRewardCards.Count];
+            for (int i = 0; i < currentRewardCards.Count; i++)
+            {
+                currentRewardCards[i].gameObject.SetActive(true);
+                cardGroups[i] = currentRewardCards[i].gameObject.AddComponent<CanvasGroup>();
+                cardGroups[i].alpha = 0f;
+                cardGroups[i].blocksRaycasts = false;
+                currentRewardCards[i].localScale = Vector3.one * 0.78f;
+            }
+
+            RectTransform player = FindRectInScene("PlayerPortrait");
+            Vector2 playerCenter = player != null
+                ? WorldToLocal(rewardCardRoot, player.TransformPoint(player.rect.center))
+                : new Vector2(-600f, -180f);
+            transitioningEmbers.Clear();
+            EmberRewardView emberView = FindFirstObjectByType<EmberRewardView>(FindObjectsInactive.Include);
+            bool handedOff = emberView != null
+                && emberView.TryHandoffOrbitingEmbers(rewardCardRoot, transitioningEmbers);
+            if (!handedOff)
+            {
+                for (int i = 0; i < currentRewardCards.Count; i++)
+                {
+                    FantasyEmberType type = bootstrap.RunContext.pendingFantasyRewardGrades[i] == FantasyGrade.Blue
+                        ? FantasyEmberType.Blue
+                        : FantasyEmberType.White;
+                    RectTransform fallback = EmberRewardView.CreateEmberVisual(rewardCardRoot, $"ChoiceEmber_{i + 1}", type);
+                    float phase = i * Mathf.PI * 2f / RewardCount;
+                    fallback.anchoredPosition = playerCenter + new Vector2(Mathf.Cos(phase) * 118f, Mathf.Sin(phase) * 58f + 12f);
+                    transitioningEmbers.Add(fallback);
+                }
+            }
+            bootstrap.RunContext.ConsumeCompletedEmbers();
+
+            Vector2[] starts = new Vector2[transitioningEmbers.Count];
+            for (int i = 0; i < transitioningEmbers.Count; i++)
+                starts[i] = transitioningEmbers[i].anchoredPosition;
+
+            const float stagger = 0.09f;
+            const float travelDuration = 0.72f;
+            float totalDuration = travelDuration + stagger * (transitioningEmbers.Count - 1);
+            float elapsed = 0f;
+            while (elapsed < totalDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                for (int i = 0; i < transitioningEmbers.Count; i++)
+                {
+                    float t = Mathf.Clamp01((elapsed - stagger * i) / travelDuration);
+                    if (t <= 0f)
+                        continue;
+                    float eased = 1f - Mathf.Pow(1f - t, 3f);
+                    RectTransform ember = transitioningEmbers[i];
+                    Vector2 point = Vector2.Lerp(starts[i], destinations[i], eased);
+                    point.y += Mathf.Sin(t * Mathf.PI) * 110f;
+                    ember.anchoredPosition = point;
+
+                    float transformT = Mathf.Clamp01((t - 0.68f) / 0.32f);
+                    float pulse = Mathf.Sin(transformT * Mathf.PI);
+                    ember.localScale = Vector3.one * (1f + pulse * 2.2f);
+                    CanvasGroup emberGroup = ember.GetComponent<CanvasGroup>();
+                    if (emberGroup != null)
+                        emberGroup.alpha = 1f - transformT;
+
+                    float cardT = Mathf.SmoothStep(0f, 1f, transformT);
+                    cardGroups[i].alpha = cardT;
+                    currentRewardCards[i].localScale = Vector3.one * Mathf.Lerp(0.78f, 1f, cardT);
+                }
+                yield return null;
+            }
+
+            for (int i = 0; i < transitioningEmbers.Count; i++)
+            {
+                Destroy(transitioningEmbers[i].gameObject);
+                cardGroups[i].alpha = 1f;
+                cardGroups[i].blocksRaycasts = true;
+                currentRewardCards[i].localScale = Vector3.one;
+            }
+            transitioningEmbers.Clear();
+            isRevealingEmberChoices = false;
+            Refresh();
+        }
+
+        private static RectTransform FindRectInScene(string objectName)
+        {
+            RectTransform[] rects = FindObjectsByType<RectTransform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            for (int i = 0; i < rects.Length; i++)
+                if (rects[i].name == objectName) return rects[i];
+            return null;
+        }
+
+        private static Vector2 WorldToLocal(RectTransform parent, Vector3 world)
+        {
+            Vector3 local = parent.InverseTransformPoint(world);
+            return new Vector2(local.x, local.y);
         }
 
         private static void ApplyExpandedPanel(Image image)
@@ -421,6 +575,7 @@ private void PrepareRewardList()
             FantasyCollectionRules.ApplyPostAcquireTransforms(bootstrap.RunContext.fantasyInventory, fantasyDatabase);
             GameEventHub.RaiseFantasyInventoryChanged();
             hasFantasyReward = false;
+            bootstrap.RunContext.pendingFantasyRewardGrades.Clear();
             CloseFantasyChoices();
             Refresh();
 
@@ -452,8 +607,6 @@ private void PrepareRewardList()
 
         private void CloseFantasyChoices()
         {
-            HideFantasyTooltip();
-
             if (rewardCardRoot == null)
                 return;
 
@@ -503,8 +656,7 @@ private void PrepareRewardList()
         private void Refresh()
         {
             if (rerollButton != null)
-                rerollButton.interactable = bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.rewardSession.rerolls > 0 && rewardCardRoot != null && rewardCardRoot.gameObject.activeSelf;
-            RefreshFantasySlots();
+                rerollButton.interactable = !isRevealingEmberChoices && bootstrap != null && bootstrap.RunContext != null && bootstrap.RunContext.rewardSession.rerolls > 0 && rewardCardRoot != null && rewardCardRoot.gameObject.activeSelf;
         }
 
         private void HideRewardChrome()
@@ -515,9 +667,7 @@ private void PrepareRewardList()
             HideChild("StatusPanel");
             HideChild("MoveCounter");
             HideChild("CurrencyPanel");
-            HideChild("FantasySlots");
             HideChild("ConsumablePanel");
-            HideChild("FantasyTooltip");
             HideChild("Overlay");
         }
 
@@ -547,34 +697,6 @@ private void PrepareRewardList()
             bootstrap.RunContext.rewardSession.choiceRollIndex++;
             PrepareFantasyChoices(previousRewardIds);
             Refresh();
-        }
-
-        private void RefreshFantasySlots()
-        {
-            if (fantasyListView != null)
-            {
-                fantasyListView.Refresh(bootstrap != null && bootstrap.RunContext != null
-                    ? bootstrap.RunContext.fantasyInventory.ownedFantasies
-                    : null);
-                if (fantasySlotsRoot != null)
-                    fantasySlotsRoot.SetAsLastSibling();
-                if (fantasyTooltipRoot != null)
-                    fantasyTooltipRoot.SetAsLastSibling();
-                return;
-            }
-
-            Debug.LogWarning("[RewardView] Missing FantasyListView on FantasySlots/Viewport/Content.");
-        }
-        private void ShowFantasyTooltip(FantasyData fantasy)
-        {
-            if (fantasyTooltipView != null)
-                fantasyTooltipView.Show(fantasy);
-        }
-
-        private void HideFantasyTooltip()
-        {
-            if (fantasyTooltipView != null)
-                fantasyTooltipView.Hide();
         }
 
         private Color GradeColor(FantasyGrade grade)

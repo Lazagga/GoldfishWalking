@@ -12,10 +12,8 @@ namespace GoldfishWalking.UI
     {
         private GameBootstrap bootstrap;
         private RectTransform overlayRoot;
-        private Button homeButton;
-        private Button restartButton;
-        private Button settingsButton;
-        private Button backButton;
+        private Button saveButton;
+        private Button titleButton;
         private bool isOpen;
 
         private void Awake()
@@ -90,12 +88,8 @@ namespace GoldfishWalking.UI
                 return;
 
             overlayRoot = existing as RectTransform;
-            homeButton = FindButton("PauseMenuOverlay/MenuPanel/HomeButton");
-            restartButton = FindButton("PauseMenuOverlay/MenuPanel/RestartButton");
-            settingsButton = FindButton("PauseMenuOverlay/MenuPanel/SettingsButton");
-            backButton = FindButton("PauseMenuOverlay/MenuPanel/BackButton");
-            if (settingsButton != null)
-                settingsButton.interactable = true;
+            saveButton = FindButton("PauseMenuOverlay/MenuPanel/SaveButton");
+            titleButton = FindButton("PauseMenuOverlay/MenuPanel/TitleButton");
         }
 
         private Button FindButton(string path)
@@ -107,16 +101,14 @@ namespace GoldfishWalking.UI
         private void BindButtons()
         {
             UnbindButtons();
-            homeButton?.onClick.AddListener(OnHomeClicked);
-            restartButton?.onClick.AddListener(OnRestartClicked);
-            backButton?.onClick.AddListener(OnBackClicked);
+            saveButton?.onClick.AddListener(OnSaveClicked);
+            titleButton?.onClick.AddListener(OnTitleClicked);
         }
 
         private void UnbindButtons()
         {
-            homeButton?.onClick.RemoveListener(OnHomeClicked);
-            restartButton?.onClick.RemoveListener(OnRestartClicked);
-            backButton?.onClick.RemoveListener(OnBackClicked);
+            saveButton?.onClick.RemoveListener(OnSaveClicked);
+            titleButton?.onClick.RemoveListener(OnTitleClicked);
         }
 
         private void SetOpen(bool open)
@@ -131,21 +123,15 @@ namespace GoldfishWalking.UI
             Time.timeScale = open ? 0f : 1f;
         }
 
-        private void OnHomeClicked()
+        private void OnSaveClicked()
+        {
+            bootstrap?.SaveRun();
+        }
+
+        private void OnTitleClicked()
         {
             SetOpen(false);
             bootstrap?.ReturnToTitle();
-        }
-
-        private void OnRestartClicked()
-        {
-            SetOpen(false);
-            bootstrap?.RestartWithCurrentSeed();
-        }
-
-        private void OnBackClicked()
-        {
-            SetOpen(false);
         }
 
         private void OnStateChanged(GameState previous, GameState next)
@@ -169,7 +155,7 @@ namespace GoldfishWalking.UI
             RectTransform panelRect = panel.GetComponent<RectTransform>();
             panelRect.anchorMin = panelRect.anchorMax = panelRect.pivot = new Vector2(0.5f, 0.5f);
             panelRect.anchoredPosition = Vector2.zero;
-            panelRect.sizeDelta = new Vector2(600f, 680f);
+            panelRect.sizeDelta = new Vector2(600f, 400f);
             Image panelImage = panel.GetComponent<Image>();
             UiArtSettings art = UiArtSettings.Resolve();
             if (art != null && art.ExpandedPanel != null)
@@ -179,11 +165,9 @@ namespace GoldfishWalking.UI
                 panelImage.color = Color.white;
             }
 
-            CreateButton(panel.transform, "HomeButton", "HOME", 210f);
-            CreateButton(panel.transform, "RestartButton", "RESTART", 70f);
-            Button settings = CreateButton(panel.transform, "SettingsButton", "SETTINGS", -70f);
-            settings.interactable = true;
-            CreateButton(panel.transform, "BackButton", "BACK", -210f);
+            RemoveObsoleteButtons(panel.transform);
+            CreateButton(panel.transform, "SaveButton", "SAVE", 70f);
+            CreateButton(panel.transform, "TitleButton", "TITLE", -70f);
 
             overlay.SetActive(false);
             overlay.transform.SetAsLastSibling();
@@ -191,6 +175,17 @@ namespace GoldfishWalking.UI
             EditorUtility.SetDirty(gameObject);
             EditorUtility.SetDirty(overlay);
             EditorSceneManager.MarkSceneDirty(gameObject.scene);
+        }
+
+        private static void RemoveObsoleteButtons(Transform panel)
+        {
+            string[] names = { "HomeButton", "RestartButton", "SettingsButton", "BackButton" };
+            foreach (string name in names)
+            {
+                Transform obsolete = panel.Find(name);
+                if (obsolete != null)
+                    DestroyImmediate(obsolete.gameObject);
+            }
         }
 
         private static GameObject GetOrCreate(string name, Transform parent, params System.Type[] extraComponents)

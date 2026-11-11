@@ -39,8 +39,6 @@ namespace GoldfishWalking.UI
 
         private RectTransform layoutRoot;
         private RectTransform statusPanel;
-        private RectTransform fantasySlotsRoot;
-        private RectTransform fantasyContentRoot;
         private RectTransform tooltipRoot;
         private Image merchantBackgroundImage;
         private Text healthText;
@@ -50,7 +48,6 @@ namespace GoldfishWalking.UI
         private Text tooltipDescription;
         private Text tooltipEffect;
         private FantasyTooltipView tooltipView;
-        private FantasyListView fantasyListView;
         private Button closeButton;
         private Coroutine spendFloatRoutine;
         private readonly Dictionary<string, EditableSevenSegmentBox> priceBoxes = new Dictionary<string, EditableSevenSegmentBox>();
@@ -156,8 +153,6 @@ namespace GoldfishWalking.UI
                 return;
 
             statusPanel = FindRect("StatusPanel");
-            fantasySlotsRoot = FindRect("FantasySlots");
-            fantasyContentRoot = FindRect("FantasySlots/Viewport/Content");
             tooltipRoot = FindRect("ShopTooltip");
             merchantBackgroundImage = FindComponent<Image>("MerchantPanel/MerchantBackground");
             healthText = FindComponent<Text>("StatusPanel/Health");
@@ -171,9 +166,6 @@ namespace GoldfishWalking.UI
                 tooltipView.Bind(tooltipName, tooltipDescription, tooltipEffect);
             else if (tooltipRoot != null)
                 Debug.LogWarning("[ShopView] Missing FantasyTooltipView on ShopTooltip.");
-            fantasyListView = fantasyContentRoot != null ? fantasyContentRoot.GetComponent<FantasyListView>() : null;
-            if (fantasyListView != null)
-                fantasyListView.Bind(fantasyContentRoot, tooltipView, 10);
             closeButton = FindComponent<Button>("CloseButton");
             priceBoxes.Clear();
             itemButtons.Clear();
@@ -323,23 +315,10 @@ namespace GoldfishWalking.UI
                 healthText.text = shopController != null ? shopController.CurrentHealth.ToString() : "0";
             if (moveCountText != null)
                 RefreshMoveCounter();
-            RefreshFantasySlots();
             RefreshPrices();
             RefreshItemTitles();
             RefreshItemButtons();
             HideTooltip();
-        }
-
-        private void RefreshFantasySlots()
-        {
-            if (fantasyListView != null)
-            {
-                fantasyListView.Bind(fantasyContentRoot, tooltipView, 10);
-                fantasyListView.Refresh(shopController != null ? shopController.OwnedFantasies : null);
-                return;
-            }
-
-            Debug.LogWarning("[ShopView] Missing FantasyListView on FantasySlots/Viewport/Content.");
         }
 
         private void PlaySpendFloat(int amount)

@@ -1,5 +1,7 @@
 using UnityEngine;
 using GoldfishWalking.Map;
+using GoldfishWalking.Data;
+using GoldfishWalking.Save;
 using System.Globalization;
 
 namespace GoldfishWalking.Core
@@ -12,11 +14,13 @@ namespace GoldfishWalking.Core
         [SerializeField] private int mapSeed;
         [SerializeField] private bool useFixedSeed;
         [SerializeField] private int mapRoomCount = 15;
+        [SerializeField] private FantasyDatabase fantasyDatabase;
 
         public RunContext RunContext { get; private set; }
         public GameStateMachine StateMachine { get; private set; }
         public int CurrentSeed => RunContext != null && RunContext.seed != 0 ? RunContext.seed : mapSeed;
         public bool HasActiveSeed => RunContext != null && RunContext.seed != 0;
+        public bool HasSavedRun => RunSaveSystem.HasSave;
         public string SeedInputText => useFixedSeed || mapSeed != 0 ? mapSeed.ToString(CultureInfo.InvariantCulture) : string.Empty;
 
         private void Awake()
@@ -29,6 +33,7 @@ namespace GoldfishWalking.Core
         {
             GameEventHub.MapNodeSelected += OnMapNodeSelected;
             GameEventHub.BattleWon += OnBattleWon;
+            GameEventHub.EmberAnimationCompleted += OnEmberAnimationCompleted;
             GameEventHub.BattleLost += OnBattleLost;
             GameEventHub.BattleEscaped += OnBattleEscaped;
             GameEventHub.RewardCompleted += OnRewardCompleted;
@@ -40,6 +45,7 @@ namespace GoldfishWalking.Core
         {
             GameEventHub.MapNodeSelected -= OnMapNodeSelected;
             GameEventHub.BattleWon -= OnBattleWon;
+            GameEventHub.EmberAnimationCompleted -= OnEmberAnimationCompleted;
             GameEventHub.BattleLost -= OnBattleLost;
             GameEventHub.BattleEscaped -= OnBattleEscaped;
             GameEventHub.RewardCompleted -= OnRewardCompleted;
@@ -82,6 +88,28 @@ namespace GoldfishWalking.Core
         public void ReturnToTitle()
         {
             StateMachine.ChangeState(GameState.Title);
+        }
+
+        public bool SaveRun()
+        {
+            return RunSaveSystem.Save(RunContext, StateMachine.CurrentState);
+        }
+
+        public bool ContinueSavedRun()
+        {
+            if (!RunSaveSystem.TryLoad(fantasyDatabase, out RunContext loadedRun, out GameState savedState))
+                return false;
+
+            RunContext = loadedRun;
+            StateMachine.ChangeState(savedState);
+            GameEventHub.RaiseItemInventoryChanged();
+            GameEventHub.RaiseFantasyInventoryChanged();
+            return true;
+        }
+
+        public void ConfigureSaveDatabase(FantasyDatabase database)
+        {
+            fantasyDatabase = database;
         }
 
         private void StartRun(int seed)
@@ -128,10 +156,28 @@ namespace GoldfishWalking.Core
                     StateMachine.ChangeState(GameState.Map);
                     break;
             }
+
+            SaveRun();
         }
 
         private void OnBattleWon()
         {
+            if (RunContext?.currentNode?.nodeType == MapNodeType.NormalBattle)
+            {
+                RunContext.PrepareNormalBattleEmber();
+                StateMachine.ChangeState(GameState.EmberReward);
+                return;
+            }
+
+            StateMachine.ChangeState(GameState.Reward);
+        }
+
+        private void OnEmberAnimationCompleted()
+        {
+            if (StateMachine.CurrentState != GameState.EmberReward || RunContext == null)
+                return;
+
+            RunContext.CommitPendingEmber();
             StateMachine.ChangeState(GameState.Reward);
         }
 
@@ -159,6 +205,7 @@ namespace GoldfishWalking.Core
                 RunMap nextMap = new MapGenerator().Generate(RunContext.seed, nextAct, mapRoomCount);
                 RunContext.StartNextAct(nextMap);
                 StateMachine.ChangeState(GameState.Map);
+                SaveRun();
                 return;
             }
 

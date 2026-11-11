@@ -8,6 +8,7 @@ namespace GoldfishWalking.Core
         public static event Action<GameState, GameState> StateChanged;
         public static event Action<MapNode> MapNodeSelected;
         public static event Action BattleWon;
+        public static event Action EmberAnimationCompleted;
         public static event Action BattleLost;
         public static event Action BattleEscaped;
         public static event Action RewardCompleted;
@@ -29,6 +30,11 @@ namespace GoldfishWalking.Core
         public static void RaiseBattleWon()
         {
             BattleWon?.Invoke();
+        }
+
+        public static void RaiseEmberAnimationCompleted()
+        {
+            EmberAnimationCompleted?.Invoke();
         }
 
         public static void RaiseBattleLost()

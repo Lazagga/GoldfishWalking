@@ -380,6 +380,67 @@ namespace GoldfishWalking.Editor.Tests
             Assert.That(BattleController.CalculateProcessedAttackHitCount(1, 999), Is.EqualTo(999));
         }
 
+        [Test]
+        public void EmberReward_ThreeEmbersMapDirectlyToFantasyGrades()
+        {
+            RunContext run = new RunContext();
+            run.fantasyEmbers.Add(FantasyEmberType.White);
+            run.fantasyEmbers.Add(FantasyEmberType.Blue);
+            run.hasPendingEmber = true;
+            run.pendingEmber = FantasyEmberType.Blue;
+
+            run.CommitPendingEmber();
+
+            Assert.That(run.fantasyEmbers.Count, Is.EqualTo(3));
+            Assert.That(run.pendingFantasyRewardGrades, Is.EqualTo(new[]
+            {
+                FantasyGrade.White,
+                FantasyGrade.Blue,
+                FantasyGrade.Blue
+            }));
+            run.ConsumeCompletedEmbers();
+            Assert.That(run.fantasyEmbers, Is.Empty);
+        }
+
+        [Test]
+        public void EmberReward_SkippingOrdinaryRewardPreservesIncompleteEmbers()
+        {
+            RunContext run = new RunContext();
+            run.fantasyEmbers.Add(FantasyEmberType.White);
+            run.fantasyEmbers.Add(FantasyEmberType.Blue);
+
+            run.ForfeitPendingFantasyReward();
+
+            Assert.That(run.fantasyEmbers, Is.EqualTo(new[]
+            {
+                FantasyEmberType.White,
+                FantasyEmberType.Blue
+            }));
+            Assert.That(run.pendingFantasyRewardGrades, Is.Empty);
+        }
+
+        [Test]
+        public void FantasyRewardSelector_EmberGradesProduceMatchingChoices()
+        {
+            FantasyDatabase database = ScriptableObject.CreateInstance<FantasyDatabase>();
+            database.fantasies.Add(new FantasyData { id = "white_1", grade = FantasyGrade.White });
+            database.fantasies.Add(new FantasyData { id = "white_2", grade = FantasyGrade.White });
+            database.fantasies.Add(new FantasyData { id = "blue_1", grade = FantasyGrade.Blue });
+            RunContext run = new RunContext { seed = 77 };
+
+            List<FantasyData> rewards = new FantasyRewardSelector().SelectRewardsForGrades(
+                database,
+                run.fantasyInventory,
+                new[] { FantasyGrade.White, FantasyGrade.Blue, FantasyGrade.White },
+                run);
+
+            Assert.That(rewards.Count, Is.EqualTo(3));
+            Assert.That(rewards[0].grade, Is.EqualTo(FantasyGrade.White));
+            Assert.That(rewards[1].grade, Is.EqualTo(FantasyGrade.Blue));
+            Assert.That(rewards[2].grade, Is.EqualTo(FantasyGrade.White));
+            Object.DestroyImmediate(database);
+        }
+
         private static FantasyData Fantasy(string id, params FantasyEffectData[] effects)
         {
             return new FantasyData { id = id, effects = effects };

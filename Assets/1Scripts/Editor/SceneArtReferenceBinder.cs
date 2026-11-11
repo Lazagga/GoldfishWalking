@@ -71,6 +71,13 @@ namespace GoldfishWalking.Editor
                 EditorUtility.SetDirty(pauseMenu);
             }
 
+            GameObject battleScreen = FindInScene(scene, "BattleScreen");
+            if (battleScreen != null && battleScreen.GetComponent<EmberRewardView>() == null)
+            {
+                EmberRewardView emberRewardView = battleScreen.AddComponent<EmberRewardView>();
+                EditorUtility.SetDirty(emberRewardView);
+            }
+
             Sprite campfire = LoadNamedSprite("Assets/Art/ui/campfire_icon.png", "campfire_icon_0");
             Sprite battle = LoadNamedSprite("Assets/Art/ui/battle_icon.png", "battle_icon_0");
             Sprite boss = LoadNamedSprite("Assets/Art/ui/boss_icon.png", "boss_icon_0");
@@ -88,6 +95,19 @@ namespace GoldfishWalking.Editor
             UiArtSettings settings = bootstrap != null ? bootstrap.GetComponent<UiArtSettings>() : null;
             if (bootstrap == null)
                 throw new InvalidOperationException("GameBootstrap을 찾을 수 없습니다.");
+            FantasyDatabase fantasyDatabase = AssetDatabase.LoadAssetAtPath<FantasyDatabase>(
+                "Assets/Data/Generated/FantasyDatabase.asset");
+            if (fantasyDatabase == null)
+                throw new InvalidOperationException("FantasyDatabase.asset could not be found.");
+            bootstrap.ConfigureSaveDatabase(fantasyDatabase);
+            EditorUtility.SetDirty(bootstrap);
+
+            TitleSeedInputView titleSeedInput = roots
+                .SelectMany(root => root.GetComponentsInChildren<TitleSeedInputView>(true))
+                .FirstOrDefault();
+            if (titleSeedInput != null)
+                titleSeedInput.BuildContinueButton();
+
             if (settings == null)
                 settings = bootstrap.gameObject.AddComponent<UiArtSettings>();
             settings.Configure(campfire, battle, boss, eraser, matchItem, panel, left, middle, right);

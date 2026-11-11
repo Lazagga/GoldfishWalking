@@ -70,6 +70,51 @@ namespace GoldfishWalking.Fantasy
             return rewards;
         }
 
+        public List<FantasyData> SelectRewardsForGrades(
+            FantasyDatabase database,
+            FantasyInventory inventory,
+            IReadOnlyList<FantasyGrade> grades,
+            RunContext runContext,
+            ISet<string> excludedFantasyIds = null)
+        {
+            List<FantasyData> rewards = new List<FantasyData>();
+            if (database?.fantasies == null || grades == null)
+                return rewards;
+
+            HashSet<string> selectedIds = new HashSet<string>();
+            Random random = CreateRewardRandom(runContext);
+            for (int gradeIndex = 0; gradeIndex < grades.Count; gradeIndex++)
+            {
+                List<FantasyData> candidates = new List<FantasyData>();
+                List<FantasyData> excludedCandidates = new List<FantasyData>();
+                foreach (FantasyData fantasy in database.fantasies)
+                {
+                    if (fantasy == null || fantasy.grade != grades[gradeIndex])
+                        continue;
+                    if (!FantasyCollectionRules.CanAppearInRewardOrShop(fantasy))
+                        continue;
+                    if (inventory != null && inventory.Contains(fantasy.id))
+                        continue;
+                    if (selectedIds.Contains(fantasy.id))
+                        continue;
+                    if (excludedFantasyIds != null && excludedFantasyIds.Contains(fantasy.id))
+                        excludedCandidates.Add(fantasy);
+                    else
+                        candidates.Add(fantasy);
+                }
+
+                Shuffle(candidates, random);
+                Shuffle(excludedCandidates, random);
+                FantasyData selected = candidates.Count > 0
+                    ? candidates[0]
+                    : (excludedCandidates.Count > 0 ? excludedCandidates[0] : null);
+                rewards.Add(selected);
+                if (selected != null)
+                    selectedIds.Add(selected.id);
+            }
+            return rewards;
+        }
+
         private static FantasyGrade? GetPreferredGrade(RunContext runContext)
         {
             if (runContext == null || runContext.currentNode == null)

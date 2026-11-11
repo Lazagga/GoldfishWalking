@@ -13,6 +13,7 @@ namespace GoldfishWalking.UI
         [SerializeField] private RectTransform layoutRoot;
         [SerializeField] private InputField seedInput;
         [SerializeField] private Font labelFont;
+        [SerializeField] private Button continueButton;
 
         private bool suppressChange;
 
@@ -21,6 +22,7 @@ namespace GoldfishWalking.UI
             ResolveReferences();
             EnsureLayout();
             BindInput();
+            BindContinueButton();
         }
 
         private void OnEnable()
@@ -28,6 +30,7 @@ namespace GoldfishWalking.UI
             ResolveReferences();
             EnsureLayout();
             BindInput();
+            BindContinueButton();
             Refresh();
         }
 
@@ -35,6 +38,7 @@ namespace GoldfishWalking.UI
         {
             if (seedInput != null)
                 seedInput.onValueChanged.RemoveListener(OnSeedChanged);
+            continueButton?.onClick.RemoveListener(OnContinueClicked);
         }
 
         private void ResolveReferences()
@@ -62,6 +66,16 @@ namespace GoldfishWalking.UI
 
             if (seedInput == null)
                 seedInput = FindComponent<InputField>("SeedInputPanel/SeedInput");
+            if (continueButton == null)
+                continueButton = FindComponent<Button>("ContinueButton");
+        }
+
+        private void BindContinueButton()
+        {
+            if (continueButton == null)
+                return;
+            continueButton.onClick.RemoveListener(OnContinueClicked);
+            continueButton.onClick.AddListener(OnContinueClicked);
         }
 
         private void BindInput()
@@ -81,6 +95,14 @@ namespace GoldfishWalking.UI
             suppressChange = true;
             seedInput.text = bootstrap.SeedInputText;
             suppressChange = false;
+            if (continueButton != null)
+                continueButton.interactable = bootstrap.HasSavedRun;
+        }
+
+        private void OnContinueClicked()
+        {
+            if (bootstrap != null && bootstrap.ContinueSavedRun())
+                Refresh();
         }
 
         private void OnSeedChanged(string value)
@@ -98,6 +120,42 @@ namespace GoldfishWalking.UI
         }
 
 #if UNITY_EDITOR
+        public void BuildContinueButton()
+        {
+            Transform existing = transform.Find("ContinueButton");
+            GameObject buttonObject = existing != null ? existing.gameObject
+                : new GameObject("ContinueButton", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+            if (existing == null)
+                buttonObject.transform.SetParent(transform, false);
+            RectTransform rect = buttonObject.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = new Vector2(0f, 70f);
+            rect.sizeDelta = new Vector2(360f, 80f);
+            Match.MatchstickVisualSettings.ApplySoloButton(buttonObject.GetComponent<Image>());
+
+            Transform labelTransform = buttonObject.transform.Find("Label");
+            GameObject labelObject = labelTransform != null ? labelTransform.gameObject
+                : new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+            if (labelTransform == null)
+                labelObject.transform.SetParent(buttonObject.transform, false);
+            Text label = labelObject.GetComponent<Text>();
+            label.text = "CONTINUE";
+            label.font = labelFont != null ? labelFont : GameFontSettings.ResolveFont();
+            label.fontSize = 28;
+            label.alignment = TextAnchor.MiddleCenter;
+            label.color = Color.white;
+            label.raycastTarget = false;
+            RectTransform labelRect = label.rectTransform;
+            labelRect.anchorMin = Vector2.zero;
+            labelRect.anchorMax = Vector2.one;
+            labelRect.offsetMin = labelRect.offsetMax = Vector2.zero;
+            continueButton = buttonObject.GetComponent<Button>();
+            BindContinueButton();
+            Refresh();
+            EditorUtility.SetDirty(gameObject);
+            UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(gameObject.scene);
+        }
+
         [ContextMenu("Rebuild Scene UI Layout")]
         public void RebuildSceneUILayout()
         {

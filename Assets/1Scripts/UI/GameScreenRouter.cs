@@ -15,6 +15,8 @@ namespace GoldfishWalking.UI
 
         private void OnEnable()
         {
+            if (battleScreen != null && battleScreen.GetComponent<EmberRewardView>() == null)
+                battleScreen.AddComponent<EmberRewardView>();
             GameEventHub.StateChanged += OnStateChanged;
         }
 
@@ -27,7 +29,7 @@ namespace GoldfishWalking.UI
         {
             SetActive(titleScreen, next == GameState.Title);
             SetActive(mapScreen, next == GameState.Map);
-            SetActive(battleScreen, next == GameState.Battle || next == GameState.Reward);
+            SetActive(battleScreen, next == GameState.Battle || next == GameState.EmberReward || next == GameState.Reward);
             SetActive(rewardScreen, next == GameState.Reward);
             SetActive(restScreen, next == GameState.Rest);
             SetActive(shopScreen, next == GameState.Shop);

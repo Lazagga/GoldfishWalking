@@ -28,6 +28,10 @@ namespace GoldfishWalking.Core
         public int lastShopPurchaseCost;
         public int stampCouponHealthSpent;
         public string debugForcedMonsterId;
+        public List<FantasyEmberType> fantasyEmbers = new List<FantasyEmberType>();
+        public bool hasPendingEmber;
+        public FantasyEmberType pendingEmber;
+        public List<FantasyGrade> pendingFantasyRewardGrades = new List<FantasyGrade>();
 
         // Compatibility surface while callers migrate to battleSession/rewardSession.
         public int lastDamageDealt { get => battleSession.lastDamageDealt; set => battleSession.lastDamageDealt = value; }
@@ -71,7 +75,53 @@ namespace GoldfishWalking.Core
             passiveAttackCountBonus = 0;
             stampCouponHealthSpent = 0;
             debugForcedMonsterId = string.Empty;
+            fantasyEmbers.Clear();
+            hasPendingEmber = false;
+            pendingFantasyRewardGrades.Clear();
             ClearBattleRuntimeValues();
+        }
+
+        public void PrepareNormalBattleEmber()
+        {
+            pendingEmber = RollValue("reward.ember.blue", 0, 99) < 10
+                ? FantasyEmberType.Blue
+                : FantasyEmberType.White;
+            hasPendingEmber = true;
+        }
+
+        public void CommitPendingEmber()
+        {
+            if (!hasPendingEmber)
+                return;
+
+            fantasyEmbers.Add(pendingEmber);
+            hasPendingEmber = false;
+            if (fantasyEmbers.Count < 3)
+                return;
+
+            pendingFantasyRewardGrades.Clear();
+            for (int i = 0; i < fantasyEmbers.Count; i++)
+            {
+                pendingFantasyRewardGrades.Add(fantasyEmbers[i] == FantasyEmberType.Blue
+                    ? FantasyGrade.Blue
+                    : FantasyGrade.White);
+            }
+        }
+
+        public void ConsumeCompletedEmbers()
+        {
+            if (pendingFantasyRewardGrades.Count == 3)
+                fantasyEmbers.Clear();
+        }
+
+        public void ForfeitPendingFantasyReward()
+        {
+            hasPendingEmber = false;
+            if (pendingFantasyRewardGrades.Count != 3)
+                return;
+
+            fantasyEmbers.Clear();
+            pendingFantasyRewardGrades.Clear();
         }
 
         public void StartNextAct(RunMap nextMap)
