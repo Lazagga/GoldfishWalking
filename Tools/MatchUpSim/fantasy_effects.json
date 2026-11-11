@@ -1,0 +1,1198 @@
+{
+  "version": 1,
+  "source": "../../Assets/Data/Json/fantasies 에서 import_fantasies.py 로 생성",
+  "generated_at": "2026-11-11T10:14:19",
+  "fantasies": [
+    {
+      "id": "fan_rabbit_head",
+      "name": "토끼 인형",
+      "grade": "white",
+      "source_id": 1,
+      "description": "머리 위에 토끼를 업고 다닐 수 있음",
+      "fidelity": "exact",
+      "effects": [],
+      "notes": "장식 효과(전투 영향 없음) / 동물친구들(fan_attack_animalfriends) 조합 재료 — 조합은 모델링됨",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_turtle_head",
+      "name": "거북이 인형",
+      "grade": "white",
+      "source_id": 2,
+      "description": "머리 위에 거북이를 업고 다닐 수 있음",
+      "fidelity": "exact",
+      "effects": [],
+      "notes": "장식 효과(전투 영향 없음) / 동물친구들(fan_attack_animalfriends) 조합 재료 — 조합은 모델링됨",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_cat_head",
+      "name": "고양이 인형",
+      "grade": "white",
+      "source_id": 3,
+      "description": "머리 위에 고양이를 업고 다닐 수 있음",
+      "fidelity": "exact",
+      "effects": [],
+      "notes": "장식 효과(전투 영향 없음) / 동물친구들(fan_attack_animalfriends) 조합 재료 — 조합은 모델링됨",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_parrot_head",
+      "name": "앵무새 인형",
+      "grade": "white",
+      "source_id": 4,
+      "description": "머리 위에 앵무새를 업고 다닐 수 있음",
+      "fidelity": "exact",
+      "effects": [],
+      "notes": "장식 효과(전투 영향 없음) / 동물친구들(fan_attack_animalfriends) 조합 재료 — 조합은 모델링됨",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_shop_pen",
+      "name": "싸인펜",
+      "grade": "white",
+      "source_id": 5,
+      "description": "상점에서 이동 횟수 +1",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "shop_moves_add",
+          "value": 1.0
+        }
+      ],
+      "notes": "",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_shop_heal",
+      "name": "쿠키",
+      "grade": "white",
+      "source_id": 6,
+      "description": "상점에 들어갈 때마다, 체력 +200",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "shop_enter_heal",
+          "value": 300.0
+        }
+      ],
+      "notes": "설명은 +200, 데이터는 300 → 데이터 값 사용",
+      "available": true,
+      "mapping": "auto+note"
+    },
+    {
+      "id": "fan_shop_discount",
+      "name": "할인 쿠폰",
+      "grade": "white",
+      "source_id": 7,
+      "description": "상점 품목 가격 30% 할인",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "shop_price_mult",
+          "value": 0.85
+        }
+      ],
+      "notes": "설명은 30% 할인, 데이터는 x0.85 → 데이터 값 사용",
+      "available": true,
+      "mapping": "auto+note"
+    },
+    {
+      "id": "fan_start_match",
+      "name": "성냥갑",
+      "grade": "white",
+      "source_id": 9,
+      "description": "전투 시작 시 임시 여분성냥 +1",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "battle_temp_items",
+          "value": 1.0
+        }
+      ],
+      "notes": "임시 소모품 = 이번 전투 한정 추가 이동",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_start_eraser",
+      "name": "떡지우개",
+      "grade": "white",
+      "source_id": 10,
+      "description": "전투 시작 시 임시 지우개 +1",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "battle_temp_items",
+          "value": 1.0
+        }
+      ],
+      "notes": "임시 소모품 = 이번 전투 한정 추가 이동",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_reward_rabbitfoot",
+      "name": "토끼발",
+      "grade": "white",
+      "source_id": 11,
+      "description": "전투 종료 이후 아이템을 얻을 확률 x2",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "item_drop_mult",
+          "value": 2.0
+        }
+      ],
+      "notes": "",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_acquire_pencil",
+      "name": "연필",
+      "grade": "white",
+      "source_id": 12,
+      "description": "소모품을 얻을 때마다, 한 개씩 추가로 얻음",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "item_gain_bonus",
+          "value": 1.0
+        }
+      ],
+      "notes": "",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_end_8ball",
+      "name": "8번 당구공",
+      "grade": "white",
+      "source_id": 13,
+      "description": "내 턴이 끝날 때 모든 상자 속 8의 개수 x40의 피해를 추가로 입힘",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "end_turn_dmg",
+          "value": 40.0,
+          "per": "digit8"
+        }
+      ],
+      "notes": "8의 개수는 내 기본 피해와 몬스터 1타 피해 숫자만 셈",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_eventurn_pipe",
+      "name": "파이프",
+      "grade": "white",
+      "source_id": 14,
+      "description": "매 짝수 턴마다 타수 +1",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "hits_add",
+          "value": 1.0,
+          "when": {
+            "turn_mod": [
+              2,
+              0
+            ]
+          }
+        }
+      ],
+      "notes": "",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_damage_anchor",
+      "name": "닻",
+      "grade": "white",
+      "source_id": 15,
+      "description": "피해를 입을 때마다 항상 20씩 적게 받음",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "dmg_taken_flat",
+          "value": -20.0
+        }
+      ],
+      "notes": "타격당 받는 피해 가감",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_reflect_sail",
+      "name": "돛",
+      "grade": "white",
+      "source_id": 16,
+      "description": "피해를 입을 때마다 받은 피해량의 50%를 반사",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "reflect_on_hit",
+          "pct": 0.5
+        }
+      ],
+      "notes": "원본 amount 50 를 반사 비율 0.5 로 해석 / 데이터 amount 가 50.0(multiply) 으로 되어 있어 설명(50%)에 맞춰 0.5 로 해석",
+      "available": true,
+      "mapping": "auto+note"
+    },
+    {
+      "id": "fan_turn_boots",
+      "name": "장화",
+      "grade": "white",
+      "source_id": 17,
+      "description": "매 턴 이동 횟수 +2",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "moves_per_turn_add",
+          "value": 2.0
+        }
+      ],
+      "notes": "",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_end_trumpcard",
+      "name": "트럼프 카드",
+      "grade": "white",
+      "source_id": 18,
+      "description": "내 턴이 끝날 때 남아있는 이동 횟수가 임시 이동횟수로 전환",
+      "fidelity": "none",
+      "effects": [
+        {
+          "type": "carry_unused_moves",
+          "value": 1
+        }
+      ],
+      "notes": "남은 이동을 다음 턴 이동으로 넘김. 시뮬레이터는 처치 가능해질 때만 이동을 남기고 그 턴에 전투가 끝나므로 넘길 다음 턴이 없음 → 사실상 효과 0",
+      "mapping": "override",
+      "available": true
+    },
+    {
+      "id": "fan_damage_slingshot",
+      "name": "새총",
+      "grade": "white",
+      "source_id": 19,
+      "description": "피해를 입힐 때 마다 항상 30씩 추가로 입힘",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "dmg_flat",
+          "value": 30.0
+        }
+      ],
+      "notes": "타격당 피해 가산",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_end_hourglass",
+      "name": "모래시계",
+      "grade": "white",
+      "source_id": 20,
+      "description": "내 턴이 끝날 때 적에게 50의 피해",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "end_turn_dmg",
+          "value": 50.0
+        }
+      ],
+      "notes": "",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_start_papercrane",
+      "name": "종이학",
+      "grade": "white",
+      "source_id": 21,
+      "description": "전투 개시 3턴 뒤 힘 +1",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "player_str_add",
+          "value": 1.0,
+          "when": {
+            "turn_eq": 4
+          }
+        }
+      ],
+      "notes": "힘 1 = 1타당 피해 +1 (시뮬레이터 단위)",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_start_paperfrog",
+      "name": "종이개구리",
+      "grade": "white",
+      "source_id": 22,
+      "description": "첫 턴동안 적의 힘 -1",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "monster_str_add",
+          "value": -1.0,
+          "when": {
+            "turn_eq": 1
+          }
+        }
+      ],
+      "notes": "힘 1 = 1타당 피해 1 (시뮬레이터 단위)",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_acquire_watermelon",
+      "name": "수박",
+      "grade": "white",
+      "source_id": 23,
+      "description": "획득 시 체력 +150",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "on_acquire_heal",
+          "value": 200.0
+        }
+      ],
+      "notes": "설명은 +150, 데이터는 200 → 데이터 값 사용",
+      "available": true,
+      "mapping": "auto+note"
+    },
+    {
+      "id": "fan_end_strawberry",
+      "name": "딸기",
+      "grade": "white",
+      "source_id": 24,
+      "description": "전투 종료 후 체력 +30",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "heal_per_battle",
+          "value": 30.0
+        }
+      ],
+      "notes": "",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_end_grape",
+      "name": "포도",
+      "grade": "white",
+      "source_id": 25,
+      "description": "턴 종료 시 남은 이동 횟수마다 체력 +5",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "heal_per_unused_move",
+          "value": 5.0
+        }
+      ],
+      "notes": "시뮬레이터는 처치 가능해지면 이동을 멈추므로 사실상 전투 마지막 턴에만 회복",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_start_stamp",
+      "name": "도장",
+      "grade": "white",
+      "source_id": 26,
+      "description": "전투 시작 시 보유 중인 환상의 임시 무작위 복사본 생성",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "battle_start_temp_copy",
+          "value": 1
+        }
+      ],
+      "notes": "보유 환상 중 무작위 1개를 전투 동안 한 번 더 적용",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_end_dice",
+      "name": "주사위",
+      "grade": "white",
+      "source_id": 27,
+      "description": "전투 종료 시 환상 1회 새로고침 가능",
+      "fidelity": "none",
+      "effects": [],
+      "notes": "환상 새로고침. 현재 보상 선택이 무작위(policy.fantasy_pick=random)라 새로고침의 가치가 0 — 선택 정책이 생기면 다시 모델링",
+      "mapping": "override",
+      "available": true
+    },
+    {
+      "id": "fan_rest_coffee",
+      "name": "커피",
+      "grade": "white",
+      "source_id": 28,
+      "description": "휴식 장소에서 휴식하는 대신 무작위 백색 환상 획득 가능",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "rest_alt_fantasy",
+          "grade": "white"
+        }
+      ],
+      "notes": "체력이 policy.rest_below_hp 이상이면 회복 대신 환상을 고름",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_rest_pillow",
+      "name": "베개",
+      "grade": "white",
+      "source_id": 30,
+      "description": "휴식 장소에서 휴식 시 체력 +70",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "rest_heal_add",
+          "value": 70
+        }
+      ],
+      "notes": "원본 trigger 는 passive 지만 설명(휴식 시 체력 +70)에 따라 휴식 회복에 가산",
+      "mapping": "override",
+      "available": true
+    },
+    {
+      "id": "fan_acquire_Candy",
+      "name": "캔디",
+      "grade": "white",
+      "source_id": 58,
+      "description": "획득 시 현재 체력 +10%",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "on_acquire_heal",
+          "pct": 0.1
+        }
+      ],
+      "notes": "",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_damage_sandcastle",
+      "name": "모래성",
+      "grade": "white",
+      "source_id": 61,
+      "description": "3번째 턴 종료 시 적에게 300의 피해를 입힘",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "end_turn_dmg",
+          "value": 300.0,
+          "when": {
+            "turn_eq": 3
+          }
+        }
+      ],
+      "notes": "",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_damage_humitcrab",
+      "name": "소라게",
+      "grade": "white",
+      "source_id": 62,
+      "description": "100의 피해를 받을 때마다 체력을 20 얻음",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "heal_on_take",
+          "per": 100.0,
+          "value": 20.0
+        }
+      ],
+      "notes": "",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_damage_seashell",
+      "name": "조개껍데기",
+      "grade": "white",
+      "source_id": 69,
+      "description": "턴 종료 시, 가지고 있는 여분성냥과 지우개 하나당 10의 피해를 추가로 입힘",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "end_turn_dmg",
+          "value": 10.0,
+          "per": "items_held"
+        }
+      ],
+      "notes": "",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_shop_stencil",
+      "name": "스텐실",
+      "grade": "blue",
+      "source_id": 8,
+      "description": "상점에서 스텐실을 제외한, 보유중인 백색 등급 아이템을 추가로 한 개 얻을 수 있음(상점당 1회, 환상당 한 번씩만, 비용 2자리)",
+      "fidelity": "none",
+      "effects": [],
+      "notes": "보유 백색 환상의 추가 구매(2자리 비용). 상점 구매 정책에 '복사본 구매' 판단이 없어 미모델링",
+      "mapping": "override",
+      "available": true
+    },
+    {
+      "id": "fan_rest_mug",
+      "name": "머그잔",
+      "grade": "blue",
+      "source_id": 29,
+      "description": "휴식 장소에서 휴식 상자의 힘 +1",
+      "fidelity": "none",
+      "effects": [],
+      "notes": "'휴식 상자의 힘 +1' 의 수치 의미가 시뮬레이터 휴식 모델(기본값 x 막 배율 + 편집)에 대응하지 않음",
+      "mapping": "override",
+      "available": true
+    },
+    {
+      "id": "fan_shop_stickyglove",
+      "name": "끈끈이장갑",
+      "grade": "blue",
+      "source_id": 38,
+      "description": "상점에서 소모품을 각각 1회 무료로 구매 가능",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "shop_free_items",
+          "value": 2
+        }
+      ],
+      "notes": "상점마다 소모품 2개(성냥/지우개 각 1회 해당)를 무료로 추가 획득. 종류는 무작위",
+      "mapping": "override",
+      "available": true
+    },
+    {
+      "id": "fan_shop_stampcoupon",
+      "name": "스탬프쿠폰",
+      "grade": "blue",
+      "source_id": 39,
+      "description": "상점에서 체력 999 소모 시 매 턴 공격 횟수 +1의 환상으로 변경",
+      "fidelity": "none",
+      "effects": [],
+      "notes": "상점에서 체력 999 소모 시 주사기로 변환. 시뮬레이터에서 이 조건은 사실상 발생하지 않음",
+      "mapping": "override",
+      "available": true
+    },
+    {
+      "id": "fan_turn_syringe",
+      "name": "주사기",
+      "grade": "blue",
+      "source_id": 40,
+      "description": "매 턴 공격 횟수 +1",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "hits_add",
+          "value": 1.0
+        }
+      ],
+      "notes": "보상/상점 풀에서 제외",
+      "available": false,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_defend_paperboat",
+      "name": "종이 배",
+      "grade": "blue",
+      "source_id": 41,
+      "description": "적의 기본 피해량이 내 기본 피해량 이상인 경우, 받는 피해 절반",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "dmg_taken_mult",
+          "value": 0.5,
+          "condition": "monster_dmg_ge_player_base"
+        }
+      ],
+      "notes": "기본 피해 비교는 몬스터 1타 피해 vs 내 기본 피해 (시뮬레이터 단위)",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_turn1_doll",
+      "name": "대역 인형",
+      "grade": "blue",
+      "source_id": 42,
+      "description": "첫 턴동안 적의 힘 -2",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "monster_str_add",
+          "value": -2.0,
+          "when": {
+            "turn_eq": 1
+          }
+        }
+      ],
+      "notes": "힘 1 = 1타당 피해 1 (시뮬레이터 단위)",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_use_musicbox",
+      "name": "오르골",
+      "grade": "blue",
+      "source_id": 43,
+      "description": "소모품을 사용할 때마다, 50% 확률로 그 소모품의 복사본 생성",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "item_use_refund_chance",
+          "value": 0.5
+        }
+      ],
+      "notes": "",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_damage_scythe",
+      "name": "낫",
+      "grade": "blue",
+      "source_id": 44,
+      "description": "피해를 입힐 때마다 체력 20씩 회복",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "heal_on_deal",
+          "value": 20.0
+        }
+      ],
+      "notes": "타격당 회복",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_end_fan",
+      "name": "부채",
+      "grade": "blue",
+      "source_id": 45,
+      "description": "턴 종료 시 내 현재 체력의 10%만큼 적에게 데미지",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "end_turn_dmg",
+          "value": 0.1,
+          "per": "hp"
+        }
+      ],
+      "notes": "",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_end_firecracker",
+      "name": "폭죽",
+      "grade": "blue",
+      "source_id": 46,
+      "description": "턴 종료시 이번 전투에서 소모품을 사용한 횟수만큼 30의 피해",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "end_turn_dmg",
+          "value": 30.0,
+          "per": "items_used_battle"
+        }
+      ],
+      "notes": "",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_end_paperplane",
+      "name": "종이 비행기",
+      "grade": "blue",
+      "source_id": 47,
+      "description": "턴 종료시 적과 나의 기본 피해량이 같을 경우, 가하는 피해량 두 배",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "dmg_final_mult",
+          "value": 2.0,
+          "condition": "base_eq_monster_dmg"
+        }
+      ],
+      "notes": "기본 피해 비교는 시뮬레이터의 내 기본 피해 vs 몬스터 1타 피해. 맞추려는 조작은 미모델링",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_start_cuestick",
+      "name": "큐대",
+      "grade": "blue",
+      "source_id": 48,
+      "description": "매 턴 내 기본 피해량과 힘 피해량 첫째 자리 숫자 8로 고정",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "base_dmg_transform",
+          "op": "first_digit",
+          "value": 8.0
+        }
+      ],
+      "notes": "힘 피해 상자는 시뮬레이터에 없음. 기본 피해 상자에만 적용",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_turn4_clockwork",
+      "name": "시계태엽",
+      "grade": "blue",
+      "source_id": 49,
+      "description": "첫 턴에 공격 횟수 +1",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "hits_add",
+          "value": 1.0,
+          "when": {
+            "turn_eq": 1
+          }
+        }
+      ],
+      "notes": "",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_acquire_blueprint",
+      "name": "청사진",
+      "grade": "blue",
+      "source_id": 50,
+      "description": "획득시 보유하고 있는 환상 중 하나로 선택하여 그 복사본으로 영구히 변경됨",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "on_acquire_copy_owned",
+          "value": 1
+        }
+      ],
+      "notes": "보유 환상 중 무작위 1개의 복사본으로 바뀜 (시작 강제 포함이면 보유 환상이 없어 효과 없음)",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_rest_sleepmask",
+      "name": "수면안대",
+      "grade": "blue",
+      "source_id": 51,
+      "description": "휴식으로 얻는 체력 x2",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "rest_heal_mult",
+          "value": 2.0
+        }
+      ],
+      "notes": "",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_rest_marshmallow",
+      "name": "마시멜로",
+      "grade": "blue",
+      "source_id": 52,
+      "description": "휴식 버튼을 한 번 더 누를 수 있음",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "rest_extra_uses",
+          "value": 1.0
+        }
+      ],
+      "notes": "",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_damage_grapeshot",
+      "name": "포도탄",
+      "grade": "blue",
+      "source_id": 53,
+      "description": "피해를 입힐 때 마다 항상 60씩 추가로 입힘",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "dmg_flat",
+          "value": 60.0
+        }
+      ],
+      "notes": "타격당 피해 가산",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_damage_Bottle",
+      "name": "병 속의 배",
+      "grade": "blue",
+      "source_id": 54,
+      "description": "피해를 받을 때 마다 적에게 150 피해를 입힘",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "reflect_on_hit",
+          "value": 150.0
+        }
+      ],
+      "notes": "피격(타격)마다 적에게 고정 피해",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_number_domino",
+      "name": "도미노",
+      "grade": "blue",
+      "source_id": 55,
+      "description": "내 5보다 작은 숫자가 모두 5로 취급됨",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "base_dmg_transform",
+          "op": "digit_min",
+          "value": 5.0
+        }
+      ],
+      "notes": "내 기본 피해 상자 숫자에만 적용",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_number_applepie",
+      "name": "사과파이",
+      "grade": "blue",
+      "source_id": 56,
+      "description": "적의 5보다 큰 숫자가 모두 5로 취급됨",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "monster_dmg_digit_max",
+          "value": 5.0
+        }
+      ],
+      "notes": "몬스터 1타 피해 숫자에만 적용",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_damage_mirror",
+      "name": "손거울",
+      "grade": "blue",
+      "source_id": 57,
+      "description": "내 기본 피해량이 같은 숫자로만 이루어져 있을 경우, 타수 1회 추가",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "hits_add",
+          "value": 1.0,
+          "when": {
+            "base_same_digits": true
+          }
+        }
+      ],
+      "notes": "조건은 굴린 기본 피해로만 판정 (조건을 맞추려는 조작은 미모델링)",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_damage_abacus",
+      "name": "주판",
+      "grade": "blue",
+      "source_id": 59,
+      "description": "매 턴 이동 횟수 +3",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "moves_per_turn_add",
+          "value": 3.0
+        }
+      ],
+      "notes": "",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_damage_poinsettia",
+      "name": "포인세티아",
+      "grade": "blue",
+      "source_id": 60,
+      "description": "피해를 입을 때 마다 항상 30씩 적게 받음",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "dmg_taken_flat",
+          "value": -30.0
+        }
+      ],
+      "notes": "타격당 받는 피해 가감",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_damage_libra",
+      "name": "천칭자리",
+      "grade": "red",
+      "source_id": 31,
+      "description": "내 기본 피해량 수치가 0이라면 200으로 취급, 0이 아니라면 절반 취급",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "base_dmg_transform",
+          "op": "mult",
+          "value": 0.5
+        },
+        {
+          "type": "base_dmg_transform",
+          "op": "zero_set",
+          "value": 200
+        }
+      ],
+      "notes": "기본 피해 절반. 0 → 200 은 시뮬레이터 기본 피해 범위(10~45)에서 발생하지 않음 — 기본 피해를 0 으로 만드는 조작은 미모델링이라 과소평가됨",
+      "mapping": "override",
+      "available": true
+    },
+    {
+      "id": "fan_turn_pisces",
+      "name": "물고기자리",
+      "grade": "red",
+      "source_id": 32,
+      "description": "턴 시작 시 이동 횟수가 0이 되는 대신, 그만큼 임시 여분성냥과 지우개 획득",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "moves_per_turn_mult",
+          "value": 2.0
+        }
+      ],
+      "notes": "이동 N 회 대신 임시 성냥 N + 임시 지우개 N 을 얻음 → 턴당 이동 2배로 근사 (임시 소모품 누적·보관은 미모델링)",
+      "mapping": "override",
+      "available": true
+    },
+    {
+      "id": "fan_upgrade_aquarius",
+      "name": "물병자리",
+      "grade": "red",
+      "source_id": 33,
+      "description": "보유중인 소모품의 합 10개당 타수 +1",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "hits_add",
+          "per": "items_held",
+          "divisor": 10.0
+        }
+      ],
+      "notes": "",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_attack_animalfriends",
+      "name": "동물친구들",
+      "grade": "red",
+      "source_id": 34,
+      "description": "타수+4",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "hits_add",
+          "value": 4.0
+        },
+        {
+          "type": "combine_into",
+          "from": [
+            "fan_rabbit_head",
+            "fan_turtle_head",
+            "fan_cat_head",
+            "fan_parrot_head"
+          ]
+        }
+      ],
+      "notes": "재료 환상이 모두 모이면 조합 / 보상/상점 풀에서 제외",
+      "available": false,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_start_capricorn",
+      "name": "염소자리",
+      "grade": "red",
+      "source_id": 35,
+      "description": "전투 시작 시 이동횟수, 임시 지우개, 임시 여분성냥 +1",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "battle_start_moves",
+          "value": 1.0
+        },
+        {
+          "type": "battle_temp_items",
+          "value": 1.0
+        },
+        {
+          "type": "battle_temp_items",
+          "value": 1.0
+        }
+      ],
+      "notes": "전투 시작 시 이동 +N 을 첫 턴 임시 이동으로 해석 / 임시 소모품 = 이번 전투 한정 추가 이동",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_erase_sagittarius",
+      "name": "사수자리",
+      "grade": "red",
+      "source_id": 36,
+      "description": "모든 상자를 분리시키는 대신, 전투당 한 번 지우개로 상자를 지울 수 있음",
+      "fidelity": "none",
+      "effects": [],
+      "notes": "상자 분리(단점) + 분리된 자리 지우기(장점). 상자 구조를 시뮬레이터가 다루지 않아 미모델링",
+      "mapping": "override",
+      "available": true
+    },
+    {
+      "id": "fan_odd_gemini",
+      "name": "쌍둥이자리",
+      "grade": "red",
+      "source_id": 37,
+      "description": "내 홀수의 수치 x2, 짝수는 0으로 취급",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "base_dmg_transform",
+          "op": "odd_even",
+          "odd_mult": 2,
+          "even_value": 0
+        }
+      ],
+      "notes": "기본 피해가 홀수면 x2, 짝수면 0. 짝수를 홀수로 바꾸는 조작은 미모델링이라 과소평가됨",
+      "mapping": "override",
+      "available": true
+    },
+    {
+      "id": "fan_damage_aries",
+      "name": "양자리",
+      "grade": "red",
+      "source_id": 63,
+      "description": "공격으로 같은 피해를 입힐 때마다 피해량 20씩 증가\n다른 피해를 입힐 시 초기화(연타에도 적용)",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "combo_same_dmg_stack",
+          "value": 20
+        }
+      ],
+      "notes": "직전 타격과 같은 피해면 누적 +20, 다르면 초기화 (전투 단위). 같은 피해를 맞추려는 조작은 미모델링",
+      "mapping": "override",
+      "available": true
+    },
+    {
+      "id": "fan_fantasy_leo",
+      "name": "사자자리",
+      "grade": "red",
+      "source_id": 64,
+      "description": "환상을 획득할 때마다 50% 확률로 복사본을 하나 더 얻거나,\n아무것도 획득하지 않음",
+      "fidelity": "exact",
+      "effects": [
+        {
+          "type": "acquire_dup_or_void",
+          "chance": 0.5
+        }
+      ],
+      "notes": "복사본은 효과가 한 번 더 적용됨",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_damage_taurus",
+      "name": "황소자리",
+      "grade": "red",
+      "source_id": 65,
+      "description": "적보다 나중에 공격하는 대신, 적이 힘을 얻을 때마다 동일한 힘을 얻음",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "enemy_acts_first",
+          "value": 1
+        },
+        {
+          "type": "mirror_enemy_str",
+          "value": 1
+        }
+      ],
+      "notes": "적이 얻은 힘만큼 1타당 피해 증가",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_damage_virgo",
+      "name": "처녀자리",
+      "grade": "red",
+      "source_id": 66,
+      "description": "전체 상자에서 숫자가 연속된 횟수만큼 타수 추가(23 / 456이면 4타)",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "hits_add",
+          "per": "consecutive_pairs"
+        }
+      ],
+      "notes": "상자 숫자는 시뮬레이터의 기본 피해/몬스터 1타 피해 숫자로 근사",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_rest_cancer",
+      "name": "게자리",
+      "grade": "red",
+      "source_id": 67,
+      "description": "치명적인 피해를 받을 경우, 전투 시작 시의 턴으로 되돌아감(전투당 1회)",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "revive_once",
+          "value": 1.0
+        }
+      ],
+      "notes": "사망 시 전투 시작 상태로 되감고 다시 싸움",
+      "available": true,
+      "mapping": "auto"
+    },
+    {
+      "id": "fan_damage_scorpio",
+      "name": "전갈자리",
+      "grade": "red",
+      "source_id": 68,
+      "description": "받는 피해의 절반이 출혈 스택으로 전환됨",
+      "fidelity": "approx",
+      "effects": [
+        {
+          "type": "dmg_taken_delay",
+          "value": 0.5
+        }
+      ],
+      "notes": "받는 피해의 절반을 즉시, 나머지 절반을 다음 내 턴 종료 시 받음. 출혈 스택의 감소 규칙이 데이터에 없어 1회 지연으로 근사",
+      "mapping": "override",
+      "available": true
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "_comment": "자동 매핑으로 표현할 수 없거나 해석이 필요한 환상의 수동 근사. effects 가 있으면 자동 매핑을 통째로 대체하고, notes_extra 만 있으면 자동 매핑 결과에 메모만 덧붙인다. 효과 타입은 README 의 표 참고.",
+  "fan_end_trumpcard": {
+    "fidelity": "none",
+    "effects": [
+      {
+        "type": "carry_unused_moves",
+        "value": 1
+      }
+    ],
+    "notes": "남은 이동을 다음 턴 이동으로 넘김. 시뮬레이터는 처치 가능해질 때만 이동을 남기고 그 턴에 전투가 끝나므로 넘길 다음 턴이 없음 → 사실상 효과 0"
+  },
+  "fan_end_dice": {
+    "fidelity": "none",
+    "effects": [],
+    "notes": "환상 새로고침. 현재 보상 선택이 무작위(policy.fantasy_pick=random)라 새로고침의 가치가 0 — 선택 정책이 생기면 다시 모델링"
+  },
+  "fan_rest_pillow": {
+    "fidelity": "exact",
+    "effects": [
+      {
+        "type": "rest_heal_add",
+        "value": 70
+      }
+    ],
+    "notes": "원본 trigger 는 passive 지만 설명(휴식 시 체력 +70)에 따라 휴식 회복에 가산"
+  },
+  "fan_rest_mug": {
+    "fidelity": "none",
+    "effects": [],
+    "notes": "'휴식 상자의 힘 +1' 의 수치 의미가 시뮬레이터 휴식 모델(기본값 x 막 배율 + 편집)에 대응하지 않음"
+  },
+  "fan_shop_stencil": {
+    "fidelity": "none",
+    "effects": [],
+    "notes": "보유 백색 환상의 추가 구매(2자리 비용). 상점 구매 정책에 '복사본 구매' 판단이 없어 미모델링"
+  },
+  "fan_shop_stickyglove": {
+    "fidelity": "approx",
+    "effects": [
+      {
+        "type": "shop_free_items",
+        "value": 2
+      }
+    ],
+    "notes": "상점마다 소모품 2개(성냥/지우개 각 1회 해당)를 무료로 추가 획득. 종류는 무작위"
+  },
+  "fan_shop_stampcoupon": {
+    "fidelity": "none",
+    "effects": [],
+    "notes": "상점에서 체력 999 소모 시 주사기로 변환. 시뮬레이터에서 이 조건은 사실상 발생하지 않음"
+  },
+  "fan_damage_libra": {
+    "fidelity": "approx",
+    "effects": [
+      {
+        "type": "base_dmg_transform",
+        "op": "mult",
+        "value": 0.5
+      },
+      {
+        "type": "base_dmg_transform",
+        "op": "zero_set",
+        "value": 200
+      }
+    ],
+    "notes": "기본 피해 절반. 0 → 200 은 시뮬레이터 기본 피해 범위(10~45)에서 발생하지 않음 — 기본 피해를 0 으로 만드는 조작은 미모델링이라 과소평가됨"
+  },
+  "fan_turn_pisces": {
+    "fidelity": "approx",
+    "effects": [
+      {
+        "type": "moves_per_turn_mult",
+        "value": 2.0
+      }
+    ],
+    "notes": "이동 N 회 대신 임시 성냥 N + 임시 지우개 N 을 얻음 → 턴당 이동 2배로 근사 (임시 소모품 누적·보관은 미모델링)"
+  },
+  "fan_odd_gemini": {
+    "fidelity": "approx",
+    "effects": [
+      {
+        "type": "base_dmg_transform",
+        "op": "odd_even",
+        "odd_mult": 2,
+        "even_value": 0
+      }
+    ],
+    "notes": "기본 피해가 홀수면 x2, 짝수면 0. 짝수를 홀수로 바꾸는 조작은 미모델링이라 과소평가됨"
+  },
+  "fan_damage_aries": {
+    "fidelity": "approx",
+    "effects": [
+      {
+        "type": "combo_same_dmg_stack",
+        "value": 20
+      }
+    ],
+    "notes": "직전 타격과 같은 피해면 누적 +20, 다르면 초기화 (전투 단위). 같은 피해를 맞추려는 조작은 미모델링"
+  },
+  "fan_damage_scorpio": {
+    "fidelity": "approx",
+    "effects": [
+      {
+        "type": "dmg_taken_delay",
+        "value": 0.5
+      }
+    ],
+    "notes": "받는 피해의 절반을 즉시, 나머지 절반을 다음 내 턴 종료 시 받음. 출혈 스택의 감소 규칙이 데이터에 없어 1회 지연으로 근사"
+  },
+  "fan_erase_sagittarius": {
+    "fidelity": "none",
+    "effects": [],
+    "notes": "상자 분리(단점) + 분리된 자리 지우기(장점). 상자 구조를 시뮬레이터가 다루지 않아 미모델링"
+  },
+  "fan_acquire_watermelon": {
+    "notes_extra": "설명은 +150, 데이터는 200 → 데이터 값 사용"
+  },
+  "fan_shop_heal": {
+    "notes_extra": "설명은 +200, 데이터는 300 → 데이터 값 사용"
+  },
+  "fan_shop_discount": {
+    "notes_extra": "설명은 30% 할인, 데이터는 x0.85 → 데이터 값 사용"
+  },
+  "fan_reflect_sail": {
+    "notes_extra": "데이터 amount 가 50.0(multiply) 으로 되어 있어 설명(50%)에 맞춰 0.5 로 해석"
+  }
+}

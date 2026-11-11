@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>환상별 승률 곡선 뷰어</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --surface-2: #f3f2ee;
+  --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10);
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s6: #008300;
+  --base: #6f6e69;
+  --good: #006300; --bad: #d03b3b; --warn-bg: #fff4d6; --warn-ink: #6b4b00;
+  --accent: #2a78d6; --chip-on: #0b0b0b; --chip-on-ink: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --surface-2: #232321;
+    --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300;
+    --base: #a3a29b;
+    --good: #0ca30c; --bad: #e66767; --warn-bg: #3a2f12; --warn-ink: #f3d68a;
+    --accent: #3987e5; --chip-on: #f0efec; --chip-on-ink: #0b0b0b;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--page); color: var(--ink);
+  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", "Malgun Gothic", sans-serif; }
+button, input, select { font: inherit; color: inherit; }
+.num { font-variant-numeric: tabular-nums; }
+header.banner { padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--ring); }
+.banner h1 { font-size: 16px; margin: 0 0 4px; font-weight: 600; }
+.banner .meta { display: flex; flex-wrap: wrap; gap: 4px 14px; color: var(--ink-2); font-size: 12px; }
+.banner .meta b { color: var(--ink); font-weight: 600; }
+.banner .caveat { margin-top: 6px; font-size: 12px; color: var(--ink-2); }
+.layout { display: grid; grid-template-columns: 340px minmax(0, 1fr); align-items: start; }
+aside { border-right: 1px solid var(--ring); background: var(--surface); padding: 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0;
+  position: sticky; top: 0; height: 100vh; }
+main { padding: 12px 16px; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  aside { border-right: 0; border-bottom: 1px solid var(--ring); position: static; height: 55vh; }
+}
+input[type=search], input[type=number], select { background: var(--surface); border: 1px solid var(--axis); border-radius: 6px; padding: 4px 8px; }
+input[type=search] { width: 100%; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.chip { border: 1px solid var(--axis); background: transparent; border-radius: 999px; padding: 2px 10px; cursor: pointer; font-size: 12px; }
+.chip[aria-pressed=true] { background: var(--chip-on); color: var(--chip-on-ink); border-color: var(--chip-on); }
+.small { font-size: 12px; color: var(--ink-2); }
+#list { overflow: auto; flex: 1; min-height: 200px; border-top: 1px solid var(--ring); }
+.row { display: grid; grid-template-columns: 18px 1fr auto; gap: 2px 8px; padding: 6px 4px; border-bottom: 1px solid var(--ring); cursor: pointer; align-items: start; }
+.row:hover { background: var(--surface-2); }
+.row input { margin: 3px 0 0; }
+.row .nm { font-weight: 600; overflow-wrap: anywhere; }
+.row .eff { grid-column: 2 / 4; font-size: 12px; color: var(--ink-2); }
+.row .d { font-size: 12px; text-align: right; white-space: nowrap; }
+.dim { opacity: 0.55; }
+.badge { display: inline-block; font-size: 11px; line-height: 16px; padding: 0 6px; border-radius: 4px; border: 1px solid var(--axis); color: var(--ink-2); margin-left: 4px; font-weight: 500; white-space: nowrap; }
+.badge.none { border-style: dashed; }
+.badge.sig { border-color: var(--ink-2); color: var(--ink); }
+.badge.strong { background: var(--chip-on); color: var(--chip-on-ink); border-color: var(--chip-on); }
+.gtag { display: inline-block; white-space: nowrap; font-size: 11px; line-height: 15px; padding: 0 5px; border-radius: 3px; margin-right: 6px; font-weight: 600; vertical-align: 1px; }
+.gtag.white { background: var(--surface-2); color: var(--ink-2); border: 1px solid var(--axis); }
+.gtag.blue { background: #cde2fb; color: #104281; } .gtag.red { background: #fbd5d5; color: #8a1f1f; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; padding: 8px 12px; }
+.controls label { display: inline-flex; gap: 6px; align-items: center; }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--ring); }
+.tab { border: 0; background: transparent; padding: 6px 12px; cursor: pointer; border-bottom: 2px solid transparent; color: var(--ink-2); }
+.tab[aria-selected=true] { color: var(--ink); border-bottom-color: var(--ink); font-weight: 600; }
+.panel { background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; padding: 10px 12px; position: relative; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; margin-bottom: 4px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.chart { width: 100%; height: 380px; display: block; }
+.chart text { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.tooltip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--ring); box-shadow: 0 2px 10px rgba(0,0,0,.15); border-radius: 6px; padding: 6px 8px; font-size: 12px; display: none; z-index: 5; max-width: none; }
+.tooltip table { border-collapse: collapse; }
+.tooltip td { padding: 1px 6px 1px 0; white-space: nowrap; }
+.notice { border-radius: 6px; padding: 6px 10px; background: var(--warn-bg); color: var(--warn-ink); font-size: 12px; }
+.eq { font-size: 13px; }
+.eq div { padding: 2px 0; }
+table.rank { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.rank th, table.rank td { padding: 4px 6px; border-bottom: 1px solid var(--ring); text-align: left; }
+table.rank th { white-space: nowrap; cursor: pointer; user-select: none; color: var(--ink-2); font-weight: 600; position: sticky; top: 0; background: var(--surface); }
+table.rank td.n { white-space: nowrap; text-align: right; font-variant-numeric: tabular-nums; }
+table.rank tr { cursor: pointer; }
+table.rank tr:hover td { background: var(--surface-2); }
+.rankwrap { max-height: 60vh; overflow: auto; }
+.blocked { margin: 40px auto; max-width: 640px; text-align: center; font-size: 16px; padding: 24px; background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; }
+.swatch { display: inline-block; width: 26px; height: 10px; }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<script type="application/json" id="data">/*__DATA__*/</script>
+<div id="app"></div>
+<script>
+"use strict";
+(function () {
+const DATA = JSON.parse(document.getElementById("data").textContent);
+const app = document.getElementById("app");
+const META = DATA.meta || {};
+const MAX_SEL = 6;
+const SLOTS = ["var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)", "var(--s5)", "var(--s6)"];
+const DASH = ["", "7 4", "2 3", "10 3 2 3", "4 2", "1 3"];
+const MARK = ["circle", "square", "triangle", "diamond", "cross", "tri-down"];
+const GRADE_KO = { white: "백색", blue: "청색", red: "적색" };
+const GRADE_ORDER = { white: 0, blue: 1, red: 2 };
+const FID_KO = { exact: "", approx: "근사", none: "미모델링" };
+const pct = (v, d = 1) => (v == null || isNaN(v) ? "–" : (v * 100).toFixed(d) + "%");
+const pp = (v, d = 1) => (v == null || isNaN(v) ? "–" : (v >= 0 ? "+" : "−") + Math.abs(v * 100).toFixed(d) + "%p");
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const fmtX = v => (Math.abs(v - Math.round(v)) < 1e-9 ? String(Math.round(v)) : (+v).toFixed(2));
+// 보간한 X·이득 표시: X축 값이 모두 정수면 정수로 반올림
+let fmtXi = fmtX;
+
+// ---------------- 정직성: 등급 단위 데이터 차단 ----------------
+if (META.effect_mode !== "table") {
+  app.innerHTML = `<div class="blocked" id="blocked">이 데이터는 등급 단위 모델로 만들어져 환상별 비교가 불가능합니다.<div class="small" style="margin-top:8px">effect_mode = ${esc(META.effect_mode)} · fantasy_effects.json 으로 다시 스캔하세요 (--effects).</div></div>`;
+  window.__viewerReady = true;
+  return;
+}
+
+// ---------------- 데이터 준비 (한 번만) ----------------
+const XS = META.x_values || [];
+if (XS.every(v => Number.isInteger(v))) fmtXi = v => String(Math.round(v));
+const FANTS = DATA.fantasies || [];
+const BYID = Object.fromEntries(FANTS.map(f => [f.id, f]));
+const BASE = DATA.baseline.points;
+const CURVES = DATA.curves;
+const NPT = BASE.length ? BASE[0].n : 0;
+const strongZ = META.strong_signal_z || 3.4;
+
+function effText(e) {
+  const v = e.value, w = e.when || {};
+  let cond = "";
+  if (w.turn_eq != null) cond = ` (${w.turn_eq}턴)`;
+  else if (w.turn_ge != null) cond = ` (${w.turn_ge}턴부터)`;
+  else if (w.turn_mod) cond = ` (짝수 턴)`;
+  else if (w.base_same_digits) cond = " (기본 피해가 같은 숫자일 때)";
+  const per = { items_held: "보유 소모품당", items_used_battle: "이번 전투 소모품 사용당", hp: "현재 체력 x", digit8: "숫자 8 하나당", consecutive_pairs: "연속 숫자 쌍당" }[e.per] || "";
+  const sg = x => (x >= 0 ? "+" : "") + (+x).toString();
+  switch (e.type) {
+    case "dmg_flat": return `타격당 피해 ${sg(v)}${cond}`;
+    case "dmg_mult_add": return `피해 배율 ${sg(v)}`;
+    case "dmg_final_mult": return `피해 x${v}${e.condition ? " (조건부)" : ""}`;
+    case "base_dmg_transform": return { mult: `기본 피해 x${v}`, digit_min: `기본 피해 숫자 최소 ${v}`, first_digit: `기본 피해 첫 자리 ${v}`, odd_even: "기본 피해 홀수 x2 / 짝수 0", zero_set: `기본 피해 0 → ${v}` }[e.op] || "기본 피해 변형";
+    case "hits_add": return e.per ? `타수 +1 / ${per}${e.divisor ? " " + e.divisor + "개" : ""}` : `타수 ${sg(v)}${cond}`;
+    case "combo_same_dmg_stack": return `같은 피해 연속 시 +${v} 누적`;
+    case "end_turn_dmg": return `턴 종료 피해 ${per ? per + " " : ""}${v}${cond}`;
+    case "player_str_add": return `내 힘 ${sg(v)}${cond}`;
+    case "mirror_enemy_str": return "적이 얻은 힘만큼 내 힘 증가";
+    case "moves_per_turn_add": return `턴당 이동 ${sg(v)}`;
+    case "moves_per_turn_mult": return `턴당 이동 x${v}`;
+    case "battle_start_moves": return `첫 턴 이동 ${sg(v)}`;
+    case "carry_unused_moves": return "남은 이동 이월";
+    case "battle_temp_items": return `전투 시작 임시 소모품 ${sg(v)}`;
+    case "item_use_refund_chance": return `소모품 사용 시 ${pct(v, 0)} 복제`;
+    case "dmg_taken_flat": return `받는 피해 ${sg(v)}/타`;
+    case "dmg_taken_mult": return `받는 피해 x${v}${e.condition ? " (조건부)" : ""}`;
+    case "dmg_taken_delay": return `받는 피해 ${pct(v, 0)} 지연`;
+    case "def_cut_add": return `받는 피해 -${pct(v, 0)}`;
+    case "monster_dmg_digit_max": return `적 숫자 최대 ${v}`;
+    case "monster_str_add": return `적 힘 ${sg(v)}${cond}`;
+    case "str_block": return `적 힘 증가 ${v}회 무효`;
+    case "monster_skip_chance_add": return `적 무행동 ${sg(v)}`;
+    case "enemy_acts_first": return "적이 먼저 행동";
+    case "reflect_on_hit": return e.pct ? `받은 피해 ${pct(e.pct, 0)} 반사` : `피격마다 적에게 ${v}`;
+    case "heal_on_deal": return `타격마다 회복 ${v}`;
+    case "heal_on_take": return `피해 ${e.per}당 회복 ${v}`;
+    case "heal_per_unused_move": return `남은 이동당 회복 ${v}`;
+    case "revive_once": return "사망 시 전투 되감기 1회";
+    case "battle_start_temp_copy": return "전투마다 보유 환상 임시 복사";
+    case "heal_per_battle": return `전투 후 회복 ${v}`;
+    case "item_drop_chance_add": return `소모품 드롭 ${sg(v)}`;
+    case "item_drop_mult": return `소모품 드롭 x${v}`;
+    case "item_gain_bonus": return `소모품 획득 시 ${sg(v)}`;
+    case "rest_heal_mult": return `휴식 회복 x${v}`;
+    case "rest_heal_add": return `휴식 회복 ${sg(v)}`;
+    case "rest_extra_uses": return `휴식 ${sg(v)}회`;
+    case "rest_alt_fantasy": return "휴식 대신 환상 획득";
+    case "shop_price_mult": return `상점 가격 x${v}`;
+    case "shop_enter_heal": return `상점 입장 시 회복 ${v}`;
+    case "shop_moves_add": return `상점 이동 ${sg(v)}`;
+    case "shop_free_items": return `상점 무료 소모품 ${v}`;
+    case "on_acquire_heal": return e.pct ? `획득 시 체력 +${pct(e.pct, 0)}` : `획득 시 체력 ${sg(v)}`;
+    case "acquire_dup_or_void": return "환상 획득 시 50% 2배 / 50% 무효";
+    case "on_acquire_copy_owned": return "보유 환상 복사본으로 변환";
+    case "combine_into": return `조합(${(e.from || []).length}개 재료)`;
+    default: return e.type;
+  }
+}
+for (const f of FANTS) {
+  f.summary = f.effects && f.effects.length ? f.effects.map(effText).join(", ") : (f.fidelity === "none" ? "효과 미모델링" : (f.notes || "효과 없음"));
+  f.pts = CURVES[f.id] ? CURVES[f.id].points : [];
+}
+
+// ---------------- 상태 (URL 해시) ----------------
+const S = { sel: [], slot: {}, metric: "win", act: 1, x: XS[Math.floor(XS.length / 2)], tab: "curve", T: META.target_win_rate ?? 0.1,
+  ci: true, smooth: false, q: "", grades: { white: true, blue: true, red: true }, sort: "delta_desc", rankMode: "x", rankSort: "delta", rankDir: -1 };
+function readHash() {
+  const h = new URLSearchParams(location.hash.replace(/^#/, ""));
+  if (h.has("f")) S.sel = h.get("f").split(",").filter(id => BYID[id]).slice(0, MAX_SEL);
+  if (h.has("m") && ["win", "delta", "floor", "death"].includes(h.get("m"))) S.metric = h.get("m");
+  if (h.has("a")) S.act = Math.min(3, Math.max(1, +h.get("a") || 1));
+  if (h.has("x")) { const v = +h.get("x"); const k = XS.findIndex(z => Math.abs(z - v) < 1e-9); if (k >= 0) S.x = XS[k]; }
+  if (h.has("t") && ["curve", "surv", "rank"].includes(h.get("t"))) S.tab = h.get("t");
+  if (h.has("T")) { const v = +h.get("T"); if (v > 0 && v < 1) S.T = v; }
+  if (h.has("ci")) S.ci = h.get("ci") !== "0";
+  if (h.has("sm")) S.smooth = h.get("sm") === "1";
+  if (h.has("rk")) S.rankMode = h.get("rk") === "avg" ? "avg" : "x";
+  S.slot = {};
+  S.sel.forEach((id, k) => (S.slot[id] = k));
+}
+function writeHash() {
+  const p = new URLSearchParams();
+  if (S.sel.length) p.set("f", S.sel.join(","));
+  p.set("m", S.metric); if (S.metric === "death") p.set("a", S.act);
+  p.set("x", fmtX(S.x)); p.set("t", S.tab); p.set("T", String(S.T));
+  p.set("ci", S.ci ? "1" : "0"); if (S.smooth) p.set("sm", "1"); if (S.rankMode !== "x") p.set("rk", S.rankMode);
+  const s = "#" + p.toString().replace(/%2C/g, ",");
+  if (location.hash !== s) history.replaceState(null, "", s);
+}
+readHash();
+
+// ---------------- 레이아웃 ----------------
+const fixed = Object.entries(META.fixed_overrides || {}).map(([k, v]) => `${k}=${v}`).join(", ") || "없음";
+const meanFant = BASE.length ? BASE.reduce((a, p) => a + p.mean_fantasies, 0) / BASE.length : 0;
+const nFid = FANTS.reduce((a, f) => (a[f.fidelity] = (a[f.fidelity] || 0) + 1, a), {});
+app.innerHTML = `
+<header class="banner" id="banner">
+  <h1>환상별 승률 곡선</h1>
+  <div class="meta num">
+    <span>시드 <b>${esc(META.master_seed)}</b></span>
+    <span>점당 <b>${(META.runs_per_point || 0).toLocaleString()}판</b></span>
+    <span>X축 <b>${esc(META.x_param)}</b> ${fmtX(XS[0])}–${fmtX(XS[XS.length - 1])} (${XS.length}점)</span>
+    <span>고정 <b>${esc(fixed)}</b></span>
+    <span>강제 포함 시점 <b>${META.forced_at === "start" ? "런 시작" : esc(JSON.stringify(META.forced_at))}</b></span>
+    <span>effect_mode <b>${esc(META.effect_mode)}</b></span>
+    <span>효과 파일 해시 <b>${esc((META.effects_hash || "").slice(0, 10))}</b></span>
+    <span>생성 <b>${esc(META.generated_at)}</b></span>
+    <span>기준선 평균 보유 환상 <b>${meanFant.toFixed(1)}개</b></span>
+    <span>보상 선택 <b>${esc(META.fantasy_pick || "random")}</b></span>
+    <span>sim v${esc(META.sim_version)}</span>
+  </div>
+  <div class="caveat">환상 효과는 추상화된 근사입니다. 절대 수치보다 <b>환상 간 상대 비교와 방향</b>에 의미를 두세요. 모델링 수준: 정확 ${nFid.exact || 0} · 근사 ${nFid.approx || 0} · 미모델링 ${nFid.none || 0}.
+  Δ는 같은 시드끼리 짝지은 차이이며, 점당 ${NPT.toLocaleString()}판에서 대략 <span id="minDetect"></span> 보다 작은 Δ는 구분할 수 없습니다.</div>
+</header>
+<div class="layout">
+  <aside>
+    <input type="search" id="q" placeholder="환상 이름·ID·효과 검색" aria-label="환상 검색">
+    <div class="chips" id="gradeChips">
+      ${["white", "blue", "red"].map(g => `<button class="chip" data-g="${g}" aria-pressed="true">${GRADE_KO[g]}</button>`).join("")}
+    </div>
+    <div class="chips small">
+      <label>정렬 <select id="sort">
+        <option value="delta_desc">Δ승률 큰 순</option><option value="delta_asc">Δ승률 작은 순</option>
+        <option value="name">이름</option><option value="grade">등급</option></select></label>
+      <span id="selCount"></span>
+      <button class="chip" id="clearSel">선택 해제</button>
+    </div>
+    <div class="small">Δ = 선택한 X (<b id="listX" class="num"></b>) 기준. 최대 ${MAX_SEL}개 선택.</div>
+    <div id="list" role="list"></div>
+  </aside>
+  <main>
+    <div class="controls">
+      <label>Y 지표 <select id="metric">
+        <option value="win">승률</option><option value="delta">Δ승률(기준선 대비)</option>
+        <option value="floor">평균 도달 층</option><option value="death">막별 사망률</option></select></label>
+      <label id="actWrap">막 <select id="act"><option value="1">1막</option><option value="2">2막</option><option value="3">3막</option></select></label>
+      <label>선택 X <select id="xsel" class="num">${XS.map(x => `<option value="${x}">${fmtX(x)}</option>`).join("")}</select></label>
+      <label>목표 승률 <input type="number" id="target" min="1" max="99" step="0.5" style="width:70px" class="num">%</label>
+      <label><input type="checkbox" id="ci"> 95% 신뢰구간</label>
+      <label><input type="checkbox" id="smooth"> 평활화 <span class="small">(표시용)</span></label>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-t="curve">승률 곡선</button>
+      <button class="tab" role="tab" data-t="surv">생존 곡선</button>
+      <button class="tab" role="tab" data-t="rank">랭킹 표</button>
+    </div>
+    <section class="panel" id="tab-curve">
+      <div class="legend" id="legend"></div>
+      <div id="noneNotes"></div>
+      <svg class="chart" id="chart" role="img" aria-label="승률 곡선"></svg>
+      <div class="tooltip" id="tip"></div>
+      <div class="small" id="smoothLabel"></div>
+      <div class="eq" id="eq"></div>
+    </section>
+    <section class="panel" id="tab-surv">
+      <div class="legend" id="legend2"></div>
+      <div class="small">선택 X = <b id="survX" class="num"></b> 에서 층별 도달률 (1~45층). 세로선은 막 경계(15·30층).</div>
+      <svg class="chart" id="chart2" role="img" aria-label="생존 곡선"></svg>
+      <div class="tooltip" id="tip2"></div>
+    </section>
+    <section class="panel" id="tab-rank">
+      <div class="chips small" style="margin-bottom:6px">
+        <button class="chip" id="rkX" aria-pressed="true">선택한 X 기준</button>
+        <button class="chip" id="rkAvg" aria-pressed="false">전 구간 평균</button>
+        <span id="rkNote"></span>
+      </div>
+      <div class="rankwrap"><table class="rank" id="rank"><thead></thead><tbody></tbody></table></div>
+      <p class="small" id="rankFoot">환상 ${FANTS.length}종을 동시에 비교하므로 95% 신호 중 약 5%는 우연일 수 있습니다. <b>신호</b> = 95% CI가 0을 제외, <b>강한 신호</b> = |Δ/se| ≥ ${strongZ} (동시 비교 보정 근사). 흐린 행은 CI가 0을 포함(구분 불가). 미모델링 환상의 Δ는 우연 변동입니다(강제 포함으로 보상 후보가 하나 줄어드는 효과는 남음).</p>
+    </section>
+  </main>
+</div>`;
+
+const $ = id => document.getElementById(id);
+const listEl = $("list");
+
+// ---------------- 계산 도우미 ----------------
+const xi = () => Math.max(0, XS.findIndex(v => Math.abs(v - S.x) < 1e-9));
+function binCI(p, n) { const h = 1.96 * Math.sqrt(Math.max(p * (1 - p), 0) / n); return [Math.max(0, p - h), Math.min(1, p + h)]; }
+function series(pts, metric) {
+  return pts.map(p => {
+    let y, lo = null, hi = null;
+    if (metric === "win") { y = p.win_rate; [lo, hi] = binCI(y, p.n); }
+    else if (metric === "delta") { y = p.delta ?? 0; if (p.delta_ci) [lo, hi] = p.delta_ci; else lo = hi = 0; }
+    else if (metric === "floor") { y = p.mean_reached_floor; }
+    else { y = p.death_by_act[S.act - 1]; [lo, hi] = binCI(y, p.n); }
+    return { x: p.x, y, lo, hi, p };
+  });
+}
+function smooth(arr) {
+  if (arr.length < 3) return arr;
+  return arr.map((d, k) => {
+    const a = arr[Math.max(0, k - 1)], c = arr[Math.min(arr.length - 1, k + 1)];
+    const avg = f => (a[f] == null ? null : (a[f] + d[f] + c[f]) / 3);
+    return Object.assign({}, d, { y: avg("y"), lo: avg("lo"), hi: avg("hi") });
+  });
+}
+function crossing(pts, T) {
+  const ys = pts.map(p => p.win_rate);
+  const xs = pts.map(p => p.x);
+  const hits = [];
+  for (let k = 0; k < ys.length - 1; k++) {
+    const a = ys[k] - T, b = ys[k + 1] - T;
+    if (a === 0) hits.push(xs[k]);
+    else if (a * b < 0) hits.push(xs[k] + (xs[k + 1] - xs[k]) * (a / (a - b)));
+  }
+  if (ys.length && ys[ys.length - 1] === T) hits.push(xs[xs.length - 1]);
+  if (!hits.length) {
+    if (ys.every(y => y > T)) return { out: `범위 밖(X>${fmtX(xs[xs.length - 1])})`, dir: 1 };
+    return { out: `범위 밖(X<${fmtX(xs[0])})`, dir: -1 };
+  }
+  const uniq = [...new Set(hits.map(h => +h.toFixed(6)))];
+  return { x: Math.max(...uniq), noisy: uniq.length > 1 };
+}
+const ciZero = p => p.delta_ci && p.delta_ci[0] <= 0 && p.delta_ci[1] >= 0;
+function avgDelta(f) {
+  const ps = f.pts; if (!ps.length) return null;
+  const d = ps.reduce((a, p) => a + p.delta, 0) / ps.length;
+  const se = Math.sqrt(ps.reduce((a, p) => a + p.delta_se * p.delta_se, 0)) / ps.length;
+  return { delta: d, delta_se: se, delta_ci: [d - 1.96 * se, d + 1.96 * se] };
+}
+function rankPoint(f) { return S.rankMode === "avg" ? avgDelta(f) : f.pts[xi()]; }
+const baseCross = () => crossing(BASE, S.T);
+function eqGain(f) {
+  const b = baseCross(), c = crossing(f.pts, S.T);
+  if (b.x == null || c.x == null) return { b, c, gain: null };
+  return { b, c, gain: c.x - b.x };
+}
+
+// ---------------- 좌측 목록 ----------------
+function listOrder() {
+  const k = xi(), q = S.q.trim().toLowerCase();
+  let arr = FANTS.filter(f => S.grades[f.grade] && (!q || (f.name + " " + f.id + " " + f.summary + " " + (f.description || "")).toLowerCase().includes(q)));
+  const dv = f => (f.pts[k] ? f.pts[k].delta : 0);
+  if (S.sort === "delta_desc") arr.sort((a, b) => dv(b) - dv(a));
+  else if (S.sort === "delta_asc") arr.sort((a, b) => dv(a) - dv(b));
+  else if (S.sort === "name") arr.sort((a, b) => a.name.localeCompare(b.name, "ko"));
+  else arr.sort((a, b) => GRADE_ORDER[a.grade] - GRADE_ORDER[b.grade] || a.name.localeCompare(b.name, "ko"));
+  return arr;
+}
+function fidBadge(f) { return f.fidelity === "exact" ? "" : `<span class="badge ${f.fidelity}" title="${esc(f.notes)}">${FID_KO[f.fidelity]}</span>`; }
+function renderList() {
+  const k = xi();
+  const html = listOrder().map(f => {
+    const p = f.pts[k], on = S.sel.includes(f.id), z = p && ciZero(p);
+    const sw = on ? `<svg width="22" height="10" style="vertical-align:middle">${legendMark(S.slot[f.id])}</svg>` : "";
+    return `<div class="row" role="listitem" data-id="${esc(f.id)}" title="${esc(f.description || "")}${f.notes ? "\n\n" + esc(f.notes) : ""}">
+      <input type="checkbox" ${on ? "checked" : ""} aria-label="${esc(f.name)} 곡선 표시">
+      <div class="nm"><span class="gtag ${f.grade}">${GRADE_KO[f.grade][0]}</span>${esc(f.name)} ${fidBadge(f)} ${sw}</div>
+      <div class="d num ${z ? "dim" : ""}">${p ? pp(p.delta) : "–"}${z ? '<div class="small">구분 불가</div>' : ""}</div>
+      <div class="eff">${esc(f.summary)}</div></div>`;
+  }).join("");
+  listEl.innerHTML = html || '<div class="small" style="padding:8px">조건에 맞는 환상이 없습니다.</div>';
+  $("selCount").textContent = `선택 ${S.sel.length}/${MAX_SEL}`;
+  $("listX").textContent = fmtX(S.x);
+}
+function toggle(id) {
+  const i = S.sel.indexOf(id);
+  if (i >= 0) { S.sel.splice(i, 1); delete S.slot[id]; }
+  else {
+    if (S.sel.length >= MAX_SEL) { flash(`최대 ${MAX_SEL}개까지 선택할 수 있습니다.`); return; }
+    const used = new Set(Object.values(S.slot));
+    let s = 0; while (used.has(s)) s++;
+    S.slot[id] = s; S.sel.push(id);
+  }
+  update();
+}
+function flash(msg) { const n = $("noneNotes"); n.innerHTML = `<div class="notice">${esc(msg)}</div>`; setTimeout(() => renderNoneNotes(), 1800); }
+
+// ---------------- SVG 차트 ----------------
+const NS = "http://www.w3.org/2000/svg";
+function markPath(shape, x, y, r) {
+  switch (shape) {
+    case "square": return `M${x - r},${y - r}h${2 * r}v${2 * r}h${-2 * r}Z`;
+    case "triangle": return `M${x},${y - r * 1.2}L${x + r * 1.1},${y + r * 0.9}L${x - r * 1.1},${y + r * 0.9}Z`;
+    case "tri-down": return `M${x},${y + r * 1.2}L${x + r * 1.1},${y - r * 0.9}L${x - r * 1.1},${y - r * 0.9}Z`;
+    case "diamond": return `M${x},${y - r * 1.3}L${x + r * 1.3},${y}L${x},${y + r * 1.3}L${x - r * 1.3},${y}Z`;
+    case "cross": return `M${x - r},${y - r}L${x + r},${y + r}M${x + r},${y - r}L${x - r},${y + r}`;
+    default: return `M${x - r},${y}a${r},${r} 0 1,0 ${2 * r},0a${r},${r} 0 1,0 ${-2 * r},0`;
+  }
+}
+function legendMark(slot) {
+  if (slot == null) return `<line x1="1" y1="5" x2="21" y2="5" stroke="var(--base)" stroke-width="2" stroke-dasharray="4 3"/>`;
+  const c = SLOTS[slot], m = MARK[slot];
+  return `<line x1="1" y1="5" x2="21" y2="5" stroke="${c}" stroke-width="2" stroke-dasharray="${DASH[slot]}"/><path d="${markPath(m, 11, 5, 3.2)}" fill="${m === "cross" ? "none" : c}" stroke="${c}" stroke-width="1.5"/>`;
+}
+function niceTicks(lo, hi, n = 5) {
+  if (hi - lo < 1e-12) { hi = lo + 1; }
+  const raw = (hi - lo) / n, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => s >= raw) || raw;
+  const t = []; for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) t.push(+v.toFixed(10));
+  return t;
+}
+function drawChart(svg, cfg) {
+  // cfg: {series:[{id,slot,pts:[{x,y,lo,hi}],base:bool}], xs, yfmt, xfmt, yZero, vlines:[], guideX, hline, band}
+  const W = svg.clientWidth || 800, H = svg.clientHeight || 380;
+  const M = { l: 56, r: 16, t: 12, b: 34 };
+  const iw = W - M.l - M.r, ih = H - M.t - M.b;
+  let ylo = Infinity, yhi = -Infinity;
+  for (const s of cfg.series) for (const d of s.pts) {
+    if (d.y == null) continue;
+    ylo = Math.min(ylo, d.y); yhi = Math.max(yhi, d.y);
+    if (cfg.band && d.lo != null) { ylo = Math.min(ylo, d.lo); yhi = Math.max(yhi, d.hi); }
+  }
+  if (cfg.hline != null) { ylo = Math.min(ylo, cfg.hline); yhi = Math.max(yhi, cfg.hline); }
+  if (!isFinite(ylo)) { ylo = 0; yhi = 1; }
+  if (cfg.yZero) { ylo = Math.min(0, ylo); yhi = Math.max(0, yhi); }
+  const pad = (yhi - ylo) * 0.06 || 0.01; ylo -= cfg.yZero && ylo === 0 ? 0 : pad; yhi += pad;
+  if (cfg.yClamp) { ylo = Math.max(cfg.yClamp[0], ylo); yhi = Math.min(cfg.yClamp[1], yhi); }
+  const x0 = cfg.xs[0], x1 = cfg.xs[cfg.xs.length - 1];
+  const X = v => M.l + (x1 === x0 ? iw / 2 : (v - x0) / (x1 - x0) * iw);
+  const Y = v => M.t + ih - (v - ylo) / (yhi - ylo) * ih;
+  const out = [];
+  for (const t of niceTicks(ylo, yhi)) {
+    out.push(`<line x1="${M.l}" x2="${W - M.r}" y1="${Y(t)}" y2="${Y(t)}" stroke="var(--grid)" stroke-width="1"/>`);
+    out.push(`<text x="${M.l - 6}" y="${Y(t) + 4}" text-anchor="end">${cfg.yfmt(t)}</text>`);
+  }
+  if (cfg.yZero && ylo < 0 && yhi > 0) out.push(`<line x1="${M.l}" x2="${W - M.r}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--axis)" stroke-width="1.5"/>`);
+  out.push(`<line x1="${M.l}" x2="${W - M.r}" y1="${M.t + ih}" y2="${M.t + ih}" stroke="var(--axis)"/>`);
+  const xt = cfg.xticks || cfg.xs;
+  const every = Math.max(1, Math.ceil(xt.length / Math.max(2, Math.floor(iw / 48))));
+  xt.forEach((v, k) => { if (k % every === 0 || k === xt.length - 1) out.push(`<text x="${X(v)}" y="${H - 12}" text-anchor="middle">${cfg.xfmt(v)}</text>`); });
+  if (cfg.xlabel) out.push(`<text x="${W - M.r}" y="${H - 1}" text-anchor="end">${esc(cfg.xlabel)}</text>`);
+  for (const v of cfg.vlines || []) out.push(`<line x1="${X(v)}" x2="${X(v)}" y1="${M.t}" y2="${M.t + ih}" stroke="var(--axis)" stroke-width="1.5" stroke-dasharray="3 3"/>`);
+  if (cfg.hline != null) {
+    out.push(`<line x1="${M.l}" x2="${W - M.r}" y1="${Y(cfg.hline)}" y2="${Y(cfg.hline)}" stroke="var(--ink-2)" stroke-width="1" stroke-dasharray="1 3"/>`);
+    out.push(`<text x="${W - M.r - 2}" y="${Y(cfg.hline) - 4}" text-anchor="end">목표 ${cfg.yfmt(cfg.hline)}</text>`);
+  }
+  if (cfg.guideX != null) out.push(`<line x1="${X(cfg.guideX)}" x2="${X(cfg.guideX)}" y1="${M.t}" y2="${M.t + ih}" stroke="var(--ink)" stroke-width="1" opacity="0.5"/>`);
+  // 밴드 → 선 → 마커 순 (선택한 것이 위)
+  if (cfg.band) for (const s of cfg.series) {
+    const ok = s.pts.filter(d => d.lo != null);
+    if (ok.length < 2) continue;
+    const c = s.base ? "var(--base)" : SLOTS[s.slot];
+    const top = ok.map(d => `${X(d.x)},${Y(Math.min(yhi, Math.max(ylo, d.hi)))}`), bot = ok.slice().reverse().map(d => `${X(d.x)},${Y(Math.min(yhi, Math.max(ylo, d.lo)))}`);
+    out.push(`<polygon class="band" data-id="${esc(s.id)}" points="${top.concat(bot).join(" ")}" fill="${c}" opacity="${s.base ? 0.12 : 0.14}"/>`);
+  }
+  for (const s of cfg.series) {
+    const c = s.base ? "var(--base)" : SLOTS[s.slot];
+    const d = s.pts.filter(p => p.y != null).map((p, k) => `${k ? "L" : "M"}${X(p.x).toFixed(1)},${Y(p.y).toFixed(1)}`).join("");
+    out.push(`<path class="series" data-id="${esc(s.id)}" d="${d}" fill="none" stroke="${c}" stroke-width="2" stroke-linejoin="round" stroke-dasharray="${s.base ? "6 4" : DASH[s.slot]}" opacity="${s.faint ? 0.45 : 1}"/>`);
+  }
+  for (const s of cfg.series) {
+    if (s.base || s.noMarks) continue;
+    const c = SLOTS[s.slot], m = MARK[s.slot];
+    const marks = s.pts.filter(p => p.y != null).map(p => markPath(m, X(p.x), Y(p.y), 3.6)).join("");
+    out.push(`<path d="${marks}" fill="${m === "cross" ? "none" : c}" stroke="${m === "cross" ? c : "var(--surface)"}" stroke-width="${m === "cross" ? 2 : 1.5}" opacity="${s.faint ? 0.45 : 1}"/>`);
+  }
+  out.push(`<rect class="hit" x="${M.l}" y="${M.t}" width="${iw}" height="${ih}" fill="transparent"/>`);
+  out.push(`<line class="cross" x1="0" x2="0" y1="${M.t}" y2="${M.t + ih}" stroke="var(--ink-2)" stroke-width="1" visibility="hidden"/>`);
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.innerHTML = out.join("");
+  return { X, Y, M, iw, ih, x0, x1, W };
+}
+function attachHover(svg, tip, geo, xs, rowsAt, onClick) {
+  const cross = svg.querySelector(".cross");
+  const near = ev => {
+    const r = svg.getBoundingClientRect();
+    const px = (ev.clientX - r.left) * (geo.W / r.width);
+    let best = 0, bd = Infinity;
+    xs.forEach((v, k) => { const d = Math.abs(geo.X(v) - px); if (d < bd) { bd = d; best = k; } });
+    return { k: best, r };
+  };
+  svg.onmousemove = ev => {
+    const { k, r } = near(ev);
+    const sx = geo.X(xs[k]);
+    cross.setAttribute("x1", sx); cross.setAttribute("x2", sx); cross.setAttribute("visibility", "visible");
+    tip.innerHTML = rowsAt(k);
+    tip.style.display = "block";
+    const host = svg.parentElement.getBoundingClientRect();
+    let left = ev.clientX - host.left + 14;
+    if (left + tip.offsetWidth > host.width - 4) left = ev.clientX - host.left - tip.offsetWidth - 14;
+    tip.style.left = Math.max(4, left) + "px";
+    tip.style.top = (ev.clientY - host.top + 12) + "px";
+  };
+  svg.onmouseleave = () => { tip.style.display = "none"; cross.setAttribute("visibility", "hidden"); };
+  svg.onclick = ev => { if (onClick) onClick(near(ev).k); };
+}
+
+// ---------------- 탭: 승률 곡선 ----------------
+const METRIC_LABEL = { win: "승률", delta: "Δ승률", floor: "평균 도달 층", death: "사망률" };
+function yFmt() { return S.metric === "floor" ? (v => v.toFixed(1)) : S.metric === "delta" ? (v => (v >= 0 ? "+" : "−") + Math.abs(v * 100).toFixed(1) + "%p") : (v => (v * 100).toFixed(0) + "%"); }
+function legendHTML(withBase) {
+  const items = [];
+  if (withBase) items.push(`<span><svg width="22" height="10">${legendMark(null)}</svg>기준선(환상 없음)</span>`);
+  for (const id of S.sel) items.push(`<span><svg width="22" height="10">${legendMark(S.slot[id])}</svg>${esc(BYID[id].name)}${fidBadge(BYID[id])}</span>`);
+  if (!S.sel.length) items.push(`<span class="small">왼쪽 목록이나 랭킹 표에서 환상을 선택하세요.</span>`);
+  return items.join("");
+}
+function renderNoneNotes() {
+  const notes = S.sel.map(id => BYID[id]).filter(f => f.fidelity === "none")
+    .map(f => `<div class="notice">${esc(f.name)}: 효과 미모델링 — 기준선과의 차이는 우연 변동${f.notes ? " · " + esc(f.notes) : ""}</div>`);
+  const approx = S.sel.map(id => BYID[id]).filter(f => f.fidelity === "approx")
+    .map(f => `<div class="small">근사 · ${esc(f.name)}: ${esc(f.notes)}</div>`);
+  $("noneNotes").innerHTML = notes.join("") + approx.join("");
+}
+function renderCurve() {
+  $("legend").innerHTML = legendHTML(true);
+  renderNoneNotes();
+  const metric = S.metric;
+  const mk = pts => { const s = series(pts, metric); return S.smooth ? smooth(s) : s; };
+  const ser = [];
+  if (metric !== "delta") ser.push({ id: "__baseline__", base: true, pts: mk(BASE) });
+  else ser.push({ id: "__baseline__", base: true, pts: XS.map(x => ({ x, y: 0, lo: null, hi: null })) });
+  for (const id of S.sel) {
+    const f = BYID[id];
+    const pts = mk(f.pts);
+    ser.push({ id, slot: S.slot[id], pts, faint: metric === "delta" && f.pts[xi()] && ciZero(f.pts[xi()]) });
+  }
+  const svg = $("chart");
+  svg.setAttribute("aria-label", `${METRIC_LABEL[metric]} 곡선, X축 ${META.x_param}`);
+  const geo = drawChart(svg, {
+    series: ser, xs: XS, xfmt: fmtX, yfmt: yFmt(), yZero: metric !== "floor", band: S.ci && metric !== "floor",
+    guideX: S.x, hline: metric === "win" ? S.T : null, xlabel: META.x_param, yClamp: metric === "delta" ? null : metric === "floor" ? [0, 46] : [0, 1],
+  });
+  attachHover(svg, $("tip"), geo, XS, k => {
+    const rows = [`<tr><td colspan="6"><b>${esc(META.x_param)} = ${fmtX(XS[k])}</b></td></tr>`,
+      `<tr class="small"><td></td><td>승률</td><td>95% CI</td><td>Δ</td><td>보유 환상</td><td>n</td></tr>`];
+    const line = (name, mark, p, delta) => {
+      const ci = binCI(p.win_rate, p.n);
+      return `<tr><td><svg width="22" height="10">${mark}</svg> ${esc(name)}</td><td class="num">${pct(p.win_rate)}</td><td class="num">${pct(ci[0])}–${pct(ci[1])}</td>
+        <td class="num">${delta ? pp(p.delta) + ` <span class="small">[${pp(p.delta_ci[0])}, ${pp(p.delta_ci[1])}]</span>` : "–"}</td><td class="num">${p.mean_fantasies.toFixed(1)}</td><td class="num">${p.n.toLocaleString()}</td></tr>`;
+    };
+    rows.push(line("기준선", legendMark(null), BASE[k], false));
+    for (const id of S.sel) rows.push(line(BYID[id].name, legendMark(S.slot[id]), BYID[id].pts[k], true));
+    if (metric === "floor" || metric === "death") {
+      const v = p => metric === "floor" ? p.mean_reached_floor.toFixed(2) + "층" : pct(p.death_by_act[S.act - 1]);
+      rows.push(`<tr><td colspan="6" class="small">${METRIC_LABEL[metric]}${metric === "death" ? ` (${S.act}막)` : ""}: 기준선 ${v(BASE[k])}${S.sel.map(id => ` · ${esc(BYID[id].name)} ${v(BYID[id].pts[k])}`).join("")}</td></tr>`);
+    }
+    return `<table>${rows.join("")}</table>`;
+  }, k => { S.x = XS[k]; update(); });
+  $("smoothLabel").textContent = S.smooth ? "표시용 평활화(이웃 3점 평균) 적용 중 — 통계 수치는 원본 기준" : (metric === "floor" ? "평균 도달 층에는 신뢰구간을 표시하지 않습니다." : "");
+  renderEq();
+}
+function renderEq() {
+  const b = baseCross();
+  const T = pct(S.T, 1);
+  const bTxt = b.x != null ? `X=${fmtXi(b.x)}${b.noisy ? " (노이즈 주의)" : ""}` : b.out;
+  const lines = [`<div><b>등가 체력 이득</b> <span class="small">(목표 승률 ${T}와 만나는 ${esc(META.x_param)}, 이웃 두 점 선형 보간, 외삽 없음)</span></div>`];
+  if (!S.sel.length) lines.push(`<div class="small">기준선 ${bTxt}</div>`);
+  for (const id of S.sel) {
+    const { c, gain } = eqGain(BYID[id]);
+    const cTxt = c.x != null ? `X=${fmtXi(c.x)}${c.noisy ? " (노이즈 주의)" : ""}` : c.out;
+    const g = gain != null ? ` (<b class="num">${gain >= 0 ? "+" : "−"}${fmtXi(Math.abs(gain))}</b>)` : "";
+    lines.push(`<div class="eqrow" data-id="${esc(id)}"><svg width="22" height="10">${legendMark(S.slot[id])}</svg> ${esc(BYID[id].name)}: 기준선 ${bTxt} → 환상 ${cTxt}${g}</div>`);
+  }
+  $("eq").innerHTML = lines.join("");
+}
+
+// ---------------- 탭: 생존 곡선 ----------------
+function renderSurv() {
+  $("legend2").innerHTML = legendHTML(true);
+  $("survX").textContent = `${META.x_param} = ${fmtX(S.x)}`;
+  const k = xi(), floors = Array.from({ length: 45 }, (_, i) => i + 1);
+  const mk = p => floors.map((f, i) => ({ x: f, y: p.reach_rate[i], lo: null, hi: null }));
+  const ser = [{ id: "__baseline__", base: true, pts: mk(BASE[k]) }];
+  for (const id of S.sel) ser.push({ id, slot: S.slot[id], pts: mk(BYID[id].pts[k]), noMarks: true });
+  const svg = $("chart2");
+  const geo = drawChart(svg, { series: ser, xs: floors, xticks: [1, 5, 10, 15, 20, 25, 30, 35, 40, 45], xfmt: v => v + "층", yfmt: v => (v * 100).toFixed(0) + "%", yZero: true, yClamp: [0, 1.0001], vlines: [15.5, 30.5] });
+  attachHover(svg, $("tip2"), geo, floors, i => {
+    const rows = [`<tr><td colspan="2"><b>${i + 1}층 도달률</b> <span class="small">(${Math.floor(i / 15) + 1}막 ${i % 15 + 1}층)</span></td></tr>`,
+      `<tr><td><svg width="22" height="10">${legendMark(null)}</svg> 기준선</td><td class="num">${pct(BASE[k].reach_rate[i])}</td></tr>`];
+    for (const id of S.sel) rows.push(`<tr><td><svg width="22" height="10">${legendMark(S.slot[id])}</svg> ${esc(BYID[id].name)}</td><td class="num">${pct(BYID[id].pts[k].reach_rate[i])}</td></tr>`);
+    return `<table>${rows.join("")}</table>`;
+  });
+}
+
+// ---------------- 탭: 랭킹 ----------------
+const RANK_COLS = [
+  ["name", "환상"], ["grade", "등급"], ["delta", "Δ승률"], ["ci", "95% CI"], ["z", "|Δ/se|"], ["eq", "등가 체력 이득"], ["badge", "배지"], ["eff", "효과"],
+];
+function renderRank() {
+  $("rkX").setAttribute("aria-pressed", S.rankMode === "x"); $("rkAvg").setAttribute("aria-pressed", S.rankMode === "avg");
+  $("rkNote").textContent = S.rankMode === "x" ? `${META.x_param} = ${fmtX(S.x)}` : "전 구간 평균 (CI는 X점끼리 독립 가정한 근사)";
+  const rows = FANTS.map(f => {
+    const p = rankPoint(f) || { delta: 0, delta_se: 0, delta_ci: [0, 0] };
+    const z = p.delta_se > 0 ? Math.abs(p.delta / p.delta_se) : 0;
+    const eq = eqGain(f);
+    return { f, p, z, eq, zero: ciZero(p) };
+  });
+  const key = S.rankSort, dir = S.rankDir;
+  const val = r => ({ name: r.f.name, grade: GRADE_ORDER[r.f.grade], delta: r.p.delta, ci: r.p.delta_ci[0], z: r.z,
+    eq: r.eq.gain != null ? r.eq.gain : (r.eq.c.dir === 1 ? 1e9 : -1e9), badge: (r.f.fidelity === "none" ? -1 : 0) + (r.zero ? 0 : 1) + (r.z >= strongZ ? 1 : 0), eff: r.f.summary }[key]);
+  rows.sort((a, b) => { const x = val(a), y = val(b); return (typeof x === "string" ? x.localeCompare(y, "ko") : x - y) * dir; });
+  $("rank").tHead.innerHTML = `<tr>${RANK_COLS.map(([k, l]) => `<th data-k="${k}" aria-sort="${k === key ? (dir > 0 ? "ascending" : "descending") : "none"}">${l}${k === key ? (dir > 0 ? " ▲" : " ▼") : ""}</th>`).join("")}</tr>`;
+  $("rank").tBodies[0].innerHTML = rows.map(r => {
+    const badges = [];
+    if (r.f.fidelity === "none") badges.push('<span class="badge none">미모델링</span>');
+    else if (r.f.fidelity === "approx") badges.push('<span class="badge">근사</span>');
+    if (!r.zero && r.z >= strongZ) badges.push('<span class="badge strong">강한 신호</span>');
+    else if (!r.zero) badges.push('<span class="badge sig">신호</span>');
+    else badges.push('<span class="small">구분 불가</span>');
+    const e = r.eq; const eqTxt = e.gain != null ? `${e.gain >= 0 ? "+" : "−"}${fmtXi(Math.abs(e.gain))}${e.c.noisy || e.b.noisy ? " ⚠" : ""}` : (e.c.out || e.b.out || "–");
+    const on = S.sel.includes(r.f.id);
+    return `<tr data-id="${esc(r.f.id)}" class="${r.zero ? "dim" : ""}" title="${esc(r.f.description || "")}">
+      <td>${on ? `<svg width="22" height="10">${legendMark(S.slot[r.f.id])}</svg> ` : ""}${esc(r.f.name)}</td><td><span class="gtag ${r.f.grade}">${GRADE_KO[r.f.grade]}</span></td>
+      <td class="n">${pp(r.p.delta, 2)}</td><td class="n">[${pp(r.p.delta_ci[0])}, ${pp(r.p.delta_ci[1])}]</td><td class="n">${r.z.toFixed(1)}</td>
+      <td class="n">${eqTxt}</td><td>${badges.join("")}</td><td class="small">${esc(r.f.summary)}</td></tr>`;
+  }).join("");
+}
+
+// ---------------- 갱신 ----------------
+function setTab(t) { S.tab = t; update(); }
+function update() {
+  const t0 = performance.now();
+  $("metric").value = S.metric; $("act").value = String(S.act); $("actWrap").classList.toggle("hidden", S.metric !== "death");
+  $("xsel").value = String(S.x); $("target").value = +(S.T * 100).toFixed(2); $("ci").checked = S.ci; $("smooth").checked = S.smooth;
+  document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", b.dataset.t === S.tab));
+  for (const t of ["curve", "surv", "rank"]) $("tab-" + t).classList.toggle("hidden", S.tab !== t);
+  renderList();
+  if (S.tab === "curve") renderCurve(); else if (S.tab === "surv") renderSurv(); else renderRank();
+  const ses = FANTS.map(f => f.pts[xi()] && f.pts[xi()].delta_se).filter(v => v > 0).sort((a, b) => a - b);
+  $("minDetect").textContent = ses.length ? `±${(1.96 * ses[Math.floor(ses.length / 2)] * 100).toFixed(1)}%p` : "–";
+  writeHash();
+  window.__lastRenderMs = performance.now() - t0;
+}
+
+// ---------------- 이벤트 ----------------
+$("q").addEventListener("input", e => { S.q = e.target.value; renderList(); });
+$("gradeChips").addEventListener("click", e => { const b = e.target.closest(".chip"); if (!b) return; const g = b.dataset.g; S.grades[g] = !S.grades[g]; b.setAttribute("aria-pressed", S.grades[g]); renderList(); });
+$("sort").addEventListener("change", e => { S.sort = e.target.value; renderList(); });
+$("clearSel").addEventListener("click", () => { S.sel = []; S.slot = {}; update(); });
+listEl.addEventListener("click", e => { const r = e.target.closest(".row"); if (!r) return; if (e.target.tagName === "INPUT") e.preventDefault(); toggle(r.dataset.id); });
+$("metric").addEventListener("change", e => { S.metric = e.target.value; update(); });
+$("act").addEventListener("change", e => { S.act = +e.target.value; update(); });
+$("xsel").addEventListener("change", e => { S.x = +e.target.value; update(); });
+$("target").addEventListener("change", e => { const v = +e.target.value; if (v > 0 && v < 100) { S.T = v / 100; update(); } else e.target.value = +(S.T * 100).toFixed(2); });
+$("ci").addEventListener("change", e => { S.ci = e.target.checked; update(); });
+$("smooth").addEventListener("change", e => { S.smooth = e.target.checked; update(); });
+document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => setTab(b.dataset.t)));
+$("rkX").addEventListener("click", () => { S.rankMode = "x"; update(); });
+$("rkAvg").addEventListener("click", () => { S.rankMode = "avg"; update(); });
+$("rank").tHead.addEventListener("click", e => { const th = e.target.closest("th"); if (!th) return; const k = th.dataset.k; if (S.rankSort === k) S.rankDir *= -1; else { S.rankSort = k; S.rankDir = ["name", "grade", "eff"].includes(k) ? 1 : -1; } renderRank(); });
+$("rank").tBodies[0].addEventListener("click", e => { const tr = e.target.closest("tr"); if (!tr) return; const id = tr.dataset.id; if (!S.sel.includes(id)) toggle(id); else update(); });
+window.addEventListener("hashchange", () => { readHash(); update(); });
+let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(update, 80); });
+$("sort").value = S.sort;
+update();
+window.__viewerReady = true;
+})();
+</script>
+</body>
+</html>

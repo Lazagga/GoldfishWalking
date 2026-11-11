@@ -1,0 +1,5 @@
+__pycache__/
+sim_results/fantasy_cache/
+sim_results/runs.csv
+tests/screenshots/
+*.tmp
