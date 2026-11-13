@@ -950,8 +950,8 @@ let SCHEMA = null;
 let SRVF = null;  // 서버의 환상 편집 정보 (현재 원본 기준)
 const TARGET_KO = { source: "🔗 원본 연결", overrides: "시뮬 전용(overrides)", scenario: "시나리오 전용" };
 function editFor(fid, effect, key) { return S.edits.find(e => e.fid === fid && e.effect === effect && e.key === key); }
-function baseEffects(fid) { return (SRVF && SRVF[fid] ? SRVF[fid].effects : BYID[fid].effects) || []; }
-function editableKeys(fid) { return (SRVF && SRVF[fid] ? SRVF[fid].editable_keys : BYID[fid].editable_keys) || []; }
+function baseEffects(fid) { return (SRVF && SRVF[fid] ? SRVF[fid].effects : (BYID[fid] || {}).effects) || []; }
+function editableKeys(fid) { return (SRVF && SRVF[fid] ? SRVF[fid].editable_keys : (BYID[fid] || {}).editable_keys) || []; }
 function stepOf(sch, v) { if (sch.int) return 1; const span = sch.max - sch.min; return span <= 1 ? 0.01 : span <= 10 ? 0.05 : 1; }
 function renderDetail() {
   const el = $("detail");
@@ -1540,7 +1540,8 @@ async function openApply() {
     const sel = [...document.querySelectorAll(".applyFile")].filter(c => c.checked).map(c => c.value);
     const ov = $("applyOv") ? $("applyOv").checked : false;
     try {
-      const keepScen = S.edits.filter(e => { const k = editableKeys(e.fid).find(k => k.effect === e.effect && k.key === e.key); return k && k.target === "scenario"; });
+      const keepScen = S.edits.filter(e => { if (!e.fid) return false;   // 몬스터·패턴 편집은 fid 가 없고 시나리오 전용도 아님
+        const k = editableKeys(e.fid).find(k => k.effect === e.effect && k.key === e.key); return k && k.target === "scenario"; });
       const r = await post("/api/apply", { edits: S.edits, files: sel, include_overrides: ov, scenario: lastScenario });
       await reloadServerTable(r.table_hash);
       S.edits = keepScen;  // 원본·overrides 에 반영된 변경은 이제 기준값. 시나리오 전용 변경만 남김

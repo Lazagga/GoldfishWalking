@@ -171,6 +171,30 @@ class Panel(unittest.TestCase):
         self.assertEqual(errs, [])
         ctx.close()
 
+    def test_apply_monster_hp_only(self):
+        """몬스터 체력만 고치고 원본에 반영 — 몬스터 편집에는 fid 가 없어 'editable_keys' 오류가 나던 문제."""
+        mon0 = {f: open(os.path.join(self.sb.mon, f), "rb").read() for f in os.listdir(self.sb.mon)}
+        ctx, pg, errs, _ = self.open("#t=mon")
+        hp = '#monEdit tr[data-mid="Mob_10102_WildDog"] input.monIn'
+        pg.wait_for_selector(hp)
+        pg.fill(hp, "150")
+        pg.dispatch_event(hp, "change")
+        self.assertTrue(pg.evaluate("window.__S.edits.some(e => e.target === 'monster' && e.new === 150)"))
+        pg.click("#btnApply")
+        pg.wait_for_selector("#applyGo")
+        pg.click("#applyGo")
+        pg.wait_for_selector("#okClose")
+        self.assertIn("반영 완료", pg.inner_text(".modal"))
+        pg.click("#okClose")
+        self.assertEqual(pg.evaluate("window.__S.edits.length"), 0)
+        self.assertIn(b"150", open(os.path.join(self.sb.mon, "mob_10102_wilddog.json"), "rb").read())
+        pg.on("dialog", lambda d: d.accept())
+        pg.click("#btnUnapply")
+        pg.wait_for_timeout(1000)
+        self.assertEqual({f: open(os.path.join(self.sb.mon, f), "rb").read() for f in os.listdir(self.sb.mon)}, mon0)
+        self.assertEqual(errs, [])
+        ctx.close()
+
     def test_live_curves_survive_new_recompute(self):
         """재계산이 새로 시작돼도 같은 데이터 기준으로 계산해 둔 곡선은 남는다 (체크를 풀면 '이전'이 다시 붙던 문제)."""
         ctx, pg, errs, _ = self.open("#t=curve")
