@@ -1,0 +1,32 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_start_stamp",
+    "sourceId":  26,
+    "designerName":  "도장",
+    "designerNote":  "전투 시작 시 보유 중인 환상의 임시 무작위 복사본 생성",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "white",
+    "tags":  [
+                 "battle_start"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "battle_start"
+                                    },
+                        "target":  {
+                                       "key":  "fantasy"
+                                   },
+                        "operation":  "copy_temporary",
+                        "mode":  "copy_temporary",
+                        "amount":  1.0
+                    }
+                ]
+}

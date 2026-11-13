@@ -1,0 +1,41 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_30203_Planetarium",
+    "sourceId":  30203,
+    "designerName":  "천체투영기",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite": "Art/Enemies/Mob_30203_Planetarium"
+                     },
+    "encounter":  {
+                      "act":  3,
+                      "grade":  "elite",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  1900,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "static",
+               "patterns":  [
+                                "2_Multi_2",
+                                "3_Single",
+                                "2_Multi_3",
+                                "3_Single"
+                            ]
+           },
+    "passives":  [
+                     {
+                         "operation":  "assign_hidden_digits",
+                         "count":  2,
+                         "distinct":  true,
+                         "damageRatioPerFound":  0.5
+                     }
+                 ]
+}

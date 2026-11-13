@@ -1,0 +1,78 @@
+{
+    "schemaVersion": 1,
+    "id": "fan_damage_aries",
+    "sourceId": 63,
+    "designerName": "양자리",
+    "designerNote": "공격으로 같은 피해를 입힐 때마다 피해량 20씩 증가\n다른 피해를 입힐 시 초기화(연타에도 적용)",
+    "enabled": true,
+    "localization": {
+        "name": "",
+        "description": ""
+    },
+    "presentation": {
+        "sprite": ""
+    },
+    "rarity": "red",
+    "tags": [
+        "deal_damage"
+    ],
+    "effects": [
+        {
+            "trigger": {
+                "event": "deal_damage"
+            },
+            "target": {
+                "key": "aries_combo_stack"
+            },
+            "operation": "modify_value",
+            "mode": "add",
+            "amount": 20.0,
+            "condition": {
+                "comparison": {
+                    "left": {
+                        "variable": "damage_equals_previous"
+                    },
+                    "operator": "==",
+                    "right": 1
+                }
+            },
+            "execution": "modifier",
+            "lifetime": "battle"
+        },
+        {
+            "trigger": {
+                "event": "deal_damage"
+            },
+            "target": {
+                "key": "aries_combo_stack"
+            },
+            "operation": "set_value",
+            "mode": "set",
+            "amount": 0,
+            "condition": {
+                "comparison": {
+                    "left": {
+                        "variable": "damage_equals_previous"
+                    },
+                    "operator": "==",
+                    "right": 0
+                }
+            },
+            "execution": "modifier",
+            "lifetime": "battle"
+        },
+        {
+            "trigger": {
+                "event": "deal_damage"
+            },
+            "target": {
+                "key": "damage"
+            },
+            "operation": "modify_value",
+            "mode": "add",
+            "amount": {
+                "expression": "aries_combo_stack"
+            }
+        }
+    ]
+}

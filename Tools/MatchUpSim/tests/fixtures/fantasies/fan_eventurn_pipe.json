@@ -1,0 +1,32 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_eventurn_pipe",
+    "sourceId":  14,
+    "designerName":  "파이프",
+    "designerNote":  "매 짝수 턴마다 타수 +1",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "white",
+    "tags":  [
+                 "turn_even"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "turn_even"
+                                    },
+                        "target":  {
+                                       "formula":  "player.hits"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  1.0
+                    }
+                ]
+}

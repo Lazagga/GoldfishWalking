@@ -1,0 +1,38 @@
+{
+    "schemaVersion":  1,
+    "id":  "OrbSkill",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "4번째 턴 종료 시 자폭, 플레이어 체력 30% 잠금 피해",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  null
+                     },
+    "attack":  null,
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "player"
+                                   },
+                        "operation":  "deal_damage",
+                        "amount":  {
+                                       "expression":  "PlayerHP*0.3"
+                                   },
+                        "lockDamage":  true
+                    }
+                ],
+    "metadata":  {
+                     "selfDestruct":  true,
+                     "editableHeal":  false
+                 }
+}

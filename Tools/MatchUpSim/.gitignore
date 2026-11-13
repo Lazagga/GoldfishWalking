@@ -3,3 +3,16 @@ sim_results/fantasy_cache/
 sim_results/runs.csv
 tests/screenshots/
 *.tmp
+sim_results/point_cache/
+sim_results/tables/
+.matchupsim_backup/
+sim_results/digits/point_cache/
+sim_results/digits/runs.csv
+sim_results/surrogate_audit.jsonl
+.matchupsim_remote_token
+# 실행 기록·중간 산출물 (결과 요약 fantasy_curves·뷰어·monster_metrics 는 커밋)
+sim_results/**/fantasy_scans/
+sim_results/batches.csv
+sim_results/floor_reach.csv
+sim_results/configs/
+sim_results/surrogate/

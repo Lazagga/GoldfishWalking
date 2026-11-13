@@ -1,0 +1,58 @@
+{
+    "schemaVersion":  1,
+    "id":  "JellyfishSingle",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "해파리가 가하는 피해의 50%가 각각 출혈/중독 적용",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  null
+                     },
+    "attack":  {
+                   "damage":  {
+                                  "digits":  2,
+                                  "editable":  true
+                              },
+                   "hits":  {
+                                "fixed":  1
+                            }
+               },
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "player"
+                                   },
+                        "operation":  "add_status",
+                        "type":  "bleed",
+                        "amount":  {
+                                       "expression":  "DamageDealt*0.5"
+                                   }
+                    },
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "player"
+                                   },
+                        "operation":  "add_status",
+                        "type":  "poison",
+                        "amount":  {
+                                       "expression":  "DamageDealt*0.5"
+                                   }
+                    }
+                ],
+    "metadata":  {
+
+                 }
+}

@@ -1,0 +1,35 @@
+{
+    "schemaVersion":  1,
+    "id":  "PlagueDoctorSkill",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "[중독 아이콘] [x] [1자릿수] -\u003e 중독 수치 n배",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  null
+                     },
+    "attack":  null,
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "player"
+                                   },
+                        "operation":  "multiply_stat",
+                        "type":  "poison",
+                        "amount":  2
+                    }
+                ],
+    "metadata":  {
+
+                 }
+}

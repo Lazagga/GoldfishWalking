@@ -1,0 +1,36 @@
+{
+    "schemaVersion":  1,
+    "id":  "CosmictreeHeal",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "힘 수치 자릿수만큼 힐",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  null
+                     },
+    "attack":  null,
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "self"
+                                   },
+                        "operation":  "heal",
+                        "amount":  {
+                                       "expression":  "CosmictreeHeal"
+                                   }
+                    }
+                ],
+    "metadata":  {
+                     "editableHeal":  true
+                 }
+}

@@ -1,0 +1,33 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_turn_boots",
+    "sourceId":  17,
+    "designerName":  "장화",
+    "designerNote":  "매 턴 이동 횟수 +2",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "white",
+    "tags":  [
+                 "turn_start"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "turn_start"
+                                    },
+                        "target":  {
+                                       "system":  "battle",
+                                       "property":  "movement_limit"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  2.0
+                    }
+                ]
+}

@@ -1,0 +1,33 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_shop_stencil",
+    "sourceId":  8,
+    "designerName":  "스텐실",
+    "designerNote":  "상점에서 스텐실을 제외한, 보유중인 백색 등급 아이템을 추가로 한 개 얻을 수 있음(상점당 1회, 환상당 한 번씩만, 비용 2자리)",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "blue",
+    "tags":  [
+                 "passive"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "passive"
+                                    },
+                        "target":  {
+                                       "key":  "shop_extra_fantasy_slot"
+                                   },
+                        "operation":  "enable",
+                        "mode":  "enable",
+                        "amount":  1.0,
+                        "execution":  "capability"
+                    }
+                ]
+}

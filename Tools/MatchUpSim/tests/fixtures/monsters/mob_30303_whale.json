@@ -1,0 +1,51 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_30303_Whale",
+    "sourceId":  30303,
+    "designerName":  "고래",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite": "Art/Enemies/Mob_30303_Whale",
+                         "idleFrames": 1,
+                         "phaseSprites": 2,
+                         "framesPerSecond": 2
+                     },
+    "encounter":  {
+                      "act":  3,
+                      "grade":  "boss",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  3000,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "random",
+               "patterns":  [
+                                "WhaleSingle",
+                                "WhalePhase2",
+                                "WhaleMulti"
+                            ]
+           },
+    "passives":  [
+                     {
+                         "operation":  "require_player_suffix",
+                         "digits":  2
+                     },
+                     {
+                         "operation":  "phase_transition",
+                         "condition":  {
+                                           "healthRateAtMost":  0.5
+                                       },
+                         "phaseTwo":  {
+                                           "splitAllBoxes":  true,
+                                           "moveLimit":  2
+                                       }
+                     }
+                 ]
+}

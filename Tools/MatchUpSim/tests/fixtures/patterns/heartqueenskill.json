@@ -1,0 +1,43 @@
+{
+    "schemaVersion":  1,
+    "id":  "HeartQueenSkill",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  {
+                                           "comparison":  {
+                                                              "left":  {
+                                                                           "variable":  "heart_queen_box"
+                                                                       },
+                                                              "operator":  "==",
+                                                              "right":  0
+                                                          }
+                                       }
+                     },
+    "attack":  null,
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "player"
+                                   },
+                        "operation":  "deal_damage",
+                        "amount":  9999,
+                        "lockDamage":  true
+                    }
+                ],
+    "metadata":  {
+
+                 }
+}

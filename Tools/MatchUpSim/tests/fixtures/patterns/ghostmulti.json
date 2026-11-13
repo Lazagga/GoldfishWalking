@@ -1,0 +1,47 @@
+{
+    "schemaVersion":  1,
+    "id":  "GhostMulti",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "연타1 + 다음 턴 자기 상자 분리",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  null
+                     },
+    "attack":  {
+                   "damage":  {
+                                  "digits":  2,
+                                  "editable":  true
+                              },
+                   "hits":  {
+                                "digits":  1,
+                                "editable":  true,
+                                "minimum":  0
+                            }
+               },
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "next_turn"
+                                    },
+                        "target":  {
+                                       "actor":  "self"
+                                   },
+                        "operation":  "split_box",
+                        "duration":  {
+                                         "turns":  1,
+                                         "decreaseAt":  "turn_end"
+                                     }
+                    }
+                ],
+    "metadata":  {
+
+                 }
+}

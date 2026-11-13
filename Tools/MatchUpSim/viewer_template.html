@@ -14,6 +14,8 @@
   --base: #6f6e69;
   --good: #006300; --bad: #d03b3b; --warn-bg: #fff4d6; --warn-ink: #6b4b00;
   --accent: #2a78d6; --chip-on: #0b0b0b; --chip-on-ink: #ffffff;
+  --div-pos: #256abf; --div-neg: #d03b3b; --div-mid: #f0efec; --band: rgba(42,120,214,0.10);
+  --edit-bg: #eef5fd;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -25,18 +27,23 @@
     --base: #a3a29b;
     --good: #0ca30c; --bad: #e66767; --warn-bg: #3a2f12; --warn-ink: #f3d68a;
     --accent: #3987e5; --chip-on: #f0efec; --chip-on-ink: #0b0b0b;
+    --div-pos: #5598e7; --div-neg: #e66767; --div-mid: #383835; --band: rgba(57,135,229,0.16);
+    --edit-bg: #16243a;
   }
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--page); color: var(--ink);
   font: 14px/1.45 system-ui, -apple-system, "Segoe UI", "Malgun Gothic", sans-serif; }
-button, input, select { font: inherit; color: inherit; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
 .num { font-variant-numeric: tabular-nums; }
 header.banner { padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--ring); }
-.banner h1 { font-size: 16px; margin: 0 0 4px; font-weight: 600; }
+.banner h1 { font-size: 16px; margin: 0 0 4px; font-weight: 600; display: flex; gap: 10px; align-items: center; }
 .banner .meta { display: flex; flex-wrap: wrap; gap: 4px 14px; color: var(--ink-2); font-size: 12px; }
 .banner .meta b { color: var(--ink); font-weight: 600; }
 .banner .caveat { margin-top: 6px; font-size: 12px; color: var(--ink-2); }
+.mode { font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--axis); color: var(--ink-2); }
+.mode.server { background: var(--chip-on); color: var(--chip-on-ink); border-color: var(--chip-on); }
 .layout { display: grid; grid-template-columns: 340px minmax(0, 1fr); align-items: start; }
 aside { border-right: 1px solid var(--ring); background: var(--surface); padding: 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0;
   position: sticky; top: 0; height: 100vh; }
@@ -45,15 +52,21 @@ main { padding: 12px 16px; min-width: 0; display: flex; flex-direction: column; 
   .layout { grid-template-columns: 1fr; }
   aside { border-right: 0; border-bottom: 1px solid var(--ring); position: static; height: 55vh; }
 }
-input[type=search], input[type=number], select { background: var(--surface); border: 1px solid var(--axis); border-radius: 6px; padding: 4px 8px; }
+input[type=search], input[type=number], input[type=text], select { background: var(--surface); border: 1px solid var(--axis); border-radius: 6px; padding: 4px 8px; }
 input[type=search] { width: 100%; }
 .chips { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-.chip { border: 1px solid var(--axis); background: transparent; border-radius: 999px; padding: 2px 10px; cursor: pointer; font-size: 12px; }
+.chip { border: 1px solid var(--axis); background: transparent; border-radius: 999px; padding: 2px 10px; font-size: 12px; }
 .chip[aria-pressed=true] { background: var(--chip-on); color: var(--chip-on-ink); border-color: var(--chip-on); }
+.chip:disabled { opacity: .45; cursor: default; }
+.btn { border: 1px solid var(--axis); background: var(--surface); border-radius: 6px; padding: 3px 10px; font-size: 12px; }
+.btn.primary { background: var(--chip-on); color: var(--chip-on-ink); border-color: var(--chip-on); }
+.btn:disabled { opacity: .45; cursor: default; }
 .small { font-size: 12px; color: var(--ink-2); }
 #list { overflow: auto; flex: 1; min-height: 200px; border-top: 1px solid var(--ring); }
 .row { display: grid; grid-template-columns: 18px 1fr auto; gap: 2px 8px; padding: 6px 4px; border-bottom: 1px solid var(--ring); cursor: pointer; align-items: start; }
 .row:hover { background: var(--surface-2); }
+.row.focus { box-shadow: inset 3px 0 0 var(--accent); }
+.row.edited { background: var(--edit-bg); }
 .row input { margin: 3px 0 0; }
 .row .nm { font-weight: 600; overflow-wrap: anywhere; }
 .row .eff { grid-column: 2 / 4; font-size: 12px; color: var(--ink-2); }
@@ -63,23 +76,35 @@ input[type=search] { width: 100%; }
 .badge.none { border-style: dashed; }
 .badge.sig { border-color: var(--ink-2); color: var(--ink); }
 .badge.strong { background: var(--chip-on); color: var(--chip-on-ink); border-color: var(--chip-on); }
+.badge.stale { border-color: var(--warn-ink); color: var(--warn-ink); background: var(--warn-bg); }
+.sgline { stroke-linecap: butt; }
+.sgband { stroke-dasharray: 2 3; }
+.badge.sg { border-color: #7a5af8; color: #7a5af8; }
+.sgOut { display: block; grid-column: 1 / -1; font-size: 12px; color: var(--ink-2); margin: 2px 0 4px 4px; }
+.refchip { display: inline-flex; gap: 6px; align-items: center; font-size: 12px; color: var(--muted); }
+.refchip .refhash { font-family: ui-monospace, monospace; }
+.badge.link { border-color: var(--accent); color: var(--accent); }
 .gtag { display: inline-block; white-space: nowrap; font-size: 11px; line-height: 15px; padding: 0 5px; border-radius: 3px; margin-right: 6px; font-weight: 600; vertical-align: 1px; }
 .gtag.white { background: var(--surface-2); color: var(--ink-2); border: 1px solid var(--axis); }
 .gtag.blue { background: #cde2fb; color: #104281; } .gtag.red { background: #fbd5d5; color: #8a1f1f; }
 .controls { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; padding: 8px 12px; }
 .controls label { display: inline-flex; gap: 6px; align-items: center; }
-.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--ring); }
-.tab { border: 0; background: transparent; padding: 6px 12px; cursor: pointer; border-bottom: 2px solid transparent; color: var(--ink-2); }
+.changebar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: var(--edit-bg); border: 1px solid var(--accent); border-radius: 8px; padding: 6px 10px; position: sticky; top: 0; z-index: 6; }
+.changebar .status { margin-left: auto; font-size: 12px; color: var(--ink-2); }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--ring); flex-wrap: wrap; }
+.tab { border: 0; background: transparent; padding: 6px 12px; border-bottom: 2px solid transparent; color: var(--ink-2); }
 .tab[aria-selected=true] { color: var(--ink); border-bottom-color: var(--ink); font-weight: 600; }
 .panel { background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; padding: 10px 12px; position: relative; }
 .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; margin-bottom: 4px; }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .chart { width: 100%; height: 380px; display: block; }
+.chart.small { height: 200px; }
 .chart text { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.chart text.nlab { font-size: 9px; }
 .tooltip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--ring); box-shadow: 0 2px 10px rgba(0,0,0,.15); border-radius: 6px; padding: 6px 8px; font-size: 12px; display: none; z-index: 5; max-width: none; }
 .tooltip table { border-collapse: collapse; }
 .tooltip td { padding: 1px 6px 1px 0; white-space: nowrap; }
-.notice { border-radius: 6px; padding: 6px 10px; background: var(--warn-bg); color: var(--warn-ink); font-size: 12px; }
+.notice { border-radius: 6px; padding: 6px 10px; background: var(--warn-bg); color: var(--warn-ink); font-size: 12px; margin: 2px 0; }
 .eq { font-size: 13px; }
 .eq div { padding: 2px 0; }
 table.rank { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -90,21 +115,59 @@ table.rank tr { cursor: pointer; }
 table.rank tr:hover td { background: var(--surface-2); }
 .rankwrap { max-height: 60vh; overflow: auto; }
 .blocked { margin: 40px auto; max-width: 640px; text-align: center; font-size: 16px; padding: 24px; background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; }
-.swatch { display: inline-block; width: 26px; height: 10px; }
 .hidden { display: none !important; }
+.detail { display: grid; gap: 8px; }
+.efx { border: 1px solid var(--ring); border-radius: 6px; padding: 6px 8px; }
+.efx .hd { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 12px; }
+.kv { display: grid; grid-template-columns: 90px 1fr; gap: 4px 8px; align-items: center; margin-top: 4px; }
+.editor { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+.editor input[type=number] { width: 90px; }
+.editor input[type=range] { width: 160px; }
+.editor .orig { font-size: 11px; color: var(--muted); }
+.cands { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+.cands h4 { margin: 0 0 4px; font-size: 13px; }
+.cands ol { margin: 0; padding-left: 18px; font-size: 12px; }
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 50; display: flex; align-items: flex-start; justify-content: center; padding: 40px 20px; overflow: auto; }
+.modal { background: var(--surface); border-radius: 10px; max-width: 980px; width: 100%; padding: 14px 16px; border: 1px solid var(--ring); }
+.modal pre { background: var(--surface-2); padding: 8px; border-radius: 6px; overflow: auto; max-height: 260px; font-size: 12px; }
+.modal pre .add { color: var(--good); } .modal pre .del { color: var(--bad); }
+.heat { border-collapse: collapse; font-size: 10px; }
+.heat td, .heat th { width: 22px; height: 22px; text-align: center; padding: 0; border: 1px solid var(--surface); }
+.heat th.rowh { width: auto; text-align: right; padding-right: 6px; white-space: nowrap; font-size: 11px; }
+.heat th.colh { height: 90px; vertical-align: bottom; font-weight: 500; }
+.heat th.colh div { writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; font-size: 10px; }
+.heat td.cell { cursor: pointer; color: var(--ink); }
+.heat td.nosig { opacity: .45; }
+.heat td.nonef { outline: 1px dashed var(--muted); outline-offset: -3px; }
+.trace { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.trace .col { max-height: 60vh; overflow: auto; font-size: 12px; border: 1px solid var(--ring); border-radius: 6px; }
+.trace .ev { padding: 2px 6px; border-bottom: 1px solid var(--ring); white-space: nowrap; }
+.trace .ev.div { background: var(--warn-bg); color: var(--warn-ink); font-weight: 600; }
+.trace .ev.after { opacity: .75; }
+.info { cursor: pointer; color: var(--accent); text-decoration: none; font-size: 12px; margin-left: 2px; }
+.guide h3 { margin: 12px 0 4px; font-size: 14px; } .guide li { margin: 6px 0; } .guide li.hl { background: var(--edit-bg); }
+.guide table { border-collapse: collapse; font-size: 12px; } .guide td, .guide th { border-bottom: 1px solid var(--ring); padding: 3px 8px; text-align: left; vertical-align: top; }
+.sweep td { width: 64px; height: 34px; text-align: center; font-size: 11px; border: 1px solid var(--surface); color: var(--ink); }
+.jsoned { width: 100%; min-height: 320px; font: 12px/1.5 ui-monospace, Consolas, monospace; background: var(--surface-2); color: var(--ink); border: 1px solid var(--axis); border-radius: 6px; padding: 6px; white-space: pre; tab-size: 4; }
+.jsonwrap { display: grid; grid-template-columns: 44px 1fr; } .lnum { font: 12px/1.5 ui-monospace, Consolas, monospace; color: var(--muted); text-align: right; padding: 7px 6px 0 0; white-space: pre; overflow: hidden; }
+.bar { display: inline-block; height: 8px; background: var(--accent); border-radius: 2px; vertical-align: middle; }
 </style>
 </head>
 <body>
 <script type="application/json" id="data">/*__DATA__*/</script>
+<script>window.__SERVER__ = /*__SERVER__*/null;</script>
 <div id="app"></div>
 <script>
 "use strict";
 (function () {
 const DATA = JSON.parse(document.getElementById("data").textContent);
+const SRV = window.__SERVER__;
 const app = document.getElementById("app");
 const META = DATA.meta || {};
-const MAX_SEL = 6;
+const MAX_SEL = 4;
+const BASE_ID = "__baseline__";
 const SLOTS = ["var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)", "var(--s5)", "var(--s6)"];
+const SYS_KO = { fantasy: "현행", ember: "불씨", chance: "확률", choice: "선택" };
 const DASH = ["", "7 4", "2 3", "10 3 2 3", "4 2", "1 3"];
 const MARK = ["circle", "square", "triangle", "diamond", "cross", "tri-down"];
 const GRADE_KO = { white: "백색", blue: "청색", red: "적색" };
@@ -114,8 +177,8 @@ const pct = (v, d = 1) => (v == null || isNaN(v) ? "–" : (v * 100).toFixed(d) 
 const pp = (v, d = 1) => (v == null || isNaN(v) ? "–" : (v >= 0 ? "+" : "−") + Math.abs(v * 100).toFixed(d) + "%p");
 const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const fmtX = v => (Math.abs(v - Math.round(v)) < 1e-9 ? String(Math.round(v)) : (+v).toFixed(2));
-// 보간한 X·이득 표시: X축 값이 모두 정수면 정수로 반올림
 let fmtXi = fmtX;
+const fmtNum = v => (v == null ? "–" : Math.abs(v - Math.round(v)) < 1e-9 ? String(Math.round(v)) : String(+(+v).toFixed(4)));
 
 // ---------------- 정직성: 등급 단위 데이터 차단 ----------------
 if (META.effect_mode !== "table") {
@@ -124,15 +187,22 @@ if (META.effect_mode !== "table") {
   return;
 }
 
-// ---------------- 데이터 준비 (한 번만) ----------------
-const XS = META.x_values || [];
-if (XS.every(v => Number.isInteger(v))) fmtXi = v => String(Math.round(v));
+// ---------------- 데이터 준비 ----------------
 const FANTS = DATA.fantasies || [];
 const BYID = Object.fromEntries(FANTS.map(f => [f.id, f]));
-const BASE = DATA.baseline.points;
-const CURVES = DATA.curves;
-const NPT = BASE.length ? BASE[0].n : 0;
+const FACETS = META.facets && META.facets.values && META.facets.values.length ? META.facets : null;
+const TARGETS = DATA.balance_targets && DATA.balance_targets.bands ? DATA.balance_targets : null;
 const strongZ = META.strong_signal_z || 3.4;
+let BASE_HASH = META.data_hash || META.table_hash || null;
+function facetBase(fc) { return FACETS ? DATA.baseline.by_facet[fc] : DATA.baseline.points; }
+function facetCurve(fid, fc) { const c = DATA.curves[fid]; if (!c) return []; return FACETS ? (c.by_facet[fc] || []) : c.points; }
+const allX = new Set();
+(DATA.baseline.points || []).forEach(p => allX.add(p.x));
+if (FACETS) Object.values(DATA.baseline.by_facet).forEach(a => a.forEach(p => allX.add(p.x)));
+let XS = (META.x_values && META.x_values.length ? META.x_values.slice() : [...allX]).sort((a, b) => a - b);
+[...allX].forEach(x => { if (!XS.includes(x)) XS.push(x); }); XS.sort((a, b) => a - b);
+if (XS.every(v => Number.isInteger(v))) fmtXi = v => String(Math.round(v));
+const NPT = (DATA.baseline.points[0] || {}).n || META.runs_per_point || 0;
 
 function effText(e) {
   const v = e.value, w = e.when || {};
@@ -193,25 +263,80 @@ function effText(e) {
     default: return e.type;
   }
 }
-for (const f of FANTS) {
-  f.summary = f.effects && f.effects.length ? f.effects.map(effText).join(", ") : (f.fidelity === "none" ? "효과 미모델링" : (f.notes || "효과 없음"));
-  f.pts = CURVES[f.id] ? CURVES[f.id].points : [];
-}
+function summarize(f) { f.summary = f.effects && f.effects.length ? f.effects.map(effText).join(", ") : (f.fidelity === "none" ? "효과 미모델링" : (f.notes || "효과 없음")); }
+FANTS.forEach(summarize);
 
-// ---------------- 상태 (URL 해시) ----------------
+// ---------------- 상태 ----------------
 const S = { sel: [], slot: {}, metric: "win", act: 1, x: XS[Math.floor(XS.length / 2)], tab: "curve", T: META.target_win_rate ?? 0.1,
-  ci: true, smooth: false, q: "", grades: { white: true, blue: true, red: true }, sort: "delta_desc", rankMode: "x", rankSort: "delta", rankDir: -1 };
+  ci: true, smooth: false, q: "", grades: { white: true, blue: true, red: true }, sort: "delta_desc", rankMode: "x", rankSort: "delta", rankDir: -1,
+  facet: FACETS ? FACETS.default : null, overlay: false, focus: null,
+  edits: [], cfgEdits: [], cfgSet: {}, fileEdits: [], undo: [], redo: [], sweepMetric: "win_rate" };
+const COMBO = { res: null, busy: false, est: null, cache: {} };   // cache: 조합 키 → 결과 (체크를 바꿨다 돌아와도 유지)
+const CLIENT = Math.random().toString(36).slice(2, 12);           // 이 탭의 작업만 취소하도록 서버에 보내는 ID (여러 기기 공용 서버)
+const COMBO_SLOT = 5;                                              // 조합 곡선 색 (단독 선택은 0~3)
+const EMB = { sweep: null };
+const SCAN_SYSTEM = META.reward_system || META.reward_mode || "fantasy";
+// v4 F8: 피해 모델 (gauss | digits) 과 기믹 스위치
+const SCAN_MODEL = META.damage_model || "gauss", SCAN_GIMMICKS = META.monsters_gimmicks || "off";
+// v4.2 F11: 몬스터 체력 = 원본 JSON(table), X축 = 시작 체력. tier_avg(평균 몬스터) 스캔은 구버전
+const X_LABEL = { "player.start_hp": "시작 체력", "monsters.hp_scale": "몬스터 체력 배율", "monsters.hp_base": "평균 몬스터 체력(구버전)" };
+function xName(p) { return X_LABEL[p] ? `${X_LABEL[p]} (${p})` : p; }
+const SCAN_MON_MODEL = META.monster_model || "tier_avg";
+const LEGACY_SCAN = SCAN_MON_MODEL === "tier_avg" || META.x_param === "monsters.hp_base";
+const X_CUR = META.x_current;
+const EQ_LABEL = META.x_param === "player.start_hp" ? "등가 시작 체력" : "등가 체력 이득";
+function curVlines() {   // 현재 값(예: 시작 체력 150) 세로선 — X 격자 범위 안이고 두 점 이상일 때
+  return X_CUR != null && XS.length > 1 && X_CUR >= XS[0] && X_CUR <= XS[XS.length - 1] ? [{ x: X_CUR, label: "현재 " + fmtX(X_CUR) }] : [];
+}
+function curMonModel() { return S.cfgSet["monsters.model"] || SCAN_MON_MODEL; }
+function curModel() { return S.cfgSet["monsters.damage_model"] || SCAN_MODEL; }
+function curGimmicks() { return S.cfgSet["monsters.gimmicks"] || (curModel() === SCAN_MODEL ? SCAN_GIMMICKS : "off"); }
+function modelLabel(m, g) { return m === "digits" ? (g === "on" ? "digits + 기믹" : "digits") : "gauss"; }
+function applyModelFidelity() {   // 환상 충실도는 피해 모델에 맞는 쪽을 쓴다 (F8.5)
+  for (const f of FANTS) {
+    if (f.fidelity_gauss === undefined) { f.fidelity_gauss = f.fidelity; f.notes_gauss = f.notes; }
+    const dg = curModel() === "digits" && f.fidelity_digits;
+    f.fidelity = dg ? f.fidelity_digits : f.fidelity_gauss; f.notes = dg ? (f.notes_digits || f.notes_gauss) : f.notes_gauss;
+  }
+}
+function setModel(v) {
+  pushUndo();
+  const m = v.startsWith("digits") ? "digits" : "gauss", g = v === "digits+g" ? "on" : "off";
+  if (m === SCAN_MODEL) delete S.cfgSet["monsters.damage_model"]; else S.cfgSet["monsters.damage_model"] = m;
+  if (g === SCAN_GIMMICKS && m === SCAN_MODEL) delete S.cfgSet["monsters.gimmicks"]; else S.cfgSet["monsters.gimmicks"] = g;
+  const scanTable = (META.fixed_overrides || {})["monsters.model"] === "table" || META.monster_model === "table";
+  if (m === "digits" && !scanTable) { S.cfgSet["monsters.model"] = "table"; flash("digits 는 몬스터 테이블 모델이 필요합니다 — monsters.model=table 로 전환합니다. 현재 X축(" + xName(META.x_param) + ")이 monsters.hp_scale 이 아니면 곡선이 X에 반응하지 않습니다."); }
+  else if (m === "gauss") delete S.cfgSet["monsters.model"];
+  applyModelFidelity(); FANTS.forEach(summarize);
+  COMBO.res = null; COMBO.cache = {};
+  afterEditChange();
+}
+// 서버 계산 결과 (수정 후 = after, 수정 전 고스트 = before)
+const LIVE = { hash: null, cfgTag: "", after: {}, before: {}, job: null, status: "", busy: false };
+function cfgTag(ce, cs) { const a = ce && ce.length ? JSON.stringify(ce.map(c => [c.path, c.new])) : ""; const b = cs && Object.keys(cs).length ? JSON.stringify(Object.entries(cs).sort()) : ""; return a + b; }
+function liveActive() { return S.edits.length > 0 || S.cfgEdits.length > 0 || Object.keys(S.cfgSet).length > 0; }
+// §6.8 비교 기준 스냅샷: 작업 사본(JSON 편집 포함)이 기준과 다르면 고스트를 그린다
+let REF = null;
+function refDiff() { return !!(REF && !REF.same); }
+function ghostMode() { return liveActive() || refDiff(); }
+function needsCompute() { return liveActive() || S.fileEdits.length > 0 || refDiff(); }
+function curVer() { return liveActive() ? (LIVE.hash ? LIVE.hash + "|" + cfgTag(S.cfgEdits, S.cfgSet) : null) : (BASE_HASH || "") + "|"; }
+function ptVer(p) { return (p.data_hash || p.table_hash || BASE_HASH || "") + "|" + (p.cfg_tag || ""); }
+function curSystem() { return S.cfgSet["rewards.normal_battle.mode"] || SCAN_SYSTEM; }
+
 function readHash() {
   const h = new URLSearchParams(location.hash.replace(/^#/, ""));
   if (h.has("f")) S.sel = h.get("f").split(",").filter(id => BYID[id]).slice(0, MAX_SEL);
   if (h.has("m") && ["win", "delta", "floor", "death"].includes(h.get("m"))) S.metric = h.get("m");
   if (h.has("a")) S.act = Math.min(3, Math.max(1, +h.get("a") || 1));
   if (h.has("x")) { const v = +h.get("x"); const k = XS.findIndex(z => Math.abs(z - v) < 1e-9); if (k >= 0) S.x = XS[k]; }
-  if (h.has("t") && ["curve", "surv", "rank"].includes(h.get("t"))) S.tab = h.get("t");
+  if (h.has("t") && ["curve", "surv", "rank", "mon", "cal", "trace", "ember", "guide", "json"].includes(h.get("t"))) S.tab = h.get("t");
   if (h.has("T")) { const v = +h.get("T"); if (v > 0 && v < 1) S.T = v; }
   if (h.has("ci")) S.ci = h.get("ci") !== "0";
   if (h.has("sm")) S.smooth = h.get("sm") === "1";
   if (h.has("rk")) S.rankMode = h.get("rk") === "avg" ? "avg" : "x";
+  if (h.has("fc") && FACETS && FACETS.values.includes(h.get("fc"))) S.facet = h.get("fc");
+  if (h.has("ov")) S.overlay = h.get("ov") === "1";
   S.slot = {};
   S.sel.forEach((id, k) => (S.slot[id] = k));
 }
@@ -221,30 +346,58 @@ function writeHash() {
   p.set("m", S.metric); if (S.metric === "death") p.set("a", S.act);
   p.set("x", fmtX(S.x)); p.set("t", S.tab); p.set("T", String(S.T));
   p.set("ci", S.ci ? "1" : "0"); if (S.smooth) p.set("sm", "1"); if (S.rankMode !== "x") p.set("rk", S.rankMode);
+  if (FACETS) { p.set("fc", S.facet); if (S.overlay) p.set("ov", "1"); }
   const s = "#" + p.toString().replace(/%2C/g, ",");
   if (location.hash !== s) history.replaceState(null, "", s);
 }
 readHash();
 
+// ---------------- 점 접근 ----------------
+function staticPts(fid, fc = S.facet) { return fid === BASE_ID ? facetBase(fc) : facetCurve(fid, fc); }
+function livePts(series, fid) { const m = LIVE[series][fid]; return m ? [...m.values()].sort((a, b) => a.x - b.x) : null; }
+function curPts(fid, fc = S.facet) {
+  if (liveActive() || LIVE.after[fid]) {
+    const lv = livePts("after", fid);
+    if (lv && lv.length) {
+      // 계산 중인 X 는 이전 점으로 채움 (stale 로 표시됨)
+      const m = new Map(staticPts(fid, fc).map(p => [p.x, p]));
+      lv.forEach(p => m.set(p.x, p));
+      return [...m.values()].sort((a, b) => a.x - b.x);
+    }
+  }
+  return staticPts(fid, fc);
+}
+function ptAt(pts, x) { for (const p of pts) if (Math.abs(p.x - x) < 1e-9) return p; return null; }
+function isStale(pts) { const v = curVer(); if (v == null) return true; return pts.some(p => ptVer(p) !== v); }
+
 // ---------------- 레이아웃 ----------------
 const fixed = Object.entries(META.fixed_overrides || {}).map(([k, v]) => `${k}=${v}`).join(", ") || "없음";
-const meanFant = BASE.length ? BASE.reduce((a, p) => a + p.mean_fantasies, 0) / BASE.length : 0;
+const meanFant = (DATA.baseline.points || []).length ? DATA.baseline.points.reduce((a, p) => a + p.mean_fantasies, 0) / DATA.baseline.points.length : 0;
 const nFid = FANTS.reduce((a, f) => (a[f.fidelity] = (a[f.fidelity] || 0) + 1, a), {});
+const ad = META.adaptive || {};
+const TABS = [["curve", "승률 곡선"], ["surv", "생존 곡선"], ["rank", "랭킹 표"]]
+  .concat(DATA.monster_metrics || SRV ? [["mon", "몬스터"]] : [])
+  .concat(DATA.calibration ? [["cal", "보정"]] : [])
+  .concat(SRV ? [["ember", "불씨"], ["trace", "런 재생"], ["json", "JSON 편집"]] : (DATA.ember_compare ? [["ember", "불씨"]] : []))
+  .concat([["guide", "해석 가이드"]]);
 app.innerHTML = `
 <header class="banner" id="banner">
-  <h1>환상별 승률 곡선</h1>
+  <h1>환상별 승률 곡선 <span class="mode" id="modeBadge">읽기 전용</span></h1>
   <div class="meta num">
     <span>시드 <b>${esc(META.master_seed)}</b></span>
-    <span>점당 <b>${(META.runs_per_point || 0).toLocaleString()}판</b></span>
-    <span>X축 <b>${esc(META.x_param)}</b> ${fmtX(XS[0])}–${fmtX(XS[XS.length - 1])} (${XS.length}점)</span>
+    <span>점당 <b>${(META.runs_per_point || 0).toLocaleString()}판${ad.enabled ? " (적응형 최대)" : ""}</b></span>
+    <span>X축 <b>${esc(xName(META.x_param))}</b> ${XS.length ? fmtX(XS[0]) + "–" + fmtX(XS[XS.length - 1]) : ""} (${XS.length}점)${X_CUR != null ? ` · 현재 값 <b id="xCur">${fmtX(X_CUR)}</b>` : ""}</span>
+    <span>몬스터 <b>${SCAN_MON_MODEL === "table" ? "원본 JSON 체력" : "평균 몬스터(tier_avg)"}</b>${LEGACY_SCAN ? ' <span class="badge stale" id="legacyBadge" title="v4.1 이전 기본값(평균 몬스터 hp_base·성장률)으로 계산한 결과 — 실제 몬스터 체력과 무관 (v4.2 F11)">구버전(평균 몬스터)</span>' : ""}<span id="scaleBadge"></span></span>
     <span>고정 <b>${esc(fixed)}</b></span>
-    <span>강제 포함 시점 <b>${META.forced_at === "start" ? "런 시작" : esc(JSON.stringify(META.forced_at))}</b></span>
+    ${FACETS ? `<span>패싯 <b>${esc(FACETS.key)}</b> = ${FACETS.values.map(esc).join(", ")}</span>` : ""}
+    <span>강제 포함 시점 <b>${META.forced_at === "start" || !META.forced_at ? "런 시작" : esc(JSON.stringify(META.forced_at))}</b></span>
     <span>effect_mode <b>${esc(META.effect_mode)}</b></span>
-    <span>효과 파일 해시 <b>${esc((META.effects_hash || "").slice(0, 10))}</b></span>
+    <span>테이블 해시 <b id="hashLabel">${esc((BASE_HASH || META.effects_hash || "").slice(0, 10))}</b></span>
     <span>생성 <b>${esc(META.generated_at)}</b></span>
     <span>기준선 평균 보유 환상 <b>${meanFant.toFixed(1)}개</b></span>
-    <span>보상 선택 <b>${esc(META.fantasy_pick || "random")}</b></span>
-    <span>sim v${esc(META.sim_version)}</span>
+    <span>보상 <b>${esc(META.reward_mode || "fantasy")}</b> · 선택 <b>${esc(META.fantasy_pick || "random")}</b></span>
+    ${ad.enabled ? `<span>적응형 ε=${pp(ad.epsilon)} · 판 수 절감 <b>${pct(ad.saving)}</b></span>` : ""}
+    <span>sim v${esc(META.sim_version)} · schema ${esc(META.schema || 1)}</span>
   </div>
   <div class="caveat">환상 효과는 추상화된 근사입니다. 절대 수치보다 <b>환상 간 상대 비교와 방향</b>에 의미를 두세요. 모델링 수준: 정확 ${nFid.exact || 0} · 근사 ${nFid.approx || 0} · 미모델링 ${nFid.none || 0}.
   Δ는 같은 시드끼리 짝지은 차이이며, 점당 ${NPT.toLocaleString()}판에서 대략 <span id="minDetect"></span> 보다 작은 Δ는 구분할 수 없습니다.</div>
@@ -262,10 +415,27 @@ app.innerHTML = `
       <span id="selCount"></span>
       <button class="chip" id="clearSel">선택 해제</button>
     </div>
-    <div class="small">Δ = 선택한 X (<b id="listX" class="num"></b>) 기준. 최대 ${MAX_SEL}개 선택.</div>
+    <div class="small">Δ = 선택한 X (<b id="listX" class="num"></b>) 기준. 최대 ${MAX_SEL}개 선택. 이름을 누르면 상세${SRV ? "·편집" : ""}.</div>
     <div id="list" role="list"></div>
   </aside>
   <main>
+    <div class="changebar hidden" id="changebar">
+      <b id="chgCount">변경 0개</b>
+      <button class="btn" id="btnUndo" title="되돌리기 (Ctrl+Z)">↶ 실행 취소</button>
+      <button class="btn" id="btnRedo" title="다시 실행 (Ctrl+Y)">↷ 다시 실행</button>
+      <button class="btn" id="btnRevertAll">모두 되돌리기</button>
+      <button class="btn" id="btnSave">저장(시나리오)</button>
+      <button class="btn" id="btnLoad">불러오기</button>
+      <button class="btn" id="btnFull">전체 재계산</button>
+      <button class="btn primary" id="btnApply">원본에 반영</button>
+      <button class="btn" id="btnUnapply" title="마지막 반영 되돌리기">반영 되돌리기</button>
+      <span class="status" id="jobStatus"></span>
+      <span class="refchip" id="refChip"></span>
+      <label class="small" title="편집 후 실제 재계산 시점 (v4.1 Q33)">편집 후 재계산 <select id="rcMode"><option value="release">놓을 때</option><option value="button">버튼만</option></select></label>
+      <button class="btn" id="btnRecompute">재계산</button>
+      <button class="btn" id="btnTune" title="기준선 승률이 목표가 되는 몬스터 체력 배율·시작 체력을 찾아 보여 줌 (몬스터 JSON 은 바꾸지 않음, v4.2 F11.6)">목표 승률 맞추기</button>
+    </div>
+    <div class="notice hidden" id="tunePanel"></div>
     <div class="controls">
       <label>Y 지표 <select id="metric">
         <option value="win">승률</option><option value="delta">Δ승률(기준선 대비)</option>
@@ -275,12 +445,14 @@ app.innerHTML = `
       <label>목표 승률 <input type="number" id="target" min="1" max="99" step="0.5" style="width:70px" class="num">%</label>
       <label><input type="checkbox" id="ci"> 95% 신뢰구간</label>
       <label><input type="checkbox" id="smooth"> 평활화 <span class="small">(표시용)</span></label>
+      <label id="sysWrap" class="hidden">획득 시스템 <select id="system"><option value="fantasy">현행</option><option value="ember">불씨</option><option value="custom">사용자 설정</option></select><a class="info" data-g="2">ⓘ</a></label>
+      <span id="mixBadge"></span>
+      <label id="modelWrap" class="hidden">피해 모델 <select id="dmodel"><option value="gauss">gauss (등급 평균)</option><option value="digits">digits (자릿수)</option><option value="digits+g">digits + 기믹</option></select><a class="info" data-g="13">ⓘ</a></label>
+      <span id="modelBadge"></span>
+      ${FACETS ? `<label>${esc(FACETS.key)} <select id="facet">${FACETS.values.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join("")}</select></label>
+      <label><input type="checkbox" id="overlay"> 패싯 겹쳐 그리기</label>` : ""}
     </div>
-    <div class="tabs" role="tablist">
-      <button class="tab" role="tab" data-t="curve">승률 곡선</button>
-      <button class="tab" role="tab" data-t="surv">생존 곡선</button>
-      <button class="tab" role="tab" data-t="rank">랭킹 표</button>
-    </div>
+    <div class="tabs" role="tablist">${TABS.map(([t, l]) => `<button class="tab" role="tab" data-t="${t}">${l}</button>`).join("")}</div>
     <section class="panel" id="tab-curve">
       <div class="legend" id="legend"></div>
       <div id="noneNotes"></div>
@@ -288,10 +460,12 @@ app.innerHTML = `
       <div class="tooltip" id="tip"></div>
       <div class="small" id="smoothLabel"></div>
       <div class="eq" id="eq"></div>
+      <div id="comboPanel"></div>
+      <div id="detail" class="detail"></div>
     </section>
     <section class="panel" id="tab-surv">
       <div class="legend" id="legend2"></div>
-      <div class="small">선택 X = <b id="survX" class="num"></b> 에서 층별 도달률 (1~45층). 세로선은 막 경계(15·30층).</div>
+      <div class="small">선택 X = <b id="survX" class="num"></b> 에서 층별 도달률 (1~45층). 세로선은 막 경계(15·30층). 환상을 2개 이상 체크하고 승률 곡선 탭에서 ‘조합 승률 계산’을 하면 조합(모두 보유) 곡선도 그려진다.</div>
       <svg class="chart" id="chart2" role="img" aria-label="생존 곡선"></svg>
       <div class="tooltip" id="tip2"></div>
     </section>
@@ -301,17 +475,24 @@ app.innerHTML = `
         <button class="chip" id="rkAvg" aria-pressed="false">전 구간 평균</button>
         <span id="rkNote"></span>
       </div>
+      <div id="cands"></div>
       <div class="rankwrap"><table class="rank" id="rank"><thead></thead><tbody></tbody></table></div>
-      <p class="small" id="rankFoot">환상 ${FANTS.length}종을 동시에 비교하므로 95% 신호 중 약 5%는 우연일 수 있습니다. <b>신호</b> = 95% CI가 0을 제외, <b>강한 신호</b> = |Δ/se| ≥ ${strongZ} (동시 비교 보정 근사). 흐린 행은 CI가 0을 포함(구분 불가). 미모델링 환상의 Δ는 우연 변동입니다(강제 포함으로 보상 후보가 하나 줄어드는 효과는 남음).</p>
+      <p class="small" id="rankFoot">환상 ${FANTS.length}종을 동시에 비교하므로 95% 신호 중 약 5%는 우연일 수 있습니다. <b>신호</b> = 95% CI가 0을 제외, <b>강한 신호</b> = |Δ/se| ≥ ${strongZ} (동시 비교 보정 근사). 흐린 행은 CI가 0을 포함(구분 불가). 미모델링 환상의 Δ는 우연 변동입니다(강제 포함으로 보상 후보가 하나 줄어드는 효과는 남음).${TARGETS ? ` <b>판정</b>은 등급별 목표 밴드(${esc(TARGETS._comment || TARGETS.note || "")})와 CI를 비교합니다.` : ""}</p>
     </section>
+    <section class="panel" id="tab-mon"></section>
+    <section class="panel" id="tab-cal"></section>
+    <section class="panel" id="tab-trace"></section>
+    <section class="panel" id="tab-ember"></section>
+    <section class="panel" id="tab-json"></section>
+    <section class="panel guide" id="tab-guide"></section>
   </main>
-</div>`;
+</div>
+<div id="modal"></div>`;
 
 const $ = id => document.getElementById(id);
 const listEl = $("list");
 
 // ---------------- 계산 도우미 ----------------
-const xi = () => Math.max(0, XS.findIndex(v => Math.abs(v - S.x) < 1e-9));
 function binCI(p, n) { const h = 1.96 * Math.sqrt(Math.max(p * (1 - p), 0) / n); return [Math.max(0, p - h), Math.min(1, p + h)]; }
 function series(pts, metric) {
   return pts.map(p => {
@@ -331,9 +512,16 @@ function smooth(arr) {
     return Object.assign({}, d, { y: avg("y"), lo: avg("lo"), hi: avg("hi") });
   });
 }
+function trendInc(xs, ys) {   // 최소제곱 기울기 ≥ 0 이면 증가 곡선
+  const n = xs.length; if (n < 2) return false;
+  const mx = xs.reduce((a, b) => a + b, 0) / n, my = ys.reduce((a, b) => a + b, 0) / n;
+  return xs.reduce((a, x, i) => a + (x - mx) * (ys[i] - my), 0) >= 0;
+}
+// 등가 이득의 부호: 몬스터 체력처럼 승률이 X 에 대해 감소하면 +(c − b), 시작 체력처럼 증가하면 −(c − b) → 이로운 환상이 양수
+function gainSign() { const b = (DATA.baseline.points || []).filter(p => p.win_rate != null); return trendInc(b.map(p => p.x), b.map(p => p.win_rate)) ? -1 : 1; }
 function crossing(pts, T) {
-  const ys = pts.map(p => p.win_rate);
-  const xs = pts.map(p => p.x);
+  const s = pts.filter(p => p.win_rate != null).slice().sort((a, b) => a.x - b.x);
+  const ys = s.map(p => p.win_rate), xs = s.map(p => p.x);
   const hits = [];
   for (let k = 0; k < ys.length - 1; k++) {
     const a = ys[k] - T, b = ys[k + 1] - T;
@@ -342,32 +530,63 @@ function crossing(pts, T) {
   }
   if (ys.length && ys[ys.length - 1] === T) hits.push(xs[xs.length - 1]);
   if (!hits.length) {
-    if (ys.every(y => y > T)) return { out: `범위 밖(X>${fmtX(xs[xs.length - 1])})`, dir: 1 };
+    if (!ys.length) return { out: "–" };
+    if (ys.length === 1) return { out: "X 한 점 — 보간 불가" };   // v4.2: JSON 체력 한 점 스캔
+    // 방향은 데이터로 판정 (v4.2: X = 시작 체력이면 증가 곡선) — 모두 목표 위인데 증가 곡선이면 교차는 X 최소보다 아래
+    const up = trendInc(xs, ys), above = ys.every(y => y > T);
+    if (above !== up) return { out: `범위 밖(X>${fmtX(xs[xs.length - 1])})`, dir: 1 };
     return { out: `범위 밖(X<${fmtX(xs[0])})`, dir: -1 };
   }
   const uniq = [...new Set(hits.map(h => +h.toFixed(6)))];
   return { x: Math.max(...uniq), noisy: uniq.length > 1 };
 }
-const ciZero = p => p.delta_ci && p.delta_ci[0] <= 0 && p.delta_ci[1] >= 0;
-function avgDelta(f) {
-  const ps = f.pts; if (!ps.length) return null;
+const ciZero = p => p && p.delta_ci && p.delta_ci[0] <= 0 && p.delta_ci[1] >= 0;
+function avgDelta(pts) {
+  const ps = pts.filter(p => p.delta != null); if (!ps.length) return null;
   const d = ps.reduce((a, p) => a + p.delta, 0) / ps.length;
   const se = Math.sqrt(ps.reduce((a, p) => a + p.delta_se * p.delta_se, 0)) / ps.length;
   return { delta: d, delta_se: se, delta_ci: [d - 1.96 * se, d + 1.96 * se] };
 }
-function rankPoint(f) { return S.rankMode === "avg" ? avgDelta(f) : f.pts[xi()]; }
-const baseCross = () => crossing(BASE, S.T);
-function eqGain(f) {
-  const b = baseCross(), c = crossing(f.pts, S.T);
+function rankPoint(fid, mode = S.rankMode, fc = S.facet) { const pts = curPtsFc(fid, fc); return mode === "avg" ? avgDelta(pts) : ptAt(pts, S.x); }
+function curPtsFc(fid, fc) { return fc === S.facet ? curPts(fid) : staticPts(fid, fc); }
+const baseCross = () => crossing(curPts(BASE_ID), S.T);
+function eqGain(fid) {
+  const b = baseCross(), c = crossing(curPts(fid), S.T);
   if (b.x == null || c.x == null) return { b, c, gain: null };
-  return { b, c, gain: c.x - b.x };
+  return { b, c, gain: gainSign() * (c.x - b.x) };
 }
+// F1 목표 밴드 판정. 획득 시스템(현행/불씨)별 밴드가 있으면 그것을 쓴다 (bands_by_system)
+function targetBands() { return (TARGETS && TARGETS.bands_by_system && TARGETS.bands_by_system[curSystem()]) || (TARGETS && TARGETS.bands) || {}; }
+function verdict(f, p, stale) {
+  if (!TARGETS) return null;
+  if (f.fidelity === "none") return { k: "excl", label: "제외", why: "미모델링" };
+  if (stale) return { k: "excl", label: "제외", why: "이전 데이터(stale)" };
+  if (!p || !p.delta_ci) return { k: "excl", label: "제외", why: "데이터 없음" };
+  const band = targetBands()[f.grade]; if (!band) return { k: "excl", label: "제외", why: "밴드 없음" };
+  const [lo, hi] = p.delta_ci;
+  if (lo > band[1]) return { k: "above", label: "확실히 위", dist: lo - band[1], band };
+  if (hi < band[0]) return { k: "below", label: "확실히 아래", dist: band[0] - hi, band };
+  if (lo >= band[0] && hi <= band[1]) return { k: "in", label: "범위 내", band };
+  return { k: "unsure", label: "불확실", band };
+}
+window.__verdict = verdict;  // 테스트용
+// F6 격차
+function facetGap(fid) {
+  if (!FACETS || FACETS.values.length < 2) return null;
+  const lo = FACETS.values[0], hi = FACETS.values[FACETS.values.length - 1];
+  const a = rankPoint(fid, S.rankMode, hi), b = rankPoint(fid, S.rankMode, lo);
+  if (!a || !b || a.delta == null || b.delta == null) return null;
+  const d = a.delta - b.delta, se = Math.sqrt(a.delta_se * a.delta_se + b.delta_se * b.delta_se);
+  const ci = [d - 1.96 * se, d + 1.96 * se];
+  return { gap: d, se, ci, cls: ci[0] > 0 ? "격차 확대" : ci[1] < 0 ? "격차 완화" : "구분 불가" };
+}
+window.__facetGap = facetGap;
 
 // ---------------- 좌측 목록 ----------------
 function listOrder() {
-  const k = xi(), q = S.q.trim().toLowerCase();
+  const q = S.q.trim().toLowerCase();
   let arr = FANTS.filter(f => S.grades[f.grade] && (!q || (f.name + " " + f.id + " " + f.summary + " " + (f.description || "")).toLowerCase().includes(q)));
-  const dv = f => (f.pts[k] ? f.pts[k].delta : 0);
+  const dv = f => { const p = ptAt(curPts(f.id), S.x); return p && p.delta != null ? p.delta : 0; };
   if (S.sort === "delta_desc") arr.sort((a, b) => dv(b) - dv(a));
   else if (S.sort === "delta_asc") arr.sort((a, b) => dv(a) - dv(b));
   else if (S.sort === "name") arr.sort((a, b) => a.name.localeCompare(b.name, "ko"));
@@ -375,15 +594,17 @@ function listOrder() {
   return arr;
 }
 function fidBadge(f) { return f.fidelity === "exact" ? "" : `<span class="badge ${f.fidelity}" title="${esc(f.notes)}">${FID_KO[f.fidelity]}</span>`; }
+const editedSet = () => new Set(S.edits.filter(e => e.fid).map(e => e.fid).concat(REF ? REF.changed.fantasies : []));
 function renderList() {
-  const k = xi();
+  const ed = editedSet();
   const html = listOrder().map(f => {
-    const p = f.pts[k], on = S.sel.includes(f.id), z = p && ciZero(p);
+    const pts = curPts(f.id), p = ptAt(pts, S.x), on = S.sel.includes(f.id), z = p && ciZero(p);
+    const stale = isStale(pts);
     const sw = on ? `<svg width="22" height="10" style="vertical-align:middle">${legendMark(S.slot[f.id])}</svg>` : "";
-    return `<div class="row" role="listitem" data-id="${esc(f.id)}" title="${esc(f.description || "")}${f.notes ? "\n\n" + esc(f.notes) : ""}">
+    return `<div class="row${S.focus === f.id ? " focus" : ""}${ed.has(f.id) ? " edited" : ""}" role="listitem" data-id="${esc(f.id)}" title="${esc(f.description || "")}${f.notes ? "\n\n" + esc(f.notes) : ""}">
       <input type="checkbox" ${on ? "checked" : ""} aria-label="${esc(f.name)} 곡선 표시">
-      <div class="nm"><span class="gtag ${f.grade}">${GRADE_KO[f.grade][0]}</span>${esc(f.name)} ${fidBadge(f)} ${sw}</div>
-      <div class="d num ${z ? "dim" : ""}">${p ? pp(p.delta) : "–"}${z ? '<div class="small">구분 불가</div>' : ""}</div>
+      <div class="nm"><span class="gtag ${f.grade}">${GRADE_KO[f.grade][0]}</span><span class="fname">${esc(f.name)}</span> ${fidBadge(f)}${f.src_linked ? '<span class="badge link" title="원본 JSON 연결">🔗</span>' : ""}${ed.has(f.id) ? '<span class="badge">수정</span>' : ""}${stale ? '<span class="badge stale">이전</span>' : ""} ${sw}</div>
+      <div class="d num ${z ? "dim" : ""}">${p && p.delta != null ? pp(p.delta) : "–"}${z ? '<div class="small">구분 불가</div>' : ""}</div>
       <div class="eff">${esc(f.summary)}</div></div>`;
   }).join("");
   listEl.innerHTML = html || '<div class="small" style="padding:8px">조건에 맞는 환상이 없습니다.</div>';
@@ -398,13 +619,13 @@ function toggle(id) {
     const used = new Set(Object.values(S.slot));
     let s = 0; while (used.has(s)) s++;
     S.slot[id] = s; S.sel.push(id);
+    if (liveActive()) scheduleRecompute();
   }
   update();
 }
 function flash(msg) { const n = $("noneNotes"); n.innerHTML = `<div class="notice">${esc(msg)}</div>`; setTimeout(() => renderNoneNotes(), 1800); }
 
 // ---------------- SVG 차트 ----------------
-const NS = "http://www.w3.org/2000/svg";
 function markPath(shape, x, y, r) {
   switch (shape) {
     case "square": return `M${x - r},${y - r}h${2 * r}v${2 * r}h${-2 * r}Z`;
@@ -428,9 +649,8 @@ function niceTicks(lo, hi, n = 5) {
   return t;
 }
 function drawChart(svg, cfg) {
-  // cfg: {series:[{id,slot,pts:[{x,y,lo,hi}],base:bool}], xs, yfmt, xfmt, yZero, vlines:[], guideX, hline, band}
   const W = svg.clientWidth || 800, H = svg.clientHeight || 380;
-  const M = { l: 56, r: 16, t: 12, b: 34 };
+  const M = { l: 56, r: 16, t: 14, b: 34 };
   const iw = W - M.l - M.r, ih = H - M.t - M.b;
   let ylo = Infinity, yhi = -Infinity;
   for (const s of cfg.series) for (const d of s.pts) {
@@ -438,49 +658,82 @@ function drawChart(svg, cfg) {
     ylo = Math.min(ylo, d.y); yhi = Math.max(yhi, d.y);
     if (cfg.band && d.lo != null) { ylo = Math.min(ylo, d.lo); yhi = Math.max(yhi, d.hi); }
   }
+  for (const b of cfg.bands || []) { ylo = Math.min(ylo, b.lo); yhi = Math.max(yhi, b.hi); }
   if (cfg.hline != null) { ylo = Math.min(ylo, cfg.hline); yhi = Math.max(yhi, cfg.hline); }
   if (!isFinite(ylo)) { ylo = 0; yhi = 1; }
   if (cfg.yZero) { ylo = Math.min(0, ylo); yhi = Math.max(0, yhi); }
   const pad = (yhi - ylo) * 0.06 || 0.01; ylo -= cfg.yZero && ylo === 0 ? 0 : pad; yhi += pad;
   if (cfg.yClamp) { ylo = Math.max(cfg.yClamp[0], ylo); yhi = Math.min(cfg.yClamp[1], yhi); }
-  const x0 = cfg.xs[0], x1 = cfg.xs[cfg.xs.length - 1];
+  const xs = cfg.xs.length ? cfg.xs : [0, 1];
+  const x0 = xs[0], x1 = xs[xs.length - 1];
   const X = v => M.l + (x1 === x0 ? iw / 2 : (v - x0) / (x1 - x0) * iw);
   const Y = v => M.t + ih - (v - ylo) / (yhi - ylo) * ih;
+  const cy = v => Y(Math.min(yhi, Math.max(ylo, v)));
   const out = [];
+  for (const b of cfg.bands || []) {
+    out.push(`<rect class="tband" x="${M.l}" width="${iw}" y="${cy(b.hi)}" height="${Math.max(0, cy(b.lo) - cy(b.hi))}" fill="var(--band)"/>`);
+    out.push(`<text x="${M.l + 4}" y="${cy(b.hi) + 11}">${esc(b.label)}</text>`);
+  }
   for (const t of niceTicks(ylo, yhi)) {
     out.push(`<line x1="${M.l}" x2="${W - M.r}" y1="${Y(t)}" y2="${Y(t)}" stroke="var(--grid)" stroke-width="1"/>`);
     out.push(`<text x="${M.l - 6}" y="${Y(t) + 4}" text-anchor="end">${cfg.yfmt(t)}</text>`);
   }
   if (cfg.yZero && ylo < 0 && yhi > 0) out.push(`<line x1="${M.l}" x2="${W - M.r}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--axis)" stroke-width="1.5"/>`);
   out.push(`<line x1="${M.l}" x2="${W - M.r}" y1="${M.t + ih}" y2="${M.t + ih}" stroke="var(--axis)"/>`);
-  const xt = cfg.xticks || cfg.xs;
+  const xt = cfg.xticks || xs;
   const every = Math.max(1, Math.ceil(xt.length / Math.max(2, Math.floor(iw / 48))));
   xt.forEach((v, k) => { if (k % every === 0 || k === xt.length - 1) out.push(`<text x="${X(v)}" y="${H - 12}" text-anchor="middle">${cfg.xfmt(v)}</text>`); });
   if (cfg.xlabel) out.push(`<text x="${W - M.r}" y="${H - 1}" text-anchor="end">${esc(cfg.xlabel)}</text>`);
-  for (const v of cfg.vlines || []) out.push(`<line x1="${X(v)}" x2="${X(v)}" y1="${M.t}" y2="${M.t + ih}" stroke="var(--axis)" stroke-width="1.5" stroke-dasharray="3 3"/>`);
+  for (const vv of cfg.vlines || []) {
+    const v = typeof vv === "object" ? vv.x : vv;
+    out.push(`<line class="vline" x1="${X(v)}" x2="${X(v)}" y1="${M.t}" y2="${M.t + ih}" stroke="var(--axis)" stroke-width="1.5" stroke-dasharray="3 3"/>`);
+    if (typeof vv === "object" && vv.label) out.push(`<text class="vlabel" x="${X(v) + 3}" y="${M.t + 10}">${esc(vv.label)}</text>`);
+  }
   if (cfg.hline != null) {
     out.push(`<line x1="${M.l}" x2="${W - M.r}" y1="${Y(cfg.hline)}" y2="${Y(cfg.hline)}" stroke="var(--ink-2)" stroke-width="1" stroke-dasharray="1 3"/>`);
     out.push(`<text x="${W - M.r - 2}" y="${Y(cfg.hline) - 4}" text-anchor="end">목표 ${cfg.yfmt(cfg.hline)}</text>`);
   }
   if (cfg.guideX != null) out.push(`<line x1="${X(cfg.guideX)}" x2="${X(cfg.guideX)}" y1="${M.t}" y2="${M.t + ih}" stroke="var(--ink)" stroke-width="1" opacity="0.5"/>`);
-  // 밴드 → 선 → 마커 순 (선택한 것이 위)
+  const color = s => (s.base ? "var(--base)" : SLOTS[s.slot]);
+  for (const s of cfg.series) {   // 근사 범위 (모형 오차) — 실제 CI 와 다른 모양
+    if (!s.sg) continue;
+    const ok = s.pts.filter(d => d.lo != null && d.y != null);
+    if (ok.length < 1) continue;
+    const top = ok.map(d => `${X(d.x)},${cy(d.hi)}`), bot = ok.slice().reverse().map(d => `${X(d.x)},${cy(d.lo)}`);
+    out.push(`<polygon class="sgband" data-id="${esc(s.id)}" points="${top.concat(bot).join(" ")}" fill="#7a5af8" fill-opacity="0.08" stroke="#7a5af8" stroke-opacity="0.5"/>`);
+  }
   if (cfg.band) for (const s of cfg.series) {
+    if (s.ghost || s.sg) continue;
     const ok = s.pts.filter(d => d.lo != null);
     if (ok.length < 2) continue;
-    const c = s.base ? "var(--base)" : SLOTS[s.slot];
-    const top = ok.map(d => `${X(d.x)},${Y(Math.min(yhi, Math.max(ylo, d.hi)))}`), bot = ok.slice().reverse().map(d => `${X(d.x)},${Y(Math.min(yhi, Math.max(ylo, d.lo)))}`);
-    out.push(`<polygon class="band" data-id="${esc(s.id)}" points="${top.concat(bot).join(" ")}" fill="${c}" opacity="${s.base ? 0.12 : 0.14}"/>`);
+    const top = ok.map(d => `${X(d.x)},${cy(d.hi)}`), bot = ok.slice().reverse().map(d => `${X(d.x)},${cy(d.lo)}`);
+    out.push(`<polygon class="band" data-id="${esc(s.id)}" points="${top.concat(bot).join(" ")}" fill="${color(s)}" opacity="${s.base ? 0.12 : 0.14 * (s.alpha ?? 1)}"/>`);
   }
   for (const s of cfg.series) {
-    const c = s.base ? "var(--base)" : SLOTS[s.slot];
+    if (s.sg) {
+      const d = s.pts.filter(p => p.y != null).map((p, k) => `${k ? "L" : "M"}${X(p.x).toFixed(1)},${Y(p.y).toFixed(1)}`).join("");
+      const col = s.pending ? "var(--ink-2)" : (s.base ? "var(--base)" : SLOTS[s.slot]);
+      out.push(`<path class="sgline${s.pending ? " pending" : ""}" data-id="${esc(s.id)}" d="${d}" fill="none" stroke="${col}" stroke-width="2" stroke-dasharray="10 5" opacity="${s.pending ? 0.5 : 0.95}"/>`);
+      out.push(s.pts.filter(p => p.y != null).map(p => `<circle class="sgmark" cx="${X(p.x)}" cy="${Y(p.y)}" r="3.6" fill="var(--surface)" stroke="${col}" stroke-width="1.6"/>`).join(""));
+      continue;
+    }
     const d = s.pts.filter(p => p.y != null).map((p, k) => `${k ? "L" : "M"}${X(p.x).toFixed(1)},${Y(p.y).toFixed(1)}`).join("");
-    out.push(`<path class="series" data-id="${esc(s.id)}" d="${d}" fill="none" stroke="${c}" stroke-width="2" stroke-linejoin="round" stroke-dasharray="${s.base ? "6 4" : DASH[s.slot]}" opacity="${s.faint ? 0.45 : 1}"/>`);
+    const op = s.ghost ? 0.45 : s.faint ? 0.4 : (s.alpha ?? 1);
+    const cls = s.ghost ? "ghost" : "series";
+    out.push(`<path class="${cls}${s.stale ? " stale" : ""}" data-id="${esc(s.id)}" d="${d}" fill="none" stroke="${color(s)}" stroke-width="${s.ghost ? 1.5 : 2}" stroke-linejoin="round" stroke-dasharray="${s.ghost ? "3 3" : s.base ? "6 4" : DASH[s.slot]}" opacity="${op}"/>`);
+    const one = s.pts.filter(p => p.y != null);
+    if (one.length === 1 && (s.base || s.ghost || s.noMarks)) {   // 한 점 스캔: 선이 그려지지 않으므로 점과 짧은 가로선
+      const cx = X(one[0].x), cyy = Y(one[0].y);
+      out.push(`<line x1="${cx - 14}" x2="${cx + 14}" y1="${cyy}" y2="${cyy}" stroke="${color(s)}" stroke-width="2" stroke-dasharray="${s.ghost ? "3 3" : "6 4"}" opacity="${op}"/><circle cx="${cx}" cy="${cyy}" r="3.6" fill="var(--surface)" stroke="${color(s)}" stroke-width="1.6" opacity="${op}"/>`);
+    }
+    if (s.label) { const last = s.pts.filter(p => p.y != null).slice(-1)[0]; if (last) out.push(`<text x="${X(last.x) - 2}" y="${Y(last.y) - 5}" text-anchor="end">${esc(s.label)}</text>`); }
   }
   for (const s of cfg.series) {
-    if (s.base || s.noMarks) continue;
+    if (s.base || s.noMarks || s.ghost || s.sg) continue;
     const c = SLOTS[s.slot], m = MARK[s.slot];
     const marks = s.pts.filter(p => p.y != null).map(p => markPath(m, X(p.x), Y(p.y), 3.6)).join("");
-    out.push(`<path d="${marks}" fill="${m === "cross" ? "none" : c}" stroke="${m === "cross" ? c : "var(--surface)"}" stroke-width="${m === "cross" ? 2 : 1.5}" opacity="${s.faint ? 0.45 : 1}"/>`);
+    out.push(`<path d="${marks}" fill="${m === "cross" ? "none" : c}" stroke="${m === "cross" ? c : "var(--surface)"}" stroke-width="${m === "cross" ? 2 : 1.5}" opacity="${s.faint ? 0.45 : (s.alpha ?? 1)}"/>`);
+    if (s.nLabels) s.pts.filter(p => p.y != null && p.p).forEach(p => out.push(`<text class="nlab" x="${X(p.x)}" y="${Y(p.y) - 7}" text-anchor="middle">n=${p.p.n}</text>`));
   }
   out.push(`<rect class="hit" x="${M.l}" y="${M.t}" width="${iw}" height="${ih}" fill="transparent"/>`);
   out.push(`<line class="cross" x1="0" x2="0" y1="${M.t}" y2="${M.t + ih}" stroke="var(--ink-2)" stroke-width="1" visibility="hidden"/>`);
@@ -498,7 +751,7 @@ function attachHover(svg, tip, geo, xs, rowsAt, onClick) {
     return { k: best, r };
   };
   svg.onmousemove = ev => {
-    const { k, r } = near(ev);
+    const { k } = near(ev);
     const sx = geo.X(xs[k]);
     cross.setAttribute("x1", sx); cross.setAttribute("x2", sx); cross.setAttribute("visibility", "visible");
     tip.innerHTML = rowsAt(k);
@@ -518,8 +771,11 @@ const METRIC_LABEL = { win: "승률", delta: "Δ승률", floor: "평균 도달 �
 function yFmt() { return S.metric === "floor" ? (v => v.toFixed(1)) : S.metric === "delta" ? (v => (v >= 0 ? "+" : "−") + Math.abs(v * 100).toFixed(1) + "%p") : (v => (v * 100).toFixed(0) + "%"); }
 function legendHTML(withBase) {
   const items = [];
-  if (withBase) items.push(`<span><svg width="22" height="10">${legendMark(null)}</svg>기준선(환상 없음)</span>`);
-  for (const id of S.sel) items.push(`<span><svg width="22" height="10">${legendMark(S.slot[id])}</svg>${esc(BYID[id].name)}${fidBadge(BYID[id])}</span>`);
+  if (withBase) items.push(`<span><svg width="22" height="10">${legendMark(null)}</svg>기준선(환상 없음)${ghostMode() && S.ghost !== false ? ' · <span id="ghostLegend">실선 = 수정 후, 점선 = 수정 전(비교 기준 스냅샷)</span>' : ""}</span>`);
+  for (const id of S.sel) {
+    const st = isStale(curPts(id));
+    items.push(`<span><svg width="22" height="10">${legendMark(S.slot[id])}</svg>${esc(BYID[id].name)}${fidBadge(BYID[id])}${st ? '<span class="badge stale" title="현재 테이블과 다른 해시로 계산된 점이 있음">이전 데이터 기준(수정한 환상 외에는 근사적으로만 유효)</span>' : ""}</span>`);
+  }
   if (!S.sel.length) items.push(`<span class="small">왼쪽 목록이나 랭킹 표에서 환상을 선택하세요.</span>`);
   return items.join("");
 }
@@ -530,109 +786,1159 @@ function renderNoneNotes() {
     .map(f => `<div class="small">근사 · ${esc(f.name)}: ${esc(f.notes)}</div>`);
   $("noneNotes").innerHTML = notes.join("") + approx.join("");
 }
-function renderCurve() {
-  $("legend").innerHTML = legendHTML(true);
+function renderCurve(light) {
+  $("legend").innerHTML = legendHTML(true) + comboLegend() + sgLegend();
   renderNoneNotes();
   const metric = S.metric;
   const mk = pts => { const s = series(pts, metric); return S.smooth ? smooth(s) : s; };
   const ser = [];
-  if (metric !== "delta") ser.push({ id: "__baseline__", base: true, pts: mk(BASE) });
-  else ser.push({ id: "__baseline__", base: true, pts: XS.map(x => ({ x, y: 0, lo: null, hi: null })) });
+  const live = ghostMode();
+  const showGhost = live && S.ghost !== false;
+  const facets = FACETS && S.overlay ? FACETS.values : [S.facet];
+  if (metric !== "delta") {
+    ser.push({ id: BASE_ID, base: true, pts: mk(curPts(BASE_ID)) });
+    const g = livePts("before", BASE_ID);
+    if (showGhost && g && g.length) ser.push({ id: BASE_ID + "_ghost", base: true, ghost: true, pts: mk(g) });
+  } else ser.push({ id: BASE_ID, base: true, pts: XS.map(x => ({ x, y: 0, lo: null, hi: null })) });
+  const edited = editedSet();
   for (const id of S.sel) {
-    const f = BYID[id];
-    const pts = mk(f.pts);
-    ser.push({ id, slot: S.slot[id], pts, faint: metric === "delta" && f.pts[xi()] && ciZero(f.pts[xi()]) });
+    facets.forEach((fc, k) => {
+      const pts = fc === S.facet ? curPts(id) : staticPts(id, fc);
+      const stale = live && isStale(pts);
+      ser.push({ id, slot: S.slot[id], pts: mk(pts), stale, faint: stale || (metric === "delta" && ciZero(ptAt(pts, S.x))),
+        alpha: facets.length > 1 ? 0.45 + 0.55 * k / (facets.length - 1) : 1, label: facets.length > 1 ? `${BYID[id].name} ${fc}` : null,
+        nLabels: live && (edited.has(id) || LIVE.after[id] || (REF && REF.changed.fantasies.includes(id))) && fc === S.facet });
+      const g = livePts("before", id);
+      if (showGhost && g && g.length && fc === S.facet) ser.push({ id: id + "_ghost", slot: S.slot[id], ghost: true, pts: mk(g) });
+    });
+  }
+  const cs = comboSeries(metric, mk);
+  if (cs) ser.push(cs);
+  // v4.1 F10: 근사선 (긴 파선·속이 빈 마커·근사 범위). 재계산 중이면 회색.
+  const P = S.preview;
+  if (P && P.pts && (metric === "win" || metric === "delta")) {
+    const cid = P.kind === "fantasy" ? P.id : BASE_ID;
+    if (P.kind === "monster" || S.sel.includes(cid)) {
+      const bpts = curPts(BASE_ID);
+      const sp = P.pts.map(q => { if (!q.r || q.r.p == null) return { x: q.x, y: null };
+        const off = metric === "delta" ? ((ptAt(bpts, q.x) || {}).win_rate || 0) : 0;
+        return { x: q.x, y: q.r.p - off, lo: q.r.p - q.r.band - off, hi: q.r.p + q.r.band - off }; });
+      ser.push({ id: cid + "_sg", slot: P.kind === "fantasy" ? S.slot[cid] : null, base: P.kind !== "fantasy", sg: true, pending: P.pending, pts: sp });
+    }
+  }
+  // F1: Δ 차트에 선택한 환상 등급의 목표 밴드
+  const bands = [];
+  if (TARGETS && metric === "delta") {
+    const grades = [...new Set(S.sel.map(id => BYID[id].grade))];
+    grades.forEach(g => { const b = targetBands()[g]; if (b) bands.push({ lo: b[0], hi: b[1], label: `${GRADE_KO[g]} 목표 ${pp(b[0])}~${pp(b[1])}${TARGETS._comment && TARGETS._comment.startsWith("임시값") ? " (임시값)" : ""}` }); });
   }
   const svg = $("chart");
-  svg.setAttribute("aria-label", `${METRIC_LABEL[metric]} 곡선, X축 ${META.x_param}`);
+  svg.setAttribute("aria-label", `${METRIC_LABEL[metric]} 곡선, X축 ${xName(META.x_param)}`);
   const geo = drawChart(svg, {
-    series: ser, xs: XS, xfmt: fmtX, yfmt: yFmt(), yZero: metric !== "floor", band: S.ci && metric !== "floor",
-    guideX: S.x, hline: metric === "win" ? S.T : null, xlabel: META.x_param, yClamp: metric === "delta" ? null : metric === "floor" ? [0, 46] : [0, 1],
+    series: ser, xs: XS, xfmt: fmtX, yfmt: yFmt(), yZero: metric !== "floor", band: S.ci && metric !== "floor", bands,
+    guideX: S.x, hline: metric === "win" ? S.T : null, xlabel: xName(META.x_param), vlines: curVlines(), yClamp: metric === "delta" ? null : metric === "floor" ? [0, 46] : [0, 1],
   });
   attachHover(svg, $("tip"), geo, XS, k => {
-    const rows = [`<tr><td colspan="6"><b>${esc(META.x_param)} = ${fmtX(XS[k])}</b></td></tr>`,
-      `<tr class="small"><td></td><td>승률</td><td>95% CI</td><td>Δ</td><td>보유 환상</td><td>n</td></tr>`];
+    const x = XS[k];
+    const rows = [`<tr><td colspan="7"><b>${esc(xName(META.x_param))} = ${fmtX(x)}</b></td></tr>`,
+      `<tr class="small"><td></td><td>승률</td><td>95% CI</td><td>Δ</td><td>보유 환상</td><td>n</td><td></td></tr>`];
     const line = (name, mark, p, delta) => {
+      if (!p) return `<tr><td><svg width="22" height="10">${mark}</svg> ${esc(name)}</td><td colspan="6" class="small">이 X 에 점 없음</td></tr>`;
       const ci = binCI(p.win_rate, p.n);
+      const ee = p.edit_effect != null ? ` <span class="small">수정 효과 ${pp(p.edit_effect)} [${pp(p.edit_effect_ci[0])}, ${pp(p.edit_effect_ci[1])}]</span>` : "";
       return `<tr><td><svg width="22" height="10">${mark}</svg> ${esc(name)}</td><td class="num">${pct(p.win_rate)}</td><td class="num">${pct(ci[0])}–${pct(ci[1])}</td>
-        <td class="num">${delta ? pp(p.delta) + ` <span class="small">[${pp(p.delta_ci[0])}, ${pp(p.delta_ci[1])}]</span>` : "–"}</td><td class="num">${p.mean_fantasies.toFixed(1)}</td><td class="num">${p.n.toLocaleString()}</td></tr>`;
+        <td class="num">${delta && p.delta != null ? pp(p.delta) + ` <span class="small">[${pp(p.delta_ci[0])}, ${pp(p.delta_ci[1])}]</span>` : "–"}</td><td class="num">${p.mean_fantasies.toFixed(1)}</td><td class="num">${p.n.toLocaleString()}</td><td>${ee}</td></tr>`;
     };
-    rows.push(line("기준선", legendMark(null), BASE[k], false));
-    for (const id of S.sel) rows.push(line(BYID[id].name, legendMark(S.slot[id]), BYID[id].pts[k], true));
+    rows.push(line("기준선", legendMark(null), ptAt(curPts(BASE_ID), x), false));
+    for (const id of S.sel) rows.push(line(BYID[id].name, legendMark(S.slot[id]), ptAt(curPts(id), x), true));
+    const CC = comboFor(S.sel); if (CC) { const cp = ptAt(comboPts(CC), x); if (cp) rows.push(line("조합", legendMark(COMBO_SLOT), Object.assign({ mean_fantasies: cp.mean_fantasies ?? NaN }, cp), true)); }
     if (metric === "floor" || metric === "death") {
-      const v = p => metric === "floor" ? p.mean_reached_floor.toFixed(2) + "층" : pct(p.death_by_act[S.act - 1]);
-      rows.push(`<tr><td colspan="6" class="small">${METRIC_LABEL[metric]}${metric === "death" ? ` (${S.act}막)` : ""}: 기준선 ${v(BASE[k])}${S.sel.map(id => ` · ${esc(BYID[id].name)} ${v(BYID[id].pts[k])}`).join("")}</td></tr>`);
+      const v = p => !p ? "–" : metric === "floor" ? p.mean_reached_floor.toFixed(2) + "층" : pct(p.death_by_act[S.act - 1]);
+      rows.push(`<tr><td colspan="7" class="small">${METRIC_LABEL[metric]}${metric === "death" ? ` (${S.act}막)` : ""}: 기준선 ${v(ptAt(curPts(BASE_ID), x))}${S.sel.map(id => ` · ${esc(BYID[id].name)} ${v(ptAt(curPts(id), x))}`).join("")}</td></tr>`);
     }
     return `<table>${rows.join("")}</table>`;
-  }, k => { S.x = XS[k]; update(); });
+  }, k => { S.x = XS[k]; update(); if (liveActive()) scheduleRecompute(); });
   $("smoothLabel").textContent = S.smooth ? "표시용 평활화(이웃 3점 평균) 적용 중 — 통계 수치는 원본 기준" : (metric === "floor" ? "평균 도달 층에는 신뢰구간을 표시하지 않습니다." : "");
+  if (light) { sgUpdateReadouts(); return; }   // 미리보기 중: 편집 패널을 다시 만들지 않는다 (슬라이더 유지)
   renderEq();
+  renderCombo();
+  renderDetail();
+}
+function sgLegend() {
+  const P = S.preview; if (!P || !P.pts) return S.sgAudit ? sgAuditHTML() : "";
+  const m = sgModel(P.kind, P.id, P.field); if (!m) return "";
+  const rej = P.pts.filter(q => q.r && q.r.reject); const ok = P.pts.filter(q => q.r && q.r.p != null);
+  const noA = ok.some(q => q.r.no_anchor);
+  const name = P.kind === "fantasy" ? (BYID[P.id] || {}).name : (((MON || {}).monsters || []).find(x => x.id === P.id) || {}).name + " " + P.field;
+  return `<span id="sgLegend"><span class="badge sg">근사</span> ${esc(name || P.id)} = ${fmtNum(P.theta)} — 한계효과 모델의 예측(긴 파선), 표본 없음 · <span class="badge sg" id="sgStatus">${esc(m.status)}</span>${m.validity === "weak" ? ' <span class="badge stale" id="sgWeak" title="' + esc(m.validity_reason) + '">약한 경고</span>' : ""}${noA ? ' <span class="badge" id="sgNoAnchor">앵커 없음</span>' : ""}${P.pending ? ' <span class="badge" id="sgPending">실제 재계산 중 — 근사선 회색</span>' : ""} · 띠 = 근사 범위(모형 오차, CI 아님)${rej.length ? ` · <span class="small" id="sgReject">근사 안 함: ${esc([...new Set(rej.map(q => q.r.reject))].join(" / "))}</span>` : ""}${P.kind === "monster" ? ' · <span class="small" id="sgMonNote">환상 곡선·조합: 미리보기 없음 — 재계산 필요</span>' : ""}</span>`;
+}
+function sgAuditHTML() {
+  const A = S.sgAudit; if (!A || !A.rows.length) return "";
+  return `<span id="sgAuditBox"><span class="badge sg">예측 − 실제</span> ${A.rows.map(r => `X=${fmtX(r.x)}: ${pp(r.diff)}`).join(" · ")} <span class="small">(surrogate_audit.jsonl 에 기록)</span></span>`;
+}
+function sgUpdateReadouts() {
+  const P = S.preview; if (!P) return;
+  const cp_ = $("comboPanel");   // 조합 곡선은 근사하지 않는다 (F10.8)
+  if (cp_ && S.sel.length >= 2 && (P.kind === "monster" || S.sel.includes(P.id)) && !$("sgComboNo"))
+    cp_.insertAdjacentHTML("afterbegin", '<div class="notice" id="sgComboNo">미리보기 없음 — 재계산 필요 (조합은 근사하지 않음)</div>');
+  if (P.kind !== "fantasy") return;
+  const [eff, key] = P.field.split(".");
+  const el = document.querySelector(`#detail .editor[data-fid="${CSS.escape(P.id)}"][data-effect="${eff}"][data-key="${CSS.escape(key)}"]`);
+  const out = el && el.parentElement.querySelector(".sgOut"); if (!out) return;
+  out.innerHTML = sgReadout(P.id, +eff, key, P.theta);
+}
+function sgReadout(fid, eff, key, theta) {
+  const m = sgModel("fantasy", fid, eff + "." + key);
+  const raw = SG.models[sgKey("fantasy", fid, eff + "." + key)];
+  if (!m) return raw && raw.validity === "invalid" ? `<span class="badge stale">근사 오래됨</span> ${esc(raw.validity_reason)} <button class="btn sgFit">다시 학습</button>` : (SG.loaded && (SG.candidates || []).some(c => c.id === fid && c.field === eff + "." + key) ? `<span class="small">한계효과 근사 없음</span> <button class="btn sgFit">근사 학습</button>` : "");
+  const k = editableKeys(fid).find(k => k.effect === eff && k.key === key); const th0 = editFor(fid, eff, key) ? editFor(fid, eff, key).new : k.value;
+  const mg = sgMarginal(m, S.x, th0);
+  const [dHat, why] = sgDeltaHat(m, S.x, theta);
+  const step = (m.hi - m.lo) / Math.max(1, m.thetas.length - 1);
+  const small = Math.abs(theta - th0) <= step / 4 && mg ? ` · 1차 근사 Δp ≈ ${pp(mg.m * (theta - th0))}` : "";
+  return `<span class="badge sg">근사 ${esc(m.status)}</span> 학습 범위 ${fmtNum(m.lo)}~${fmtNum(m.hi)}${mg ? ` · 한계효과(X=${fmtX(S.x)}) <b id="sgMarg">${pp(mg.m)}</b>/단위 ±${pp(mg.se)}` : ""}${dHat == null ? ` · <span class="small">${esc(why)}</span>` : ` · 근사 Δ(θ=${fmtNum(theta)}) ${pp(dHat)}`}${small}${m.validity === "weak" ? ' <span class="badge stale">약한 경고</span>' : ""}`;
 }
 function renderEq() {
   const b = baseCross();
   const T = pct(S.T, 1);
   const bTxt = b.x != null ? `X=${fmtXi(b.x)}${b.noisy ? " (노이즈 주의)" : ""}` : b.out;
-  const lines = [`<div><b>등가 체력 이득</b> <span class="small">(목표 승률 ${T}와 만나는 ${esc(META.x_param)}, 이웃 두 점 선형 보간, 외삽 없음)</span></div>`];
+  const lines = [`<div><b>${EQ_LABEL}</b>${META.x_param === "player.start_hp" ? ' <span class="small">(이 환상이 시작 체력 몇 점과 같은가)</span>' : ""} <span class="small">(목표 승률 ${T}와 만나는 ${esc(xName(META.x_param))}, 이웃 두 점 선형 보간, 외삽 없음)</span></div>`];
   if (!S.sel.length) lines.push(`<div class="small">기준선 ${bTxt}</div>`);
   for (const id of S.sel) {
-    const { c, gain } = eqGain(BYID[id]);
+    const { c, gain } = eqGain(id);
     const cTxt = c.x != null ? `X=${fmtXi(c.x)}${c.noisy ? " (노이즈 주의)" : ""}` : c.out;
     const g = gain != null ? ` (<b class="num">${gain >= 0 ? "+" : "−"}${fmtXi(Math.abs(gain))}</b>)` : "";
-    lines.push(`<div class="eqrow" data-id="${esc(id)}"><svg width="22" height="10">${legendMark(S.slot[id])}</svg> ${esc(BYID[id].name)}: 기준선 ${bTxt} → 환상 ${cTxt}${g}</div>`);
+    const p = ptAt(curPts(id), S.x);
+    const ee = p && p.edit_effect != null ? ` · <span class="edit-effect">수정 효과(X=${fmtX(S.x)}) <b>${pp(p.edit_effect)}</b> [${pp(p.edit_effect_ci[0])}, ${pp(p.edit_effect_ci[1])}] n=${p.n}</span>` : "";
+    lines.push(`<div class="eqrow" data-id="${esc(id)}"><svg width="22" height="10">${legendMark(S.slot[id])}</svg> ${esc(BYID[id].name)}: 기준선 ${bTxt} → 환상 ${cTxt}${g}${ee}</div>`);
   }
   $("eq").innerHTML = lines.join("");
 }
 
+// ---------------- 상세·편집 패널 ----------------
+let SCHEMA = null;
+let SRVF = null;  // 서버의 환상 편집 정보 (현재 원본 기준)
+const TARGET_KO = { source: "🔗 원본 연결", overrides: "시뮬 전용(overrides)", scenario: "시나리오 전용" };
+function editFor(fid, effect, key) { return S.edits.find(e => e.fid === fid && e.effect === effect && e.key === key); }
+function baseEffects(fid) { return (SRVF && SRVF[fid] ? SRVF[fid].effects : BYID[fid].effects) || []; }
+function editableKeys(fid) { return (SRVF && SRVF[fid] ? SRVF[fid].editable_keys : BYID[fid].editable_keys) || []; }
+function stepOf(sch, v) { if (sch.int) return 1; const span = sch.max - sch.min; return span <= 1 ? 0.01 : span <= 10 ? 0.05 : 1; }
+function renderDetail() {
+  const el = $("detail");
+  const fid = S.focus;
+  if (!fid || !BYID[fid]) { el.innerHTML = ""; return; }
+  const f = BYID[fid];
+  const keys = editableKeys(fid);
+  const effs = baseEffects(fid);
+  const parts = [`<div><b>${esc(f.name)}</b> <span class="small">${esc(f.id)} · ${GRADE_KO[f.grade]} · ${esc(f.mapping || "")}</span> ${fidBadge(f)}</div>`,
+    `<div class="small">${esc(f.description || "")}</div>`, f.notes ? `<div class="small">메모: ${esc(f.notes)}</div>` : ""];
+  if (!SRV || !srvOK) parts.push(`<div class="small">편집은 서버 모드에서만 가능합니다 (python viewer_server.py).</div>`);
+  effs.forEach((ef, i) => {
+    const ks = keys.filter(k => k.effect === i);
+    const rows = ks.map(k => {
+      const e = editFor(fid, i, k.key);
+      const cur = e ? e.new : k.value;
+      const sch = k.schema || {};
+      const dis = !SRV || !srvOK ? "disabled" : "";
+      const st = stepOf(sch, cur);
+      return `<div class="kv"><span>${esc(k.key)} <span class="badge ${k.target === "source" ? "link" : ""}">${TARGET_KO[k.target]}</span></span>
+        <div class="editor" data-fid="${esc(fid)}" data-effect="${i}" data-key="${esc(k.key)}" data-old="${k.value}">
+          <button class="btn dec" ${dis} aria-label="감소">−</button>
+          <input type="number" class="val num" value="${fmtNum(cur)}" step="${st}" min="${sch.min}" max="${sch.max}" ${dis} aria-label="${esc(f.name)} ${esc(k.key)}">
+          <button class="btn inc" ${dis} aria-label="증가">+</button>
+          ${(() => { const rmin = sch.min, rmax = Math.min(sch.max, Math.max(Math.abs(k.value) * 3, sch.min + st * 20)); const m = sgModel("fantasy", fid, i + "." + k.key);
+            const bg = m ? (() => { const a = Math.max(0, Math.min(100, (m.lo - rmin) / (rmax - rmin) * 100)), b = Math.max(0, Math.min(100, (m.hi - rmin) / (rmax - rmin) * 100)); return `style="background:linear-gradient(to right, #bbb ${a}%, #7a5af8 ${a}%, #7a5af8 ${b}%, #bbb ${b}%); height:6px" title="보라색 = 근사 학습 범위, 회색 = 근사 없음(실제 재계산은 가능)"`; })() : "";
+            return `<input type="range" class="rng" min="${rmin}" max="${rmax}" step="${st}" value="${cur}" ${dis} ${bg}>`; })()}
+          <span class="small">${esc(sch.unit || "")}${sch.int ? " (정수)" : ""}</span>
+          <span class="orig">원래 ${fmtNum(k.value)}</span>
+          ${e ? `<button class="btn reset">되돌리기</button>` : ""}
+          ${SRV && srvOK ? `<button class="btn sweep">수치 스윕</button><span class="small">목표 Δ</span><input type="number" class="solveT" step="0.5" style="width:64px" placeholder="%p"><span class="small sgSolve"></span><button class="btn solve">역산</button>` : ""}
+        </div><span class="sgOut">${SRV && srvOK ? sgReadout(fid, i, k.key, cur) : ""}</span></div>
+        <div class="sweepOut" data-key="${esc(fid)}|${i}|${esc(k.key)}"></div>`;
+    }).join("");
+    parts.push(`<div class="efx"><div class="hd"><b>효과 ${i + 1}</b> ${esc(effText(ef))} <span class="small">${esc(ef.type)}</span>
+      ${f.fidelity === "approx" ? '<span class="badge">근사 — 시뮬레이터 근사값이므로 원본의 의미와 다를 수 있음</span>' : ""}</div>
+      ${rows || '<div class="small">편집할 숫자 값 없음</div>'}</div>`);
+  });
+  if (S.sgAudit && S.sgAudit.kind === "fantasy" && S.sgAudit.id === fid) parts.push(`<div class="small" id="sgAuditDetail">${sgAuditHTML()}</div>`);
+  if (SRV && srvOK) {
+    parts.push(`<div class="efx"><div class="hd"><b>시뮬레이터 설정</b> <span class="small">(원본 반영 대상 아님)</span></div>${cfgEditorsHTML()}</div>`);
+    parts.push(`<div><button class="btn" id="btnTrace">대표 런 보기</button></div>`);
+  }
+  el.innerHTML = parts.join("");
+}
+let BASE_CFG = {};
+function cfgEditorsHTML() {
+  if (!SCHEMA) return "";
+  return Object.entries(SCHEMA.cfg).map(([path, sch]) => {
+    const old = BASE_CFG[path]; if (old == null) return "";
+    const e = S.cfgEdits.find(c => c.path === path);
+    return `<div class="kv"><span class="small">${esc(path)}</span><div class="editor cfged" data-path="${esc(path)}" data-old="${old}">
+      <input type="number" class="val num" value="${fmtNum(e ? e.new : old)}" step="${stepOf(sch)}" min="${sch.min}" max="${sch.max}">
+      <span class="orig">원래 ${fmtNum(old)}</span>${e ? '<button class="btn reset">되돌리기</button>' : ""}</div></div>`;
+  }).join("");
+}
+function validate(sch, v) {
+  if (sch == null) return "편집 불가";
+  if (typeof v !== "number" || !isFinite(v)) return "숫자가 아님";
+  if (sch.int && v !== Math.round(v)) return "정수만 가능";
+  if (v < sch.min || (sch.min_exclusive && v === sch.min)) return `최솟값 ${sch.min_exclusive ? "초과 " : ""}${sch.min}`;
+  if (v > sch.max) return `최댓값 ${sch.max}`;
+  return null;
+}
+function pushUndo() { S.undo.push(JSON.stringify({ e: S.edits, c: S.cfgEdits, s: S.cfgSet })); if (S.undo.length > 200) S.undo.shift(); S.redo = []; }
+function setEdit(fid, effect, key, old, v) {
+  const k = editableKeys(fid).find(k => k.effect === effect && k.key === key);
+  const err = validate(k && k.schema, v);
+  if (err) { flash(`${BYID[fid].name} ${key}: ${err}`); renderDetail(); return false; }
+  pushUndo();
+  S.edits = S.edits.filter(e => !(e.fid === fid && e.effect === effect && e.key === key));
+  if (Math.abs(v - old) > 1e-12) S.edits.push({ fid, effect, key, old, new: v });
+  afterEditChange();
+  return true;
+}
+function setCfgEdit(path, old, v) {
+  const err = validate(SCHEMA && SCHEMA.cfg[path], v);
+  if (err) { flash(`${path}: ${err}`); renderDetail(); return; }
+  pushUndo();
+  S.cfgEdits = S.cfgEdits.filter(c => c.path !== path);
+  if (Math.abs(v - old) > 1e-12) S.cfgEdits.push({ path, old, new: v });
+  afterEditChange();
+}
+function afterEditChange() {
+  if (S.preview) S.preview.pending = true;     // 실제 재계산이 시작되면 근사선은 회색 (F10.6-1)
+  if (!needsCompute()) { cancelJob(); LIVE.after = {}; LIVE.before = {}; LIVE.hash = null; if (S.preview && !S.preview.keep) S.preview = null; }
+  else if (S.rcMode === "button") { if (S.preview) S.preview.pending = false; setStatus("편집됨 — ‘재계산’ 버튼을 누르면 실제 재계산 (근사선 유지)"); }
+  else scheduleRecompute();
+  scheduleSGLoad();
+  update();
+}
+function applyEditsSnapshot(snap) { const o = JSON.parse(snap); S.edits = o.e; S.cfgEdits = o.c; S.cfgSet = o.s || {}; afterEditChange(); }
+
+// ---------------- 서버 통신 ----------------
+let srvOK = false, SRV_STATE = {}, MON = null;
+async function loadMonsters() { try { MON = await api("/api/monsters"); if (S.tab === "mon" || S.tab === "json") update(); } catch (e) { MON = null; } }
+async function api(path, opts = {}) {
+  const r = await fetch(path, Object.assign({}, opts, { headers: Object.assign({ "X-MatchUp-Token": SRV.token, "Content-Type": "application/json" }, opts.headers || {}) }));
+  const txt = await r.text();
+  let j; try { j = JSON.parse(txt); } catch (e) { j = { error: txt }; }
+  if (!r.ok) throw new Error(j.error || r.statusText);
+  return j;
+}
+const post = (path, body) => api(path, { method: "POST", body: JSON.stringify(body) });
+async function streamJob(id, onEvent) {
+  const r = await fetch(`/api/jobs/${id}/events`, { headers: { "X-MatchUp-Token": SRV.token } });
+  const reader = r.body.getReader(); const dec = new TextDecoder(); let buf = "";
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, { stream: true });
+    let k;
+    while ((k = buf.indexOf("\n\n")) >= 0) {
+      const chunk = buf.slice(0, k); buf = buf.slice(k + 2);
+      const data = chunk.split("\n").filter(l => l.startsWith("data: ")).map(l => l.slice(6)).join("\n");
+      if (data) { try { onEvent(JSON.parse(data)); } catch (e) { console.error(e); } }
+    }
+  }
+}
+let recomputeTimer = null, jobSeq = 0;
+function scheduleRecompute() { if (COMBO.busy) return; clearTimeout(recomputeTimer); recomputeTimer = setTimeout(startRecompute, 400); setStatus("편집 대기…"); }
+function cancelJob() { if (LIVE.job) { const id = LIVE.job; LIVE.job = null; api(`/api/jobs/${id}`, { method: "DELETE" }).catch(() => {}); } }
+function setStatus(t) { LIVE.status = t; const s = $("jobStatus"); if (s) s.textContent = t; }
+let renderPending = false;
+function scheduleRender() { if (renderPending) return; renderPending = true; requestAnimationFrame(() => { renderPending = false; update(); }); }
+async function runJob(body, onPoint, label) {
+  const my = ++jobSeq;
+  const { id } = await post("/api/jobs", Object.assign({ client: CLIENT }, body));
+  LIVE.job = id; LIVE.busy = true;
+  window.__lastJob = { id, t0: performance.now(), first: null, end: null, kind: body.kind };
+  setStatus(`${label}: 시작`);
+  await streamJob(id, ev => {
+    if (my !== jobSeq) return;
+    if (ev.type === "plan" && ev.table_hash && ["recompute", "scan"].includes(body.kind)) { LIVE.hash = ev.data_hash || ev.table_hash; LIVE.cfgTag = cfgTag(body.cfg_edits, body.cfg_set); }
+    if (ev.type === "point") { if (window.__lastJob.first == null && ev.series === "after") window.__lastJob.first = performance.now(); onPoint && onPoint(ev); scheduleRender(); }
+    if (ev.type === "stage") setStatus(`${label}: 단계 ${ev.stage} (시드 ${ev.n}개) 완료`);
+    if (["sweep_point", "solve_eval", "combo", "cell", "plan", "tune_point"].includes(ev.type)) { onPoint && onPoint(ev); }
+    if (["done", "cancelled", "error"].includes(ev.type)) {
+      window.__lastJob.end = performance.now(); window.__lastJob.result = ev;
+      LIVE.busy = false; if (LIVE.job === id) LIVE.job = null;
+      setStatus(ev.type === "done" ? `${label}: 완료 (${ev.t}s)` : ev.type === "cancelled" ? `${label}: 취소됨` : `${label}: 오류 — ${ev.message}`);
+      scheduleRender();
+    }
+  });
+  return window.__lastJob.result;
+}
+function storeLive(ev) {
+  const p = Object.assign({}, ev.point, { cfg_tag: ev.series === "after" ? cfgTag(S.cfgEdits, S.cfgSet) : "" });
+  const fid = ev.fid;
+  (LIVE[ev.series][fid] = LIVE[ev.series][fid] || new Map()).set(ev.x, p);
+}
+async function startRecompute() {
+  await syncServerTable();
+  if (!needsCompute()) return;
+  cancelJob();
+  LIVE.after = {}; LIVE.before = {};
+  if (S.preview) S.preview.pending = true;
+  runJob({ kind: "recompute", edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet, fids: S.sel, x_sel: S.x }, storeLive, "재계산")
+    .then(sgOnRecomputeDone).catch(e => setStatus("오류: " + e.message));
+}
+function startFull() {
+  cancelJob();
+  const order = FANTS.slice().sort((a, b) => Math.abs((ptAt(curPts(b.id), S.x) || {}).delta || 0) - Math.abs((ptAt(curPts(a.id), S.x) || {}).delta || 0)).map(f => f.id);
+  runJob({ kind: "scan", edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet, fids: order, adaptive: true }, storeLive, "전체 재계산").catch(e => setStatus("오류: " + e.message));
+}
+
+// 수치 스윕 / 목표 Δ 역산
+function sweepValues(k, cur) {
+  const sch = k.schema; const lo0 = cur === 0 ? sch.min : Math.min(cur * 0.5, cur * 1.5), hi0 = cur === 0 ? sch.min + (Math.min(sch.max, 100) - sch.min) * 0.2 : Math.max(cur * 0.5, cur * 1.5);
+  const lo = Math.max(sch.min + (sch.min_exclusive ? 1e-6 : 0), lo0), hi = Math.min(sch.max, hi0);
+  const out = [];
+  for (let i = 0; i < 9; i++) { let v = lo + (hi - lo) * i / 8; v = sch.int ? Math.round(v) : +v.toFixed(4); if (!out.includes(v)) out.push(v); }
+  if (!out.includes(cur)) out.push(cur);
+  return out.sort((a, b) => a - b);
+}
+function renderSweep(boxKey, pts, k, cur, title) {
+  const box = document.querySelector(`.sweepOut[data-key="${CSS.escape(boxKey)}"]`); if (!box) return;
+  box.innerHTML = `<div class="small">${esc(title)}</div><svg class="chart small"></svg>`;
+  const svg = box.querySelector("svg");
+  const sorted = pts.slice().sort((a, b) => a.value - b.value);
+  drawChart(svg, { series: [{ id: "sw", slot: 0, pts: sorted.map(p => ({ x: p.value, y: p.delta, lo: p.delta_ci[0], hi: p.delta_ci[1], p: { n: p.delta_n } })), nLabels: true }],
+    xs: sorted.map(p => p.value), xfmt: fmtNum, yfmt: v => pp(v), yZero: true, band: true, vlines: [k.value, cur].filter((v, i, a) => a.indexOf(v) === i) });
+}
+
 // ---------------- 탭: 생존 곡선 ----------------
 function renderSurv() {
-  $("legend2").innerHTML = legendHTML(true);
-  $("survX").textContent = `${META.x_param} = ${fmtX(S.x)}`;
-  const k = xi(), floors = Array.from({ length: 45 }, (_, i) => i + 1);
-  const mk = p => floors.map((f, i) => ({ x: f, y: p.reach_rate[i], lo: null, hi: null }));
-  const ser = [{ id: "__baseline__", base: true, pts: mk(BASE[k]) }];
-  for (const id of S.sel) ser.push({ id, slot: S.slot[id], pts: mk(BYID[id].pts[k]), noMarks: true });
+  $("legend2").innerHTML = legendHTML(true) + comboLegend();
+  $("survX").textContent = `${xName(META.x_param)} = ${fmtX(S.x)}`;
+  const floors = Array.from({ length: 45 }, (_, i) => i + 1);
+  const mk = p => floors.map((f, i) => ({ x: f, y: p ? p.reach_rate[i] : null, lo: null, hi: null }));
+  const ser = [{ id: BASE_ID, base: true, pts: mk(ptAt(curPts(BASE_ID), S.x)) }];
+  for (const id of S.sel) ser.push({ id, slot: S.slot[id], pts: mk(ptAt(curPts(id), S.x)), noMarks: true });
+  const cs = comboSurvSeries(mk); if (cs) ser.push(cs);
   const svg = $("chart2");
   const geo = drawChart(svg, { series: ser, xs: floors, xticks: [1, 5, 10, 15, 20, 25, 30, 35, 40, 45], xfmt: v => v + "층", yfmt: v => (v * 100).toFixed(0) + "%", yZero: true, yClamp: [0, 1.0001], vlines: [15.5, 30.5] });
   attachHover(svg, $("tip2"), geo, floors, i => {
+    const bp = ptAt(curPts(BASE_ID), S.x);
     const rows = [`<tr><td colspan="2"><b>${i + 1}층 도달률</b> <span class="small">(${Math.floor(i / 15) + 1}막 ${i % 15 + 1}층)</span></td></tr>`,
-      `<tr><td><svg width="22" height="10">${legendMark(null)}</svg> 기준선</td><td class="num">${pct(BASE[k].reach_rate[i])}</td></tr>`];
-    for (const id of S.sel) rows.push(`<tr><td><svg width="22" height="10">${legendMark(S.slot[id])}</svg> ${esc(BYID[id].name)}</td><td class="num">${pct(BYID[id].pts[k].reach_rate[i])}</td></tr>`);
+      `<tr><td><svg width="22" height="10">${legendMark(null)}</svg> 기준선</td><td class="num">${bp ? pct(bp.reach_rate[i]) : "–"}</td></tr>`];
+    for (const id of S.sel) { const p = ptAt(curPts(id), S.x); rows.push(`<tr><td><svg width="22" height="10">${legendMark(S.slot[id])}</svg> ${esc(BYID[id].name)}</td><td class="num">${p ? pct(p.reach_rate[i]) : "–"}</td></tr>`); }
+    const CC = comboFor(S.sel), cp = CC && ptAt(comboPts(CC), S.x);
+    if (cp && cp.reach_rate) rows.push(`<tr><td><svg width="22" height="10">${legendMark(COMBO_SLOT)}</svg> 조합</td><td class="num">${pct(cp.reach_rate[i])}</td></tr>`);
     return `<table>${rows.join("")}</table>`;
   });
 }
 
 // ---------------- 탭: 랭킹 ----------------
-const RANK_COLS = [
-  ["name", "환상"], ["grade", "등급"], ["delta", "Δ승률"], ["ci", "95% CI"], ["z", "|Δ/se|"], ["eq", "등가 체력 이득"], ["badge", "배지"], ["eff", "효과"],
-];
+function rankCols() {
+  return [["name", "환상"], ["grade", "등급"], ["delta", 'Δ승률<a class="info" data-g="1">ⓘ</a>'], ["ci", '95% CI<a class="info" data-g="4">ⓘ</a>'], ["z", '|Δ/se|<a class="info" data-g="5">ⓘ</a>'], ["flips", '뒤집힌 판 ↑/↓<a class="info" data-g="10">ⓘ</a>'], ["mde", "MDE"], ["eq", EQ_LABEL + '<a class="info" data-g="6">ⓘ</a>']]
+    .concat(TARGETS ? [["verdict", "판정"]] : []).concat(FACETS ? [["gap", "격차"]] : []).concat([["badge", "배지"], ["eff", "효과"]]);
+}
+function rankRows() {
+  return FANTS.map(f => {
+    const pts = curPts(f.id);
+    const p = rankPoint(f.id) || { delta: 0, delta_se: 0, delta_ci: [0, 0] };
+    const z = p.delta_se > 0 ? Math.abs(p.delta / p.delta_se) : 0;
+    const stale = isStale(pts);
+    return { f, p, z, eq: eqGain(f.id), zero: ciZero(p), stale, v: verdict(f, p, stale), gap: facetGap(f.id) };
+  });
+}
+function renderCands(rows) {
+  if (!TARGETS) { $("cands").innerHTML = ""; return; }
+  const up = rows.filter(r => r.v && r.v.k === "above").sort((a, b) => b.v.dist - a.v.dist);
+  const dn = rows.filter(r => r.v && r.v.k === "below").sort((a, b) => b.v.dist - a.v.dist);
+  const li = r => `<li data-id="${esc(r.f.id)}">${esc(r.f.name)} <span class="small">${GRADE_KO[r.f.grade]} · Δ ${pp(r.p.delta)} [${pp(r.p.delta_ci[0])}, ${pp(r.p.delta_ci[1])}] · 밴드와 ${pp(r.v.dist)}</span></li>`;
+  const excl = rows.filter(r => r.v && r.v.k === "excl");
+  $("cands").innerHTML = `<div class="cands" id="candPanel"><div><h4>너프 후보 (확실히 위) ${up.length}</h4><ol>${up.map(li).join("") || '<li class="small">없음</li>'}</ol></div>
+    <div><h4>버프 후보 (확실히 아래) ${dn.length}</h4><ol>${dn.map(li).join("") || '<li class="small">없음</li>'}</ol></div></div>
+    <div class="small">판정 제외 ${excl.length}종 (${[...new Set(excl.map(r => r.v.why))].join(", ")}). 밴드(${esc(SYS_KO[curSystem()] || curSystem())}): ${Object.entries(targetBands()).map(([g, b]) => `${GRADE_KO[g]} ${pp(b[0])}~${pp(b[1])}`).join(" · ")}${TARGETS._comment ? " — " + esc(TARGETS._comment) : ""}</div>`;
+}
 function renderRank() {
   $("rkX").setAttribute("aria-pressed", S.rankMode === "x"); $("rkAvg").setAttribute("aria-pressed", S.rankMode === "avg");
-  $("rkNote").textContent = S.rankMode === "x" ? `${META.x_param} = ${fmtX(S.x)}` : "전 구간 평균 (CI는 X점끼리 독립 가정한 근사)";
-  const rows = FANTS.map(f => {
-    const p = rankPoint(f) || { delta: 0, delta_se: 0, delta_ci: [0, 0] };
-    const z = p.delta_se > 0 ? Math.abs(p.delta / p.delta_se) : 0;
-    const eq = eqGain(f);
-    return { f, p, z, eq, zero: ciZero(p) };
-  });
+  $("rkNote").textContent = (S.rankMode === "x" ? `${xName(META.x_param)} = ${fmtX(S.x)}` : "전 구간 평균 (CI는 X점끼리 독립 가정한 근사)") + (FACETS ? ` · 패싯 ${S.facet}` : "");
+  const rows = rankRows();
+  renderCands(rows);
   const key = S.rankSort, dir = S.rankDir;
+  const VORD = { above: 4, unsure: 2, in: 3, below: 1, excl: 0 };
   const val = r => ({ name: r.f.name, grade: GRADE_ORDER[r.f.grade], delta: r.p.delta, ci: r.p.delta_ci[0], z: r.z,
-    eq: r.eq.gain != null ? r.eq.gain : (r.eq.c.dir === 1 ? 1e9 : -1e9), badge: (r.f.fidelity === "none" ? -1 : 0) + (r.zero ? 0 : 1) + (r.z >= strongZ ? 1 : 0), eff: r.f.summary }[key]);
+    flips: (r.p.flips_up || 0) + (r.p.flips_down || 0), mde: r.p.mde || 0,
+    eq: r.eq.gain != null ? r.eq.gain : ((r.eq.c.dir || 0) * gainSign() === 1 ? 1e9 : -1e9), badge: (r.f.fidelity === "none" ? -1 : 0) + (r.zero ? 0 : 1) + (r.z >= strongZ ? 1 : 0), eff: r.f.summary,
+    verdict: r.v ? VORD[r.v.k] * 10 + (r.v.dist || 0) : 0, gap: r.gap ? r.gap.gap : -1e9 }[key]);
   rows.sort((a, b) => { const x = val(a), y = val(b); return (typeof x === "string" ? x.localeCompare(y, "ko") : x - y) * dir; });
-  $("rank").tHead.innerHTML = `<tr>${RANK_COLS.map(([k, l]) => `<th data-k="${k}" aria-sort="${k === key ? (dir > 0 ? "ascending" : "descending") : "none"}">${l}${k === key ? (dir > 0 ? " ▲" : " ▼") : ""}</th>`).join("")}</tr>`;
+  $("rank").tHead.innerHTML = `<tr>${rankCols().map(([k, l]) => `<th data-k="${k}" aria-sort="${k === key ? (dir > 0 ? "ascending" : "descending") : "none"}">${l}${k === key ? (dir > 0 ? " ▲" : " ▼") : ""}</th>`).join("")}</tr>`;
   $("rank").tBodies[0].innerHTML = rows.map(r => {
     const badges = [];
     if (r.f.fidelity === "none") badges.push('<span class="badge none">미모델링</span>');
     else if (r.f.fidelity === "approx") badges.push('<span class="badge">근사</span>');
+    if (r.stale) badges.push('<span class="badge stale" title="이전 데이터 기준(수정한 환상 외에는 근사적으로만 유효)">이전 데이터</span>');
+    const flips = (r.p.flips_up ?? null) == null ? null : r.p.flips_up + r.p.flips_down;
+    if (flips != null && flips < 30) badges.push('<span class="badge lowinfo" title="뒤집힌 판 수 < 30">정보량 부족</span>');
     if (!r.zero && r.z >= strongZ) badges.push('<span class="badge strong">강한 신호</span>');
     else if (!r.zero) badges.push('<span class="badge sig">신호</span>');
     else badges.push('<span class="small">구분 불가</span>');
     const e = r.eq; const eqTxt = e.gain != null ? `${e.gain >= 0 ? "+" : "−"}${fmtXi(Math.abs(e.gain))}${e.c.noisy || e.b.noisy ? " ⚠" : ""}` : (e.c.out || e.b.out || "–");
     const on = S.sel.includes(r.f.id);
-    return `<tr data-id="${esc(r.f.id)}" class="${r.zero ? "dim" : ""}" title="${esc(r.f.description || "")}">
+    const vcell = TARGETS ? `<td class="verdict" data-v="${r.v ? r.v.k : ""}">${r.v ? esc(r.v.label) + (r.v.why ? ` <span class="small">(${esc(r.v.why)})</span>` : "") : "–"}</td>` : "";
+    const gcell = FACETS ? `<td class="n">${r.gap ? `${pp(r.gap.gap)} <span class="small">[${pp(r.gap.ci[0])}, ${pp(r.gap.ci[1])}] ${r.gap.cls}</span>` : "–"}</td>` : "";
+    return `<tr data-id="${esc(r.f.id)}" class="${r.zero || r.stale ? "dim" : ""}" title="${esc(r.f.description || "")}">
       <td>${on ? `<svg width="22" height="10">${legendMark(S.slot[r.f.id])}</svg> ` : ""}${esc(r.f.name)}</td><td><span class="gtag ${r.f.grade}">${GRADE_KO[r.f.grade]}</span></td>
       <td class="n">${pp(r.p.delta, 2)}</td><td class="n">[${pp(r.p.delta_ci[0])}, ${pp(r.p.delta_ci[1])}]</td><td class="n">${r.z.toFixed(1)}</td>
-      <td class="n">${eqTxt}</td><td>${badges.join("")}</td><td class="small">${esc(r.f.summary)}</td></tr>`;
+      <td class="n">${r.p.flips_up != null ? r.p.flips_up + " / " + r.p.flips_down : "–"}</td><td class="n">${r.p.mde != null ? "±" + (r.p.mde * 100).toFixed(1) + "%p" : "–"}</td>
+      <td class="n">${eqTxt}</td>${vcell}${gcell}<td>${badges.join("")}</td><td class="small">${esc(r.f.summary)}</td></tr>`;
   }).join("");
+}
+
+// ---------------- 탭: 몬스터 (F2) ----------------
+function monEdit(e) { return S.edits.find(x => x.target === e.target && x.mid === e.mid && x.pid === e.pid && x.step === e.step && x.key === e.key); }
+function setMonEdit(e, v) {
+  const sch = MON.schema[e.key];
+  const err = validate(sch, v); if (err) { flash(`${e.mid || e.pid} ${e.key}: ${err}`); return; }
+  if (sch.warn_above && v > sch.warn_above) flash(`${e.key} = ${v}: 원본 규칙에서 허용 범위를 확인하지 못한 값입니다 (경고만).`);
+  pushUndo();
+  S.edits = S.edits.filter(x => !(x.target === e.target && x.mid === e.mid && x.pid === e.pid && x.step === e.step && x.key === e.key));
+  if (v !== e.old) S.edits.push(Object.assign({}, e, { new: v }));
+  afterEditChange();
+}
+const PROBE = {};
+function renderMonEdit() {
+  if (!MON) return '<div class="small">몬스터 데이터를 불러오는 중…</div>';
+  const refl = (MON.sim_reflected_by_model || {})[curModel()] || MON.sim_reflected, table = MON.model === "table" || S.cfgSet["monsters.model"] === "table";
+  const dig = curModel() === "digits", gim = dig && curGimmicks() === "on";
+  const fidOfM = m => !dig ? m.fidelity : gim ? (m.fidelity_gimmicks || m.fidelity_digits) : m.fidelity_digits;
+  const fc = MON.monsters.reduce((a, m) => (a[fidOfM(m)] = (a[fidOfM(m)] || 0) + 1, a), {});
+  const ginp = (m, gi, s, key, lab, step) => { const e = { target: "gimmick", mid: m.id, gi, key, old: s[key] }; const ed = monEdit(e); const v = ed ? ed.new : s[key];
+    return `<label class="small">${lab} <input type="number" class="monIn num" step="${step}" style="width:64px" value="${v}" data-e='${esc(JSON.stringify(e))}'>${ed ? ` <span class="orig">원래 ${s[key]}</span>` : ""}${gim ? "" : ' <span class="badge none" title="기믹 값은 digits + 기믹 모델에서만 쓰임">시뮬 미반영</span>'}</label>`; };
+  const gimCell = m => (m.sim || []).map((s, gi) => Object.keys(s.src || {}).map(k => ginp(m, gi, s, k, ({ init: "카운트다운", value: "1타 상한", rate: "흡혈", multiplier: "조준 배수" })[k] || k, k === "rate" ? 0.05 : 1)).join(" ")).join(" ");
+  const inp = (e, cur, lab) => { const ed = monEdit(e); const v = ed ? ed.new : cur; const ok = refl[e.key] && table;
+    return `<label class="small">${lab} <input type="number" class="monIn num" step="1" style="width:70px" value="${v}" data-e='${esc(JSON.stringify(e))}'>${ed ? ` <span class="orig">원래 ${cur}</span>` : ""}${ok ? "" : ` <span class="badge none" title="${table ? "gauss 피해 모델은 패턴 자릿수를 쓰지 않음" : "tier_avg 몬스터 모델에서는 몬스터 데이터가 쓰이지 않음"}">시뮬 미반영</span>`}</label>`; };
+  const users = MON.pattern_users || {};
+  return `<div class="notice" id="monModel">몬스터 모델: <b>${esc(table ? "table" : MON.model)}</b> · 피해 모델: <b>${esc(modelLabel(curModel(), curGimmicks()))}</b>. ${table ? "체력·기본 힘·Str_n 은 곡선에 반영됩니다." : "현재 스캔은 등급 평균(tier_avg) 모델이라 몬스터 편집이 곡선에 반영되지 않습니다 — monsters.model=table 스캔(X축 monsters.hp_scale)에서 반영됩니다."} 패턴 피해 자릿수는 digits 피해 모델에서만 반영됩니다${dig ? "" : " (지금은 gauss → ‘시뮬 미반영’)"}. 기믹 값은 digits + 기믹에서만 쓰입니다. 원본 반영(파일의 숫자 토큰 교체)은 모델과 관계없이 됩니다.</div>
+  <div class="small" id="monFid">몬스터 충실도 (${esc(modelLabel(curModel(), curGimmicks()))}): exact ${fc.exact || 0} · approx ${fc.approx || 0} · none ${fc.none || 0} — exact 가 아닌 몬스터가 나오는 판의 결과는 근사입니다(해석 가이드 ⑮).</div>
+  <div class="rankwrap" style="max-height:48vh"><table class="rank" id="monEdit"><thead><tr><th>막</th><th>등급</th><th>몬스터</th><th>체력 / 기본 힘</th><th>패턴 단계 (토큰 숫자)</th><th></th></tr></thead><tbody>
+  ${MON.monsters.map(m => `<tr data-mid="${esc(m.id)}"><td>${m.act}</td><td>${esc(m.tier)}</td><td>${esc(m.name)}${m.gimmicks.length ? (gim ? ` <span class="badge ${fidOfM(m) === "exact" ? "link" : "none"}" title="${esc((m.gimmick_report || []).map(r => r.gimmick + " [" + r.tier + " " + r.fidelity + "] " + r.reason).join("\n"))}">기믹 ${esc(fidOfM(m))}</span>` : ` <span class="badge none" title="${esc(m.gimmicks.join(", "))}">기믹 시뮬 미반영</span>`) : ""}${gimCell(m) ? `<div>${gimCell(m)}</div>` : ""}</td>
+    <td>${inp({ target: "monster", mid: m.id, key: "hp", old: m.hp }, m.hp, "체력")} ${m.src && m.src.strength ? inp({ target: "monster", mid: m.id, key: "strength", old: m.strength }, m.strength, "힘") : ""}</td>
+    <td>${m.patterns.map((p, k) => { const sk = Object.keys(p.src || {}); if (!sk.length) return `<span class="small">${esc(p.key)}</span>`;
+      const sp = p.source === "pattern"; const us = sp ? (users[p.key] || []) : null;
+      return `<span class="small">${esc(p.key)}</span> ` + sk.map(part => inp(sp ? { target: "pattern", pid: p.key, key: part, old: p[{ digits: "dmg_digits", hits: "hit_digits", n: "str_units" }[part]] } : { target: "pattern", mid: m.id, step: k, key: part, old: p[{ digits: "dmg_digits", hits: "hit_digits", n: "str_units" }[part]] }, p[{ digits: "dmg_digits", hits: "hit_digits", n: "str_units" }[part]], part)).join(" ")
+        + (us ? ` <span class="badge" title="${esc(us.join(", "))}">영향받는 몬스터 ${us.length}종</span>` : ""); }).join(" · ")}</td>
+    <td><button class="btn monProbe">단독 전투</button> <button class="btn sgMonFit" data-f="hp" title="체력 한계효과 근사 학습 (요청 시, 예상 시간 표시)">근사(체력)</button> <button class="btn sgMonFit" data-f="strength" title="기본 힘 근사 학습 (정수 격자)">근사(힘)</button> <button class="btn monCmp" title="같은 상태로 gauss 와 digits 단독 전투 비교 (규모 차이 확인)">gauss↔digits</button> <button class="btn monJson">JSON</button><div class="small probeOut">${PROBE[m.id] || ""}</div></td></tr>`).join("")}
+  </tbody></table></div>`;
+}
+function bindMonEdit(el) {
+  el.querySelectorAll(".monIn").forEach(i => {
+    const e0 = JSON.parse(i.dataset.e);
+    if (e0.target !== "monster" || !["hp", "strength"].includes(e0.key)) return;
+    i.addEventListener("focus", () => sgProbeAuto(e0.mid, e0.key));
+    i.addEventListener("input", () => sgMonPreview(i, e0));
+  });
+  el.querySelectorAll(".sgMonFit").forEach(b => b.onclick = () => { const mid = b.closest("tr").dataset.mid;
+    if (!monTable()) { flash("tier_avg 몬스터 모델에서는 몬스터 편집이 곡선에 반영되지 않아 근사도 없습니다"); return; }
+    sgFit([{ kind: "monster", id: mid, field: b.dataset.f }], `근사 학습 ${mid} ${b.dataset.f}`); });
+  el.querySelectorAll(".monIn").forEach(i => i.onchange = () => { const e = JSON.parse(i.dataset.e);
+    if (e.pid && (MON.pattern_users[e.pid] || []).length > 1 && !confirm(`패턴 ${e.pid} 는 몬스터 ${MON.pattern_users[e.pid].length}종이 함께 씁니다 (${MON.pattern_users[e.pid].join(", ")}). 계속할까요?`)) { i.value = e.old; return; }
+    setMonEdit(e, +i.value); });
+  el.querySelectorAll(".monJson").forEach(b => b.onclick = () => { JS.kind = "monster"; JS.id = b.closest("tr").dataset.mid; JS.loaded = null; setTab("json"); });
+  el.querySelectorAll(".monCmp").forEach(b => b.onclick = async () => { const mid = b.closest("tr").dataset.mid; cancelJob();
+    const r = await runJob({ kind: "monster_probe", mid, n: 600, edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet, compare_models: true, gimmicks: curGimmicks() }, null, "모델 비교").catch(e => flash(e.message));
+    if (r && r.type === "done") { const g = r.result.models.gauss, d = r.result.models.digits; window.__probeCmp = r.result;
+      PROBE[mid] = `gauss: ${g.avg_turns.toFixed(2)}턴 · 받는 피해 ${g.avg_taken.toFixed(1)} · 처치율 ${pct(g.kill_rate)} | digits(${esc(d.gimmicks)}): ${d.avg_turns.toFixed(2)}턴 · 받는 피해 ${d.avg_taken.toFixed(1)} · 처치율 ${pct(d.kill_rate)} · 충실도 ${esc(d.fidelity)}`; update(); } });
+  el.querySelectorAll(".monProbe").forEach(b => b.onclick = async () => { const mid = b.closest("tr").dataset.mid; cancelJob();
+    const r = await runJob({ kind: "monster_probe", mid, n: 1000, edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet }, null, "단독 전투").catch(e => flash(e.message));
+    if (r && r.type === "done") { const a = r.result.after, bf = r.result.before; window.__probe = r.result;
+      PROBE[mid] = `단독 지표(런 맥락 없음, n=${a.n}): 평균 ${a.avg_turns.toFixed(2)}턴 (수정 전 ${bf.avg_turns.toFixed(2)}) · 받는 피해 ${a.avg_taken.toFixed(1)} (${bf.avg_taken.toFixed(1)}) · 처치율 ${pct(a.kill_rate)}`; update(); } });
+}
+function monTable() { return (MON && MON.model === "table") || S.cfgSet["monsters.model"] === "table"; }
+async function sgProbeAuto(mid, field) {   // 단독 지표 모델은 패널(입력란)을 열 때 자동 학습 (F10.10-2)
+  if (!monTable() || SG.probe[mid + "|" + field] || SG["probing_" + mid + field]) return;
+  SG["probing_" + mid + field] = true;
+  try { const r = await post("/api/surrogate/probe_fit", { mid, field, edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet });
+    streamJob(r.id, ev => { if (ev.type === "done") loadSG(); }); } catch (e) { /* 무시 */ }
+}
+function sgProbeAt(mid, field, th) {
+  const m = SG.probe[mid + "|" + field]; if (!m) return null;
+  if (m.discrete) { const r = m.rows.find(r => r[0] === th); return r ? { turns: r[1], taken: r[2], death: r[3] } : null; }
+  const g = m.grid; if (th < g[0] || th > g[g.length - 1]) return null;
+  for (let i = 0; i < g.length - 1; i++) if (g[i] <= th && th <= g[i + 1]) { const t = g[i + 1] === g[i] ? 0 : (th - g[i]) / (g[i + 1] - g[i]); const L = (a, b) => a + t * (b - a);
+    return { turns: L(m.rows[i][1], m.rows[i + 1][1]), taken: L(m.rows[i][2], m.rows[i + 1][2]), death: L(m.rows[i][3], m.rows[i + 1][3]) }; }
+  return null;
+}
+function sgMonPreview(input, e0) {
+  const v = +input.value; if (!isFinite(v)) return;
+  const out = input.closest("tr").querySelector(".probeOut");
+  if (!monTable()) { out.innerHTML = '<span class="small" id="sgMonTier">tier_avg 모델: 몬스터 편집이 곡선에 반영되지 않아 미리보기 없음</span>'; return; }
+  const ex = monEdit(e0);
+  const P = { kind: "monster", id: e0.mid, field: e0.key, theta: v, thetaAnchor: ex && LIVE.after[BASE_ID] ? ex.new : e0.old };
+  const m = sgModel("monster", e0.mid, e0.key);
+  const pr = sgProbeAt(e0.mid, e0.key, v);
+  let html = pr ? `<span class="badge sg">근사</span> 단독: ${pr.turns.toFixed(2)}턴 · 받는 피해 ${pr.taken.toFixed(1)} · 사망 ${pct(pr.death)}` : (SG.probe[e0.mid + "|" + e0.key] ? '<span class="small">단독 지표: 학습 범위 밖</span>' : '<span class="small">단독 지표 모델 학습 중…</span>');
+  if (m) {
+    S.preview = Object.assign(P, { pending: false }); P.pts = sgPreviewPts();
+    const q = P.pts.find(q => Math.abs(q.x - S.x) < 1e-9) || P.pts.find(q => q.r && q.r.p != null);
+    const enc = m.encounter && Object.values(m.encounter).every(r => r === 0);
+    html += enc ? ' · <span id="sgNoEffect">영향 없음 — 이 몬스터를 만나지 않음</span>' : (q && q.r && q.r.p != null ? ` · 기준선 승률(근사, X=${fmtX(q.x)}) <b id="sgMonBase">${pct(q.r.p)}</b> [${esc(m.status)}]` : ` · 기준선: ${esc((q && q.r && q.r.reject) || m.status)}`);
+    html += ' · <span class="small">환상 곡선·조합: 미리보기 없음 — 재계산 필요</span>';
+  } else html += ' · <span class="small">기준선 근사 없음 (근사 학습 버튼)</span>';
+  out.innerHTML = html; window.__sgMonOut = out.textContent;
+}
+function renderMon() {
+  const el = $("tab-mon"); const D = DATA.monster_metrics;
+  if (SRV && srvOK) {
+    el.innerHTML = `<h4 style="margin:0 0 4px">몬스터·패턴 편집</h4><div id="monEditBox">${renderMonEdit()}</div>${MON ? renderHpReport(monsWithEdits()) : ""}${D ? '<h4 style="margin:12px 0 4px">몬스터별 지표 (런 전체 시뮬)</h4><div id="monMetrics"></div>' : ""}`;
+    if (MON) bindMonEdit(el);
+    if (D) renderMonMetrics($("monMetrics"), D);
+    return;
+  }
+  if (!D) { el.innerHTML = ""; return; }
+  renderMonMetrics(el, D);
+  if (D.monsters.some(m => m.hp != null)) el.insertAdjacentHTML("afterbegin", renderHpReport(D.monsters));
+}
+// v4.2 F11.5: 몬스터 체력 리포트 (원본에서 계산, 읽기 전용) — 막 × 등급 요약, 등급 간·막 간 비율, 설계 목표 비율 대조
+const HP_TIERS = ["easy", "normal", "elite", "boss"];
+function hpStats(a) { return a && a.length ? { n: a.length, mean: a.reduce((x, y) => x + y, 0) / a.length, min: Math.min(...a), max: Math.max(...a) } : null; }
+function hpReportData(mons) {
+  const g = {};
+  for (const m of mons) { if (m.enabled === false || m.hp == null) continue; (g[m.act + "|" + m.tier] = g[m.act + "|" + m.tier] || []).push(+m.hp); }
+  const cell = {}; for (const k in g) cell[k] = hpStats(g[k]);
+  const acts = [...new Set(mons.map(m => +m.act))].sort((a, b) => a - b);
+  const tierRatio = {}, actRatio = {};
+  for (const a of acts) { const nm = cell[a + "|normal"]; tierRatio[a] = {}; for (const t of HP_TIERS) tierRatio[a][t] = nm && cell[a + "|" + t] ? cell[a + "|" + t].mean / nm.mean : null; }
+  for (const t of HP_TIERS) { const b = cell[acts[0] + "|" + t]; actRatio[t] = {}; for (const a of acts) actRatio[t][a] = b && cell[a + "|" + t] ? cell[a + "|" + t].mean / b.mean : null; }
+  const bt = (DATA.balance_targets || {}).monster_hp_ratio;
+  const target = bt ? { normal: bt.normal, elite: bt.elite, boss: bt.boss } : { normal: 1, elite: 3, boss: 5 };
+  return { acts, cell, tierRatio, actRatio, target, provisional: !bt || bt.provisional !== false };
+}
+window.__hpReportData = hpReportData;
+window.__monList = () => monsWithEdits();   // 테스트 훅 (AC-H7)
+function renderHpReport(mons) {
+  const R = hpReportData(mons);
+  const f1 = v => v == null ? "–" : v.toFixed(2);
+  const rows = R.acts.map(a => `<tr><td>${a}막</td>${HP_TIERS.map(t => { const c = R.cell[a + "|" + t]; return `<td class="n" data-c="${a}|${t}">${c ? `${c.mean.toFixed(0)} <span class="small">(${c.n}종, ${c.min}~${c.max})</span>` : "–"}</td>`; }).join("")}
+    <td class="n">${HP_TIERS.map(t => f1(R.tierRatio[a][t])).join(" : ")}</td></tr>`).join("");
+  const tgt = `${R.target.normal} : ${R.target.elite} : ${R.target.boss}`;
+  const act = HP_TIERS.map(t => `<tr><td>${t}</td>${R.acts.map(a => `<td class="n">${f1(R.actRatio[t][a])}</td>`).join("")}</tr>`).join("");
+  return `<div id="hpReport"><h4 style="margin:8px 0 4px">몬스터 체력 리포트 <span class="small">(원본 JSON 체력, 읽기 전용 — 편집하면 즉시 갱신)</span></h4>
+  <div class="rankwrap"><table class="rank" id="hpTable"><thead><tr><th>막</th>${HP_TIERS.map(t => `<th>${t} 평균 (종, 최소~최대)</th>`).join("")}<th>등급 비율 easy:normal:elite:boss (normal = 1)</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <div class="small" id="hpTarget">설계 목표 normal:elite:boss = <b>${tgt}</b>${R.provisional ? ' <span class="badge">임시값</span>' : ""} (balance_targets.json 의 monster_hp_ratio, 참고용 대조이며 시뮬 입력이 아님)</div>
+  <div class="rankwrap"><table class="rank" id="hpActRatio"><thead><tr><th>막 간 비율 (각 막 평균 ÷ ${R.acts[0]}막)</th>${R.acts.map(a => `<th>${a}막</th>`).join("")}</tr></thead><tbody>${act}</tbody></table></div></div>`;
+}
+function monsWithEdits() {   // 서버 모드: 작업 중인 체력 편집을 반영한 몬스터 목록
+  if (!MON) return [];
+  return MON.monsters.map(m => { const e = S.edits.find(x => x.target === "monster" && x.mid === m.id && x.key === "hp"); return Object.assign({}, m, { hp: e ? e.new : m.hp }); });
+}
+function renderMonMetrics(el, D) {
+  const maxT = Math.max(10, ...D.monsters.map(m => m.turns_ci[1]));
+  const sc = v => (v / maxT * 160).toFixed(1);
+  const rateCell = (r, ci, cls) => r == null ? `<td class="n ${cls}">–</td>` : `<td class="n ${cls}">${pct(r)} <span class="small">[${pct(ci[0])}–${pct(ci[1])}]</span></td>`;
+  el.innerHTML = `<div class="small">${esc(D.meta.note || "")} · ${D.meta.runs}판${D.win_rate != null ? ` · 전체 승률 <b id="monWinAll">${pct(D.win_rate)}</b>` : ""} · 몬스터 모델 ${esc(D.meta.monster_model)} · 피해 모델 ${esc(D.meta.damage_model)}. 목표 턴 수: 일반 3~4, 엘리트 5~6, 보스 7~9 (기획 문서). ⚠ = 미모델링 기믹(지표가 실제와 다를 수 있음)</div>
+  <div class="small" id="monWinNote"><b>조우 시 전투 승률</b> = 이 몬스터와 싸운 전투 중 이긴 비율(사망·카운트다운 도주·시간 초과 제외). <b>조우한 런 승률</b> = 이 몬스터를 한 번이라도 만난 런이 끝까지 클리어한 비율 — 뒤쪽 막 몬스터일수록 거기까지 살아남은 런만 만나므로 높게 나온다. 같은 막·등급끼리 비교하고, 전체 승률과 견준다. 사망 비중 = 전체 사망 중 이 몬스터에게 죽은 비율.</div>
+  <div class="rankwrap"><table class="rank" id="monTable"><thead><tr><th>막</th><th>등급</th><th>몬스터</th><th>체력</th><th>평균 턴 [95% CI] · 목표 밴드</th><th>판정</th><th>전투당 받은 피해</th><th>사망 비중</th><th>조우 시 전투 승률 [95% CI]</th><th>조우한 런 승률 [95% CI]</th><th>최대 1타(평균/최대)</th><th>전투 수</th></tr></thead><tbody>
+  ${D.monsters.map(m => `<tr title="${esc(m.warning)}"><td>${m.act}</td><td>${esc(m.tier)}</td><td>${esc(m.name)}${m.warning ? ' <span class="badge stale">⚠ 기믹</span>' : ""}</td><td class="n">${m.hp ?? "–"}</td>
+    <td><svg width="170" height="14" role="img" aria-label="평균 턴"><rect x="${sc(m.turn_target ? m.turn_target[0] : 0)}" width="${m.turn_target ? sc(m.turn_target[1] - m.turn_target[0]) : 0}" y="0" height="14" fill="var(--band)"/>
+      <line x1="${sc(m.turns_ci[0])}" x2="${sc(m.turns_ci[1])}" y1="7" y2="7" stroke="var(--ink-2)" stroke-width="2"/><circle cx="${sc(m.avg_turns)}" cy="7" r="3.5" fill="var(--accent)"/></svg>
+      <span class="num small">${m.avg_turns.toFixed(2)} [${m.turns_ci[0].toFixed(2)}, ${m.turns_ci[1].toFixed(2)}]</span></td>
+    <td>${esc(m.turn_verdict || "–")}</td><td class="n">${m.avg_taken.toFixed(1)}</td><td class="n">${pct(m.death_share)}</td>${rateCell(m.battle_win_rate, m.battle_win_ci, "bwin")}${rateCell(m.run_win_rate_met, m.run_win_ci_met, "rwin")}<td class="n">${m.max_hit_avg} / ${m.max_hit_max}</td><td class="n">${m.battles.toLocaleString()}</td></tr>`).join("")}
+  </tbody></table></div>`;
+}
+
+// ---------------- 탭: 보정 (F3) ----------------
+function renderCal() {
+  const el = $("tab-cal"); const C = DATA.calibration; if (!C) { el.innerHTML = ""; return; }
+  const floors = Array.from({ length: 45 }, (_, i) => i + 1);
+  el.innerHTML = `<div><b>맞춘 파라미터</b>: ${Object.entries(C.params).map(([k, v]) => `${esc(k)} = <b>${fmtNum(v)}</b> <span class="small">(시작 ${fmtNum(C.start[k])}, 범위 ${C.bounds[k].join("~")})</span>`).join(" · ")}</div>
+    <div class="small">가중 SSE ${C.fit.weighted_sse} · χ²/자유도 ${C.fit.chi2_per_dof} · 관측 ${C.fit.n_obs}판 · 시뮬 ${C.fit.n_sim}판 · 평가 ${C.fit.evals}회</div>
+    ${(C.warnings || []).map(w => `<div class="notice">${esc(w)}</div>`).join("")}
+    <div class="legend"><span><svg width="22" height="10">${legendMark(null)}</svg>관측</span><span><svg width="22" height="10">${legendMark(0)}</svg>보정된 시뮬레이션</span></div>
+    <svg class="chart" id="calChart"></svg>
+    <div class="small">층별 잔차(관측 − 시뮬)</div><svg class="chart small" id="calRes"></svg>
+    <div class="small">목적함수 프로파일 (파라미터 하나만 흔들 때 가중 SSE — 바닥이 평평하면 식별이 약함)</div><div id="calProf" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px"></div>
+    ${SRV ? `<button class="btn" id="calSave">보정 결과를 시나리오로 저장</button>` : ""}`;
+  drawChart($("calChart"), { series: [{ id: "obs", base: true, pts: floors.map((f, i) => ({ x: f, y: C.observed_reach[i] })) }, { id: "sim", slot: 0, noMarks: true, pts: floors.map((f, i) => ({ x: f, y: C.sim_reach[i] })) }],
+    xs: floors, xticks: [1, 15, 30, 45], xfmt: v => v + "층", yfmt: v => (v * 100).toFixed(0) + "%", yZero: true, yClamp: [0, 1.0001], vlines: [15.5, 30.5] });
+  drawChart($("calRes"), { series: [{ id: "res", slot: 1, pts: floors.map((f, i) => ({ x: f, y: C.residuals[i] })) }], xs: floors, xticks: [1, 15, 30, 45], xfmt: v => v + "층", yfmt: v => pp(v), yZero: true });
+  const prof = $("calProf");
+  Object.entries(C.profile).forEach(([k, arr]) => {
+    const d = document.createElement("div"); d.innerHTML = `<div class="small">${esc(k)}</div><svg class="chart small"></svg>`; prof.appendChild(d);
+    drawChart(d.querySelector("svg"), { series: [{ id: k, slot: 2, pts: arr.map(([v, s]) => ({ x: v, y: s })) }], xs: arr.map(a => a[0]), xfmt: fmtNum, yfmt: v => v.toFixed(0), vlines: [C.params[k]] });
+  });
+  const b = $("calSave"); if (b) b.onclick = async () => {
+    const name = prompt("시나리오 이름", "보정 " + new Date().toISOString().slice(0, 10)); if (!name) return;
+    try { await post("/api/scenarios", { name, note: "F3 보정 결과", edits: [], cfg_edits: C.cfg_edits }); flash(`시나리오 '${name}' 저장`); } catch (e) { flash("저장 실패: " + e.message); }
+  };
+}
+
+// ---------------- 탭: 런 재생 (F7) ----------------
+const TR = { fid: null, suggest: null, res: null };
+function evText(e) {
+  switch (e.ev) {
+    case "node": return `${e.act}막 ${e.floor}층 · ${e.type} · 체력 ${e.hp}`;
+    case "battle": return `⚔ ${e.monster} (체력 ${e.mhp})${e.temp_copy ? " · 임시 복사 " + e.temp_copy : ""}`;
+    case "turn": return `  ${e.t}턴 ${e.intent}${e.intent === "attack" ? ` ${e.mon_dmg}x${e.hits}` : ""} · 기본 ${e.base} · 이동 ${e.moves}(공${e.att}/방${e.def})${e.items ? ` +아이템${e.items}` : ""} · 타수 ${e.p_hits} · 가산 ${fmtNum(e.flat)}${e.final_mult !== 1 ? ` x${e.final_mult}` : ""} → 줌 ${e.dealt}${e.etd ? `(턴종료 ${e.etd})` : ""} · 받음 ${e.taken} · 체력 ${e.hp} / 적 ${e.mhp}${e.end ? " ⇒ " + e.end : ""}`;
+    case "battle_end": return `  결과 ${e.outcome} · ${e.turns}턴 · 체력 ${e.hp}`;
+    case "rewind": return `  ↺ 되감기`;
+    case "reward": return `🎁 제시 ${e.offered.map(id => (BYID[id] || {}).name || id).join(", ")} → ${(BYID[e.pick] || {}).name || e.pick}`;
+    case "reward_choice": return `🎁 ${e.pick === "heal" ? "회복 " + e.amount : "아이템"}`;
+    case "acquire": return `✨ 획득 ${(BYID[e.fid] || {}).name || e.fid} (${e.source})`;
+    case "acquire_void": return `✨ 획득 무효 ${(BYID[e.fid] || {}).name || e.fid}`;
+    case "rest": return `🛏 휴식 +${e.heal} → ${e.hp}`;
+    case "shop": return `🛒 상점 체력 ${e.hp_spent} 사용, 구매 ${e.bought.map(id => (BYID[id] || {}).name || id).join(", ") || "없음"}`;
+    default: return JSON.stringify(e);
+  }
+}
+function fxText(fx) { return Object.entries(fx || {}).map(([t, arr]) => `${t}: ${arr.map(a => `${(BYID[a.fid] || {}).name || a.fid}${a.count > 1 ? "x" + a.count : ""}(${["value", "pct", "per", "chance"].filter(k => a[k] != null).map(k => k + "=" + fmtNum(a[k])).join(",")})`).join(" ")}`).join("\n"); }
+function renderTrace() {
+  const el = $("tab-trace"); if (!SRV) { el.innerHTML = ""; return; }
+  if (!srvOK) { el.innerHTML = `<div class="small">서버에 연결되지 않았습니다.</div>`; return; }
+  const fid = TR.fid || S.focus || S.sel[0];
+  const opts = FANTS.map(f => `<option value="${esc(f.id)}" ${f.id === fid ? "selected" : ""}>${esc(f.name)}</option>`).join("");
+  const sg = TR.suggest ? Object.entries({ turned_win: "기준선 패배 → 환상 승리", turned_lose: "기준선 승리 → 환상 패배", win: "환상 승리", lose: "환상 패배" })
+    .map(([k, l]) => `<div class="small">${l}: ${(TR.suggest[k] || []).map(s => `<button class="chip seed" data-seed="${esc(s)}">${esc(s)}</button>`).join(" ") || "없음"}</div>`).join("") : "";
+  let body = "";
+  if (TR.res) {
+    const r = TR.res, dv = r.divergence;
+    const col = (side, evs) => evs.map((e, i) => {
+      const cls = dv && i === dv[side] ? "ev div" : dv && i > dv[side] ? "ev after" : "ev";
+      return `<div class="${cls}" ${dv && i === dv[side] ? 'id="div-' + side + '"' : ""} title="${esc(e.ev === "battle" ? fxText(e.fx) : "")}">${esc(evText(e))}</div>`;
+    }).join("");
+    body = `<div class="small">시드 ${esc(r.seed)} · 기준선 ${r.base.row.result} (${r.base.row.reached_floor}층) · ${esc(BYID[r.fid].name)} 강제 포함 ${r.forced.row.result} (${r.forced.row.reached_floor}층) · ${dv ? `처음 갈라진 지점: 기준선 #${dv.base} / 환상 #${dv.forced} (노란 줄)` : "끝까지 같음"} · 전투 줄에 마우스를 올리면 발동 환상 효과</div>
+      <div class="trace"><div><b>기준선</b><div class="col" id="trB">${col("base", r.base.events)}</div></div><div><b>${esc(BYID[r.fid].name)} 강제 포함</b><div class="col" id="trF">${col("forced", r.forced.events)}</div></div></div>`;
+  }
+  el.innerHTML = `<div class="controls"><label>환상 <select id="trFid">${opts}</select></label><label>X <b>${fmtX(S.x)}</b></label>
+    <button class="btn" id="trSuggest">대표 시드 제안</button><label>시드 <input type="text" id="trSeed" style="width:120px" placeholder="${esc(META.master_seed)}-0"></label><button class="btn" id="trRun">재생</button></div>
+    ${sg}<div id="trBody">${body}</div>`;
+  $("trFid").onchange = e => { TR.fid = e.target.value; TR.suggest = null; TR.res = null; renderTrace(); };
+  $("trSuggest").onclick = async () => { TR.fid = $("trFid").value; try { const r = await post("/api/trace", { fid: TR.fid, x: S.x, edits: S.edits, cfg_edits: S.cfgEdits }); TR.suggest = r.suggest; renderTrace(); } catch (e) { flash(e.message); } };
+  const run = async seed => { TR.fid = $("trFid").value; try { TR.res = await post("/api/trace", { fid: TR.fid, x: S.x, seed, edits: S.edits, cfg_edits: S.cfgEdits }); renderTrace(); const d = $("div-base"), f = $("div-forced"); if (d) d.scrollIntoView({ block: "center" }); if (f) f.scrollIntoView({ block: "center" }); } catch (e) { flash(e.message); } };
+  $("trRun").onclick = () => run($("trSeed").value || `${META.master_seed}-0`);
+  el.querySelectorAll(".seed").forEach(b => b.onclick = () => run(b.dataset.seed));
+}
+
+// ---------------- 원본 반영 · 시나리오 ----------------
+function modal(html) { $("modal").innerHTML = `<div class="modal-bg"><div class="modal" role="dialog">${html}</div></div>`; }
+function closeModal() { $("modal").innerHTML = ""; }
+function diffHTML(d) { return esc(d).split("\n").map(l => l.startsWith("+") && !l.startsWith("+++") ? `<span class="add">${l}</span>` : l.startsWith("-") && !l.startsWith("---") ? `<span class="del">${l}</span>` : l).join("\n"); }
+let lastScenario = null;
+async function openApply() {
+  if (!S.edits.length && !S.fileEdits.length) { flash("반영할 변경이 없습니다 (설정 변경은 원본 반영 대상이 아님)."); return; }
+  let pv; try { pv = await post("/api/apply/preview", { edits: S.edits }); } catch (e) { flash("미리보기 실패: " + e.message); return; }
+  const files = Object.entries(pv.files);
+  modal(`<h3 style="margin:0 0 6px">원본에 반영 — 미리보기</h3>
+    ${pv.externally_changed.length ? `<div class="notice">뷰어가 읽은 뒤 바뀐 파일: ${pv.externally_changed.map(esc).join(", ")} — 반영이 거부됩니다. 서버를 다시 시작하거나 파일을 확인하세요.</div>` : ""}
+    <div class="small">원본 JSON 은 해당 숫자 토큰만 바뀝니다 (BOM·줄바꿈·들여쓰기·표기 보존). 반영 전 백업을 만들고, 반영 후 임포터를 다시 실행해 값이 같은지 확인합니다. 서버는 커밋하지 않습니다.</div>
+    ${files.map(([fn, f]) => `<div class="efx"><label><input type="checkbox" class="applyFile" value="${esc(fn)}" checked> <b>${esc(fn)}</b></label>
+      <div class="small">${f.raw ? "JSON 편집기로 고친 파일 — 쓴 텍스트 그대로 반영 (파일 전체 diff)<br>" : ""}${f.rows.map(r => `${esc(r.fid ? ((BYID[r.fid] || {}).name || r.fid) + " effects[" + r.effect + "]" : (r.mid || r.pid) + (r.step != null ? " patterns[" + r.step + "]" : ""))}.${esc(r.key)}: ${fmtNum(r.old)} → ${fmtNum(r.new)} (토큰 ${esc(r.token_old)} → ${esc(r.token_new)})`).join("<br>")}</div><pre>${diffHTML(f.diff)}</pre></div>`).join("")}
+    ${pv.overrides.length ? `<div class="efx"><label><input type="checkbox" id="applyOv" checked> <b>fantasy_effects.overrides.json</b> (시뮬 전용 — 원본 JSON 은 건드리지 않음)</label><div class="small">${pv.overrides.map(r => `${esc((BYID[r.fid] || {}).name)} effects[${r.effect}].${esc(r.key)}: ${fmtNum(r.old)} → ${fmtNum(r.new)}`).join("<br>")}</div></div>` : ""}
+    ${pv.scenario_only.length ? `<div class="efx"><b>시나리오에만 저장되는 변경</b> (원본 연결 없음)<div class="small">${pv.scenario_only.map(r => `${esc((BYID[r.fid] || {}).name)} ${esc(r.key)} → ${fmtNum(r.new)}`).join("<br>")}</div></div>` : ""}
+    ${pv.problems.length ? `<div class="notice">문제: ${pv.problems.map(p => `${esc(p.fid)} ${esc(p.key)} ${esc(p.reason)}`).join("; ")}</div>` : ""}
+    <div class="chips" style="margin-top:8px"><button class="btn primary" id="applyGo" ${pv.externally_changed.length ? "disabled" : ""}>반영</button><button class="btn" id="applyCancel">취소</button></div>`);
+  $("applyCancel").onclick = closeModal;
+  $("applyGo").onclick = async () => {
+    const sel = [...document.querySelectorAll(".applyFile")].filter(c => c.checked).map(c => c.value);
+    const ov = $("applyOv") ? $("applyOv").checked : false;
+    try {
+      const keepScen = S.edits.filter(e => { const k = editableKeys(e.fid).find(k => k.effect === e.effect && k.key === e.key); return k && k.target === "scenario"; });
+      const r = await post("/api/apply", { edits: S.edits, files: sel, include_overrides: ov, scenario: lastScenario });
+      await reloadServerTable(r.table_hash);
+      S.edits = keepScen;  // 원본·overrides 에 반영된 변경은 이제 기준값. 시나리오 전용 변경만 남김
+      S.undo = []; S.redo = [];
+      LIVE.after = {}; LIVE.before = {}; LIVE.hash = null;
+      modal(`<h3 style="margin:0 0 6px">반영 완료</h3><div>파일 ${r.files.length}개${r.overrides.length ? " + overrides" : ""} 반영 · 백업 ${esc(r.backup_dir)}</div>
+        ${r.roundtrip_mismatch.length ? `<div class="notice">재임포트 값이 편집값과 다릅니다: ${esc(JSON.stringify(r.roundtrip_mismatch))} — '반영 되돌리기'로 복구하세요.</div>` : '<div class="small">재임포트 확인: 모든 값 일치</div>'}
+        <div class="notice">${esc(r.note)}</div><div class="small">기존 곡선은 이전 테이블 기준이므로 '이전 데이터'로 표시됩니다. '전체 재계산'으로 갱신하세요.</div>
+        <div class="chips" style="margin-top:8px"><button class="btn" id="okClose">닫기</button></div>`);
+      $("okClose").onclick = closeModal;
+      update();
+    } catch (e) { modal(`<div class="notice">반영 실패: ${esc(e.message)}</div><button class="btn" id="okClose">닫기</button>`); $("okClose").onclick = closeModal; }
+  };
+}
+function absorbFantasies(fj) {
+  SRVF = Object.fromEntries(fj.fantasies.map(f => [f.id, f]));
+  fj.fantasies.forEach(f => { if (BYID[f.id]) { Object.assign(BYID[f.id], { effects: f.effects, editable_keys: f.editable_keys, src_linked: f.src_linked, notes: f.notes, fidelity: f.fidelity, fidelity_gauss: f.fidelity, notes_gauss: f.notes, fidelity_digits: f.fidelity_digits, notes_digits: f.notes_digits, mapping: f.mapping },
+    f.name ? { name: f.name } : {}, f.grade ? { grade: f.grade } : {}, f.description != null ? { description: f.description } : {}); } });
+  applyModelFidelity(); FANTS.forEach(summarize);
+}
+async function reloadServerTable(hash) {
+  const fj = await api("/api/fantasies");
+  absorbFantasies(fj);
+  BASE_HASH = fj.data_hash || fj.table_hash;
+  S.fileEdits = fj.dirty_files || [];
+  $("hashLabel").textContent = BASE_HASH.slice(0, 10);
+  await loadRef();
+  if (MON) loadMonsters();
+}
+// 서버 밖(에디터·Unity·다른 기기)에서 원본 JSON 이 바뀌었으면 환상 효과·수치·비교 기준을 다시 받는다
+let syncing = null;
+function syncServerTable() {
+  if (!(SRV && srvOK)) return Promise.resolve(false);
+  if (syncing) return syncing;
+  syncing = (async () => {
+    try {
+      const st = await api("/api/state"); const h = st.data_hash || st.table_hash;
+      if (h && h !== BASE_HASH) { await reloadServerTable(); COMBO.res = null; flash("원본 JSON 변경을 불러왔습니다 — 효과·수치 갱신, 곡선은 다시 계산합니다"); update(); return true; }
+    } catch (e) { /* 연결 끊김: 다음 기회에 */ }
+    return false;
+  })().finally(() => { syncing = null; });
+  return syncing;
+}
+window.__syncServerTable = syncServerTable;
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") syncServerTable().then(ch => { if (ch && needsCompute()) scheduleRecompute(); }); });
+async function unapply() {
+  if (!confirm("마지막 원본 반영을 되돌릴까요? (반영 이후 파일이 바뀌었으면 거부됩니다)")) return;
+  try { const r = await post("/api/apply/revert", {}); await reloadServerTable(r.table_hash); flash(`복원: ${r.restored.join(", ")}`); update(); } catch (e) { flash("되돌리기 실패: " + e.message); }
+}
+async function saveScenario() {
+  const name = prompt("시나리오 이름", lastScenario || "새 시나리오"); if (!name) return;
+  const note = prompt("메모 (선택)", "") || "";
+  try { const r = await post("/api/scenarios", { name, note, edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet, results: LIVE.hash ? { data_hash: LIVE.hash } : null }); lastScenario = name; flash(`시나리오 저장: ${r.saved}`); } catch (e) { flash("저장 실패: " + e.message); }
+}
+async function loadScenario() {
+  let list; try { list = (await api("/api/scenarios")).scenarios; } catch (e) { flash(e.message); return; }
+  modal(`<h3 style="margin:0 0 6px">시나리오 불러오기</h3>${list.length ? list.map(s => `<div><button class="btn scen" data-n="${esc(s.file.replace(/\.json$/, ""))}">${esc(s.name)}</button> <span class="small">${esc(s.updated_at)} · 변경 ${s.edits} · 설정 ${s.cfg_edits}${s.applied ? " · 반영됨" : ""}</span></div>`).join("") : '<div class="small">저장된 시나리오 없음</div>'}
+    <div class="chips" style="margin-top:8px"><button class="btn" id="scClose">닫기</button></div>`);
+  $("scClose").onclick = closeModal;
+  document.querySelectorAll(".scen").forEach(b => b.onclick = async () => {
+    try {
+      const r = await api("/api/scenarios/" + encodeURIComponent(b.dataset.n));
+      const bad = new Set(r.conflicts.map(c => JSON.stringify([c.fid || c.path, c.effect, c.key])));
+      pushUndo();
+      S.edits = r.scenario.edits.filter(e => !bad.has(JSON.stringify([e.fid, e.effect, e.key])));
+      S.cfgEdits = r.scenario.cfg_edits.filter(c => !bad.has(JSON.stringify([c.path, undefined, undefined])));
+      S.cfgSet = r.scenario.cfg_set || {};
+      const fconf = new Set(r.conflicts.filter(c => c.kind).map(c => c.kind + "/" + c.id));
+      for (const fe of (r.scenario.file_edits || [])) { if (fconf.has(fe.kind + "/" + fe.id)) continue; try { await api(`/api/files/${fe.kind}/${encodeURIComponent(fe.id)}`, { method: "PUT", body: JSON.stringify({ text: fe.new_text }) }); } catch (e) { flash("원문 편집 복원 실패: " + e.message); } }
+      if ((r.scenario.file_edits || []).length) await reloadServerTable();
+      lastScenario = r.scenario.name;
+      S.edits.forEach(e => { if (e.fid && !S.sel.includes(e.fid) && S.sel.length < MAX_SEL) { const used = new Set(Object.values(S.slot)); let s = 0; while (used.has(s)) s++; S.slot[e.fid] = s; S.sel.push(e.fid); } });
+      modal(`<h3 style="margin:0 0 6px">'${esc(r.scenario.name)}' 불러옴</h3><div>변경 ${S.edits.length}개 · 설정 ${S.cfgEdits.length}개 복원</div>
+        ${r.conflicts.length ? `<div class="notice" id="scConflicts">충돌 ${r.conflicts.length}개 (현재 원본 값이 시나리오의 old 와 다름 — 불러오지 않음):<br>${r.conflicts.map(c => `${esc(c.fid || c.path)} ${esc(c.key || "")}: ${esc(c.reason)}`).join("<br>")}</div>` : ""}
+        <div class="chips" style="margin-top:8px"><button class="btn" id="scOk">닫기</button></div>`);
+      $("scOk").onclick = closeModal;
+      afterEditChange();
+    } catch (e) { flash("불러오기 실패: " + e.message); }
+  });
+}
+
+// ---------------- 획득 시스템 스위치 (§7.5) ----------------
+function setSystem(v) {
+  pushUndo();
+  S.cfgEdits = S.cfgEdits.filter(c => !c.path.startsWith("rewards.ember"));
+  delete S.cfgSet["rewards.ember.blue_mode"]; delete S.cfgSet["rewards.ember.blue_reward"];
+  if (v === "fantasy") { if (SCAN_SYSTEM === "fantasy") delete S.cfgSet["rewards.normal_battle.mode"]; else S.cfgSet["rewards.normal_battle.mode"] = "fantasy"; }
+  else { if (SCAN_SYSTEM === "ember") delete S.cfgSet["rewards.normal_battle.mode"]; else S.cfgSet["rewards.normal_battle.mode"] = "ember"; if (v === "custom") S.tab = "ember"; }
+  COMBO.res = null; COMBO.cache = {};
+  afterEditChange();
+}
+
+// ---------------- 조합: 체크한 환상을 모두 가진 승률 (승률·생존 곡선에 같이 그린다) ----------------
+function comboKey(ids) { return ids.slice().sort().join("+"); }
+function comboFor(sel) {
+  if (sel.length < 2) return null;
+  const want = comboKey(sel);
+  for (const C of [COMBO.res, COMBO.cache[want]].concat(DATA.combos || [])) if (C && comboKey(C.ids) === want) return C;
+  return null;
+}
+function comboFullKey(C) { return Object.keys(C.by_x[0].arms).find(k => k !== BASE_ID && k.split("+").length === C.ids.length); }
+function comboPts(C) { const k = comboFullKey(C); return k ? C.by_x.map(b => Object.assign({ x: b.x }, b.arms[k])).filter(a => a.win_rate != null) : []; }
+function comboSingleDelta(C, b) { return C.ids.reduce((s, id) => s + ((b.arms[id] || {}).delta || 0), 0); }
+function comboStale(C) {
+  const cur = LIVE.hash || (S.edits.length || S.cfgEdits.length || Object.keys(S.cfgSet).length ? null : BASE_HASH);
+  const h = C.data_hash || (C.by_x[0] || {}).data_hash;
+  return !!(cur && h && h !== cur);
+}
+function comboLabel() { return "조합: " + S.sel.map(id => BYID[id].name).join(" + "); }
+async function startCombo() {
+  if (!(SRV && srvOK)) return;
+  await syncServerTable();
+  const ids = S.sel.slice();
+  if (ids.length < 2) { flash("조합은 환상을 2개 이상 체크해야 합니다."); return; }
+  const body = { kind: "combo", arms: "full", ids, baseline_type: "natural", edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet, x_sel: S.x, label: "pre" };
+  try {
+    const est = await post("/api/estimate", body);
+    COMBO.est = est; window.__comboEst = est;
+    renderCombo();
+    if (est.seconds > 120 && !confirm(`조합 계산 예상 시간 약 ${Math.round(est.seconds)}초 (새로 ${est.runs_needed.toLocaleString()}판). 계속할까요?`)) return;
+  } catch (e) { flash("예상 시간 계산 실패: " + e.message); return; }
+  clearTimeout(recomputeTimer);   // 예약된 재계산이 조합 작업을 취소하지 않게 한다 (조합이 끝난 뒤 다시 예약)
+  cancelJob(); COMBO.busy = true; COMBO.res = null;
+  renderCombo();
+  const key = comboKey(ids);
+  const res = await runJob(body, ev => { if (ev.type === "combo") { COMBO.res = Object.assign({ partial: true }, ev.combo); COMBO.cache[key] = COMBO.res; scheduleRender(); } }, "조합").catch(e => flash(e.message));
+  COMBO.busy = false;
+  if (res && res.type === "done") { COMBO.res = res.result; COMBO.cache[key] = res.result; }
+  window.__combo = COMBO.res;
+  update();
+  if (res && res.type === "done" && needsCompute() && S.sel.some(id => isStale(curPts(id)))) scheduleRecompute();
+}
+// 승률 곡선 탭: 지표(승률·Δ·도달 층·사망률)에 맞춘 조합 곡선 / 생존 곡선 탭: 선택 X 의 층별 도달률
+function comboSeries(metric, mk) {
+  const C = comboFor(S.sel); if (!C) return null;
+  const pts = comboPts(C).filter(p => metric !== "floor" || p.mean_reached_floor != null).filter(p => metric !== "death" || p.death_by_act);
+  if (!pts.length) return null;
+  return { id: "combo", slot: COMBO_SLOT, pts: mk(pts), label: "조합", stale: comboStale(C) };
+}
+function comboSurvSeries(mk) {
+  const C = comboFor(S.sel); if (!C) return null;
+  const p = ptAt(comboPts(C), S.x);
+  return p && p.reach_rate ? { id: "combo", slot: COMBO_SLOT, pts: mk(p), noMarks: true, label: "조합" } : null;
+}
+function comboLegend() {
+  const C = comboFor(S.sel); if (!C) return "";
+  return `<span id="comboLegend"><svg width="22" height="10">${legendMark(COMBO_SLOT)}</svg>${esc(comboLabel())}${C.partial ? ` <span class="small">계산 중 n=${C.n}</span>` : ""}${comboStale(C) ? ' <span class="badge stale">이전 데이터 기준</span>' : ""}</span>`;
+}
+function renderCombo() {
+  const el = $("comboPanel"); if (!el) return;
+  if (S.sel.length < 2) { el.innerHTML = ""; return; }
+  const C = comboFor(S.sel);
+  const sgNo = S.preview && ((S.preview.kind === "fantasy" && S.sel.includes(S.preview.id)) || S.preview.kind === "monster") ? '<div class="notice" id="sgComboNo">미리보기 없음 — 재계산 필요 (조합은 근사하지 않음)</div>' : "";
+  const head = sgNo + `<div class="efx" id="combo"><div class="hd"><b>${esc(comboLabel())}</b> <span class="small">(체크한 환상을 런 시작부터 모두 보유)</span>
+    ${SRV && srvOK ? `<button class="btn primary" id="comboGo" ${COMBO.busy ? "disabled" : ""}>${COMBO.busy ? "계산 중…" : C ? "조합 다시 계산" : "조합 승률 계산"}</button>` : ""}
+    <span class="small" id="comboEst">${COMBO.est ? `예상 ${COMBO.est.seconds}초 · 새로 ${COMBO.est.runs_needed.toLocaleString()}판${COMBO.est.measured ? "" : " (속도 추정치)"}` : ""}</span></div>`;
+  if (!C) { el.innerHTML = head + `<div class="small">${SRV && srvOK ? "‘조합 승률 계산’을 누르면 체크한 환상을 모두 가진 곡선을 같은 시드로 계산해 위 차트와 생존 곡선 탭에 함께 그립니다. 단독 곡선은 이미 계산된 것을 씁니다." : "조합 곡선은 서버 모드에서 계산합니다 (이미 계산된 조합만 표시)."}</div></div>`; bindCombo(); return; }
+  const b = C.by_x.find(q => Math.abs(q.x - S.x) < 1e-9) || C.by_x[Math.floor(C.by_x.length / 2)];
+  const k = comboFullKey(C), a = b.arms[k], base = b.arms[BASE_ID];
+  const sum = comboSingleDelta(C, b);
+  const noneIn = C.ids.some(id => BYID[id] && BYID[id].fidelity === "none");
+  const sat = a.win_rate < 0.05 || a.win_rate > 0.95 || base.win_rate < 0.05 || base.win_rate > 0.95;
+  const gap = a.delta - sum;
+  const rows = C.ids.map(id => { const s1 = b.arms[id]; return s1 ? `<tr><td><svg width="22" height="10">${legendMark(S.slot[id])}</svg> ${esc((BYID[id] || {}).name || id)}</td><td class="n">${pct(s1.win_rate)}</td><td class="n">${pp(s1.delta)}</td><td class="n">[${pp(s1.delta_ci[0])}, ${pp(s1.delta_ci[1])}]</td><td class="n">${s1.n}</td></tr>` : ""; }).join("");
+  el.innerHTML = head + `
+    <div class="chips small">${noneIn ? '<span class="badge none">시뮬 미반영 포함</span>' : ""}${comboStale(C) ? '<span class="badge stale">이전 데이터 기준</span>' : ""}${C.partial ? `<span class="small">계산 중 n=${C.n}</span>` : `<span class="small">n=${C.n}</span>`}</div>
+    <div class="rankwrap"><table class="rank" id="comboTable"><thead><tr><th>${esc(xName(META.x_param))} = ${fmtX(b.x)}</th><th>승률</th><th>Δ<a class="info" data-g="1">ⓘ</a></th><th>95% CI</th><th>n</th></tr></thead>
+    <tbody><tr class="combo"><td><svg width="22" height="10">${legendMark(COMBO_SLOT)}</svg> <b>조합</b></td><td class="n"><b>${pct(a.win_rate)}</b></td><td class="n"><b>${pp(a.delta)}</b></td><td class="n">[${pp(a.delta_ci[0])}, ${pp(a.delta_ci[1])}]</td><td class="n">${a.n}</td></tr>
+    ${rows}<tr><td><svg width="22" height="10">${legendMark(null)}</svg> 기준선</td><td class="n">${pct(base.win_rate)}</td><td class="n">–</td><td></td><td class="n">${base.n}</td></tr></tbody></table></div>
+    <div class="small" id="comboSum">단독 Δ의 합 ${pp(sum)} → 조합 Δ ${pp(a.delta)} (차이 ${pp(gap)}: ${gap > 0 ? "합보다 크다 — 같이 쓰면 더 강함" : "합보다 작다 — 효과가 겹치거나 승률 상한에 가까움"})${sat ? ' <span class="badge stale satur">승률 포화 구간 — 차이 해석 주의</span>' : ""}</div></div>`;
+  bindCombo();
+}
+function bindCombo() { const go = $("comboGo"); if (go) go.onclick = () => startCombo(); }
+
+// ---------------- 탭: 불씨 (§7.5) ----------------
+function cfgVal(path) { const e = S.cfgEdits.find(c => c.path === path); return e ? e.new : BASE_CFG[path]; }
+function renderEmber() {
+  const el = $("tab-ember"); if (!el) return;
+  if (!(SRV && srvOK)) { el.innerHTML = '<div class="small">불씨 탭은 서버 모드에서 동작합니다.</div>'; return; }
+  const sys = curSystem();
+  const sel = (path, opts) => `<select class="emSet" data-path="${path}">${opts.map(o => `<option value="${o}" ${(S.cfgSet[path] || EMB_DEF[path]) === o ? "selected" : ""}>${o}</option>`).join("")}</select>`;
+  const bA = ptAt(curPts(BASE_ID), S.x), bB = ptAt(livePts("before", BASE_ID) || [], S.x);
+  const srcBar = (lab, p) => { if (!p || !p.src_mean) return ""; const m = p.src_mean, tot = m.reward + m.shop + m.forced || 1; const w = v => (v / Math.max(tot, 15) * 300).toFixed(0);
+    return `<div class="small">${lab}: <span class="bar" style="width:${w(m.reward)}px;background:var(--s1)"></span><span class="bar" style="width:${w(m.shop)}px;background:var(--s2)"></span><span class="bar" style="width:${w(m.forced)}px;background:var(--s3)"></span> 보상 ${m.reward.toFixed(1)} · 상점 ${m.shop.toFixed(1)} · 강제 ${m.forced.toFixed(1)} = <b>${tot.toFixed(1)}개</b>/판 <span class="small">(전체 판 평균, n=${p.agg_n})</span></div>`; };
+  el.innerHTML = `<div class="notice">불씨 획득 시스템은 <b>게임에 아직 반영되지 않은 변경안</b>이며 시뮬레이터 전용 모드입니다. 현재 계산 규칙: <b>${esc(SYS_KO[sys] || sys)}</b> (스캔 데이터는 ${esc(SYS_KO[SCAN_SYSTEM] || SCAN_SYSTEM)}).<a class="info" data-g="2">ⓘ</a><a class="info" data-g="12">ⓘ</a></div>
+  <div class="controls" id="emParams">
+    <label>슬롯 칸 수 <input type="number" class="emNum" data-path="rewards.ember.slot_size" min="1" max="12" step="1" value="${cfgVal("rewards.ember.slot_size") ?? 3}" style="width:60px"> <span class="badge">정수 파라미터</span></label>
+    <label>푸른 불씨 확률 <input type="number" class="emNum" data-path="rewards.ember.blue_chance" min="0" max="1" step="0.05" value="${cfgVal("rewards.ember.blue_chance") ?? 0.1}" style="width:70px"></label>
+    <label>푸른 불씨 ${sel("rewards.ember.blue_mode", ["replace", "extra"])}</label>
+    <label>청색 보상 ${sel("rewards.ember.blue_reward", ["offer", "direct"])}</label>
+    <label>보상 선택 ${sel("policy.fantasy_pick", ["random", "greedy_value", "softmax_value"])}<a class="info" data-g="8">ⓘ</a></label>
+    ${sys !== "ember" ? '<button class="btn primary" id="emOn">불씨 모드로 전환</button>' : '<button class="btn" id="emOff">현행으로 되돌리기</button>'}
+  </div>
+  <div class="small">보상 선택이 random 이면 청색 후보가 뽑힐 확률이 1/3 뿐이라 푸른 불씨의 가치가 선택 정책에 크게 좌우됩니다.</div>
+  <h4 style="margin:10px 0 2px">승률 곡선: ${esc(SYS_KO[sys] || sys)}(실선) vs ${esc(SYS_KO[SCAN_SYSTEM] || SCAN_SYSTEM)}(점선 고스트) 기준선</h4>
+  <svg class="chart small" id="emWin"></svg>
+  <h4 style="margin:10px 0 2px">층별 평균 보유 환상 수 (X=${fmtX(S.x)}) · 음영 = 기획 목표 12~15개<a class="info" data-g="9">ⓘ</a></h4>
+  <svg class="chart small" id="emFbf"></svg>
+  <div class="small">그 층까지 살아남은 판만의 평균이라 생존 편향이 있습니다(서술용).</div>
+  <div id="emSrc">${srcBar(SYS_KO[sys] || sys, bA)}${liveActive() ? srcBar((SYS_KO[SCAN_SYSTEM] || SCAN_SYSTEM) + "(수정 전)", bB) : ""}</div>
+  <h4 style="margin:10px 0 2px">파라미터 스윕: 슬롯 칸 수 × 푸른 불씨 확률 (X=${fmtX(S.x)}, 기준선)</h4>
+  <div class="chips small"><button class="btn" id="emSweep">스윕 실행</button> 색:
+    <select id="emMetric">${[["win_rate", "승률"], ["mean_fantasies", "평균 환상 수"], ["mean_reached_floor", "평균 도달 층"], ["blue_fantasies", "청색 환상 수"]].map(([k, l]) => `<option value="${k}" ${S.sweepMetric === k ? "selected" : ""}>${l}</option>`).join("")}</select>
+    <span class="badge">정수 파라미터 — 슬롯 칸 수는 정수 격자만 계산</span></div>
+  <div id="emHeat"></div>`;
+  const win = [{ id: BASE_ID, base: true, pts: curPts(BASE_ID).map(p => ({ x: p.x, y: p.win_rate })) }];
+  const gh = livePts("before", BASE_ID); if (liveActive() && gh) win.push({ id: "ghost", base: true, ghost: true, pts: gh.map(p => ({ x: p.x, y: p.win_rate })) });
+  drawChart($("emWin"), { series: win, xs: XS, xfmt: fmtX, yfmt: v => (v * 100).toFixed(0) + "%", yZero: true, yClamp: [0, 1], guideX: S.x, hline: S.T });
+  const floors = Array.from({ length: 45 }, (_, i) => i + 1);
+  const fb = p => p && p.fant_by_floor ? floors.map((f, i) => ({ x: f, y: p.fant_by_floor.mean[i] })) : [];
+  const fser = [{ id: "now", slot: 0, noMarks: true, pts: fb(bA) }];
+  if (liveActive() && bB) fser.push({ id: "before", slot: 0, ghost: true, pts: fb(bB) });
+  drawChart($("emFbf"), { series: fser, xs: floors, xticks: [1, 15, 30, 45], xfmt: v => v + "층", yfmt: v => v.toFixed(0), yZero: true, vlines: [15.5, 30.5], bands: [{ lo: 12, hi: 15, label: "목표 12~15" }] });
+  renderSweepHeat();
+  el.querySelectorAll(".emNum").forEach(i => i.onchange = () => { if (curSystem() !== "ember") S.cfgSet["rewards.normal_battle.mode"] = "ember"; setCfgEdit(i.dataset.path, BASE_CFG[i.dataset.path], +i.value); });
+  el.querySelectorAll(".emSet").forEach(i => i.onchange = () => { pushUndo(); if (i.value === EMB_DEF[i.dataset.path]) delete S.cfgSet[i.dataset.path]; else S.cfgSet[i.dataset.path] = i.value; afterEditChange(); });
+  const on = $("emOn"); if (on) on.onclick = () => setSystem("ember");
+  const off = $("emOff"); if (off) off.onclick = () => setSystem("fantasy");
+  $("emMetric").onchange = e => { S.sweepMetric = e.target.value; renderSweepHeat(); };
+  $("emSweep").onclick = () => {
+    cancelJob(); EMB.sweep = { cells: [], slot_sizes: [2, 3, 4, 5], blue_chances: [0, 0.1, 0.2, 0.3] };
+    runJob({ kind: "ember_sweep", x: S.x, slot_sizes: EMB.sweep.slot_sizes, blue_chances: EMB.sweep.blue_chances, edits: S.edits,
+      cfg_edits: S.cfgEdits.filter(c => !["rewards.ember.slot_size", "rewards.ember.blue_chance"].includes(c.path)), cfg_set: S.cfgSet },
+      ev => { if (ev.type === "cell") { EMB.sweep.cells.push(ev); renderSweepHeat(); } }, "불씨 스윕").then(r => { window.__emberSweep = EMB.sweep; }).catch(e => flash(e.message));
+  };
+}
+const EMB_DEF = { "rewards.ember.blue_mode": "replace", "rewards.ember.blue_reward": "offer", "policy.fantasy_pick": "random" };
+function renderSweepHeat() {
+  const box = $("emHeat"); if (!box) return; const W = EMB.sweep;
+  if (!W) { box.innerHTML = '<div class="small">스윕을 실행하면 격자 전체(정수 슬롯 칸 수)를 계산합니다.</div>'; return; }
+  const m = S.sweepMetric, vals = W.cells.map(c => c[m]).filter(v => v != null);
+  const lo = Math.min(...vals), hi = Math.max(...vals);
+  const cell = (sl, ch) => W.cells.find(c => c.slot_size === sl && Math.abs(c.blue_chance - ch) < 1e-9);
+  const fmt = v => m === "win_rate" ? pct(v) : (+v).toFixed(1);
+  box.innerHTML = `<table class="sweep" id="sweepTable"><tr><th class="small">슬롯＼푸른 확률</th>${W.blue_chances.map(c => `<th class="small">${pct(c, 0)}</th>`).join("")}</tr>
+    ${W.slot_sizes.map(sl => `<tr><th class="small">${sl}칸</th>${W.blue_chances.map(ch => { const c = cell(sl, ch); if (!c) return "<td>…</td>";
+      const t = hi > lo ? (c[m] - lo) / (hi - lo) : 0.5;
+      return `<td class="swc" style="background:color-mix(in srgb, var(--div-pos) ${Math.round(t * 85)}%, var(--div-mid))" title="n=${c.n} · 승률 ${pct(c.win_rate)} [${pct(c.win_ci[0])}, ${pct(c.win_ci[1])}] · 환상 ${c.mean_fantasies} · 도달 ${c.mean_reached_floor}층 · 청색 ${c.blue_fantasies}">${fmt(c[m])}</td>`; }).join("")}</tr>`).join("")}</table>`;
+}
+
+// ---------------- 탭: 해석 가이드 (§9) ----------------
+const GUIDE = [
+  ["Δ의 기준선은 “없을 때”가 아니다", "기본 기준선은 환상 G를 제외하지 않으므로 보상·상점에서 G를 우연히 얻는 판이 섞여 있다. G를 시작 시 확정 보유시킨 팔과의 차이이므로 G의 효과가 작게 나온다(긴 판일수록 더 섞인다). 정확한 “없을 때”와 비교하려면 조합 패널의 제외(banned) 기준선을 쓴다."],
+  ["Δ는 “무작위 배경 환상 평균” 아래의 한계 효과다", "현행 모드는 판당 많은 환상을 모으고 보상 선택이 무작위다. 배경 환상이 많을수록 효과가 희석·포화된다. 불씨 모드는 보유 수가 달라 같은 환상의 Δ도 달라진다. 서로 다른 획득 시스템의 Δ를 직접 비교하지 않는다."],
+  ["같은 시드 짝짓기와 공분산", "Var(d) = Var(W_f) + Var(W_0) − 2·Cov(W_f, W_0). 같은 시드의 두 팔은 양의 상관을 가져 CI가 좁아진다. 다만 환상이 들어가면 이후 흐름이 달라져 시드가 같아도 판이 갈라지므로 상관은 1이 아니다. 층별 난수 스트림 분리로 갈라짐을 줄이지만 없애지는 못한다. 환상 간 공분산 행렬 같은 모델은 만들지 않고 짝짓기와 상호작용 대비로 처리한다."],
+  ["곡선의 점들은 서로 상관되어 있다", "모든 X가 같은 시드를 쓰므로 곡선의 출렁임은 독립 잡음이 아니다. 밴드는 점별(pointwise) 구간이라 “곡선 전체가 유의하게 다르다”는 판정에 쓰지 않는다."],
+  ["다중 비교", "단일 환상 69개 비교는 |z| ≥ 3.4, 환상 쌍 635개는 |z| ≥ 4.0 (Bonferroni 근사). 미리 정한 조합은 95% CI로 충분하지만, 탐색해서 눈에 띈 조합은 보정 대상이다. 결과에 ‘사전 지정’/‘탐색’ 라벨을 붙인다."],
+  ["시너지의 척도와 포화", "I의 귀무는 “승률이 더해진다”이다. 승률이 0%나 100%에 가까우면 덧셈이 구조적으로 불가능해 음의 I가 메커니즘과 무관하게 나온다. 그래서 포화 구간(승률 < 5% 또는 > 95%)에는 경고를 붙이고 등가 체력 이득을 병기한다. 같은 효과 타입(예: 닻 −20 + 포인세티아 −30)은 합산되지만 타격당 받는 피해가 0에서 막혀 중복·포화(I<0)가 나오기 쉽다. 서로 다른 축의 효과는 곱해져 I>0이 나오기 쉽다. I의 se는 4개 팔을 묶은 대비라 단일 Δ보다 크다. 등가 체력 이득은 기준선 곡선을 단조 회귀로 고른 뒤 팔의 승률을 내는 X를 역산한 값이며, 기준선이 평탄하거나 격자 밖이면 산출 불가다."],
+  ["시뮬레이터 충실도가 해석의 상한이다", "exact만 수치를 믿을 수 있다. approx는 메모에 적힌 방향(대체로 과소평가)으로 어긋나고, none의 Δ≈0은 “효과 없음”이 아니라 “모델링 안 됨”이다. 몬스터 피해 수치(tier_avg 모드)는 자리표시자라서 절대 Δ보다 순위와 방향을 읽는다. 몬스터 테이블 모드에서도 기믹이 none이면 같은 한계가 있다."],
+  ["선택 정책에 종속된다", "보상 선택이 무작위이고 상점은 “체력만 되면 구매”로 단순하다. 정책이 바뀌면 Δ가 달라지고, 새로고침 계열 환상은 선택 정책이 없으면 가치가 0으로 나온다. 불씨 모드의 청색 후보는 무작위 선택에서 1/3 확률로만 고르므로 푸른 불씨의 가치가 정책에 크게 좌우된다."],
+  ["생존 편향", "강한 환상을 가진 판이 오래 살아 더 많이 모으므로 “가진 판 vs 안 가진 판” 비교는 왜곡된다. 인과 비교는 강제 포함 실험으로만 한다. 층별 평균 환상 수는 그 층까지 살아남은 판만의 평균이라 서술용이다."],
+  ["승률이 낮은 구간에서는 이진 신호가 약하다", "이길 판이 적어 뒤집힌 판이 적고 CI가 넓다. 정보량은 전체 판 수가 아니라 뒤집힌 판 수(올림 + 내림)가 결정한다: Var(d) ≈ (올림+내림)/n − Δ². 30 미만이면 ‘정보량 부족’. 평균 도달 층 Δ 같은 연속 지표를 보조로 쓰면 같은 판 수로 신호가 더 빨리 잡힌다. 최소 검출 효과(MDE) ≈ 2.8·se 보다 작은 Δ는 이 판 수로 구분하기 어렵다."],
+  ["데이터를 고치면 기준이 바뀐다", "환상·몬스터·설정을 고치면 모든 곡선이 stale(이전 데이터 기준)이 되고 수정 전후 Δ를 직접 비교하면 안 된다. 같은 시드를 쓰므로 수정 전후를 짝지어 비교하는 고스트 곡선·수정 효과가 정확하다."],
+  ["불씨 모드 전환 후에는 튜닝을 다시 한다", "보유 환상 수가 달라져 같은 hp_base(또는 hp_scale)에서 승률이 달라진다. 이전 시스템에서 찾은 “승률 10% 지점”은 유효하지 않다."],
+  ["모델이 다르면 곡선 위치가 다르다 (v4)", "gauss 와 digits 결과를 같은 순위표·차트에 섞지 않는다. 섞이면 ‘피해 모델 혼합’ 배지가 붙는다. digits 로 바꾸면 환상 효과의 상대 크기(닻 받는 피해 감소 등)가 게임 규모로 맞춰지므로 이전 순위와 Δ 크기가 크게 달라질 수 있다. 버그가 아니라 규모 보정의 결과다."],
+  ["player.skill 의 의미가 모델마다 다르다 (v4)", "gauss 에서는 이동 1회의 평균 이득 비율 쪽이고, digits 에서는 ‘이동 1회가 쓸모 있게 쓰일 확률’(유효 이동 수 K ~ Binomial(한도, skill))이다. 같은 숫자를 다른 모델에 옮겨 쓰지 않는다."],
+  ["기믹 충실도 (v4)", "몬스터의 충실도가 exact 가 아니면 그 몬스터가 나오는 판의 결과는 근사다. approx·none 몬스터가 많은 막의 승률은 특히 조심해서 읽는다. 몬스터 탭에 현재 모델의 몬스터 충실도 분포와 기믹별 판정·사유가 있다."],
+  ["고스트(수정 전)는 ‘비교 기준 스냅샷’ 대비다 (v4)", "여러 번 고쳤다면 마지막으로 고른 기준과 비교한 것이다. 기준이 무엇인지(디스크 원본 / 고정한 작업 사본, 해시) 변경 상태 바의 칩에서 확인한다. 원본 반영 후에는 반영된 디스크 원본이 새 기준이 된다."],
+  ["근사선은 실제 점이 아니다 (v4.1)", "긴 파선과 ‘근사’ 배지는 한계효과 모델의 예측이라는 뜻이며 표본이 없다. 함께 그려지는 ‘근사 범위’는 시뮬레이션의 신뢰구간이 아니라 모형 오차(계수 오차 + 교차 검증 오차)다. 근사가 맞았는지는 실제 재계산이 끝난 뒤 표시되는 ‘예측 − 실제’로 확인한다. 몬스터 편집의 근사는 기준선과 몬스터 단독 지표에만 있고 환상 곡선·조합에는 ‘미리보기 없음’이 뜬다. 순위·판정·조합·스윕·시나리오에는 근사값이 쓰이지 않는다."],
+];
+function renderGuide() {
+  const el = $("tab-guide");
+  if (el.dataset.done) return;
+  el.dataset.done = "1";
+  el.innerHTML = `<h3>지표 정의</h3><table><tr><th>지표</th><th>정의</th><th>읽는 법</th></tr>
+    <tr><td>승률 w, 표본 수 n</td><td>점(환상 또는 팔, X값)당 n판의 승패 평균</td><td>점마다 n이 다를 수 있다(적응형)</td></tr>
+    <tr><td>Δ</td><td>같은 시드끼리의 판별 차이 d = win(팔) − win(기준선)의 평균</td><td>단위 %p. 기준선이 무엇인지에 따라 의미가 다르다(①)</td></tr>
+    <tr><td>se, 95% CI</td><td>se = 표본표준편차(d)/√n, CI = Δ ± 1.96·se</td><td>점별 구간(④)</td></tr>
+    <tr><td>뒤집힌 판 수</td><td>올림 = 팔은 이기고 기준선은 진 판, 내림 = 그 반대</td><td>정보량을 결정. 30 미만이면 ‘정보량 부족’(⑩)</td></tr>
+    <tr><td>최소 검출 효과(MDE)</td><td>≈ 2.8·se (유의수준 5%, 검정력 80% 근사)</td><td>이보다 작은 Δ는 구분하기 어렵다</td></tr>
+    <tr><td>평균 도달 층 Δ</td><td>같은 시드의 도달 층 차이의 평균</td><td>승률이 낮은 구간의 보조 지표(⑩)</td></tr>
+    <tr><td>시너지 I</td><td>I = mean(w_AB − w_A − w_B + w_0)</td><td>승률 척도에서 “더해진다”를 귀무로 둔 상호작용 대비(⑥)</td></tr>
+    <tr><td>3중 이상 잔여 R</td><td>R = Δ_K − Σ Δ_i − Σ I_ij</td><td>쌍으로 설명되지 않는 나머지</td></tr>
+    <tr><td>등가 체력 이득</td><td>환상을 넣은 팔의 승률을 기준선이 내려면 필요한 X 이동량</td><td>승률 포화에 덜 민감한 보조 척도(⑥)</td></tr>
+    <tr><td>신호 임계값</td><td>단일 69개 |z| ≥ 3.4, 쌍 635개 |z| ≥ 4.0, 사전 지정 비교는 95% CI</td><td>⑤</td></tr></table>
+    <h3>해석 가이드 12항 + v4 주의 5항</h3><ol id="guideList">${GUIDE.map(([t, b], i) => `<li id="guide-${i + 1}"><b>${esc(t)}</b><br>${esc(b)}</li>`).join("")}</ol>
+    <h3>자동 경고 배지</h3><div class="small">정보량 부족(뒤집힌 판 < 30) · 승률 포화 구간(승률 < 5% 또는 > 95%, 시너지 해석) · 시뮬 미반영 포함(fidelity none) · 이전 데이터 기준(data_hash 불일치) · 획득 시스템 혼합 · 탐색 결과(보정 임계값) · 정수 파라미터(불씨 슬롯 칸 수)</div>`;
+}
+function openGuide(n) {
+  S.tab = "guide"; update();
+  document.querySelectorAll("#guideList li").forEach(li => li.classList.remove("hl"));
+  const li = document.getElementById("guide-" + n);
+  if (li) { li.classList.add("hl"); li.scrollIntoView({ block: "center" }); window.__guideOpened = +n; }
+}
+const JS = { kind: "fantasy", id: null, loaded: null, info: null, msgs: null, dry: null, text: "" };
+function jsonIds(kind) {
+  if (kind === "fantasy") return FANTS.map(f => [f.id, f.name]);
+  if (kind === "monster") return MON ? MON.monsters.map(m => [m.id, m.name]) : [];
+  if (kind === "pattern") return MON ? Object.keys(MON.pattern_users || {}).map(k => [k, k]) : [];
+  return [["overrides", "fantasy_effects.overrides.json"]];
+}
+function sgFromJson(r) {   // 변경 집합이 단일 환상(또는 몬스터 체력·기본 힘)의 단일 수치 필드일 때만 미리보기 (F10.6-4)
+  window.__sgJson = null;
+  const ch = (r.dryrun || {}).changes || []; if (ch.length !== 1 || !ch[0].before || !ch[0].after) return;
+  const c = ch[0], diffs = [];
+  if (JS.kind === "fantasy" || JS.kind === "overrides") {
+    const a = c.before.effects || [], b = c.after.effects || [];
+    if (a.length !== b.length || c.before.grade !== c.after.grade) return;
+    a.forEach((ea, i) => Object.keys(Object.assign({}, ea, b[i])).forEach(k => { if (JSON.stringify(ea[k]) !== JSON.stringify(b[i][k])) diffs.push([i + "." + k, ea[k], b[i][k]]); }));
+    if (diffs.length !== 1 || typeof diffs[0][2] !== "number") return;
+    const m = SG.models[sgKey("fantasy", c.id, diffs[0][0])]; if (!m) return;
+    S.preview = { kind: "fantasy", id: c.id, field: diffs[0][0], theta: diffs[0][2], thetaAnchor: diffs[0][1], keep: true };
+  } else if (JS.kind === "monster") {
+    ["hp", "strength"].forEach(k => { if (c.before[k] !== c.after[k]) diffs.push([k, c.before[k], c.after[k]]); });
+    const other = ["act", "tier", "ai", "patterns"].some(k => JSON.stringify(c.before[k]) !== JSON.stringify(c.after[k]));
+    if (diffs.length !== 1 || other) return;
+    S.preview = { kind: "monster", id: c.id, field: diffs[0][0], theta: diffs[0][2], thetaAnchor: diffs[0][1], keep: true };
+  } else return;
+  S.preview.pts = sgPreviewPts(); S.preview.pending = true; window.__sgJson = S.preview;
+}
+function jsonAbsorb() {   // 원문을 저장하면 그 파일의 숫자 편집은 텍스트에 이미 들어 있으므로 목록에서 뺀다
+  const k = JS.kind, id = JS.id;
+  S.edits = S.edits.filter(e => !((k === "fantasy" && e.fid === id) || (k === "monster" && e.mid === id) || (k === "pattern" && e.pid === id)
+    || (k === "overrides" && e.fid && (SRVF[e.fid] || {}).mapping === "override")));
+}
+async function jsonLoad() {
+  const key = JS.kind + "/" + JS.id;
+  try {
+    const r = await post(`/api/files/${JS.kind}/${encodeURIComponent(JS.id)}/view`, { edits: S.edits });
+    JS.info = r; JS.text = r.text; JS.loaded = key; JS.msgs = null; JS.dry = null; window.__jsonInfo = r;
+  } catch (e) { JS.info = null; JS.text = ""; JS.loaded = key; JS.msgs = [{ level: "error", msg: e.message }]; }
+  renderJson();
+}
+function renderJson() {
+  const el = $("tab-json");
+  if (!(SRV && srvOK)) { el.innerHTML = '<div class="small">JSON 편집기는 서버 모드에서 동작합니다.</div>'; return; }
+  const ids = jsonIds(JS.kind);
+  if (!JS.id || !ids.some(x => x[0] === JS.id)) JS.id = (JS.kind === "fantasy" && S.focus) || (ids[0] || [null])[0];
+  if (JS.id && JS.loaded !== JS.kind + "/" + JS.id) { el.innerHTML = '<div class="small">불러오는 중…</div>'; jsonLoad(); return; }
+  const info = JS.info || {};
+  const msgs = (JS.msgs || []).map(m => `<div class="${m.level === "error" ? "notice" : "small"} jmsg" data-level="${m.level}">${m.level === "error" ? "오류" : "경고"}${m.line ? ` (${m.line}줄 ${m.col}열)` : ""}: ${esc(m.msg)}</div>`).join("");
+  const dry = JS.dry ? `<div class="efx" id="jsonDry"><b>dry-run 임포트</b> — 바뀌는 항목 ${JS.dry.changes.length}개${JS.dry.warnings.map(w => `<div class="notice">${esc(w)}</div>`).join("")}
+    ${JS.dry.changes.map(c => `<div class="small"><b>${esc(c.name || c.id)}</b><br>이전: ${esc(JSON.stringify(c.before))}<br>이후: ${esc(JSON.stringify(c.after))}</div>`).join("") || '<div class="small">시뮬 테이블 변화 없음</div>'}</div>` : "";
+  const lines = JS.text.split("\n").length;
+  el.innerHTML = `<div class="controls"><label>종류 <select id="jsKind">${[["fantasy", "환상"], ["monster", "몬스터"], ["pattern", "패턴"], ["overrides", "overrides"]].map(([k, l]) => `<option value="${k}" ${JS.kind === k ? "selected" : ""}>${l}</option>`).join("")}</select></label>
+    <label>파일 <select id="jsId">${ids.map(([i, n]) => `<option value="${esc(i)}" ${JS.id === i ? "selected" : ""}>${esc(n)} (${esc(i)})</option>`).join("")}</select></label>
+    <span class="small">${esc(info.file || "")} · ${info.bom ? "BOM" : "BOM 없음"} · ${info.crlf ? "CRLF" : "LF"}</span>
+    ${info.dirty ? `<span class="badge stale" id="jsDirty">원본과 다름(${info.diff_lines}곳)</span>` : ""}${(info.patched || []).length ? `<span class="badge link" id="jsPatched">숫자 편집 반영됨: ${info.patched.map(esc).join(", ")}</span>` : ""}</div>
+    <div class="small">작업 사본의 현재 텍스트입니다. 저장하면 작업 사본만 바뀌고, 디스크의 원본은 ‘원본에 반영’에서만 바뀝니다. 파일 이름·id 변경, 새 파일 생성·삭제는 할 수 없습니다. 등급·효과 구조를 바꾸면 임포터가 원본 연결(src)을 달지 못해 이후 숫자 UI 편집이 막힐 수 있습니다.</div>
+    <div class="jsonwrap"><div class="lnum" id="jsLn">${Array.from({ length: lines }, (_, i) => i + 1).join("\n")}</div><textarea class="jsoned" id="jsText" spellcheck="false" rows="${Math.min(40, Math.max(14, lines))}"></textarea></div>
+    <div class="chips" style="margin-top:6px"><button class="btn" id="jsCheck">검증</button><button class="btn" id="jsDiff">원본과 비교(diff)</button><button class="btn primary" id="jsSave">시나리오에 저장(작업 사본)</button><button class="btn" id="jsRevert">이 파일 되돌리기</button></div>
+    ${JS.note ? `<div class="notice" id="jsNote">${esc(JS.note)}</div>` : ""}<div id="jsMsgs">${msgs}</div>${dry}<pre id="jsDiffOut" class="hidden" style="background:var(--surface-2);padding:8px;border-radius:6px;overflow:auto;max-height:260px;font-size:12px"></pre>`;
+  const ta = $("jsText"); ta.value = JS.text;
+  ta.oninput = () => { JS.text = ta.value; const n = ta.value.split("\n").length; $("jsLn").textContent = Array.from({ length: n }, (_, i) => i + 1).join("\n"); };
+  ta.onscroll = () => { $("jsLn").scrollTop = ta.scrollTop; };
+  $("jsKind").onchange = e => { JS.kind = e.target.value; JS.id = null; JS.loaded = null; JS.note = ""; renderJson(); };
+  $("jsId").onchange = e => { JS.id = e.target.value; JS.loaded = null; JS.note = ""; renderJson(); };
+  const call = async (method, sub) => {
+    const url = `/api/files/${JS.kind}/${encodeURIComponent(JS.id)}` + (sub ? "/" + sub : "");
+    return api(url, { method, body: JSON.stringify({ text: JS.text }) });
+  };
+  $("jsCheck").onclick = async () => { try { const r = await call("POST", "dryrun"); JS.msgs = r.messages.length ? r.messages : [{ level: "ok", msg: "" }]; JS.dry = r.dryrun || null; window.__jsonCheck = r; renderJson(); if (!r.messages.length) $("jsMsgs").innerHTML = '<div class="small" id="jsOk">문법·구조·dry-run 통과</div>'; } catch (e) { flash(e.message); } };
+  $("jsSave").onclick = async () => {
+    try {
+      window.__jsonSaveDone = false;
+      const r = await call("PUT"); JS.msgs = r.messages; JS.dry = r.dryrun || null; window.__jsonSave = r;
+      if (r.saved) {
+        jsonAbsorb(); await reloadServerTable(); JS.loaded = null;
+        if (r.reference) { REF = r.reference; window.__REF = REF; }
+        sgFromJson(r);
+        JS.note = r.sim_changed === false ? "시뮬 값 변화 없음, 재계산 불필요" : "";
+        if (r.sim_changed === false) flash("시뮬 값 변화 없음, 재계산 불필요");
+        else if (needsCompute()) { scheduleRecompute(); flash("작업 사본 저장 — 곡선을 다시 계산합니다 (점선 = 비교 기준)"); }
+        else { cancelJob(); LIVE.after = {}; LIVE.before = {}; LIVE.hash = null; flash("작업 사본이 비교 기준과 같아졌습니다 — 고스트 해제"); }
+        update();
+        window.__jsonSaveDone = true;
+      }
+      else renderJson();
+    } catch (e) { JS.msgs = [{ level: "error", msg: e.message }]; renderJson(); }
+  };
+  $("jsRevert").onclick = async () => { try { const r = await post(`/api/files/${JS.kind}/${encodeURIComponent(JS.id)}/revert`, {}); await reloadServerTable(); if (r.reference) REF = r.reference; JS.loaded = null; afterEditChange(); update(); } catch (e) { flash(e.message); } };
+  $("jsDiff").onclick = async () => { try { const d = await api(`/api/files/${JS.kind}/${encodeURIComponent(JS.id)}`); const a = (d.dirty ? null : d.text); const disk = await post(`/api/files/${JS.kind}/${encodeURIComponent(JS.id)}/view`, { edits: [] });
+      const A = (info.disk_text || disk.text).split("\n"), B = JS.text.split("\n"); const out = [];
+      for (let i = 0; i < Math.max(A.length, B.length); i++) if (A[i] !== B[i]) { if (A[i] != null) out.push(`<span class="del">-${i + 1}: ${esc(A[i])}</span>`); if (B[i] != null) out.push(`<span class="add">+${i + 1}: ${esc(B[i])}</span>`); }
+      const o = $("jsDiffOut"); o.classList.remove("hidden"); o.innerHTML = out.join("\n") || "작업 사본과 차이 없음"; } catch (e) { flash(e.message); } };
+}
+
+// ---------------- 한계효과 미리보기 (v4.1 F10) ----------------
+// 근사값은 화면에만 있다: 캐시·LIVE·순위·판정·조합·스윕·시나리오에 넣지 않는다 (F10.1).
+const SG = { models: {}, probe: {}, loaded: false, training: null };
+const SG_OK = ["신뢰", "주의"];
+function sgKey(kind, id, field) { return kind + "|" + id + "|" + field; }
+function sgLogit(p) { p = Math.min(1 - 1e-6, Math.max(1e-6, p)); return Math.log(p / (1 - p)); }
+function sgSigmoid(x) { if (x >= 0) return 1 / (1 + Math.exp(-x)); const e = Math.exp(x); return e / (1 + e); }
+function sgPoly(c, z) { let v = 0, zk = 1; for (let k = 0; k < c.length; k++) { v = v + c[k] * zk; zk = zk * z; } return v; }
+function sgDeltaFrom(sx, th) { const z = (th - sx.mu) / sx.sd; const eta = sgPoly(sx.coef, z); if (sx.scale === "logit") { const lw = sgLogit(sx.w_ref); return sgSigmoid(lw + eta) - sx.w_ref; } return eta; }
+function sgXKey(m, x) { for (const k of Object.keys(m.x)) if (Math.abs(+k - x) < 1e-9) return k; return null; }
+function sgDeltaHat(m, x, th) {
+  const k = sgXKey(m, x); if (k == null) return [null, "학습하지 않은 X"];
+  const sx = m.x[k];
+  if (m.discrete) { if (th !== Math.trunc(th) || !(String(th) in sx.table)) return [null, "학습하지 않은 값 (정수 격자만)"]; return [sx.table[String(th)][0], null]; }
+  if (th < m.lo - 1e-12 || th > m.hi + 1e-12) return [null, "학습 범위 밖 (외삽 금지)"];
+  if (!SG_OK.includes(sx.status)) return [null, sx.status + ": " + (sx.reason || "")];
+  return [sgDeltaFrom(sx, th), null];
+}
+function sgBand(m, x, th) {
+  const sx = m.x[sgXKey(m, x)];
+  if (m.discrete) return 1.96 * sx.table[String(th)][1];
+  const z = (th - sx.mu) / sx.sd; let v = 0;
+  if (sx.cov) { const g = sx.coef.map((_, k) => z ** k); for (let i = 0; i < g.length; i++) for (let j = 0; j < g.length; j++) v = v + g[i] * sx.cov[i][j] * g[j]; }
+  v = Math.max(0, v);
+  let gp = 1; if (sx.scale === "logit") { const p = sgDeltaFrom(sx, th) + sx.w_ref; gp = p * (1 - p); }
+  return Math.sqrt(v * gp * gp + sx.cv * sx.cv);
+}
+function sgPredict(m, x, th, anchor, thA) {
+  const [d1, why] = sgDeltaHat(m, x, th); if (d1 == null) return { reject: why };
+  const sx = m.x[sgXKey(m, x)]; let p, noAnchor;
+  if (anchor != null && thA != null) { const [d0, w0] = sgDeltaHat(m, x, thA); if (d0 == null) return { reject: "앵커 값이 학습 범위 밖: " + w0 }; p = anchor + (d1 - d0); noAnchor = false; }
+  else { p = sx.w_ref + d1; noAnchor = true; }
+  p = Math.min(1, Math.max(0, p));
+  return { p, band: sgBand(m, x, th), no_anchor: noAnchor, status: sx.status };
+}
+function sgMarginal(m, x, th) {
+  const k = sgXKey(m, x); if (m.discrete || k == null || !m.x[k].coef) return null;
+  const sx = m.x[k]; const z = (th - sx.mu) / sx.sd;
+  let d = 0, zk = 1; for (let i = 1; i < sx.coef.length; i++) { d = d + i * sx.coef[i] * zk; zk = zk * z; } d = d / sx.sd;
+  let gp = 1; if (sx.scale === "logit") { const p = sgDeltaFrom(sx, th) + sx.w_ref; gp = p * (1 - p); }
+  const gr = [0].concat(sx.coef.slice(1).map((_, i) => (i + 1) * z ** i / sx.sd)); let v = 0;
+  for (let i = 0; i < gr.length; i++) for (let j = 0; j < gr.length; j++) v = v + gr[i] * (sx.cov ? sx.cov[i][j] : 0) * gr[j];
+  const cvs = 2 * sx.cv / Math.max(1e-12, m.hi - m.lo);
+  return { m: d * gp, se: Math.sqrt(Math.max(0, v) * gp * gp + cvs * cvs) };
+}
+function sgSolve(m, x, target) {
+  if (m.discrete) { let best = null; for (const t of m.thetas) { const [d] = sgDeltaHat(m, x, t); if (d != null && (best == null || Math.abs(d - target) < Math.abs(best[1] - target))) best = [t, d]; } return best && Math.abs(best[1] - target) <= 0.01 ? best[0] : null; }
+  let lo = m.lo, hi = m.hi; let [flo] = sgDeltaHat(m, x, lo); const [fhi] = sgDeltaHat(m, x, hi);
+  if (flo == null || fhi == null || (flo - target) * (fhi - target) > 0) return null;
+  for (let i = 0; i < 60; i++) { const mid = (lo + hi) / 2; const [fm] = sgDeltaHat(m, x, mid); if ((flo - target) * (fm - target) <= 0) hi = mid; else { lo = mid; flo = fm; } }
+  return (lo + hi) / 2;
+}
+window.__sgPredict = (m, x, th, a, ta) => sgPredict(m, x, th, a, ta);
+let sgTimer = null;
+function scheduleSGLoad() { clearTimeout(sgTimer); sgTimer = setTimeout(loadSG, 300); }
+async function loadSG() {
+  if (!(SRV && srvOK)) return;
+  try { const r = await post("/api/surrogate/models", { edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet });
+    SG.models = {}; r.models.filter(m => m.kind !== "monster_probe").forEach(m => SG.models[sgKey(m.kind, m.id, m.field)] = m);
+    SG.probe = {}; r.models.filter(m => m.kind === "monster_probe").forEach(m => SG.probe[m.id + "|" + m.field] = m);
+    SG.candidates = r.candidates; SG.training = r.training; SG.loaded = true; window.__SG = SG;
+    if (S.tab === "curve" && S.focus) renderDetail();
+  } catch (e) { SG.loaded = false; }
+}
+function sgModel(kind, id, field) { const m = SG.models[sgKey(kind, id, field)]; return m && m.validity !== "invalid" ? m : null; }
+// 미리보기 점: 화면의 실제 곡선(앵커) + 모델 증분. 실제 곡선이 stale 이면 앵커 없음.
+function sgPreviewPts() {
+  const P = S.preview; if (!P) return null;
+  const m = sgModel(P.kind, P.id, P.field); if (!m) return null;
+  const cid = P.kind === "fantasy" ? P.id : BASE_ID;
+  const pts = curPts(cid); const stale = isStale(pts);
+  return XS.map(x => {
+    const a = ptAt(pts, x);
+    const r = sgPredict(m, x, P.theta, stale || !a ? null : a.win_rate, stale || !a ? null : P.thetaAnchor);
+    return { x, r };
+  });
+}
+function setPreview(P) {
+  const m = sgModel(P.kind, P.id, P.field);
+  if (!m) { S.preview = null; return; }
+  P.pending = false; S.preview = P;
+  const t0 = performance.now();
+  const pts = sgPreviewPts(); P.pts = pts;
+  renderCurve(true);
+  window.__sgLastMs = performance.now() - t0;
+}
+async function sgFit(targets, label) {
+  try {
+    const est = await post("/api/surrogate/estimate", { targets, x_sel: S.x, edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet });
+    if (!confirm(`${label}: 예상 ${est.runs.toLocaleString()}판, 약 ${est.seconds}초 (캐시 적중분은 더 빠름). 백그라운드에서 최하위 우선순위로 학습할까요?`)) return null;
+    const r = await post("/api/surrogate/fit", { targets, x_sel: S.x, edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet });
+    flash(`${label} 학습 시작 (작업 ${r.id})`);
+    streamJob(r.id, ev => { if (["done", "error", "cancelled"].includes(ev.type)) { flash(`${label}: ${ev.type === "done" ? "학습 완료" : ev.type}`); loadSG(); } });
+    return r.id;
+  } catch (e) { flash("학습 실패: " + e.message); return null; }
+}
+function sgOnRecomputeDone(res) {
+  const P = S.preview; if (!P || !P.pending) return;
+  if (!res || res.type !== "done") return;
+  const cid = P.kind === "fantasy" ? P.id : BASE_ID;
+  const live = livePts("after", cid) || [];
+  const rows = (P.pts || []).filter(q => q.r && q.r.p != null).map(q => { const a = ptAt(live, q.x); return a ? { x: q.x, pred: q.r.p, actual: a.win_rate, diff: q.r.p - a.win_rate } : null; }).filter(Boolean);
+  S.sgAudit = { kind: P.kind, id: P.id, field: P.field, theta: P.theta, rows };
+  if (rows.length) post("/api/surrogate/audit", { kind: P.kind, id: P.id, field: P.field, theta: P.theta, theta_anchor: P.thetaAnchor,
+    x: rows.map(r => r.x), pred: rows.map(r => r.pred), actual: rows.map(r => r.actual), status: (sgModel(P.kind, P.id, P.field) || {}).status }).catch(() => {});
+  S.preview = null; window.__sgAudit = S.sgAudit;
+  update();
+}
+
+// ---------------- 비교 기준 (§6.8) ----------------
+async function loadRef() { try { REF = await api("/api/reference"); window.__REF = REF; } catch (e) { REF = null; } }
+function renderRefChip() {
+  const el = $("refChip"); if (!el) return;
+  if (!(SRV && srvOK) || !REF) { el.innerHTML = ""; return; }
+  const ch = REF.changed || {}; const nch = (ch.fantasies || []).length + (ch.monsters || []).length + (ch.patterns || []).length;
+  el.innerHTML = `<span id="refLabel" title="수정 전(점선) 곡선은 이 기준 스냅샷으로 계산합니다 · ${esc(REF.pinned_at)}">비교 기준: ${esc(REF.source_label)} · 해시 <span class="refhash">${esc(REF.ref_hash.slice(0, 6))}…</span></span>`
+    + (REF.same ? '<span class="small" id="refSame">작업 사본 = 기준</span>' : `<span class="badge" id="refDiff">기준과 다름 ${nch}개</span>`)
+    + `<button class="btn" id="btnPin" title="현재 작업 사본을 비교 기준으로 고정">기준 다시 잡기</button>`
+    + `<label class="small"><input type="checkbox" id="ghostToggle" ${S.ghost !== false ? "checked" : ""}> 고스트</label>`
+    + (REF.stale ? `<span class="badge stale" id="refStale" title="${esc(REF.stale_files.join(", "))}">비교 기준이 오래됨 — 디스크 원본이 외부에서 바뀜</span><button class="btn" id="btnPinDisk">디스크 원본으로 다시 잡기</button>` : "");
+  $("btnPin").onclick = () => pinRef({});
+  $("ghostToggle").onchange = e => { S.ghost = e.target.checked; update(); };
+  const pd = $("btnPinDisk"); if (pd) pd.onclick = () => { if (confirm("디스크 원본(외부 변경 포함)을 새 비교 기준으로 잡을까요?")) pinRef({ source: "disk" }); };
+}
+async function pinRef(body) {
+  try { REF = await post("/api/reference/pin", body); window.__REF = REF; LIVE.before = {}; flash(REF.same ? "비교 기준을 현재 작업 사본으로 잡았습니다 — 고스트 해제" : "비교 기준을 디스크 원본으로 다시 잡았습니다"); if (needsCompute()) scheduleRecompute(); update(); }
+  catch (e) { flash("기준 재설정 실패: " + e.message); }
 }
 
 // ---------------- 갱신 ----------------
@@ -641,11 +1947,32 @@ function update() {
   const t0 = performance.now();
   $("metric").value = S.metric; $("act").value = String(S.act); $("actWrap").classList.toggle("hidden", S.metric !== "death");
   $("xsel").value = String(S.x); $("target").value = +(S.T * 100).toFixed(2); $("ci").checked = S.ci; $("smooth").checked = S.smooth;
+  if (FACETS) { $("facet").value = S.facet; $("overlay").checked = S.overlay; }
   document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", b.dataset.t === S.tab));
-  for (const t of ["curve", "surv", "rank"]) $("tab-" + t).classList.toggle("hidden", S.tab !== t);
+  for (const [t] of TABS) $("tab-" + t).classList.toggle("hidden", S.tab !== t);
+  ["mon", "cal", "trace", "ember", "json", "guide"].forEach(t => { if (!TABS.some(x => x[0] === t)) $("tab-" + t).classList.add("hidden"); });
+  const cb = $("changebar");
+  cb.classList.toggle("hidden", !(SRV && srvOK));
+  $("chgCount").textContent = `변경 ${S.edits.length + S.cfgEdits.length + Object.keys(S.cfgSet).length + S.fileEdits.length}개`;
+  $("sysWrap").classList.toggle("hidden", !(SRV && srvOK));
+  const sysNow = curSystem(); $("system").value = S.cfgEdits.some(c => c.path.startsWith("rewards.ember")) || S.cfgSet["rewards.ember.blue_mode"] || S.cfgSet["rewards.ember.blue_reward"] ? "custom" : (sysNow === "ember" ? "ember" : sysNow === "fantasy" ? "fantasy" : "custom");
+  // 획득 시스템 혼합: 화면의 곡선 중 다른 규칙으로 계산된 것이 섞여 있으면 배지
+  const mixed = sysNow !== SCAN_SYSTEM && [BASE_ID].concat(S.sel).some(id => isStale(curPts(id)));
+  $("mixBadge").innerHTML = mixed ? '<span class="badge stale" id="mixWarn">획득 시스템 혼합 — 일부 곡선은 ' + esc(SYS_KO[SCAN_SYSTEM] || SCAN_SYSTEM) + ' 규칙 기준</span>' : "";
+  renderRefChip();
+  $("modelWrap").classList.toggle("hidden", !(SRV && srvOK));
+  $("dmodel").value = curModel() === "digits" ? (curGimmicks() === "on" ? "digits+g" : "digits") : "gauss";
+  // 스캔·랭킹·고스트는 스캔의 모델, 재계산한 곡선은 현재 모델 → 모델이 다르면 화면에 두 모델이 섞인다
+  const modelMixed = curModel() !== SCAN_MODEL || curGimmicks() !== SCAN_GIMMICKS;
+  const scaleMis = curMonModel() === "table" && curModel() === "gauss";
+  $("scaleBadge").innerHTML = scaleMis ? ' <span class="badge stale" id="scaleWarn" title="몬스터 체력은 원본 JSON, 피해는 등급 평균 파라미터(tiers.*.dmg_mean)라 규모가 맞지 않습니다 — digits 를 쓰세요 (v4.2 Q40)">원본 체력 + 파라미터 피해(규모 불일치)</span>' : "";
+  $("modelBadge").innerHTML = modelMixed ? '<span class="badge stale" id="modelMix" title="gauss 와 digits 결과를 같은 순위표·차트에 섞지 않습니다 (해석 가이드 ⑬)">피해 모델 혼합 — 스캔·랭킹·수정 전(고스트)은 ' + esc(modelLabel(SCAN_MODEL, SCAN_GIMMICKS)) + ', 재계산한 곡선은 ' + esc(modelLabel(curModel(), curGimmicks())) + ' 기준</span>' : "";
+  $("btnUndo").disabled = !S.undo.length; $("btnRedo").disabled = !S.redo.length; $("btnRevertAll").disabled = !liveActive(); $("btnApply").disabled = !S.edits.length && !S.fileEdits.length;
   renderList();
-  if (S.tab === "curve") renderCurve(); else if (S.tab === "surv") renderSurv(); else renderRank();
-  const ses = FANTS.map(f => f.pts[xi()] && f.pts[xi()].delta_se).filter(v => v > 0).sort((a, b) => a - b);
+  if (S.tab === "curve") renderCurve(); else if (S.tab === "surv") renderSurv(); else if (S.tab === "rank") renderRank();
+  else if (S.tab === "mon") renderMon(); else if (S.tab === "cal") renderCal(); else if (S.tab === "trace") renderTrace();
+  else if (S.tab === "ember") renderEmber(); else if (S.tab === "guide") renderGuide(); else if (S.tab === "json") renderJson();
+  const ses = FANTS.map(f => { const p = ptAt(curPts(f.id), S.x); return p && p.delta_se; }).filter(v => v > 0).sort((a, b) => a - b);
   $("minDetect").textContent = ses.length ? `±${(1.96 * ses[Math.floor(ses.length / 2)] * 100).toFixed(1)}%p` : "–";
   writeHash();
   window.__lastRenderMs = performance.now() - t0;
@@ -656,23 +1983,162 @@ $("q").addEventListener("input", e => { S.q = e.target.value; renderList(); });
 $("gradeChips").addEventListener("click", e => { const b = e.target.closest(".chip"); if (!b) return; const g = b.dataset.g; S.grades[g] = !S.grades[g]; b.setAttribute("aria-pressed", S.grades[g]); renderList(); });
 $("sort").addEventListener("change", e => { S.sort = e.target.value; renderList(); });
 $("clearSel").addEventListener("click", () => { S.sel = []; S.slot = {}; update(); });
-listEl.addEventListener("click", e => { const r = e.target.closest(".row"); if (!r) return; if (e.target.tagName === "INPUT") e.preventDefault(); toggle(r.dataset.id); });
+listEl.addEventListener("click", e => {
+  const r = e.target.closest(".row"); if (!r) return;
+  if (e.target.closest(".fname")) { S.focus = r.dataset.id; if (!S.sel.includes(r.dataset.id)) toggle(r.dataset.id); else update(); if (S.tab !== "curve") setTab("curve"); return; }
+  if (e.target.tagName === "INPUT") e.preventDefault();
+  toggle(r.dataset.id);
+});
 $("metric").addEventListener("change", e => { S.metric = e.target.value; update(); });
 $("act").addEventListener("change", e => { S.act = +e.target.value; update(); });
-$("xsel").addEventListener("change", e => { S.x = +e.target.value; update(); });
+$("xsel").addEventListener("change", e => { S.x = +e.target.value; update(); if (liveActive()) scheduleRecompute(); });
 $("target").addEventListener("change", e => { const v = +e.target.value; if (v > 0 && v < 100) { S.T = v / 100; update(); } else e.target.value = +(S.T * 100).toFixed(2); });
 $("ci").addEventListener("change", e => { S.ci = e.target.checked; update(); });
 $("smooth").addEventListener("change", e => { S.smooth = e.target.checked; update(); });
+if (FACETS) { $("facet").addEventListener("change", e => { S.facet = e.target.value; update(); }); $("overlay").addEventListener("change", e => { S.overlay = e.target.checked; update(); }); }
 document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => setTab(b.dataset.t)));
 $("rkX").addEventListener("click", () => { S.rankMode = "x"; update(); });
 $("rkAvg").addEventListener("click", () => { S.rankMode = "avg"; update(); });
 $("rank").tHead.addEventListener("click", e => { const th = e.target.closest("th"); if (!th) return; const k = th.dataset.k; if (S.rankSort === k) S.rankDir *= -1; else { S.rankSort = k; S.rankDir = ["name", "grade", "eff"].includes(k) ? 1 : -1; } renderRank(); });
 $("rank").tBodies[0].addEventListener("click", e => { const tr = e.target.closest("tr"); if (!tr) return; const id = tr.dataset.id; if (!S.sel.includes(id)) toggle(id); else update(); });
+$("cands").addEventListener("click", e => { const li = e.target.closest("li[data-id]"); if (li && !S.sel.includes(li.dataset.id)) toggle(li.dataset.id); });
+// 편집 패널
+$("detail").addEventListener("change", e => {
+  const ed = e.target.closest(".editor"); if (!ed) return;
+  if (ed.classList.contains("cfged")) { if (e.target.classList.contains("val")) setCfgEdit(ed.dataset.path, +ed.dataset.old, +e.target.value); return; }
+  if (e.target.classList.contains("val") || e.target.classList.contains("rng")) setEdit(ed.dataset.fid, +ed.dataset.effect, ed.dataset.key, +ed.dataset.old, +e.target.value);
+});
+$("detail").addEventListener("input", e => {
+  const ed = e.target.closest(".editor"); if (!ed || ed.classList.contains("cfged")) return;
+  if (e.target.classList.contains("rng")) ed.querySelector(".val").value = e.target.value;
+  if (e.target.classList.contains("rng") || e.target.classList.contains("val")) {   // 입력 중: 실제 재계산 없이 근사선만 (F10.6-0)
+    const v = +e.target.value; if (!isFinite(v)) return;
+    const fid = ed.dataset.fid, eff = +ed.dataset.effect, key = ed.dataset.key;
+    const ex = editFor(fid, eff, key);
+    setPreview({ kind: "fantasy", id: fid, field: eff + "." + key, theta: v, thetaAnchor: ex && LIVE.after[fid] ? ex.new : +ed.dataset.old });
+  }
+  if (e.target.classList.contains("solveT")) {   // 근사 해 (F10.7): 즉시, 저장하지 않음
+    const out = ed.querySelector(".sgSolve"); const m = sgModel("fantasy", ed.dataset.fid, ed.dataset.effect + "." + ed.dataset.key);
+    if (!out) return; if (!m || e.target.value === "") { out.textContent = ""; return; }
+    const t = sgSolve(m, S.x, +e.target.value / 100);
+    out.innerHTML = t == null ? '<span id="sgNoSol">근사 해: 학습 범위 안에 해 없음</span>' : `근사 해 θ≈<b class="sgSol">${fmtNum(+t.toFixed(4))}</b>`;
+    ed.dataset.sgSol = t == null ? "" : t;
+  }
+});
+$("detail").addEventListener("click", async e => {
+  if (e.target.id === "btnTrace") { TR.fid = S.focus; setTab("trace"); return; }
+  if (e.target.classList.contains("sgFit")) { const row = e.target.closest(".kv").querySelector(".editor"); sgFit([{ kind: "fantasy", id: row.dataset.fid, field: row.dataset.effect + "." + row.dataset.key }], "근사 학습 " + BYID[row.dataset.fid].name); return; }
+  const ed = e.target.closest(".editor"); if (!ed) return;
+  if (ed.classList.contains("cfged")) { if (e.target.classList.contains("reset")) setCfgEdit(ed.dataset.path, +ed.dataset.old, +ed.dataset.old); return; }
+  const fid = ed.dataset.fid, effect = +ed.dataset.effect, key = ed.dataset.key, old = +ed.dataset.old;
+  const k = editableKeys(fid).find(k => k.effect === effect && k.key === key);
+  const cur = +ed.querySelector(".val").value;
+  if (e.target.classList.contains("inc") || e.target.classList.contains("dec")) {
+    const st = stepOf(k.schema, cur); let v = cur + (e.target.classList.contains("inc") ? st : -st); v = k.schema.int ? Math.round(v) : +v.toFixed(6);
+    setEdit(fid, effect, key, old, v);
+  } else if (e.target.classList.contains("reset")) setEdit(fid, effect, key, old, old);
+  else if (e.target.classList.contains("sweep")) {
+    const boxKey = `${fid}|${effect}|${key}`;
+    const vals = sweepValues(k, cur); const pts = [];
+    cancelJob();
+    runJob({ kind: "value_sweep", fid, effect, key, values: vals, x: S.x, edits: S.edits.filter(x => !(x.fid === fid && x.effect === effect && x.key === key)), cfg_edits: S.cfgEdits },
+      ev => { if (ev.type === "sweep_point") { pts.push(ev); renderSweep(boxKey, pts, k, cur, `수치 스윕 (X=${fmtX(S.x)}): ${key} → Δ, 세로선 = 원래값/현재값`); } }, "수치 스윕").catch(err => flash(err.message));
+  } else if (e.target.classList.contains("solve")) {
+    const T = +ed.querySelector(".solveT").value / 100; if (!isFinite(T) || ed.querySelector(".solveT").value === "") { flash("목표 Δ(%p)를 입력하세요"); return; }
+    const boxKey = `${fid}|${effect}|${key}`; const pts = [];
+    cancelJob();
+    const res = await runJob({ kind: "solve_value", fid, effect, key, target_delta: T, x: S.x, edits: S.edits.filter(x => !(x.fid === fid && x.effect === effect && x.key === key)), cfg_edits: S.cfgEdits },
+      ev => { if (ev.type === "solve_eval") { pts.push(ev); renderSweep(boxKey, pts, k, cur, `목표 Δ ${pp(T)} 역산 중 (X=${fmtX(S.x)})`); } }, "목표 Δ 역산").catch(err => flash(err.message));
+    const box = document.querySelector(`.sweepOut[data-key="${CSS.escape(boxKey)}"]`);
+    if (res && res.type === "done" && box) {
+      const r = res.result; const sgs = ed.dataset.sgSol;
+      box.insertAdjacentHTML("beforeend", r.found ? `<div class="small" id="solveReal">실제 해: <b>${fmtNum(r.value)}</b> → Δ ${pp(r.delta.delta)} [${pp(r.delta.delta_ci[0])}, ${pp(r.delta.delta_ci[1])}]${sgs ? ` · 근사 해 ${fmtNum(+(+sgs).toFixed(4))} 와 차이 ${fmtNum(+(r.value - +sgs).toFixed(4))}` : ""} <button class="btn useSolve" data-v="${r.value}">이 값 적용</button></div>` : `<div class="notice">${esc(r.reason)}</div>`);
+      const u = box.querySelector(".useSolve"); if (u) u.onclick = () => setEdit(fid, effect, key, old, +u.dataset.v);
+    }
+  }
+});
+// 변경 상태 바
+$("btnUndo").onclick = () => { if (!S.undo.length) return; S.redo.push(JSON.stringify({ e: S.edits, c: S.cfgEdits, s: S.cfgSet })); applyEditsSnapshot(S.undo.pop()); };
+$("btnRedo").onclick = () => { if (!S.redo.length) return; S.undo.push(JSON.stringify({ e: S.edits, c: S.cfgEdits, s: S.cfgSet })); applyEditsSnapshot(S.redo.pop()); };
+$("btnRevertAll").onclick = () => { pushUndo(); S.edits = []; S.cfgEdits = []; S.cfgSet = {}; afterEditChange(); };
+$("system").addEventListener("change", e => setSystem(e.target.value));
+$("dmodel").addEventListener("change", e => setModel(e.target.value));
+$("rcMode").addEventListener("change", e => { S.rcMode = e.target.value; });
+$("btnRecompute").onclick = () => { clearTimeout(recomputeTimer); startRecompute(); };
+// ---------------- 목표 승률 맞추기 (v4.2 F11.6) ----------------
+const TUNE = { key: "monsters.hp_scale", pts: [], res: null, busy: false, err: "" };
+const TUNE_KEYS = { "monsters.hp_scale": { label: "몬스터 체력 배율", lo: 0.5, hi: 2, step: 0.05 }, "player.start_hp": { label: "시작 체력", lo: 50, hi: 600, step: 10 } };
+function renderTunePanel() {
+  const el = $("tunePanel"); if (el.classList.contains("hidden")) return;
+  const K = TUNE_KEYS[TUNE.key], R = TUNE.res;
+  const tbl = R && R.table ? `<div class="rankwrap" style="max-height:30vh"><table class="rank" id="tuneTable"><thead><tr><th>막</th><th>등급</th><th>종</th><th>현재 평균</th><th>환산 평균</th><th>환산 최소~최대</th></tr></thead><tbody>${R.table.summary.map(r => `<tr><td>${r.act}</td><td>${esc(r.tier)}</td><td class="n">${r.n}</td><td class="n">${r.hp_mean}</td><td class="n">${r.scaled_mean}</td><td class="n">${r.scaled_min}~${r.scaled_max}</td></tr>`).join("")}</tbody></table></div>
+    <button class="btn" id="tuneCopy">몬스터별 환산 체력 표 복사 (TSV)</button>` : "";
+  const res = R ? `<div id="tuneResult"><b>${esc(K.label)} = ${fmtNum(R.found)}</b> (현재 ${fmtNum(R.current)}) · 승률 ${pct(R.win_rate, 1)} [95% CI ${pct(R.ci[0], 1)}~${pct(R.ci[1], 1)}] · ${R.runs.toLocaleString()}판 × 평가 ${R.evals.length}회 · 종료: ${esc(R.stop)}${R.in_range ? "" : ' · <b id="tuneNoSol">범위 안에 해 없음</b>'}</div>${tbl}` : "";
+  el.innerHTML = `<b>목표 승률 맞추기</b> <span class="small">— 필요한 값을 찾아 보여 주기만 합니다. 몬스터 JSON·설정·시나리오는 바꾸지 않습니다(반영은 몬스터 탭에서 직접).</span>
+    <div class="controls" style="padding:4px 0">
+      <label>대상 <select id="tuneKey">${Object.entries(TUNE_KEYS).map(([k, v]) => `<option value="${k}"${k === TUNE.key ? " selected" : ""}>${v.label} (${k})</option>`).join("")}</select></label>
+      <label>범위 <input type="number" id="tuneLo" class="num" style="width:70px" step="${K.step}" value="${K.lo}"> ~ <input type="number" id="tuneHi" class="num" style="width:70px" step="${K.step}" value="${K.hi}"></label>
+      <label>목표 승률 <input type="number" id="tuneT" class="num" style="width:60px" step="0.5" value="${+(S.T * 100).toFixed(2)}">%</label>
+      <label>판 수 <input type="number" id="tuneRuns" class="num" style="width:70px" step="100" value="1000"></label>
+      <label>시드 <input type="text" id="tuneSeed" style="width:70px" value="tune"></label>
+      <button class="btn primary" id="tuneRun"${TUNE.busy ? " disabled" : ""}>실행</button> <button class="btn" id="tuneCancel"${TUNE.busy ? "" : " disabled"}>취소</button>
+    </div>
+    <div class="small" id="tunePts">${TUNE.pts.map(p => `${fmtNum(p.x)} → ${pct(p.win_rate, 1)}`).join(" · ")}${TUNE.busy ? " …" : ""}</div>${TUNE.err ? `<div class="small" id="tuneErr">${esc(TUNE.err)}</div>` : ""}${res}`;
+  $("tuneKey").onchange = e => { TUNE.key = e.target.value; renderTunePanel(); };
+  $("tuneRun").onclick = startTune;
+  $("tuneCancel").onclick = () => cancelJob();
+  if ($("tuneCopy")) $("tuneCopy").onclick = () => {
+    const tsv = ["id\tname\tact\ttier\thp\tscaled"].concat(R.table.monsters.map(m => [m.id, m.name, m.act, m.tier, m.hp, m.scaled].join("\t"))).join("\n");
+    window.__tuneTsv = tsv;
+    (navigator.clipboard ? navigator.clipboard.writeText(tsv) : Promise.reject()).then(() => flash("환산 체력 표를 복사했습니다"), () => flash("복사 실패 — 표를 직접 선택해 복사하세요"));
+  };
+}
+async function startTune() {
+  cancelJob();
+  const body = { kind: "tune", key: TUNE.key, lo: +$("tuneLo").value, hi: +$("tuneHi").value, target: +$("tuneT").value / 100,
+    runs: +$("tuneRuns").value, seed: $("tuneSeed").value || "tune", edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet };
+  TUNE.pts = []; TUNE.res = null; TUNE.err = ""; TUNE.busy = true; renderTunePanel();
+  try {
+    const ev = await runJob(body, e => { if (e.type === "tune_point") { TUNE.pts.push(e); renderTunePanel(); } }, "승률 맞추기");
+    if (ev && ev.type === "done") TUNE.res = ev.result; else if (ev && ev.type === "error") TUNE.err = ev.message; else if (ev) TUNE.err = "취소됨";
+  } catch (e) { TUNE.err = e.message; }
+  TUNE.busy = false; renderTunePanel();
+}
+$("btnTune").onclick = () => { $("tunePanel").classList.toggle("hidden"); renderTunePanel(); };
+document.addEventListener("click", e => { const a = e.target.closest(".info"); if (a) { e.preventDefault(); e.stopPropagation(); openGuide(a.dataset.g); } }, true);
+$("btnSave").onclick = saveScenario; $("btnLoad").onclick = loadScenario; $("btnFull").onclick = startFull; $("btnApply").onclick = openApply; $("btnUnapply").onclick = unapply;
+document.addEventListener("keydown", e => { if (!(SRV && srvOK) || e.target.tagName === "INPUT") return; if ((e.ctrlKey || e.metaKey) && e.key === "z") $("btnUndo").click(); if ((e.ctrlKey || e.metaKey) && e.key === "y") $("btnRedo").click(); });
 window.addEventListener("hashchange", () => { readHash(); update(); });
 let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(update, 80); });
 $("sort").value = S.sort;
+window.__S = S; window.__LIVE = LIVE; window.__JS = JS; window.__BYID = BYID; window.__SG = SG;
+window.__setPreview = P => setPreview(P);
+applyModelFidelity(); FANTS.forEach(summarize);
 update();
-window.__viewerReady = true;
+
+// ---------------- 서버 모드 감지 (/api/ping 실패 시 읽기 전용) ----------------
+(async () => {
+  if (SRV && location.protocol.startsWith("http")) {
+    try {
+      const ping = await api("/api/ping");
+      const [schema, state, fj] = await Promise.all([api("/api/schema"), api("/api/state"), api("/api/fantasies")]);
+      SCHEMA = schema; BASE_CFG = state.base_cfg || {};
+      srvOK = true;
+      absorbFantasies(fj);
+      const ph = ping.data_hash || ping.table_hash;
+      if (!BASE_HASH) BASE_HASH = ph;
+      if (ph !== BASE_HASH) { BASE_HASH = ph; $("hashLabel").textContent = BASE_HASH.slice(0, 10) + " (스캔과 다름)"; }
+      S.fileEdits = fj.dirty_files || [];
+      SRV_STATE = state;
+      if (state.has_monsters) loadMonsters();
+      await loadRef();
+      await loadSG();
+      $("modeBadge").textContent = "서버 모드 · 편집 가능"; $("modeBadge").classList.add("server");
+    } catch (e) { srvOK = false; $("modeBadge").textContent = "읽기 전용 (서버 연결 실패)"; }
+  }
+  update();
+  window.__viewerReady = true;
+})();
 })();
 </script>
 </body>

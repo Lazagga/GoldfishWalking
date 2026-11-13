@@ -1,0 +1,42 @@
+{
+    "schemaVersion": 1,
+    "id": "fan_damage_sandcastle",
+    "sourceId": 61,
+    "designerName": "모래성",
+    "designerNote": "3번째 턴 종료 시 적에게 300의 피해를 입힘",
+    "enabled": true,
+    "localization": {
+        "name": "",
+        "description": ""
+    },
+    "presentation": {
+        "sprite": ""
+    },
+    "rarity": "white",
+    "tags": [
+        "turn_end"
+    ],
+    "effects": [
+        {
+            "trigger": {
+                "event": "turn_end"
+            },
+            "target": {
+                "key": "damage"
+            },
+            "operation": "modify_value",
+            "mode": "add",
+            "amount": 300.0,
+            "condition": {
+                "comparison": {
+                    "left": {
+                        "variable": "current_turn"
+                    },
+                    "operator": "==",
+                    "right": 3
+                }
+            },
+            "execution": "modifier"
+        }
+    ]
+}

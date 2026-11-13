@@ -1,0 +1,33 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_rest_sleepmask",
+    "sourceId":  51,
+    "designerName":  "수면안대",
+    "designerNote":  "휴식으로 얻는 체력 x2",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "blue",
+    "tags":  [
+                 "rest"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "rest"
+                                    },
+                        "target":  {
+                                       "actor":  "player",
+                                       "stat":  "health"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "multiply",
+                        "amount":  2.0
+                    }
+                ]
+}

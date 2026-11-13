@@ -1,0 +1,33 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_rabbit_head",
+    "sourceId":  1,
+    "designerName":  "토끼 인형",
+    "designerNote":  "머리 위에 토끼를 업고 다닐 수 있음",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "white",
+    "tags":  [
+                 "passive"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "passive"
+                                    },
+                        "target":  {
+                                       "key":  "cosmetic"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  0,
+                        "options":  "Rabbit"
+                    }
+                ]
+}

@@ -1,0 +1,62 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_attack_animalfriends",
+    "sourceId":  34,
+    "designerName":  "동물친구들",
+    "designerNote":  "타수+4",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "red",
+    "tags":  [
+                 "passive"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "passive"
+                                    },
+                        "target":  {
+                                       "formula":  "player.hits"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  4.0
+                    },
+                    {
+                        "trigger":  {
+                                        "event":  "on_acquire"
+                                    },
+                        "target":  {
+                                       "key":  "collection"
+                                   },
+                        "operation":  "combine_fantasies",
+                        "mode":  "combine",
+                        "amount":  1,
+                        "execution":  "capability",
+                        "options":  [
+                                        "fan_rabbit_head",
+                                        "fan_turtle_head",
+                                        "fan_cat_head",
+                                        "fan_parrot_head"
+                                    ]
+                    },
+                    {
+                        "trigger":  {
+                                        "event":  "passive"
+                                    },
+                        "target":  {
+                                       "key":  "availability"
+                                   },
+                        "operation":  "exclude",
+                        "mode":  "exclude",
+                        "amount":  1,
+                        "execution":  "capability"
+                    }
+                ]
+}

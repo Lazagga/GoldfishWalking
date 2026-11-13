@@ -1,0 +1,37 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_turn1_doll",
+    "sourceId":  42,
+    "designerName":  "대역 인형",
+    "designerNote":  "첫 턴동안 적의 힘 -2",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "blue",
+    "tags":  [
+                 "turn_1"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "turn_1"
+                                    },
+                        "target":  {
+                                       "actor":  "monster",
+                                       "stat":  "strength"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  -2.0,
+                        "duration":  {
+                                         "turns":  1,
+                                         "decreaseAt":  "turn_end"
+                                     }
+                    }
+                ]
+}

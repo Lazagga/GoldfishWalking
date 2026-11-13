@@ -1,0 +1,33 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_end_dice",
+    "sourceId":  27,
+    "designerName":  "주사위",
+    "designerNote":  "전투 종료 시 환상 1회 새로고침 가능",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "white",
+    "tags":  [
+                 "battle_end"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "battle_end"
+                                    },
+                        "target":  {
+                                       "system":  "reward",
+                                       "property":  "fantasy_rerolls"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  1.0
+                    }
+                ]
+}

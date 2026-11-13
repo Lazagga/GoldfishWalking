@@ -1,0 +1,46 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_30301_Stargazer",
+    "sourceId":  30301,
+    "designerName":  "별관찰자",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite": "Art/Enemies/Mob_30301_Stargazer"
+                     },
+    "encounter":  {
+                      "act":  3,
+                      "grade":  "boss",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  3000,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "static",
+               "patterns":  [
+                                "StargazerSingle",
+                                "StargazerSingle",
+                                "StargazerSingle",
+                                "StargazerSkill"
+                            ]
+           },
+    "passives":  [
+                     {
+                         "operation":  "split_player_boxes"
+                     },
+                     {
+                         "operation":  "lock_random_player_matches",
+                         "timing":  "turn_start",
+                         "count":  3
+                     },
+                     {
+                         "operation":  "zero_player_special_digits"
+                     }
+                 ]
+}

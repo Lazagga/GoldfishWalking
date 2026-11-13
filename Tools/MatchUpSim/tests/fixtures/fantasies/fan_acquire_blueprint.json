@@ -1,0 +1,32 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_acquire_blueprint",
+    "sourceId":  50,
+    "designerName":  "청사진",
+    "designerNote":  "획득시 보유하고 있는 환상 중 하나로 선택하여 그 복사본으로 영구히 변경됨",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "blue",
+    "tags":  [
+                 "on_acquire"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "on_acquire"
+                                    },
+                        "target":  {
+                                       "key":  "fantasy"
+                                   },
+                        "operation":  "replace_with_copy",
+                        "mode":  "replace_with_copy",
+                        "amount":  1.0
+                    }
+                ]
+}

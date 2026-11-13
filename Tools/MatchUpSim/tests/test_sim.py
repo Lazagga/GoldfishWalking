@@ -23,7 +23,7 @@ TABLE_HP = 600
 
 
 def base_cfg(**sets):
-    cfg = copy.deepcopy(ms.DEFAULT_CONFIG)
+    cfg = ms.legacy_config()
     cfg["monsters"]["act_hp_growth"] = 2.0
     for k, v in sets.items():
         ms.set_path(cfg, k.replace("__", "."), v)
@@ -47,6 +47,7 @@ class AC1Regression(unittest.TestCase):
                 seed = f"verify-{i}"
                 a = orig.simulate_run(cfg, seed, pool)
                 b = ms.simulate_run(cfg, seed)
+                b = {k: b[k] for k in a}   # 기존 키만 비교 (v3 에서 통계 키가 추가됨)
                 self.assertEqual(a, b, f"hp_base={hp} seed={seed}")
 
     def test_reference_summary(self):
@@ -276,7 +277,8 @@ class AC3Forced(_TableHarness, unittest.TestCase):
             if r["reached_floor"] >= 18:
                 self.assertEqual(got.count("fan_turn_boots"), 1)
             else:
-                self.assertNotIn("fan_turn_boots", got)
+                # 18층 전에는 강제 지급이 없다 (보상·상점으로 자연 획득하는 것은 v1 동작대로 허용)
+                self.assertEqual(r["fantasies_forced"], 0)
 
 
 if __name__ == "__main__":

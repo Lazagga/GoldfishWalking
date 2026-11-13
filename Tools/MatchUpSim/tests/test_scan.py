@@ -20,7 +20,7 @@ WORKERS = max(2, min(8, (os.cpu_count() or 2) - 1))
 
 def strip_meta(d):
     d = copy.deepcopy(d)
-    for k in ("scan_id", "generated_at"):
+    for k in ("scan_id", "generated_at", "elapsed_s"):
         d["meta"].pop(k, None)
     return d
 
@@ -28,7 +28,7 @@ def strip_meta(d):
 class AC4Determinism(unittest.TestCase):
     ARGS = ["--effects", EFFECTS, "--x", "monsters.hp_base=400:800:200",
             "--fantasies", "fan_turn_boots,fan_damage_slingshot,fan_cat_head,fan_fantasy_leo,fan_start_stamp",
-            "--runs", "300", "--seed", "det", "--set", "monsters.act_hp_growth=2.0", "--quiet"]
+            "--runs", "300", "--seed", "det", "--set", "monsters.act_hp_growth=2.0", "--set", 'monsters.model="tier_avg"', "--quiet"]
 
     def test_workers_and_cache(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -39,7 +39,7 @@ class AC4Determinism(unittest.TestCase):
             c = fantasy_scan.main(self.ARGS + ["--workers", str(WORKERS), "--out", os.path.join(tmp, "b")])
             self.assertEqual(strip_meta(a), strip_meta(c))
             # 캐시를 지우고 재실행
-            shutil.rmtree(os.path.join(tmp, "b", "fantasy_cache"))
+            shutil.rmtree(os.path.join(tmp, "b", "point_cache"))
             d = fantasy_scan.main(self.ARGS + ["--workers", str(WORKERS), "--out", os.path.join(tmp, "b")])
             self.assertEqual(strip_meta(a), strip_meta(d))
             # 파일로 쓴 JSON 도 같은 수치
@@ -67,7 +67,7 @@ class AC5NullHarness(unittest.TestCase):
                 json.dump(data, fp, ensure_ascii=False)
             res = fantasy_scan.main(["--effects", path, "--x", self.X,
                                      "--fantasies", ",".join(d["id"] for d in dummies),
-                                     "--runs", str(self.RUNS), "--seed", "null", "--set", "monsters.act_hp_growth=2.0",
+                                     "--runs", str(self.RUNS), "--seed", "null", "--set", "monsters.act_hp_growth=2.0", "--set", 'monsters.model="tier_avg"',
                                      "--workers", str(WORKERS), "--out", tmp, "--quiet"])
         cover, total, deltas, widths = 0, 0, [], []
         for fid, cur in res["curves"].items():
@@ -101,7 +101,7 @@ class AC5NullHarness(unittest.TestCase):
             for k in range(40):
                 res = fantasy_scan.main(["--effects", path, "--x", "monsters.hp_base=500:600:100",
                                          "--fantasies", "dummy_x", "--runs", str(self.RUNS), "--seed", f"cal{k}",
-                                         "--set", "monsters.act_hp_growth=2.0", "--workers", "4",
+                                         "--set", "monsters.act_hp_growth=2.0", "--set", 'monsters.model="tier_avg"', "--workers", "4",
                                          "--out", tmp, "--quiet"])
                 for p in res["curves"]["dummy_x"]["points"]:
                     if p["delta_se"] > 0:

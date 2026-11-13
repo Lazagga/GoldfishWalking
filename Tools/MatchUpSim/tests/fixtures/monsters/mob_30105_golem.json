@@ -1,0 +1,39 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_30105_Golem",
+    "sourceId":  30105,
+    "designerName":  "골렘",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite": "Art/Enemies/Mob_30105_Golem"
+                     },
+    "encounter":  {
+                      "act":  3,
+                      "grade":  "normal",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  1000,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "static",
+               "patterns":  [
+                                "2_Single"
+                            ]
+           },
+    "passives":  [
+                     {
+                         "operation":  "set_match_mobility",
+                         "target":  {
+                                        "actor":  "player"
+                                    },
+                         "movable":  false
+                     }
+                 ]
+}

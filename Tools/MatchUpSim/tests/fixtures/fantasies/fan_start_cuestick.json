@@ -1,0 +1,33 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_start_cuestick",
+    "sourceId":  48,
+    "designerName":  "큐대",
+    "designerNote":  "매 턴 내 기본 피해량과 힘 피해량 첫째 자리 숫자 8로 고정",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "blue",
+    "tags":  [
+                 "turn_start"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "turn_start"
+                                    },
+                        "target":  {
+                                       "key":  "player_base_damage"
+                                   },
+                        "operation":  "set_first_digit",
+                        "mode":  "set_first_digit",
+                        "amount":  8.0,
+                        "execution":  "modifier"
+                    }
+                ]
+}

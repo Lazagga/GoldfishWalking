@@ -1,0 +1,45 @@
+{
+    "schemaVersion":  1,
+    "id":  "ProphetSingle",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "예언자가 공격 시 자신이 가하는 피해량만큼 스택 상자에 수치 누적",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  null
+                     },
+    "attack":  {
+                   "damage":  {
+                                  "digits":  2,
+                                  "editable":  true
+                              },
+                   "hits":  {
+                                "fixed":  1
+                            }
+               },
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "self"
+                                   },
+                        "operation":  "add_status",
+                        "type":  "prophet_stack",
+                        "amount":  {
+                                       "expression":  "DamageDealt"
+                                   }
+                    }
+                ],
+    "metadata":  {
+
+                 }
+}

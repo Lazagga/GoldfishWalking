@@ -1,0 +1,57 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_erase_sagittarius",
+    "sourceId":  36,
+    "designerName":  "사수자리",
+    "designerNote":  "모든 상자를 분리시키는 대신, 전투당 한 번 지우개로 상자를 지울 수 있음",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "red",
+    "tags":  [
+                 "passive"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "battle_start"
+                                    },
+                        "target":  {
+                                       "key":  "eraser"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  1.0,
+                        "lifetime":  "battle"
+                    },
+                    {
+                        "trigger":  {
+                                        "event":  "passive"
+                                    },
+                        "target":  {
+                                       "key":  "player_boxes"
+                                   },
+                        "operation":  "split_box",
+                        "mode":  "split",
+                        "amount":  1,
+                        "execution":  "capability"
+                    },
+                    {
+                        "trigger":  {
+                                        "event":  "passive"
+                                    },
+                        "target":  {
+                                       "key":  "split_digit_erase"
+                                   },
+                        "operation":  "enable",
+                        "mode":  "enable",
+                        "amount":  1,
+                        "execution":  "capability"
+                    }
+                ]
+}

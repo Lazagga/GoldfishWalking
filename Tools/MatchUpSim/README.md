@@ -1,151 +1,445 @@
-# Match Up 시뮬레이터 + 환상별 승률 곡선 뷰어
+# Match Up 시뮬레이터 + 환상 승률 뷰어 (v4.2)
 
-`fantasy_viewer_SPEC.md`(2026-11-11)의 구현. 폴더: `Tools/MatchUpSim/`
+`fantasy_viewer_SPEC.md`(v1) → `fantasy_viewer_v3_SPEC.md`(v2를 대체) → `fantasy_viewer_v4_SPEC.md` → `fantasy_viewer_v4_1_SPEC.md`(v4를 대체) → `fantasy_viewer_v4_2_SPEC.md`(v4.1을 대체)를 구현한 것. 폴더: `Tools/MatchUpSim/`
 
-## 이번 구현에서 가정한 내용 (명세 §9)
+## 원격 서버 — 다른 PC 에서 계산하고 여러 기기에서 편집 (2026-11-13)
+digits 는 이 PC 에서 초당 약 17판이라 느리다. 계산은 빠른 PC(서버 PC)에서 돌리고, 이 PC 와 다른 기기는 브라우저로 접속해 JSON 을 고치고 승률 변화를 본다.
+
+**서버 PC 준비** (한 번)
+1. 이 브랜치를 서버 PC 에 받는다(`git pull`). 시뮬레이터는 표준 라이브러리만 쓴다(Python 3.15 에서 확인, Playwright 는 테스트용).
+2. (선택) 이 PC 의 `sim_results/point_cache/` 를 서버 PC 의 같은 위치로 복사하면 이미 계산한 점을 다시 돌리지 않는다(같은 시드·같은 데이터 해시일 때). git 에는 올라가지 않는 폴더다.
+3. 서버 실행:
+   ```
+   python viewer_server.py --host 0.0.0.0 --workers <코어 수 - 1>
+   ```
+   창에 `http://<서버 PC IP>:8765/?k=<토큰>` 주소가 출력된다. 토큰은 `.matchupsim_remote_token` 에 저장돼 재시작해도 주소가 같다(파일을 지우면 새 토큰).
+4. 처음 실행할 때 Windows 방화벽 창이 뜨면 **개인 네트워크만** 허용한다. 창 없이 막히면 관리자 PowerShell 에서 직접 규칙을 추가한다(서버 PC 사용자가 실행):
+   `netsh advfirewall firewall add rule name="MatchUpSim 8765" dir=in action=allow protocol=TCP localport=8765 profile=private`
+
+**다른 기기에서**: 같은 공유기(LAN)에 연결하고 출력된 주소를 연다. 즐겨찾기해 두면 된다. 집 밖 등 다른 네트워크에서는 Tailscale 같은 사설 VPN 으로 서버 PC 에 붙인다(포트를 인터넷에 직접 열지 말 것).
+
+**동작**
+- 서버 PC 의 원본 JSON(`Assets/Data/Json/...`)이 기준이다. JSON 편집 탭의 작업 사본·`원본에 반영`은 서버 PC 에 하나뿐이라 **모든 기기가 같이 본다**. 숫자 편집(슬라이더)과 체크한 환상은 기기(브라우저 탭)마다 따로다.
+- 계산 작업은 서버에서 차례대로 돈다. 새 작업은 **같은 기기의 이전 작업만** 취소한다(다른 기기의 재계산을 끊지 않는다).
+- 서버 밖(에디터·Unity·`git pull`)에서 원본 JSON 을 고치면 서버가 다음 요청 때 다시 읽는다. 뷰어는 탭으로 돌아올 때와 재계산·조합 계산 직전에 서버와 맞춘다 — 환상 목록의 효과 수치가 새 값으로 바뀌고, 수정 전(비교 기준) 대비 고스트로 다시 계산한다. 이전에는 서버를 다시 켜기 전까지 옛 값으로 보이고 계산되던 문제가 있었다.
+- 스캔(CLI)도 서버 PC 에서 같은 명령으로 돌린다. 끝나면 서버를 다시 켜거나(스캔 파일을 읽음) 결과 폴더를 복사한다.
+
+**보안**: 원격 모드는 페이지(`/`)도 토큰이 있어야 열린다. 토큰이 있으면 서버 PC 의 원본 JSON 을 고치고 반영할 수 있으니 공유하지 않는다. HTTP(암호화 없음)이므로 믿을 수 있는 네트워크나 VPN 에서만 쓴다. 원격 모드에서는 Host 를 검사하지 않고(IP·이름 어느 쪽으로 접속해도 됨) Origin 은 같은 출처만 허용한다. 기본(`--host` 없음)은 예전처럼 127.0.0.1 전용이다. 서버는 git 커밋을 하지 않는다.
+
+## 조합 — 체크한 환상을 모두 가진 승률 (2026-11-13, 시너지 탭 대체)
+- 뷰어의 **시너지 탭(히트맵)을 뺐다**. 승률 곡선 탭에서 환상을 2~4개 체크하고 `조합 승률 계산`을 누르면, 체크한 환상을 런 시작부터 **모두 가진** 곡선을 같은 시드로 계산해 승률 곡선(지표 승률·Δ·도달 층·사망률)과 **생존 곡선 탭**에 `조합` 선으로 같이 그린다.
+- 계산하는 팔은 기준선 + 단독 + 전체 조합(k + 2개)뿐이다(이전: 모든 부분집합 2^k). 단독 곡선은 이미 계산된 캐시를 쓰므로 새로 도는 것은 대부분 조합 팔 하나다. 서버 작업 `{"kind": "combo", "arms": "full"}`.
+- 표: 선택 X 에서 조합·단독·기준선의 승률, Δ, 95% CI. 그 아래 `단독 Δ의 합 → 조합 Δ (차이)` — 합보다 크면 같이 쓰면 더 강하고, 작으면 효과가 겹치거나 승률 상한(포화)에 가깝다.
+- 쌍 시너지 일괄 스캔(`synergy_scan.py`)은 CLI 로 남아 있지만 뷰어에는 붙이지 않는다.
+
+## 몬스터 조우 시 승률 (2026-11-13)
+`monster_metrics.py` 와 뷰어 몬스터 탭에 사망 비중과 별도로 두 열을 더했다(각각 95% Wilson CI).
+- **조우 시 전투 승률** = 이 몬스터와 싸운 전투 중 이긴 비율. 사망·카운트다운 도주(보상 없음)·시간 초과는 진 것으로 센다.
+- **조우한 런 승률** = 이 몬스터를 한 번이라도 만난 런이 끝까지 클리어한 비율. 뒤쪽 막 몬스터일수록 거기까지 살아남은 런만 만나므로 높게 나온다 — 같은 막·등급끼리, 그리고 전체 승률과 견준다. 요정은 모든 런의 첫 전투라 조우한 런 승률 = 전체 승률이다.
+- 결과 파일 필드: `battle_win_rate`·`battle_win_ci`·`battle_wins`, `run_win_rate_met`·`run_win_ci_met`·`runs_met`, 최상위 `wins`·`win_rate`.
+
+## v4.2 (명세 F11, M27~M29) — 몬스터 체력 = 원본 JSON, X축 = 시작 체력, 목표 승률 맞추기
+- **기본 설정이 바뀌었다**: `monsters.model = "table"`(체력 = 몬스터 JSON 그대로, `table_file = monster_table.json`), `damage_model = "digits"`, `gimmicks = "on"`. 인자 없이 돌린 `matchup_sim.py`·스캔·도구가 모두 이 설정이다. `hp_base`·`act_hp_growth`·`tier_hp_ratio`·`hp_model`·`tiers.*.hp_mean/hp_cv`·`act_scale.*.hp`(그리고 게임 배정 규칙에서 `easy_battles`)는 table 에서 쓰이지 않고, `--x`·`--set`·`--sweep`·`--tune` 으로 건드리면 경고한다.
+- **구버전 호환**: `--set 'monsters.model="tier_avg"'` 를 주면 피해 모델이 자동으로 gauss·기믹 끔이 되고(`ms.normalize_models`, tier_avg 는 gauss 만 지원) 변경 전과 **행 단위로 같은 결과**가 나온다(`test_identity`, AC-H3). 점 캐시 키도 그대로라 이전 캐시를 다시 쓴다. 새 기본 설정의 키는 구버전 키와 다르다(AC-H11, `store.KEY_STRIP_VALUES`). 테스트·`tools/bench.py` 는 구버전 설정을 `ms.legacy_config()` 로 명시한다. 과거 `fantasy_curves.json`(x_param = hp_base, tier_avg)은 서버가 스캔 메타의 모델로 설정을 재현해 열고, 뷰어에 `구버전(평균 몬스터)` 배지가 붙는다.
+- **X축 = `player.start_hp`**: 권장 격자 `50:550:50`(11점, 현재 값 150 포함). `--x` 를 생략하면 **현재 시작 체력 한 점**(몬스터 JSON 체력 그대로)만 계산한다. 뷰어는 X 라벨을 `x_param` 에서 읽어 "시작 체력"으로 표시하고 현재 값(`meta.x_current`)에 세로선을 긋는다. 승률은 X 에 대해 증가한다 — 목표 교차·등가 이득의 방향을 데이터로 판정하도록 고쳤다(전에는 감소 곡선을 가정해 "범위 밖(X>최대)"를 잘못 표시했을 것). 등가 이득은 시작 체력이면 **"등가 시작 체력"**(이 환상이 시작 체력 몇 점과 같은가)으로 표시된다.
+- **배지**: `table + gauss` 이면 `원본 체력 + 파라미터 피해(규모 불일치)`(AC-H9). 시너지 결과의 X 축이 곡선과 다르면 시너지 탭에 `X축 혼합`.
+- **몬스터 체력 리포트**(몬스터 탭, 읽기 전용): 막 × 등급의 평균·종 수·최소~최대, 등급 비율(easy:normal:elite:boss, normal = 1), 막 간 비율(각 막 ÷ 1막), 설계 목표 비율 대조(`balance_targets.json` 의 `monster_hp_ratio`, 기본 1:3:5 `임시값`). 서버 모드에서는 체력 편집이 즉시 반영된다.
+- **목표 승률 맞추기**: CLI `--tune monsters.hp_scale=0.5:2 --target 0.10` 또는 `--tune player.start_hp=50:600`. 찾은 값, 그 점의 승률·95% CI(Wilson)·판 수·평가 수·종료 조건, `hp_scale` 이면 등급·막별 환산 체력 표와 몬스터별 환산 체력 목록(탭 구분, 복사용)을 출력한다. 뷰어 툴바 `목표 승률 맞추기` 패널(서버 작업 `tune`)이 같은 탐색 함수와 같은 시드 규칙을 써서 **같은 시드·판 수면 CLI 와 결과가 같다**(테스트로 확인). 실수 키(`hp_scale`)는 실수로, 정수 키는 정수로 탐색한다. **몬스터 JSON·설정·시나리오 파일은 쓰지 않는다**(테스트에서 바이트 비교, AC-H8). 범위 안에 해가 없으면 `범위 안에 해 없음`.
+- **몬스터 테이블 검사**(Q47): `monster_table.json` 이 없으면 `python import_monsters.py` 안내와 함께 오류. 임포터가 원본 몬스터·패턴 JSON 의 해시(`source_hash`)를 기록하고, 원본이 바뀌었으면 실행할 때 `몬스터 테이블이 오래됨` 경고.
+- 근사(F10): 강한 무효 해시에 이미 `x_key` 가 들어 있어 X축이 바뀌면 기존 학습은 무효(`다시 학습`)다(AC-H12, 테스트 추가).
+
+### v4.2 확인 결과
+- **Q42 (`start_hp` 의 쓰임)**: 시뮬은 `RunState.hp` 의 시작값에만 쓴다. 게임도 `RunContext.StartNewRun(seed, startingHealth)` 에서 `health` 의 시작값으로만 쓰고 **최대 체력이 없다**(회복에 상한 없음). 휴식 회복은 고정 굴림(2자리, 힘만큼 자릿수 증가 — `RestController`)이고 상점 체력 지불도 고정값이라 시작 체력에 비례하지 않는다.
+- **Q41 (기준선 승률 vs 시작 체력, digits + 기믹, 게임 배정 규칙, 600판)**: 50: 2.7% · 100: 6.8% · 150: 11.7% · 200: 16.5% · 300: 23.3% · 400: 26.8% · 600: 32.2% · 800: 39.3% · 1000: 44.5% · 1500: 50.0%. 증가하지만 빨리 포화한다 — 몬스터 피해가 자릿수 단위라 체력을 늘려도 한 번에 죽는 판이 남는다. 명세 기본 `100:300:20` 은 6.8~23% 만 덮고 150 을 포함하지 않아 **`50:550:50`** 으로 정했다(약 3~30%). 승률 60% 는 시작 체력 1500 에서도 닿지 않는다.
+- 현재 원본 그대로(시작 체력 150, 몬스터 JSON 체력)의 기준선은 약 11~12% 로 목표 10% 에 가깝다.
+
+### v4.2 가정 (Q40~Q47 에 답이 없어 추천 기본값으로 진행)
+| # | 질문 | 적용한 값 |
+|---|---|---|
+| Q40 | 기본 피해 모델 | `table` + `digits` + `gimmicks = "on"`. gauss 는 선택 가능, `규모 불일치` 배지 |
+| Q41 | 시작 체력 격자 | 측정 결과 `50:550:50`(명세 기본 `100:300:20` 은 범위가 좁고 150 미포함) |
+| Q42 | 시작 체력 = 최대 체력? | 아님(게임·시뮬 모두 최대 체력 없음). 위 확인 결과 |
+| Q43 | `hp_scale` | 유지(기본 1.0, 승률 맞추기·민감도용) |
+| Q44 | 체력 설계 목표 비율 | normal:elite:boss = 1:3:5 `임시값`, 참고용 대조 |
+| Q45 | 과거 hp_base 결과 | 열 수 있음 + `구버전(평균 몬스터)` 배지 |
+| Q46 | 승률 맞추기 대상 | `monsters.hp_scale`(기본)과 `player.start_hp`. 자동 반영 없음 |
+| Q47 | 몬스터 테이블 없음·오래됨 | 오류 + 임포터 안내 / `source_hash` 불일치 경고 |
+
+### 몬스터 배정 규칙과 단일 점 스캔 (v4.2 이전 작업, 같은 날)
+- **몬스터 배정 = 게임 `MonsterSelector` 규칙(`monsters.encounter = "game"`, 기본)**: 1막 첫 일반 전투(`roomIndex 0`)는 항상 요정, 1막 방 1·2 는 1막 easy 중 무작위, 그 밖의 일반 전투는 그 막의 easy + normal 중 무작위. 규칙은 설정 `monsters.encounter_rules`(`fixed`: 막·방·몬스터 ID, `easy_rooms`: 막·방 목록)에 있고 코드에 ID 를 넣지 않았다. `"tier"` 는 이전 배정(막마다 처음 `easy_battles` 번 easy, 이후 normal 만).
+  - 발견 경위: 요정 기본 힘을 90(피해 상자 92자리)으로 올려도 승률이 69% → 44% 로만 떨어졌다. digits 엔진은 92자리 피해를 냈지만, 시뮬은 첫 층 몬스터를 1막 easy 3종 중 무작위로 골라 요정을 만나는 판이 약 1/3 이었다. 고친 뒤 같은 표에서 승률 0%, 1막 사망 100%.
+  - 요정을 넘기는 판도 있다(게임에서도 가능): 플레이어 선공이라 체력 150 을 첫 턴에 깎으면 요정이 행동하지 않고, 연타 패턴의 타수 상자 6·9 를 성냥 1개로 0 으로 바꾸면 피해 0. 참고: 게임 C# 은 몬스터 피해를 `int` 로 계산하므로 92자리는 게임에서 표현할 수 없다.
+  - table 모델의 점 키에만 `|enc1` 을 붙였다(tier_avg 키·캐시는 그대로). 전투 기록에 층(`floor`)을 추가.
+- **X축 생략 = 한 점**: `--fantasy-scan` 에서 `--x` 를 빼면 한 점만 돈다(70점, 11점 스윕보다 약 11배 빠름). F11 이후에는 그 점이 현재 시작 체력(몬스터 JSON 체력 그대로)이다. 뷰어 재계산도 스캔의 X 점을 따르므로 같이 빨라진다. 곡선이 필요하면 `--x player.start_hp=50:550:50` 을 준다.
+  - 한 점 스캔에서는 등가 체력 이득·목표 승률 교차가 `X 한 점 — 보간 불가` 로 표시된다(두 점 이상 필요). 그래프의 기준선은 점 + 짧은 가로선으로 그린다.
+- 테스트 `tests/test_v42_encounter.py`(첫 전투 = 요정, 방별 풀, 힘 90 요정에서 살아남은 판은 피해 0, tier 모드·키, 없는 ID 거부), `test_v42_core.py`(AC-H1·H2·H5·H11·Q47), `test_v42_server.py`(AC-H3·H4·H6·H8·H12), `test_v42_ui.py`(AC-H3·H4·H7·H8·H9, Playwright).
+
+## v4.1 요약 — 한계효과 미리보기 (F10, M23~M26)
+- 단순 수치 환상(값 필드 하나, 조건·확률 없음 → 임포터가 `surrogate_candidate` 표시, 43개 효과)과 **몬스터 1종의 체력·기본 힘**을 고치는 동안, 학습한 한계효과 모델로 승률 곡선 변화를 즉시(뷰어 JS, 서버 왕복 없음) 미리 보여준다. **실제 재계산은 근사를 쓰지 않고 처음부터 시뮬레이션**한다.
+- **근사값 격리(F10.1)**: 근사는 화면에만 있다. 점 캐시·`fantasy_curves.json`·시나리오·순위·F1 판정·조합·히트맵·수치 스윕·`solve_value` 어디에도 들어가지 않는다(테스트로 확인, AC-Y5·Y19). 학습 격자의 점은 일반 시뮬레이션 점이라 캐시에 저장되고, 격자와 같은 값을 입력하면 실제 재계산이 캐시 적중으로 끝난다(AC-Y6).
+- 모델(`sim_service/surrogate.py`, 표준 라이브러리): X마다 짝지은 Δ(θ)를 가중 최소제곱(가중치 1/se²)으로 1·2차 다항식에, 확률·로짓 척도 중 leave-one-out 교차 검증 오차가 작은 쪽으로 적합. 예측은 **앵커 방식**(화면의 실제 곡선 + 모델 증분, 실제 곡선이 stale 이면 `앵커 없음`). 한계효과 `∂Δ̂/∂θ` 와 표준오차(계수 오차 + 교차 검증 오차를 기울기로 환산), `근사 범위` 띠(모형 오차, CI 아님).
+- 거절(F10.5): 학습 범위 밖(외삽 금지, 슬라이더의 범위 밖 구간 회색), 포화(기준 승률 3% 미만·97% 초과), 비단조(스피어만 |ρ| < 0.9), 교차 검증 오차 > `max(3%p, 2·평균 se)` → 그리지 않고 사유 표시. `|z| < 1` 전 구간이면 `효과 미검출`(0 이라고 단정하지 않음). 배지 `신뢰`(≤ `max(1.5%p, 2·평균 se)`)·`주의`·`근사 불가`·`오래됨`.
+- 학습 작업(`sim_service/surrogate_train.py`): 백그라운드 전용 스레드, **최하위 우선순위**. 인터랙티브 작업이 기다리면 50판 조각 단위로 양보하고(측정 0.14초) 끝난 뒤 이어서 한다. 재개한 계수 = 중단 없이·워커 1개로 돌린 계수(AC-Y9·Y11). 저장 `sim_results/surrogate/<환상ID>.<효과>.<키>.json`, `monster.<ID>.<필드>.json`, `monster.<ID>.<필드>.probe.json`(단독 지표). 근사 vs 실제 기록 `sim_results/surrogate_audit.jsonl`.
+- 무효화: 몬스터·패턴·설정·보상 구조·피해 모델·기믹(몬스터 대상이면 같은 몬스터의 다른 필드 포함)이 바뀌면 **강한 무효**(근사 끔, `다시 학습`), 다른 환상(몬스터 대상이면 다른 몬스터·환상)이 바뀌면 **약한 경고**, 대상 필드 자신의 값 변경은 무효 아님.
+- 몬스터(F10.10): 기준선 곡선과 단독 지표만 근사. 체력은 원본의 0.5~2배 6점 + 다항 적합, 기본 힘은 정수 `0..max(원본, 2)` **이산 표**(학습한 정수에서만 예측). X는 선택 X와 이웃 3점, 점당 3000. 접촉률(전투 기록으로 계산)이 0이면 `영향 없음 — 이 몬스터를 만나지 않음`. `tier_avg` 모델에서는 미리보기 없음. 단독 지표 모델(8점 구간 선형, n=2000)은 입력란에 포커스하면 자동 학습.
+- 뷰어: 편집 패널에 근사 배지·학습 범위·한계효과(선택 X, %p/단위 ± se)·작은 편집이면 1차 근사 `Δp ≈ m × Δθ`·`근사 학습` 버튼(예상 시간 확인), 슬라이더의 학습 범위 표시, 목표 Δ의 **근사 해**(즉시, 저장 안 함, 실제 `역산` 결과가 나오면 차이 표시). 드래그 중에는 근사선만, 놓으면 실제 재계산(근사선 회색) → 완료 후 `예측 − 실제` 표시·기록. 상태 바 `편집 후 재계산: 놓을 때 | 버튼만`. 조합 패널은 `미리보기 없음 — 재계산 필요`. JSON 편집은 변경이 단일 환상(또는 몬스터 체력·기본 힘)의 단일 수치 필드일 때만 미리보기.
+- **시너지는 예측하지 않는다**(F10.8): 단일 효과 모델을 합치면 시너지가 구조적으로 0 이 된다.
+- API: `POST /api/surrogate/fit`(`targets`, `k`, `n`, `x_points`, `x_sel` → 작업 ID·예상), `POST /api/surrogate/estimate`, `POST /api/surrogate/models`(현재 편집 상태 기준 유효성 포함), `GET /api/surrogate/model`, `GET /api/surrogate/predict`(테스트용, 뷰어는 안 씀), `GET|POST /api/surrogate/audit`, `POST /api/surrogate/probe_fit`.
+
+### v4.1 가정 (Q30~Q39 에 답이 없어 추천 기본값으로 진행)
+| # | 질문 | 적용한 값 |
+|---|---|---|
+| Q28 | F10 구현 | 구현 (미리보기 전용, 재계산은 처음부터 시뮬레이션) |
+| Q29 | 순서 | M23 → M24 → M25 → M26 |
+| Q30 | 학습 시점 | `viewer_server.py --surrogate-auto after_scan`(기본): 서버에서 `전체 재계산`(스캔)이 끝나면 후보 전체를 백그라운드로 학습(서버 시작만으로는 학습하지 않음 — CLI 스캔 뒤에는 편집 패널의 `근사 학습` 버튼 또는 `POST /api/surrogate/fit` 에 targets 없이 요청). `manual` 이면 `근사 학습` 버튼만 |
+| Q31 | 임계 | 신뢰 1.5%p, 주의 3%p, 판정 `max(고정, 2 × 평균 se)` |
+| Q32 | 환상 격자 | 6점, 원본값의 0~2배 ∩ 스키마 범위(정수형은 정수만, 원본값 포함), 점당 1000, X 전체 |
+| Q33 | 재계산 시점 | 놓을 때(기본) / 버튼만 |
+| Q34 | JSON 미리보기 | 단일 환상·몬스터의 단일 수치 필드일 때만 |
+| Q35 | 근사 해 | 제공, 저장 안 함, 실제 해와의 차이 표시 |
+| Q36 | 몬스터 학습 시점 | 요청 시(`근사(체력)`·`근사(힘)` 버튼, 예상 시간 확인). 단독 지표 모델만 자동 |
+| Q37 | 몬스터 격자 | 체력 6점(0.5~2배), 기본 힘 `0..max(원본, 2)`, X 3점, 점당 3000 |
+| Q38 | 몬스터 근사 범위 | 기준선 + 단독 지표만 |
+| Q39 | 앵커 | 환상·몬스터 모두 앵커 방식, 실제 곡선이 없으면 `앵커 없음` |
+
+### v4.1 확인 결과 (테스트에서 측정)
+- AC-Y9: 학습 중 인터랙티브 재계산 요청 → 시작까지 0.14초.
+- AC-Y13(요정 체력, X = 0.8, 점당 3000): 근사 Δ −1.24%p vs 실제 −1.17%p (임계 1.5%p). 같은 학습에서 X = 0.6 은 비단조(ρ = −0.85)로 거절되어 그리지 않았다.
+- AC-Y14: 기본 힘 표의 Δ(힘 1) = 실제 재계산의 수정 효과(같은 시드·같은 n, 소수 6자리 일치).
+- AC-Y7: 근사선 갱신 < 50ms(서버 왕복 없음), JS 와 파이썬 예측 차이 < 1e-9.
+
+## v4 요약
+- **JSON 편집 고스트(§6.8)**: 서버가 비교 기준 스냅샷(기본 = 세션 시작 시 디스크 원본)을 가진다. 수정 전 곡선은 숫자 UI 편집이든 JSON 편집이든 **기준의 data_hash로 계산한 곡선**이다. 상태 바에 `비교 기준: 디스크 원본 · 해시 … · [기준 다시 잡기] · 고스트` 칩. `GET /api/reference`, `POST /api/reference/pin`, `POST /api/cache/prune`(현재·기준 해시 캐시는 지우지 않음).
+- **피해 자릿수 모델 `monsters.damage_model = "digits"`(F8)**: 게임 규칙대로 자릿수에서 값을 굴리고, 플레이어가 한 상자 안에서 성냥을 옮겨 도달할 수 있는 값을 **정확히** 계산(`sim_service/box_moves.py`)한 뒤 이동 배분은 정책(생존 우선 → 처치 우선 → J 최대)으로 정한다. `monsters.model = "table"`이 필요하다.
+- **몬스터 기믹 `monsters.gimmicks = "on"`(F9)**: 39종의 패시브·패턴 효과·사용 조건을 선언형 사양으로 옮겨 실행한다(`sim_service/fight_digits.py`). 사용자 규칙(Q25)을 반영했다.
+- **뷰어**: 툴바 `피해 모델` 스위치(gauss / digits / digits + 기믹), `피해 모델 혼합` 배지, 환상 충실도를 모델에 맞게 표시, 몬스터 탭의 모델별 `시뮬 미반영` 표시·기믹 값 편집·충실도 분포·`gauss↔digits` 단독 전투 비교, 해석 가이드 12항 + v4 주의 5항.
+- F10 은 v4.1 에서 한계효과 미리보기로 구현했다(위).
+
+## v4 가정과 사용자 답변 (명세 §13 Q18~Q29)
 
 | # | 질문 | 적용한 답 |
 |---|---|---|
-| Q1 | X축 | `monsters.hp_base`, `act_hp_growth=2.0` 고정. **범위는 명세 기본값 50~100이 아니라 200~1200(간격 100)으로 바꿈** — 아래 "규모 차이" 참고 |
-| Q2 | 원본 환상 데이터 | 접근 가능(`Assets/Data/Json/fantasies`, 69종). `import_fantasies.py`로 자동 변환하고, 해석이 필요한 것은 `fantasy_effects.overrides.json`에 직접 적은 근사로 보완 |
-| Q3 | 보상 구조(런당 환상 수) | 현재 구조 유지(일반 전투도 환상 확정 획득). 뷰어 상태 배너에 기준선 평균 보유 환상 수를 표시 |
-| Q4 | 보상 선택 정책 | 무작위 유지. `policy.fantasy_pick = "random"` 자리만 마련 |
-| Q5 | 강제 포함 시점 | 런 시작. `--force-at FLOOR`(전체 층 번호)도 지원 |
+| Q18 | 상자를 닫을 때 앞자리 0 | **사용자 답: 허용**(예: 68 → 08 = 8). 모든 자릿수가 비면 무효, 빈 자릿수는 무시(`MatchPatternInterpreter.ParseNumber`) |
+| Q19 | 배분 정책 | 기본값: `player.policy.attack_weight = 0.5`, 생존 우선·처치 우선 켬 |
+| Q20 | 아이템·연산자 상자 | 기본값: 모델링 안 함. 소모품은 gauss 와 같이 **추가 이동**으로 근사. 몬스터가 만드는 빼기·나누기 디버프 상자만 모델링 |
+| Q21 | `baseDamageLocked` | 패턴 JSON 의 `attack.damage.editable = false` 이면 몬스터 피해 상자 `k = 0` (현재 원본에는 없음). 강철 허수아비 `lock_box(monster.damage)` 도 `k = 0` |
+| Q22 | `player.skill` 재해석 | 기본값: digits 에서는 "이동 1회가 쓸모 있게 쓰일 확률", `K ~ Binomial(한도, skill)` |
+| Q23 | 환상 재분류 | 아래 표로 보고. 판단이 어려운 효과는 `approx` 유지 |
+| Q24 | 카운트다운 도주 | **사용자 답: 보상 없음.** 전투는 승리와 같은 종료(사망 아님), 보상·보스 처치 집계 없이 진행. 행 키 `escapes` |
+| Q25 | 의미 불명 6종 | **사용자 규칙으로 구현** — 아래 "의미 확인 표" |
+| Q26 | 성냥 잠금 대상 | 기본값: 플레이어 기본 피해 상자에만 |
+| Q27 | 비교 기준 기본값 | 기본값: 세션 시작 시 디스크 원본, 원본 반영·반영 되돌리기 후 자동 갱신 |
+| Q28 | F10 | v4 에서는 보류 → v4.1 에서 구현 |
+| Q29 | 구현 순서 | M16 → M17~19 → M20 → M21 → M22 → (v4.1) M23~M26 |
 
-### 규모 차이 (중요)
-환상별 효과를 넣으면(table 모드) 플레이어가 grade 모드보다 훨씬 강해진다. 시뮬레이터의 피해·체력 수치는
-"임시값"인데 환상 수치(새총 +30/타, 닻 -20/타, 쿠키 +300 등)는 게임 원본 값이고, 런당 환상을 많이 얻기 때문이다.
+사용자가 추가로 준 규칙: **분리된 상자는 상자(자릿수) 간 성냥 이동을 막고, 고정된 상자의 성냥은 이동할 수 없으며, 고정된 성냥은 이동할 수 없다** → `box_moves.reach` 의 `split`(자릿수마다 성냥 수 보존), `movable=False`(k = 0), `locked`(그 세그먼트는 목표 숫자에도 남아야 함), `locked_digits`(그 자릿수는 그대로).
 
-| `act_hp_growth=2.0` | grade 모드 | table 모드 (seed verify, 2000판) |
+### 게임 규칙 (코드에서 확인한 것, digits 의 기준)
+| 규칙 | 내용 | 출처 |
 |---|---|---|
-| `hp_base=74` | 승률 9.1%, 평균 30.1층 | 승률 97.5% |
-| 승률 10% 지점 | `hp_base≈74` | `hp_base≈660` (평균 도달 9층) |
+| 자릿수 범위 | 1자리 1~9, d자리 10^(d−1) ~ 10^d − 1 | `MonsterPatternKeyUtility.MinForDigits/MaxForDigits` |
+| 플레이어 기본 피해 | 자릿수 2 + max(0, 힘), 매 턴 굴림 → `base_dmg_transform` | `BattleController.EnsurePlayerTurnDamage` |
+| 몬스터 피해 | 자릿수 = 패턴 + 몬스터 힘(최소 1), 동적 패턴(`FortuneStack` 등)은 표현식 값 | `PrepareMonsterPatternFormula` |
+| 연타 타수 | `{d}_Multi_{h}` → h자리 균등(`_Multi_1` = 1~9), 편집 가능 | 같음 |
+| 이동 | 기본 2 + 환상, 2페이즈 `moveLimit` 이 덮어씀, 모든 상자 공유 | `CalculateCurrentMoveLimit` |
+| 피해 처리 | 1타 상한 → 방어막 → 체력, 상한 해제 누적 | `MonsterRuntime.ApplyDamage` |
+| 패턴 선택 | static = `(턴−1) mod n` 부터 사용 가능한 첫 패턴, random = 사용 가능 후보 균등, 없으면 `2_Single` | `MonsterPatternRunner.SelectPattern` |
+| 효과 시점 | `immediate` 는 행동 직후, `next_turn` 은 다음 턴 준비 끝에 실행 | `ApplyPatternEffects/ApplyScheduledEffects` |
+| 기절 | 기절 턴에는 행동 대신 기절 −1 (행동하지 않는 턴에만 감소) | `ApplyMonsterNonAttack` |
+| 상태 | 출혈은 받고 사라짐, 중독은 유지, 대기 중 상태는 그 뒤 활성화 | `ApplyPlayerEndTurnStatusDamage` |
+| 표현식 | 첫 연산자에서 왼쪽부터(우선순위 없음), `*` 오른쪽이 1 초과면 /100, `/` 내림·0 이면 0, 모르는 변수 0 | `MonsterEffectExpressionEvaluator` |
 
-table 모드에서 승률 10% 지점은 평균 도달이 9층 정도라, 1막에서 대부분 죽고 살아남으면 환상이 쌓여 끝까지 가는 양극화된 분포다.
-grade 모드의 분포(2·3막 사망이 대부분)와 모양이 다르다. 그래서 **곡선의 절대 위치보다 환상 간 순서와 방향**만 의미가 있다.
-수치 보정(시뮬레이터 임시값을 게임 규모로 맞추기)과 Q3(런당 환상 수)이 다음 결정 사항이다.
+### 의미 확인 표 (기믹 → 읽은 규칙 → 시뮬 해석)
+| 몬스터 | 기믹 | 시뮬 해석 | 충실도 |
+|---|---|---|---|
+| 화이트 래빗 | 카운트다운 3 → 도주 | 특수 상자(편집 가능 1자리) 매 턴 −1, 0 이면 도주 = 보상 없는 종료(Q24). 정책은 0 이 되기 전에 값을 올린다 | exact |
+| 하트 여왕 | 카운트다운 5 → `HeartQueenSkill`(9999 피해) | 0 이면 지정 패턴 실행. **불일치**: 패턴 조건 `heart_queen_box == 0` 의 변수를 게임 평가기가 모른다(항상 0 → 조건 참 → 회전 중에 사용 가능). 시뮬은 카운트다운 값으로 해석해 회전에서 건너뛴다 | approx |
+| 마녀 | 전투 시작 시 성냥 4개 잠금, `WitchSkill`(1회, 나누기 상자) | 1턴 기본 피해 상자의 세그먼트 4개 무작위 잠금(`tag=lock`), 나누기 상자는 `floor(P/x)`(0 불가) · 편집 가능 | exact |
+| 엘프 | 조준 사격 ×3 | 매 턴 0~9, 플레이어 상자(피해·타수·디버프)에 있으면 몬스터 피해 ×3. 정책이 그 숫자를 피한다 | exact |
+| 마술사 | 조준 ×1 + 데코이 숫자 | **사용자 결정: 기믹 반영 안 함**(데코이 없음, 조준 ×1 은 게임에서도 효과 없음) | approx |
+| 경비병 / 기사 | 1타 상한 45 / 20(누적 400 이후 `KnightSkill` 이 해제, 힘 +1) | `ApplyDamage` 순서 그대로 | exact |
+| 지휘자 | 조준 ×1 + `DigitCount` | **사용자 규칙**: [숫자 V] × [개수 C] 상자, 플레이어 상자(피해·타수·디버프)의 V 개수 = C 여야 피해. C 는 1자리 상자로 성냥 편집 가능 — 코드대로 구현(70% 근사 불필요) | exact |
+| 피리 부는 사나이 | 조준 ×1 + `CompareBaseDamage` | **사용자 규칙**: 턴마다 [`<`/`>`][10~99], 기본 피해(1타 공식 값)가 만족해야 피해 — 그대로 구현 | exact |
+| 그림자 | 잠금 디버프 누적 | **사용자 규칙**: 턴 t 의 이동 한도 = 기본 − (t − 1), 0 하한 ("매 턴 이동 1씩 감소"를 누적 감소로 해석) | approx |
+| 별관찰자 | 상자 분리 + 턴마다 성냥 3개 잠금 + 별 숫자 0 처리 + 유성우 | **사용자 규칙 = 코드**: 플레이어 상자 항상 분할, 매 턴 3개 잠금, `StargazerSingle` 마다 별 상자에 0~9 추가, 별 상자에 든 숫자는 기본 피해에서 0 취급(피해 × 0 처리 값/원래 값), 4턴째 `StargazerSkill` = 별 숫자를 이은 값 × 3타(코드 `Stargazing_Multi_3`, 3×3 대체 불필요) | exact |
+| 고래 | 접미 2자리 + 2페이즈(체력 50%) | **사용자 규칙 = 코드**: 1페이즈에 고래 상자 2자리(10~99, 고래 공격 다음 턴은 무작위 두 숫자), 기본 피해 끝 2자리가 같을 때만 피해. 2페이즈: 모든 상자 분할, 이동 2회 고정 | exact |
+| 세계수 | 0 피해면 힘 −1, 1회 힘 초기화(이후 플레이어 성냥 전체 잠금) | 초기화는 플레이어 선택 → 정책: 힘이 기본보다 `player.policy.reset_at_strength`(2) 이상이면 사용 | approx |
+| 천체투영기 | 숨은 숫자 2개, 개수 × 0.5 | 발견 전 배분은 "포함될 기대 개수"로 판단, 포함되면 발견 | approx |
+| 초롱아귀 | 반응 상자(힘 +1, 상자별 1회) | 반응 상자 편집 시 힘 +1. 정책은 다음 턴 피해 증가 기대값을 벌점으로 | approx |
+| 슬라임·유령·사냥꾼 | 다음 턴 상자 분할(사냥꾼은 지속시간 없음) + 앞자리 잠금 | 다음 턴 1턴 동안 분할로 근사 | approx |
+| 그 밖 GA (노상강도·강도·연금술사·역병 의사·해파리·점술사·예언자·자동인형·쥐·작은 마녀·구체·뱀파이어) | 출혈·중독·스택·힘·기절·회복·직접 피해·흡혈·자폭 | 상태 필드와 표현식 평가기 | exact |
+| 골렘 / 강철 허수아비 / 버섯인간 / 사서 | 성냥 이동 불가 / 몬스터 피해 상자 잠금 / 다음 턴 상자 잠금 / 공식 숫자로 직접 피해 | `k = 0`, 사서는 [P', 타수] 중 균등 | exact |
 
-### 첫 전체 스캔 결과 (scan1, `hp_base` 200~1200, 점당 3000판, `hp_base=700` 기준)
-기준선 승률은 200: 62.8% → 700: 8.0% → 1200: 1.3%, 기준선이 10%와 만나는 지점은 `hp_base≈650`.
+충실도 변화(몬스터 39종, `fidelity` gauss → `fidelity_digits` → `fidelity_gimmicks`): 기믹 없는 5종 approx → **exact** → exact. 나머지 34종 none → none → **exact 25종, approx 9종**(하트 여왕, 마술사, 그림자, 천체투영기, 초롱아귀, 세계수, 슬라임, 유령, 사냥꾼). 몬스터마다 `gimmick_report`(기믹·티어·판정·사유)가 `monster_table.json` 에 있다.
 
-- **받는 피해 고정 감소·타격 회복이 압도적**: 포인세티아(받는 피해 -30/타) +85%p, 낫(타격마다 +20) +81%p, 닻(-20/타) +76%p.
-  시뮬레이터의 몬스터 1타 피해(1막 평균 약 10, 3막 약 24)가 이 감소량보다 작아 사실상 무적이 된다.
-  환상 밸런스 문제라기보다 **시뮬레이터의 몬스터 피해 규모가 게임보다 작다**는 신호일 가능성이 높다.
-- 그다음: 동물친구들(타수 +4) +62%p, 병 속의 배 +34%p, 큐대 +28%p, 주판 +20%p, 포도탄 +19%p.
-- 음수: 천칭자리 -6.5%p, 사자자리 -5.4%p(둘 다 강한 신호). 천칭자리는 "기본 피해 0 → 200" 조작을 모델링하지 않아 과소평가된 근사다.
-- 미모델링 6종은 모두 |Δ| ≤ 1.3%p, CI가 0을 포함하거나 경계에 걸침 (트럼프 카드 +1.3%p는 풀 축소 효과 범위).
-- 이 체력대에서는 런이 일찍 끝나 기준선 평균 보유 환상이 약 7~9개로, Q3의 "런당 37개" 문제는 쉬운 설정(낮은 체력)에서만 나타난다.
+### 환상 재분류 (F8.5, `fidelity_digits`)
+69종: gauss 기준 exact 35 / approx 28 / none 6 → digits 기준 **exact 43 / approx 21 / none 5**. 바뀐 11종:
+- approx → exact: 8번 당구공(8 개수는 최종 P'·D'), 종이학(힘 = 자릿수 +1), 종이개구리·대역 인형(몬스터 힘 = 자릿수), 종이 배(D' ≥ P' 조건), 종이 비행기(P' = D' 조건을 정책이 평가), 물병자리·처녀자리(연속 쌍은 최종 값), 황소자리(적이 얻은 힘 = 내 자릿수)
+- exact → approx: 오르골(소모품 환급 = 추가 이동으로 근사)
+- none → approx: 트럼프 카드(남은 이동 이월 — digits 엔진은 여러 턴을 돌며 유효 이동 수 K < 한도 M 이면 남은 이동을 넘긴다. 정책이 남기는 이동에 의존). 재스캔 결과 확인 중 임포터가 gauss `none` 을 그대로 물려주던 것을 고쳤다(`import_fantasies.digits_fidelity`: 모든 효과 타입을 digits 가 직접 다루면 그 판정을 쓴다). 표 해시는 그대로라 점 캐시는 유효
+- 판단이 서지 않아 approx 로 남긴 것: 기본 피해 변형(`base_dmg_transform`: 게임은 턴 시작·공식 구성 두 시점, 시뮬은 굴림 직후 1회), 몬스터 숫자 상한(사과파이, 공식 구성 시점), 같은 피해 누적(양자리), 남은 이동 회복(포도), 임시 소모품(추가 이동 근사). 효과 타입별 사유는 `fantasy_effects.json` 의 `notes_digits` 와 `import_fantasies.DIGITS_FIDELITY`.
+
+### digits 엔진 수정 (재스캔 중 발견, `fight_digits.VERSION = 2`)
+- 몬스터 힘이 계속 오르면(화이트 래빗 `Str_2`, 세계수 등) 피해 상자가 10자리를 넘고, `carry_unused_moves`(오르골) 등으로 이동 한도가 커지면(K = 12) 한 상자의 완전 열거가 11^10 규모가 되어 **한 판이 수십 GB 메모리를 쓰며 멈췄다.** 조합 수가 5만을 넘는 상자는 `box_moves.reach_best` 가 **자릿수 DP 로 이동 수별 최선 값**(플레이어 피해는 최대, 몬스터 피해·타수·회복·디버프는 최소)을 정확히 구한다(작은 상자는 그대로 완전 열거, 테스트로 두 방식의 이동 수별 최선 값 일치 확인). 큰 상자에서는 숫자 내용 특징(조준 숫자 등)을 배분에 쓰지 않는다.
+- 상자 이동 표 캐시를 상한(5,000개, 결과 500개 이하만)으로 제한했다(워커 메모리 폭주 방지).
+- digits 점 캐시 키에 엔진 버전을 넣었다(`|dg2.1`). gauss 점 캐시 키는 그대로.
+- 작업 조각 크기 250 → 100판(결과 동일, 시드 순서대로 이어 붙임). 인터랙티브 취소가 1초 안에 끝난다(AC-E2 0.44초).
+
+### digits 를 쓸 때 주의
+- `player.defense_cut_per_move`, `player.attack_gain_per_move`, `monsters.str_amount`, `monsters.tiers.*`, `player.base_dmg_min/max`, `player.zero_hits_chance` 는 **쓰이지 않는다**. X축·`--set` 에 쓰면 경고한다.
+- 기존 `tier_avg` 튜닝 값(`hp_base ≈ 650~700`, 구버전 모델 기준)은 digits 에 적용되지 않는다. v4.2 부터 곡선의 X 는 시작 체력이고, 몬스터 체력 배율이 필요하면 `--tune monsters.hp_scale=…` 로 찾는다.
+- 원본의 플레이어 시작 체력은 150(`GameBootstrap.startingHealth`)이고 `_Multi_1` 은 1~9타라 2자리 연타가 한 턴에 수백 피해를 낼 수 있다. digits 기준선이 gauss 보다 훨씬 어려운 것은 이 규모 때문이다(버그 아님).
+- 정책은 **한 턴 탐욕**이다(카운트다운만 다음 턴을 한 번 내다봄). 실제 플레이어와의 차이는 `player.skill` 이 흡수한다.
+- AC-D1(상자 이동 표 대조): 기본 테스트는 1·2자리 전체 값 × k ≤ 4 × 제약 조합, 3자리 전체 1000값 × k ≤ 3(+ 제약 표본), 4자리 표본 25값 × k ≤ 2 를 BFS 와 비교한다. 명세의 `v ∈ [0, 9999]`, `k ≤ 4` 전수는 BFS 비용(4자리 k = 4) 때문에 돌리지 않았다. 개발 중 1회 대조: 27,300건 불일치 0. `MATCHUPSIM_FULL_BOXMOVES=1` 이면 3자리 k ≤ 4 전체·제약 전체, 4자리 200값을 돈다.
+
+## 이번 구현에서 가정한 내용 (v3 명세 §13 — 답이 없어 추천 기본값으로 진행)
+
+| # | 질문 | 적용한 답 |
+|---|---|---|
+| Q1 | 몬스터 피해 모델 | **`gauss` 유지**. 몬스터 임포터와 `monsters.model = table`은 구현했고, `damage_model = digits`는 구현하지 않았다(설정하면 오류). 그래서 패턴 피해 자릿수 편집은 원본에는 반영되지만 곡선에는 `시뮬 미반영`이다. 결정에 필요한 규칙은 `python import_monsters.py --report` |
+| Q2 | 플레이 기록 | 없음 → 보정(F3)은 템플릿(`playtest_runs.template.csv`)과 합성 검증까지 |
+| Q3 | 등급별 목표 Δ 밴드 | 임시값(`balance_targets.json`, 파일에 "임시값" 표시). `bands_by_system`으로 현행/불씨를 따로 둘 수 있다 |
+| Q4 | 반영 후 Unity 임포트 | 사용자가 직접 실행. 서버는 Generated DB를 건드리지 않고, 커밋도 하지 않는다 |
+| Q5 | 포트 | 8765, `--open`으로 브라우저 자동 열기 |
+| Q6 | 등급·`enabled` 변경 | 숫자 UI에서는 불가, **JSON 편집기에서는 가능**(쓴 텍스트 그대로 반영) |
+| Q7 | 적응형 | `ε = ±1.5%p`, `n_max = 3000` |
+| Q8 | git | `scenarios/`, `balance_targets.json`, `presets/` 포함. `.matchupsim_backup/`, `sim_results/point_cache/`, `sim_results/tables/` 제외 |
+| Q9 | 푸른 불씨 | 대체(`replace`) — 전투당 불씨 1개 |
+| Q10 | 푸른 불씨가 든 슬롯 | 후보 3개 중 1개가 청색(`offer`) |
+| Q11 | 푸른 불씨 여러 개 | 청색 후보 최대 1개(`blue_offer_cap = 1`), 푸른 불씨도 1칸 |
+| Q12 | 불씨 범위 | `easy`·`normal` 둘 다, 슬롯은 층·막을 넘어 유지 |
+| Q13 | 몬스터 "기본 힘" | 몬스터 JSON의 `stats.strength`(시작 힘)로 해석. 원본 39종 모두 0. 시뮬에서는 시작 힘 × `tiers.*.str_amount`만큼 1타 피해에 더한다(근사). 플레이어 기본 힘은 데이터에 없어 편집 대상이 아니다 |
+| Q14 | 패턴 자릿수 범위 | 입력 제한 없이(1 이상 정수) 4를 넘으면 경고만 |
+| Q15 | 새 파일 생성·삭제 | 지원하지 않음(기존 파일 편집만, `id` 변경도 거부) |
+| Q16 | numpy | 쓰지 않음. 등가 체력 이득의 재표본 CI는 표준 라이브러리로 `B ≤ 200`, 요청 시에만(`gain_ci`) |
+| Q17 | 뷰어 기본 시스템 | 현행. 툴바의 `획득 시스템`에서 불씨로 전환 |
+
+추가로 정한 것
+- **table 몬스터 모델의 쉬운 몬스터**: 막마다 처음 `monsters.easy_battles`(3)번의 일반 전투에 그 막의 `easy` 몬스터가 나온다(원본에 막마다 easy 몬스터가 있어서). `tier_avg` 모델(기본)은 v1과 같이 런 전체의 처음 3번.
+- **선택 최대 4개**: v1의 6개에서 v3 조합 모드 기준 4개로 줄였다.
+- ~~JSON 편집의 고스트 없음~~ → v4 에서 비교 기준 스냅샷으로 해결(위 §6.8).
+
+### 규모 차이 (v1에서 확인, 여전히 유효)
+환상 수치(새총 +30/타, 닻 −20/타 등)는 게임 원본 값인데 시뮬레이터의 몬스터 1타 피해는 임시값(1막 평균 약 10, 3막 약 24)이다.
+원본 몬스터 데이터에서 실제 피해는 2~3자리 상자(10~99 이상)이고 힘은 자릿수를 늘린다. 그래서 받는 피해 고정 감소(포인세티아, 닻)와
+타격 회복(낫)이 사실상 무적을 만든다. **절대 수치보다 순위와 방향**만 읽는다. Q1(피해 모델)과 F3(보정)이 이 차이를 줄이는 길이다.
 
 ## 빠른 사용법
 
 ```bash
 cd Tools/MatchUpSim
 
-# 1) 원본 환상 JSON → 효과 테이블 (원본이나 overrides 를 고친 뒤 다시 실행)
-python import_fantasies.py
+# 1) 원본 JSON → 효과 테이블 / 몬스터 테이블
+python import_fantasies.py            # --report-unlinked: 원본 연결이 없는 숫자 키
+python import_monsters.py --report    # 매핑 초안과 결정이 필요한 규칙
 
-# 2) 스캔 (중단 후 같은 명령을 다시 실행하면 캐시에서 이어서 진행)
-python matchup_sim.py --fantasy-scan --effects fantasy_effects.json \
-    --x monsters.hp_base=200:1200:100 --fantasies all --runs 3000 --seed scan1 \
-    --set monsters.act_hp_growth=2.0 --workers 11 --out sim_results
+# 2) 스캔 (같은 명령을 다시 실행하면 캐시에서 이어서 진행, 판 수를 늘리면 이어 붙임)
+#    기본 설정 = 몬스터 JSON 체력 + digits + 기믹 (v4.2). X축 = 시작 체력
+python matchup_sim.py --fantasy-scan --effects fantasy_effects.json --x player.start_hp=50:550:50 \
+    --fantasies all --runs 3000 --adaptive --seed scan1 --out sim_results
+#    --x 를 생략하면 현재 시작 체력 한 점 (약 11배 빠름)
+#    gauss 비교: --set 'monsters.damage_model="gauss"' --set 'monsters.gimmicks="off"' (규모 불일치 배지)
+#    구버전(평균 몬스터): --x monsters.hp_base=200:1200:100 --set 'monsters.model="tier_avg"' --set monsters.act_hp_growth=2.0
+#          --epsilon 0.015 --n-stages 500,1500,3000 / --refine-around-target / --facet player.skill=0.5,0.7,0.9
 
-# 3) 단일 HTML 뷰어 생성 → sim_results/fantasy_viewer.html 을 더블클릭
-python build_viewer.py --data sim_results/fantasy_curves.json
+# 3) 뷰어
+python build_viewer.py --data sim_results/fantasy_curves.json     # 읽기 전용 단일 HTML (더블클릭)
+python viewer_server.py --open                                    # 편집·조합·불씨·JSON 편집이 되는 서버 모드
+python viewer_server.py --scan sim_results/digits/fantasy_curves.json --open      # digits 스캔 기준
 ```
 
-그 밖의 사용법:
+그 밖의 명령
 
 ```bash
-# 기존 동작 (grade 모드, 변경 전과 판 단위로 동일)
-python matchup_sim.py --seed verify --runs 5000 --set monsters.act_hp_growth=2.0 --set monsters.hp_base=74
+# 불씨 획득 모드 (게임 미반영 변경안, 시뮬레이터 전용)
+python matchup_sim.py --effects fantasy_effects.json --preset presets/ember_v1.json --runs 3000
+python matchup_sim.py --effects fantasy_effects.json --preset presets/ember_v1.json --tune player.start_hp=50:600 --target 0.10   # 불씨 모드의 승률 10% 시작 체력
+python matchup_sim.py --effects fantasy_effects.json --preset presets/ember_v1.json \
+    --tune rewards.ember.slot_size=1:6 --target-metric mean_fantasies --target 13                         # 런당 환상 13개가 되는 슬롯 칸 수
 
-# table 모드로 배치 1회, 특정 환상 강제 포함 (여러 개는 쉼표)
-python matchup_sim.py --effects fantasy_effects.json --force-fantasy fan_turn_boots,fan_damage_anchor \
-    --set monsters.act_hp_growth=2.0 --set monsters.hp_base=660 --runs 3000 --seed s1
+# 제외(banned) 기준선: 풀에서 뺀 "정말 없을 때"
+python matchup_sim.py --effects fantasy_effects.json --ban-fantasy fan_damage_anchor
 
-# table 모드에서 승률 10% 체력 찾기
-python matchup_sim.py --effects fantasy_effects.json --set monsters.act_hp_growth=2.0 \
-    --tune monsters.hp_base=50:2000 --target 0.10 --runs 2000 --seed t1
+# 목표 승률 맞추기 (몬스터 JSON 은 쓰지 않음 — 환산 체력 표만 출력)
+python matchup_sim.py --effects fantasy_effects.json --tune monsters.hp_scale=0.5:2 --target 0.10 --runs 1000
+python matchup_sim.py --effects fantasy_effects.json --tune player.start_hp=50:600 --target 0.10 --runs 1000
+
+# 쌍 시너지 일괄 스캔 (X 한 점, 단일 Δ 상위 10종 x 전체) → sim_results/synergy.json (CLI 전용, 뷰어 탭 없음)
+python synergy_scan.py --x player.start_hp=150 --top 10 --seed scan1
+
+# 몬스터별 지표 (실제 몬스터 테이블 모델) → sim_results/monster_metrics.json (gauss/digits 폴더에 모델별 사본)
+python monster_metrics.py --runs 3000                                   # v4.2 기본 = digits + 기믹
+python monster_metrics.py --runs 3000 --set 'monsters.damage_model="gauss"' --set 'monsters.gimmicks="off"' \
+    --out sim_results/gauss/monster_metrics.json
+
+# 보정 (플레이 기록이 생기면)
+python calibrate.py --playtest playtest_runs.csv --params player.skill --effects fantasy_effects.json
+
+python tools/bench.py --profile       # 속도 벤치마크
 ```
-
-성능(이 PC, 12코어): grade 모드 판당 약 1ms, table 모드 판당 약 2~3ms. 전체 스캔(70곡선 x 11점 x 3000판 = 231만 판)은 워커 11개로 약 15분.
 
 ## 파일
 
 | 파일 | 역할 |
 |---|---|
-| `matchup_sim.py` | 시뮬레이터. `effect_mode`(grade/table), 효과 타입, 강제 포함, `--fantasy-scan` 위임 |
-| `fantasy_scan.py` | 스캔: 병렬(`multiprocessing`), 점 단위 캐시·재개, 짝지은 통계, CSV/JSON 출력 |
-| `import_fantasies.py` | 원본 JSON → `fantasy_effects.json`. 원본이 없으면 `--template` 으로 전부 none 인 템플릿 생성 |
-| `fantasy_effects.overrides.json` | 자동 매핑이 안 되거나 해석이 필요한 환상의 수동 근사 (데이터) |
-| `fantasy_effects.json` | 생성된 효과 테이블 (69종 전부, `fidelity` 표시) |
-| `build_viewer.py`, `viewer_template.html` | 데이터를 내장한 단일 HTML 뷰어 생성 |
-| `tests/` | AC1~AC7 테스트. `_matchup_sim_original.py`는 회귀 비교용 변경 전 코드 사본 |
-| `sim_results/` | 결과. `fantasy_curves.csv`(누적), `fantasy_curves.json`(최신), `fantasy_scans/`(스캔별 보관), `fantasy_cache/`(캐시, git 제외) |
+| `matchup_sim.py` | 시뮬레이터. 효과 46종, 강제 포함·제외, 보상 구조(`fantasy`/`chance`/`choice`/`ember`), 선택 정책, 몬스터 모델(`tier_avg`/`table`), 트레이스 |
+| `fantasy_scan.py` | 스캔: 적응형 표본, 격자 세밀화, 패싯, CSV/JSON(schema 3) 출력 |
+| `synergy_scan.py`, `monster_metrics.py`, `calibrate.py` | 쌍 시너지 히트맵, 몬스터별 지표, 수치 보정 |
+| `import_fantasies.py`, `fantasy_effects.overrides.json` | 원본 환상 → `fantasy_effects.json` (효과마다 원본 위치 `src`) |
+| `import_monsters.py` | 원본 몬스터·패턴 → `monster_table.json` (체력·힘·패턴 토큰에 `src`) |
+| `viewer_server.py` | 로컬 서버(표준 라이브러리만): 작업 큐·취소·SSE, 편집, JSON 편집기, 원본 반영 |
+| `viewer_template.html`, `build_viewer.py` | 뷰어. 서버 없이 열면 읽기 전용 |
+| `sim_service/box_moves.py` | v4: 한 상자 안의 성냥 이동 도달 표 `reach(d, v, k, cons)` + 검증용 세그먼트 BFS |
+| `sim_service/fight_digits.py` | v4: digits 전투(12단계 턴 엔진·이동 배분 정책·표현식 평가기·기믹) |
+| `sim_service/reference.py` | v4: 비교 기준 스냅샷·변경 집합 |
+| `sim_service/surrogate.py`, `surrogate_train.py` | v4.1: 한계효과 모델(적합·교차 검증·거절·앵커 예측·근사 해) / 학습 작업(최하위 우선순위·양보·재개·무효화·저장·기록) |
+| `sim_service/` | `store`(점 캐시·해시) `compute`(조각 실행 엔진) `stats`(Δ·I·R·등가 체력 이득) `combo` `jobs` `edits`(스키마·시나리오) `overlay`(작업 사본·검증·dry-run) `writeback`(최소 diff 패치·백업·복원) `trace` `monsters` `calibrate` |
+| `presets/ember_v1.json`, `balance_targets.json`, `playtest_runs.template.csv`, `scenarios/` | 불씨 프리셋, 목표 밴드(임시값), 플레이 기록 템플릿, 저장한 시나리오 |
+| `tools/bench.py` | 벤치마크 |
+| `tests/` | 수락 기준 테스트. `fixtures/`는 원본 JSON 사본, `_matchup_sim_original.py`·`_matchup_sim_v1.py`는 회귀 비교용 코드 사본 |
 
-> `matchup_sim.py`는 저장소 루트에서 이 폴더로 옮겼다.
+## 속도 (v3 §3)
 
-## 효과 모델
+판당 시간 (`tools/bench.py --repeat 5`, 이 PC, v1 코드 사본과 연달아 측정, 600판 × 5회 중 최소). 아래 표는 **구버전 모델(tier_avg + gauss) 기준**이다. v4.2 의 bench 는 기본 설정(JSON 체력 + digits + 기믹) 행을 먼저 출력한다(v1 모듈에는 없음):
 
-### effect_mode
-- `grade`(기본): 기존 동작 그대로. 등급별 개수 x 등급 계수. 결과가 변경 전 코드와 판 단위로 같다(AC1).
-- `table`: `fantasy.effects_file`의 환상별 효과만 쓴다. **등급 계수는 쓰지 않는다**(그래야 미모델링 환상이 기준선과 같아진다).
-  보상·상점 풀도 효과 테이블에서 만든다(백 32 / 청 24 / 적 13, 단 `available:false` 인 주사기·동물친구들은 풀에서 제외).
-- `--effects`를 주면 따로 지정하지 않는 한 table 모드가 된다.
+| 설정 | v1 | v3 | 변화 |
+|---|---|---|---|
+| grade `hp_base=74` | 1.229 ms | 0.926 ms | −25% |
+| table `hp_base=660` | 1.000 ms | 0.721 ms | −28% |
+| table `hp_base=300` | 1.800 ms | 1.535 ms | −15% |
+| table `hp_base=300` 불씨 | – | 0.604 ms | (런이 짧아짐) |
 
-### fidelity (69종: exact 35 · approx 28 · none 6)
-- `exact`: 원본 효과를 시뮬레이터 타입으로 그대로 표현.
-- `approx`: 근사. `notes`에 방법을 적음. 대부분 "상자 숫자를 시뮬레이터의 기본 피해/몬스터 1타 피해로 근사", "조건을 맞추려는 조작은 미모델링" 류.
-- `none`: 미모델링 — 주사위(무작위 선택이라 새로고침 가치 0), 머그잔, 스텐실, 스탬프쿠폰, 사수자리, 트럼프 카드(정책상 효과 0).
+- **S1 캐시**: `sim_results/point_cache/`(gzip). 키에 판 수가 없고 시드 접두를 이어 붙인다(500판 → 3000판 확장이 처음부터 3000판과 비트 단위로 같음).
+  키 = 설정 + 팔(강제 포함·제외) + 시드 + `data_hash` + `SIM_VERSION`. `data_hash` = sha1(`table_hash` | `monster_hash`)이고 둘 다
+  시뮬레이션에 쓰이는 필드만 본다(임포터를 다시 돌려도 유지). 전체 스캔(770점 × 3000판) + 시너지 쌍 635개의 디스크 사용량 12MB(목표 100MB 이내).
+- **S2·S5 (결과 동일)**: 맵 캐시(압축 튜플, 상한 24,000항목), 길 난수 지연 생성, 전투 루프의 불변 값 끌어올리기.
+  시드 2,000개 × 설정 3종 × 강제 포함 3종에서 v1과 행 단위로 같다(`tests/test_identity.py`, 기존 키 기준). 워커 최대 메모리 69MB(시드 3,000개 × 3설정).
+- **S3 적응형**: 더미 30종 검증에서 판 수 71.8% 절감, 95% CI의 0 포함률 유지. 워커 수와 무관하게 같은 결과.
+- **S4 격자 세밀화**: 거친 격자(6점) + 교차 구간 중점 2회가 촘촘한 격자(21점)의 교차 X와 일치.
+- 트레이스를 끈 상태의 오버헤드는 2% 이내(측정 0.3~0.7%).
 
-데이터와 설명이 어긋나는 환상은 **데이터 값**을 썼고 `notes`에 적었다: 수박(설명 +150 / 데이터 200), 쿠키(+200 / 300),
-할인 쿠폰(30% / x0.85), 돛(amount 50.0 을 50%로 해석).
+## 불씨 획득 시스템 (v3 §7, 시뮬레이터 전용)
 
-### 효과 타입
-같은 타입은 합산(`*_mult` 4종은 곱). 환상 ID로 분기하는 코드는 없다. `when`: `turn_eq`, `turn_ge`, `turn_mod:[m,r]`, `base_same_digits`.
-힘 1 = 1타당 피해 1 (몬스터 힘과 같은 단위).
+`rewards.normal_battle.mode = "ember"`. 일반 전투 승리마다 불씨 1개, `slot_size`(3)개가 모이면 백색 환상 3택1,
+불씨는 확률 `blue_chance`(10%)로 푸른색이고 푸른 불씨가 든 슬롯은 후보 중 1개가 청색이다. 엘리트·보스·상점·휴식은 현행 그대로.
+불씨 색은 전용 난수 스트림을 써서 같은 시드의 두 팔에서 같은 층의 불씨 색이 같다.
 
-| 분류 | 타입 |
-|---|---|
-| 내 피해 | `dmg_mult_add`, `dmg_flat`(타격당, `act_scaling`), `dmg_final_mult`(`condition: base_eq_monster_dmg`), `base_dmg_transform`(`op`: mult/digit_min/first_digit/odd_even/zero_set), `hits_add`(`per`: items_held/consecutive_pairs), `combo_same_dmg_stack`, `end_turn_dmg`(`per`: items_held/items_used_battle/hp/digit8), `player_str_add`, `mirror_enemy_str` |
-| 이동·소모품 | `moves_per_turn_add`, `moves_per_turn_mult`, `battle_start_moves`, `carry_unused_moves`, `battle_temp_items`, `item_use_refund_chance` |
-| 받는 피해·몬스터 | `dmg_taken_flat`, `dmg_taken_mult`(`condition: monster_dmg_ge_player_base`), `dmg_taken_delay`, `def_cut_add`, `monster_dmg_digit_max`, `monster_str_add`, `str_block`, `monster_skip_chance_add`, `enemy_acts_first`, `reflect_on_hit`(`value`/`pct`), `heal_on_deal`, `heal_on_take`, `heal_per_unused_move`, `revive_once`, `battle_start_temp_copy` |
-| 전투 밖 | `heal_per_battle`, `item_drop_chance_add`, `item_drop_mult`, `item_gain_bonus`, `rest_heal_mult`, `rest_heal_add`, `rest_extra_uses`, `rest_alt_fantasy`, `shop_price_mult`, `shop_enter_heal`, `shop_moves_add`, `shop_free_items`, `on_acquire_heal`, `acquire_dup_or_void`, `on_acquire_copy_owned`, `combine_into` |
+판 기록에 항상 추가되는 통계: `embers_white`, `embers_blue`, `slots_done`, `blue_offers`, `blue_picked`, `blue_wasted`,
+`fantasies_reward`/`shop`/`forced`, `normal_wins`, `acquires`. 기준선 점에는 층별 평균 환상 수(`fant_by_floor`, 생존한 판만의 평균)가 붙는다.
 
-환상 고유의 난수(사자자리·청사진·도장·오르골)는 이벤트 난수와 분리된 스트림을 써서 짝지은 비교가 덜 흔들리게 했다.
-
-### 강제 포함
-`fantasy.forced = {"ids": [...], "at": "start" | {"floor": N}}`. `RunState.acquire()`를 거쳐 보유 목록에 들어가므로
-보상·상점 후보에서 자동 제외되고 `runs.csv`의 `fantasies` 첫 항목이 된다. **추가형**(보유 수 +1)이다.
-
-## 통계와 해석 주의
-- Δ승률은 같은 시드 `i`끼리 `d_i = win_i(환상) − win_i(기준선)`의 평균, se = 표본표준편차/√n, 95% CI = Δ ± 1.96·se.
-  강제 포함으로 보상 후보가 달라지면 경로가 곧 갈라지므로 짝짓기 효과는 약하다. 통계는 짝짓기 효과에 의존하지 않는다.
-- 점당 3000판에서 구분 가능한 Δ는 대략 ±1~1.5%p. 뷰어 배너에 실제 값을 표시한다.
-- 69종 동시 비교: `신호` = CI가 0을 제외, `강한 신호` = |Δ/se| ≥ 3.4(Bonferroni 근사). 95% 신호 중 약 5%는 우연이다.
-- **미모델링/효과 없는 환상도 Δ가 정확히 0은 아니다**: 강제 포함하면 그 환상이 보상 후보에서 빠지므로, 그 자리에 다른(효과 있는) 환상이 들어올 수 있다. 이 "풀 축소" 효과는 작지만 양(+)의 방향이다.
-- 인형 4종은 장식이지만 동물친구들(타수 +4) **조합 재료**라서 강제 포함하면 조합 확률이 올라 Δ가 양수가 될 수 있다(모델링된 효과).
-- 사후 분석(`runs.csv`의 `fantasies` 열로 "X를 가진 판의 승률")은 생존 편향이 있어 만들지 않았다.
-- 평활화는 표시 옵션이며 통계에는 영향이 없다.
+참고 측정(**구버전 모델 기준**, `act_hp_growth=2.0`): table 효과 모드 `hp_base=200`에서 현행은 승률 63%·환상 30.7개(보상 23.8 + 상점 6.5),
+불씨는 승률 16%·환상 6.3개. grade 모드의 승률 10% 지점은 현행 `hp_base≈74`, 불씨 `hp_base≈58`. **시스템을 바꾸면 튜닝과 X 범위를 다시 정해야 한다.**
 
 ## 뷰어
-- 좌측: 검색, 등급 칩, 정렬(Δ 큰/작은 순, 이름, 등급), 최대 6개 선택(색 + 선 모양 + 마커로 구분), 효과 요약, fidelity 배지, 선택 X의 Δ.
-- 상단: Y 지표(승률 / Δ승률 / 평균 도달 층 / 막별 사망률), 선택 X, 목표 승률, 95% CI 밴드, 평활화(표시용).
-- 탭: 승률 곡선(호버 툴팁, 클릭으로 X 선택, 등가 체력 이득), 생존 곡선(층별 도달률, 막 경계), 랭킹 표(선택 X / 전 구간 평균, 정렬, 행 클릭으로 추가).
-- 상태는 URL 해시(`#f=a,b&m=delta&x=700&t=curve&T=0.1...`)에 저장되어 링크로 공유된다.
-- `effect_mode`가 table이 아닌 데이터는 차단 메시지만 표시한다.
-- 네트워크 요청 없음, 외부 라이브러리 없음, 라이트/다크 모드 대응.
+
+정적 모드(HTML 더블클릭): 곡선·생존 곡선·랭킹·몬스터 지표·보정·해석 가이드 열람. 네트워크 요청 없음.
+
+서버 모드(`python viewer_server.py`)에서 추가로
+- **숫자 편집**: 환상 이름을 눌러 효과 수치를 입력란·증감·슬라이더로 고친다. 400ms 뒤 재계산(시드 300 → 1000 → 3000 점진), 새 편집이 오면 이전 작업은 1초 안에 취소.
+  수정 후(실선)와 수정 전(점선 고스트), 같은 시드로 짝지은 **수정 효과**와 CI를 표시. 수치 스윕, 목표 Δ 역산.
+- **조합**(환상 2~4개 체크): 체크한 환상을 모두 가진 곡선을 승률·생존 곡선에 같이 그리고, 선택 X 의 표와 `단독 Δ의 합 → 조합 Δ` 를 보여 준다(위 '조합'). 실행 전 예상 시간을 보여 주고 120초를 넘으면 확인을 받는다.
+- **획득 시스템 스위치**와 **불씨 탭**: 파라미터 패널, 현행 vs 불씨 기준선, 층별 환상 수(목표 12~15 밴드), 슬롯 × 푸른 확률 스윕.
+- **몬스터 탭**: 체력·기본 힘·패턴 토큰 편집, 단독 전투 지표(`monster_probe`), 패턴 공유 경고.
+- **JSON 편집 탭**: 환상·몬스터·패턴 원본과 overrides를 직접 고친다. 검증 3단계(문법: 중복 키·NaN 거부 / 구조 / dry-run 임포트).
+- **변경 상태 바**: 실행 취소·다시 실행, 시나리오 저장·불러오기, 전체 재계산, 원본에 반영, 반영 되돌리기.
+- **런 재생**: 같은 시드의 기준선과 강제 포함 런을 나란히, 처음 갈라진 지점 표시.
+- 현재 데이터와 다른 `data_hash`로 계산된 곡선은 `이전 데이터` 배지(stale). 몬스터나 JSON을 고치면 모든 곡선이 stale이 된다.
+
+### 원본 반영
+`원본에 반영` → 파일별 diff 미리보기(파일 단위 체크) → 반영 → 임포터 재실행 → 값 일치 확인. 반영 전 `.matchupsim_backup/<시각>/`에 백업.
+- 숫자 편집은 **해당 숫자 토큰만** 바꾼다(BOM·줄바꿈·들여쓰기·`30.0`/`70` 표기 보존, 패턴 토큰은 `2_Single` → `3_Single`처럼 숫자만).
+- JSON 편집기로 고친 파일은 쓴 텍스트 그대로 쓴다(원본의 BOM·줄바꿈·마지막 줄바꿈 유지, 바꾼 게 없으면 바이트 동일).
+- overrides에만 있는 값(베개 +70 등)은 `fantasy_effects.overrides.json`에 쓰고 원본은 건드리지 않는다. 원본 연결이 없는 값은 시나리오에만 남는다.
+- 뷰어가 읽은 뒤 파일이 밖에서 바뀌었으면 반영을 거부한다. 반영 후 파일이 바뀌었으면 되돌리기를 거부한다.
+- **반영 후 Unity에서 `GoldfishWalking > Data > Import All Gameplay JSON`을 실행해야 게임에 반영된다.**
+
+### 보안
+`127.0.0.1`에만 바인드, 시작할 때 만든 무작위 토큰이 없는 `/api/*`는 403, `Host`/`Origin`이 `localhost:<포트>`가 아니면 거부,
+쓰기는 `application/json`만, 파일은 종류 + ID로만 고르고 경로는 서버가 해석(허용 폴더 밖·`..`·심볼릭 링크 거부), JSON 편집 본문은 1MB 이하.
+
+## 통계 읽는 법 (뷰어의 `해석 가이드` 탭에 12항 + v4 주의 5항)
+- Δ = 같은 시드끼리 `win(팔) − win(기준선)`의 평균. 기본 기준선은 그 환상을 **제외하지 않으므로**(우연히 얻는 판이 섞임) 효과가 작게 나온다. 정확한 "없을 때"는 제외 기준선.
+- 정보량은 판 수가 아니라 **뒤집힌 판 수**가 정한다(30 미만이면 `정보량 부족`). 최소 검출 효과 ≈ 2.8·se.
+- 시너지 `I = Δ(AB) − Δ(A) − Δ(B)`는 승률 척도의 대비라, 승률이 5% 미만·95% 초과인 구간에서는 음수가 구조적으로 나온다(`승률 포화 구간`). 등가 체력 이득을 같이 본다.
+- 단일 69종 비교는 `|z| ≥ 3.4`, 쌍 635개는 `|z| ≥ 4.0`. 직접 체크한 조합은 `사전 지정`(95% CI), 히트맵에서 고른 조합은 `탐색`.
+- `none`의 Δ≈0은 "효과 없음"이 아니라 "모델링 안 됨". 서로 다른 획득 시스템의 Δ는 직접 비교하지 않는다.
+- (v4) gauss 와 digits 결과를 섞지 않는다(`피해 모델 혼합` 배지). digits 의 `player.skill` 은 다른 의미다. 고스트는 비교 기준 스냅샷 대비다.
+
+## 전체 스캔 결과 (v4.2, 2026-11-12~13, 몬스터 JSON 체력, 게임 배정 규칙, 시드 `scan1`)
+원본 환상 3종이 작업 트리에서 하향되어 있다(커밋 안 된 `Assets/Data/Json/fantasies` 변경: 포인세티아 받는 피해 −30 → −10, 닻 −20 → −5, 낫 타격 회복 20 → 3). 이전(v1~v4.1) 결과는 몬스터 배정 규칙·X축이 달라 직접 비교하지 않는다.
+
+폴더: `sim_results/` = 기본(digits + 기믹, X = 시작 체력), `sim_results/digits/` = digits 한 점 스캔, `sim_results/gauss/` = gauss(table) 한 점 스캔. 각 폴더에 `fantasy_viewer.html` 이 있다.
+
+### 기본: 시작 체력 곡선 (`sim_results/`, digits + 기믹, X = `player.start_hp` 50~550 간격 50, **점당 500판**)
+- 적응형 3000판으로 시작했지만 digits 는 초당 약 17판이라 500판 단계(385,000판)에 약 6시간, 전체는 하루 이상 걸려 **500판에서 멈췄다**. 점 하나의 95% 오차는 ±2~4%p 다. 같은 명령(`--runs 3000 --adaptive --seed scan1`)을 다시 실행하면 캐시를 이어 받아 1500·3000판으로 정밀화한다(일부 점은 이미 1500판).
+- **기준선 승률**:
+
+  | 시작 체력 | 50 | 100 | **150 (현재)** | 200 | 250 | 300 | 350 | 400 | 450 | 500 | 550 |
+  |---|---|---|---|---|---|---|---|---|---|---|---|
+  | 승률 | 1.0% | 6.4% | **12.6%** | 15.4% | 18.0% | 20.8% | 23.6% | 27.4% | 28.8% | 29.4% | 30.4% |
+
+  목표 10% 교차점은 **시작 체력 ≈ 129**. 사망은 대부분 1막(150 에서 78%)이고, 체력을 올려도 400 이후로는 승률이 거의 늘지 않는다(400→550 에서 +3%p).
+- **시작 체력 150 에서 단일 Δ** (z ≥ 3.4 유의: 양수 27종, 음수 4종 / 69종):
+  - 상위: 동물친구들 +65.2%p, 주판 +45.8%p, 장화 +32.6%p, 물고기자리 +31.0%p, 주사기 +30.2%p, 포도탄 +26.6%p, 모래시계 +20.8%p, 병 속의 배 +18.6%p, 게자리 +17.8%p, 종이개구리 +17.0%p.
+  - 음수: 황소자리 −10.4%p, 천칭자리 −9.8%p, 사과파이 −8.4%p, 사자자리 −7.8%p. 미모델링(`none`) 5종은 −1.8%p 안쪽.
+- **등가 시작 체력**(환상 하나가 시작 체력 몇과 같은가): 게자리 +400, 종이개구리 +360. 상위 8종(동물친구들~병 속의 배)은 시작 체력 550 의 기준선(30.4%)보다 높아 **격자 범위 밖**(+400 초과)이다. 음수: 황소자리 −89, 천칭자리 −83, 사과파이 −70, 사자자리 −65.
+- 몬스터 지표(`sim_results/monster_metrics.json`, 시작 체력 150, 3000판, 전체 승률 10.9%): 아래 digits 한 점 결과와 같은 설정이라 숫자도 같다.
+  - **조우 시 전투 승률이 낮은 몬스터**: 화이트 래빗 45.8%(도주 130회 포함), 마녀 73.3%, 사냥꾼 74.7%, 엘프 76.2%, 거대 새 82.2%, 요정 83.4%, 노상강도 87.0%. 2·3막 몬스터는 대부분 90% 이상이고 역병 의사·예언자·구체는 100%.
+  - 조우한 런 승률: 1막 몬스터는 11~39%(요정 = 전체 10.9%, 화이트 래빗 16.8%, 마녀 39.4%), 3막 보스 고래 92.2% — 런 단계에 따른 선택 효과가 크다.
+
+### digits + 기믹 한 점 (`sim_results/digits/`, X = `hp_scale` 1 = 시작 체력 150 과 같은 점, 195,000판, 1,288초, 워커 10)
+- **기준선 승률 11.4%**(3000판; 위 500판 곡선의 150 점 12.6% 와 오차 범위 안), 평균 도달 11.1층, 사망 1막 78% / 2막 8% / 3막 2%.
+- 단일 Δ 상위: 동물친구들 +67%p, 주판 +48%p, 물고기자리 +36%p, 주사기 +35%p, 장화 +34%p, 포도탄 +28%p, 모래시계 +22%p, 병 속의 배 +21%p. 음수: 황소자리 −9.3%p, 천칭자리 −7.9%p, 사과파이 −7.3%p, 사자자리 −6.8%p. 미모델링 5종 |Δ| ≤ 1.3%p.
+- 받는 피해 고정 감소·타격 회복(포인세티아·닻·낫)은 digits 에서 작다 — 실제 몬스터 피해가 2~3자리 연타라 고정 감소의 비중이 작다. 이동·타수 축(주판·물고기자리·장화)이 상대적으로 강하다.
+- 몬스터 지표(`sim_results/digits/monster_metrics.json`): **39종 모두 목표 턴보다 짧다**. 사망 비중 1위 **요정 31.6%**(모든 판의 첫 전투, 전투 내 사망률 16.6%), 화이트 래빗 14.3%, 사냥꾼 8.6%, 슬라임 7.6%, 거대 새 6.6%. 카운트다운 도주 130회(보상 없음, Q24).
+- **화이트 래빗**: `Str_2` 가 힘을 쌓고 digits 에서 힘 1 = 몬스터 피해 상자 자릿수 +1(게임 규칙)이라, 카운트다운으로 버티는 동안 피해 상자가 8~9자리가 된다(최대 1타 약 5억 5천만, 평균 받은 피해 62만). 규칙대로의 결과로 보이며 기획 확인이 필요하다.
+- **시너지**(`sim_results/digits/synergy.json`, 단일 Δ 상위 10종 × 전체 = 쌍 635개, 1,905,000판, 6,596초; 뷰어 탭은 없앴고 결과 파일로만 남김): **신호 164개**(양수 86, 음수 78, |z| ≥ 4).
+  - 양수: 장화+청사진 +25.4%p, 모래시계+청사진 +21.7%p, 주사기+청사진 +18.1%p, 병 속의 배+전갈자리 +13.5%p, 쌍둥이자리+게자리 +12.9%p, 종이개구리+조개껍데기 +12.6%p. 청사진이 이동·타수 환상과 잘 맞는다.
+  - 음수: 주판+동물친구들 −33.2%p, 주사기+동물친구들 −31.2%p, 동물친구들+황소자리 −30.8%p, 주사기+황소자리 −25.0%p, 물고기자리+동물친구들 −24.0%p. 동물친구들 단독 승률이 78% 라 강한 환상끼리의 음수는 상당 부분 **승률 포화**다.
+
+### gauss (table 모델, `sim_results/gauss/`, 210,000판, 113초)
+- 기준선 승률 **73.4%** — gauss 는 피해 크기를 등급 평균으로 근사해 원본 체력에서 digits 보다 훨씬 쉽다. 밸런스 판단은 digits 기준을 권한다.
+- 단일 Δ 상위: 포인세티아 +25%p, 동물친구들 +25%p, 주판 +23%p, 병 속의 배 +22%p, 큐대 +22%p(기준선이 높아 위쪽이 눌린다). 음수: 천칭자리 −42%p, 사자자리 −30%p, 황소자리 −30%p, 쌍둥이자리 −14%p.
+- 몬스터 지표(`sim_results/gauss/monster_metrics.json`): 일반 21종 중 범위 내 8, 짧다 12, 불확실 1 / 엘리트 범위 내 2, 짧다 6, 길다 1 / 보스 9종 모두 짧다. 사망 비중 1위 화이트 래빗 23.6%(gauss 는 카운트다운 미모델링).
+- 시너지(`sim_results/gauss/synergy.json`, X = `hp_scale` 1, 쌍 635개, 2,513초): 신호 298개. 기준선이 73% 라 **승률 포화**가 지배한다 — 강한 환상끼리는 음수(포인세티아+동물친구들 −24%p, 주판+포인세티아 −22%p, 주판+동물친구들 −22%p), 단독 음수인 천칭자리·황소자리는 다른 환상과 만나면 양수(병 속의 배+천칭자리 +41%p, 포도탄+천칭자리 +40%p, 천칭자리+동물친구들 +39%p).
+
+### 시간 측정 테스트 재확인
+전체 회귀(87개) 중 CPU 경합으로 실패했던 시간 측정 3개(`test_v41_server` Y9, `test_v2_features` F7, `test_server.ServerUI` 다크 모드 스크린샷·추적)를 단독으로 다시 돌려 **3개 모두 통과**(118초).
+
+## 한계
+- gauss 모델에서는 여전히 패턴 피해 자릿수가 곡선에 반영되지 않는다(`시뮬 미반영`). digits 에서 반영된다.
+- digits: 이동 배분은 정책이며 퍼즐 풀이를 재현하지 않는다. 다른 상자로 성냥을 옮기는 규칙·아이템(성냥 추가·제거)·연산자 상자 편집은 범위 밖. 환상 효과의 적용 시점(턴 시작 vs 공식 구성)은 구분하지 않는다.
+- 기믹: approx 9종(위 표). 데코이(마술사)는 사용자 결정으로 반영하지 않았다. 하트 여왕 패턴 조건은 게임과 다르게(설계 의도대로) 해석했다.
+- F10(한계효과 미리보기)은 단일 수치 효과와 몬스터 체력·기본 힘만, 단독 곡선만 근사한다. 시너지·조합·패턴 토큰·설정·기믹 값은 근사하지 않는다. 학습은 X·θ 격자를 실제로 돌리므로 비용이 크다(환상 하나 = 격자 6~7점 × X 11점 × 2팔 × 1000판).
+- `fant_by_floor`·출처별 환상 수·불씨 통계는 점 레코드 전체 판 기준 합계다(적응형에서 Δ에 쓴 접두 `n`과 다를 수 있어 `agg_n`을 같이 저장).
+- 정적 HTML에서는 조합을 새로 계산할 수 없다(서버 모드에서 계산).
+- 등가 체력 이득의 CI(재표본)는 작업 요청에 `gain_ci`를 줄 때만 계산한다. 뷰어 표에는 점 추정과 산출 불가 사유를 보여 준다.
+- 보정(F3)은 실제 플레이 기록 없이 합성 데이터로만 검증했다.
+- 사후 분석(`runs.csv`의 "가진 판 vs 안 가진 판")은 생존 편향 때문에 만들지 않았다.
 
 ## 테스트
 
 ```bash
 cd Tools/MatchUpSim/tests
-python -m unittest test_sim -v      # AC1 회귀, AC2 효과 타입 방향(46종 전부), AC3 강제 포함   (~1분)
-python -m unittest test_scan -v     # AC4 결정성(워커 1 vs N, 캐시 삭제), AC5 위양성률          (~3분)
-python -m unittest test_viewer -v   # AC6 뷰어 스모크 + 스크린샷, AC7 성능 (pip install playwright) (~20초)
+python -m unittest test_identity            # 결과 동일성 (v1과 행 단위)            ~1분
+python -m unittest test_sim test_scan       # v1 수락 기준 AC1~AC5                    ~3분
+python -m unittest test_v2_speed            # 캐시·이어 붙이기·메모리·적응형·격자      ~2분
+python -m unittest test_writeback           # 원본 반영 AC-W1~W5, W7                  ~5초
+python -m unittest test_v2_features         # 목표 밴드·몬스터·보정·시너지·보상·패싯·트레이스 ~2분
+python -m unittest test_v3_core             # 불씨 AC-B1~B10, 조합 AC-C1~C4·C6        ~1분
+python -m unittest test_server test_v3_server   # 서버·보안·JSON 편집기·몬스터 편집   ~3분
+python -m unittest test_viewer test_v3_ui   # 뷰어 UI (pip install playwright, 설치된 Edge 사용) ~5분
+python -m unittest test_v4_boxmoves         # AC-D1 상자 이동 표 vs BFS                ~1분 (MATCHUPSIM_FULL_BOXMOVES=1 이면 더 길게)
+python -m unittest test_v4_reference        # AC-R1~R4 비교 기준·고스트·캐시 보호       ~1분
+python -m unittest test_v4_digits           # AC-D0, D2~D9, AC-K0~K8                   ~20초
+python -m unittest test_v4_server test_v4_ui    # AC-K9, 모델 전환·비교, AC-R5·R2 UI      ~2분
+python -m unittest test_v41_core            # AC-Y1~Y3, Y11, Y14, Y16 (합성)            ~1초
+python -m unittest test_v41_server          # AC-Y4~Y6, Y9, Y11, Y13~Y15, Y19            ~5분
+python -m unittest test_v41_ui              # AC-Y7, Y8, Y10, Y12, Y17, Y18 (Playwright)  ~5분
+python -m unittest test_v42_encounter       # v4.2 게임 몬스터 배정 규칙                  ~2초
+python -m unittest test_v42_core test_v42_server   # v4.2 F11 AC-H1~H6, H8, H11, H12, Q47   ~2분
+python -m unittest test_v42_ui              # v4.2 AC-H3, H4, H7, H8, H9 (Playwright)      ~3분
+python -m unittest test_v43_remote          # 원격 모드 토큰·Origin, 외부 수정 반영(서버·뷰어), 기기별 취소, 조합 k+2 팔   ~1분
 ```
-
-- AC5는 명세대로 더미 30종을 한 번에 스캔하는 검사와, 더미마다 시드를 따로 쓰는 독립 검사(z²의 평균 ≈ 1)를 함께 둔다.
-  더미 30종은 같은 기준선 표본을 공유해 서로 상관되므로 앞의 검사만으로는 약하다.
-- 뷰어 테스트는 설치된 Edge(`channel=msedge`)를 쓴다. 다른 브라우저는 환경 변수 `VIEWER_BROWSER_CHANNEL`. 실제 스캔 데이터로 돌리려면 `VIEWER_DATA=sim_results/fantasy_curves.json`.
-- 시뮬레이션 의미가 바뀌는 수정을 하면 `matchup_sim.SIM_VERSION`을 올려 캐시를 무효화한다.
+테스트는 `tests/fixtures/`의 사본을 임시 폴더에 복사해 쓰고, 실제 `Assets/` 아래 쓰기를 막는 가드(`MATCHUPSIM_FORBID_PATH`)를 건다.
+시뮬레이션 의미가 바뀌는 수정을 하면 `matchup_sim.SIM_VERSION`을 올려 캐시를 무효화한다.

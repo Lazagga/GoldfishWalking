@@ -1,0 +1,49 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_odd_gemini",
+    "sourceId":  37,
+    "designerName":  "쌍둥이자리",
+    "designerNote":  "내 홀수의 수치 x2, 짝수는 0으로 취급",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "red",
+    "tags":  [
+                 "passive"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "passive"
+                                    },
+                        "target":  {
+                                       "key":  "player_number"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "multiply",
+                        "amount":  2.0,
+                        "condition":  {
+                                          "expression":  "CurrentValueIsOdd"
+                                      }
+                    },
+                    {
+                        "trigger":  {
+                                        "event":  "passive"
+                                    },
+                        "target":  {
+                                       "key":  "player_number"
+                                   },
+                        "operation":  "set_value",
+                        "mode":  "set",
+                        "amount":  0,
+                        "condition":  {
+                                          "expression":  "CurrentValueIsEven"
+                                      }
+                    }
+                ]
+}

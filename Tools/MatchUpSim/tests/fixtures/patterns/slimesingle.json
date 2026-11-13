@@ -1,0 +1,45 @@
+{
+    "schemaVersion":  1,
+    "id":  "SlimeSingle",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "단타 맞 다음 턴 자기 상자 분리 (해당 턴에만 적용)",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  null
+                     },
+    "attack":  {
+                   "damage":  {
+                                  "digits":  2,
+                                  "editable":  true
+                              },
+                   "hits":  {
+                                "fixed":  1
+                            }
+               },
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "next_turn"
+                                    },
+                        "target":  {
+                                       "actor":  "self"
+                                   },
+                        "operation":  "split_box",
+                        "duration":  {
+                                         "turns":  1,
+                                         "decreaseAt":  "turn_end"
+                                     }
+                    }
+                ],
+    "metadata":  {
+
+                 }
+}

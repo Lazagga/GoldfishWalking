@@ -1,0 +1,44 @@
+{
+    "schemaVersion":  1,
+    "id":  "VampireSkill",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "[체력 아이콘] [X] [2자릿수] [%] 데미지 패턴",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  {
+                                           "comparison":  {
+                                                              "left":  {
+                                                                           "variable":  "hprate"
+                                                                       },
+                                                              "operator":  "\u003c=",
+                                                              "right":  0.5
+                                                          }
+                                       }
+                     },
+    "attack":  null,
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "player"
+                                   },
+                        "operation":  "deal_damage",
+                        "amount":  {
+                                       "expression":  "PlayerHP_Multi_2"
+                                   }
+                    }
+                ],
+    "metadata":  {
+
+                 }
+}

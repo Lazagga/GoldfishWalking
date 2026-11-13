@@ -180,7 +180,7 @@ class AC6Viewer(unittest.TestCase):
             self.assertIn("효과 미모델링 — 기준선과의 차이는 우연 변동", page.inner_text("#noneNotes"))
         others = [i for i in self.ids if i not in none_ids[:1]]
         self.select(page, others[:7])
-        self.assertEqual(len(self.series_ids(page)), 1 + 6)
+        self.assertEqual(len(self.series_ids(page)), 1 + 4)   # v3: 최대 4개 (조합 모드 기준), 5번째는 막힘
         ctx.close()
 
     def test_grade_mode_blocked(self):
@@ -217,7 +217,7 @@ class AC6Viewer(unittest.TestCase):
                 const t = performance.now(); sel.value = m; sel.dispatchEvent(new Event("change")); out.push(performance.now() - t);
             }
             return out;
-        }""", self.ids[:6] + self.ids[:3])
+        }""", self.ids[:4] + self.ids[:3])
         self.assertEqual(page.eval_on_selector_all("#list .row", "e => e.length"), len(self.ids))
         print(f"\n  AC7: 갱신 시간 최대 {max(times):.1f}ms, 평균 {sum(times) / len(times):.1f}ms ({len(times)}회)")
         self.assertLess(max(times), 100)

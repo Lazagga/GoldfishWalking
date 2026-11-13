@@ -1,0 +1,7 @@
+{
+  "_comment": "불씨 획득 시스템 v1 (게임 미반영 변경안, 시뮬레이터 전용). 슬롯 3칸, 푸른 불씨 10%, 대체형, 후보 3개 중 1개 청색.",
+  "rewards": {
+    "normal_battle": {"mode": "ember"},
+    "ember": {"slot_size": 3, "blue_chance": 0.10, "blue_mode": "replace", "blue_reward": "offer", "blue_offer_cap": 1, "offer_size": 3}
+  }
+}

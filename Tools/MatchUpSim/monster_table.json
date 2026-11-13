@@ -1,0 +1,5902 @@
+{
+  "version": 2,
+  "generated_at": "2026-11-12T18:58:44",
+  "source": "Assets/Data/Json/monsters + patterns (import_monsters.py)",
+  "source_hash": "5deb13ef6d2007f9",
+  "damage_model_supported": [
+    "gauss",
+    "digits"
+  ],
+  "gimmicks_supported": true,
+  "ambiguous_rules": [
+    "피해 크기: 원본은 패턴의 '자릿수'(예: 2_Single = 2자리 → 10~99)로 정해지지만, 플레이어가 성냥개비로 몬스터 숫자를 편집해 줄인다. 시뮬레이터의 방어 모델(이동 1회당 비율 감소)과 규모가 맞지 않아 damage_model=digits 는 방어 모델 재설계가 함께 필요하다.",
+    "연타 타수: '{d}_Multi_{h}' 의 타수 자릿수 h=1 이면 1~9타인지, 실제 분포가 어떤지 확인 필요.",
+    "힘: 기획 문서상 몬스터 힘은 다음 공격 피해의 '자릿수'를 늘린다 (Str_1 → 2자리가 3자리). v1 시뮬레이터는 '힘 1 = 1타당 피해 +str_amount' 로 근사한다.",
+    "플레이어 힘: 기획 문서상 기본 피해 상자 자릿수 +1 (PlanningArchitecture.md). 환상의 힘 효과(종이학, 머그잔, 황소자리) 해석도 같이 바뀐다.",
+    "패턴 사용 조건(availability.condition, 예: 체력 비율 ≤ 0.4)과 몬스터 패시브는 시뮬레이터가 다루지 않는다.",
+    "쉬운(easy) 몬스터가 없는 막은 일반(normal) 몬스터로 대체한다."
+  ],
+  "counts": {
+    "monsters": 39,
+    "patterns": 38
+  },
+  "pattern_users": {
+    "SlimeSingle": [
+      "Mob_10103_Slime"
+    ],
+    "MushroomLock": [
+      "Mob_10104_MushroomMan"
+    ],
+    "Skip": [
+      "Mob_10105_Frog"
+    ],
+    "BanditSingle": [
+      "Mob_10107_Bandit"
+    ],
+    "LittleWitchSkill": [
+      "Mob_10202_LittleWitch"
+    ],
+    "HunterSingle": [
+      "Mob_10203_Hunter"
+    ],
+    "HeartQueenSkill": [
+      "Mob_10301_HeartQueen"
+    ],
+    "WitchSkill": [
+      "Mob_10302_Witch"
+    ],
+    "RobberSingle": [
+      "Mob_20102_Robber"
+    ],
+    "GhostSingle": [
+      "Mob_20103_Ghost"
+    ],
+    "GhostMulti": [
+      "Mob_20103_Ghost"
+    ],
+    "AutomatonSingle": [
+      "Mob_20105_Automaton"
+    ],
+    "AutomatonSingleStun": [
+      "Mob_20105_Automaton"
+    ],
+    "GiantRatSkill": [
+      "Mob_20106_GiantRat"
+    ],
+    "FortuneTellerSingle": [
+      "Mob_20201_FortuneTeller"
+    ],
+    "FortuneTellerMulti": [
+      "Mob_20201_FortuneTeller"
+    ],
+    "FortuneTellerExplode": [
+      "Mob_20201_FortuneTeller"
+    ],
+    "AlchemistSingle": [
+      "Mob_20202_Alchemist"
+    ],
+    "AlchemistSkill": [
+      "Mob_20202_Alchemist"
+    ],
+    "PlagueDoctorSingle": [
+      "Mob_20302_PlagueDoctor"
+    ],
+    "PlagueDoctorSkill": [
+      "Mob_20302_PlagueDoctor"
+    ],
+    "ProphetSingle": [
+      "Mob_20303_Prophet"
+    ],
+    "ProphetMulti": [
+      "Mob_20303_Prophet"
+    ],
+    "ProphetExplode": [
+      "Mob_20303_Prophet"
+    ],
+    "JellyfishSingle": [
+      "Mob_30102_Jellyfish"
+    ],
+    "JellyfishSkill": [
+      "Mob_30102_Jellyfish"
+    ],
+    "OrbSkill": [
+      "Mob_30103_Orb"
+    ],
+    "LibrarianSingle": [
+      "Mob_30104_Librarian"
+    ],
+    "LibrarianMulti": [
+      "Mob_30104_Librarian"
+    ],
+    "VampireSkill": [
+      "Mob_30201_Vampire"
+    ],
+    "KnightSkill": [
+      "Mob_30202_Knight"
+    ],
+    "StargazerSingle": [
+      "Mob_30301_Stargazer"
+    ],
+    "StargazerSkill": [
+      "Mob_30301_Stargazer"
+    ],
+    "CosmictreeSingle": [
+      "Mob_30302_CosmicTree"
+    ],
+    "CosmictreeHeal": [
+      "Mob_30302_CosmicTree"
+    ],
+    "WhaleSingle": [
+      "Mob_30303_Whale"
+    ],
+    "WhalePhase2": [
+      "Mob_30303_Whale"
+    ],
+    "WhaleMulti": [
+      "Mob_30303_Whale"
+    ]
+  },
+  "monsters": [
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_10101_fairy.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_10101_fairy.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_10101_Fairy",
+      "name": "요정",
+      "enabled": true,
+      "act": 1,
+      "tier": "easy",
+      "grade": "normal",
+      "difficulty": "easy",
+      "hp": 150,
+      "strength": 0,
+      "ai": "random",
+      "patterns": [
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_10101_fairy.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        },
+        {
+          "key": "2_Multi_1",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 1,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_10101_fairy.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_10101_fairy.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        }
+      ],
+      "gimmicks": [],
+      "fidelity": "approx",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss)",
+      "warnings": [],
+      "fidelity_digits": "exact",
+      "fidelity_gimmicks": "exact",
+      "sim": [],
+      "gimmick_report": [],
+      "gimmick_tier": ""
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_10102_wilddog.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_10102_wilddog.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_10102_WildDog",
+      "name": "들개",
+      "enabled": true,
+      "act": 1,
+      "tier": "easy",
+      "grade": "normal",
+      "difficulty": "easy",
+      "hp": 120,
+      "strength": 0,
+      "ai": "static",
+      "patterns": [
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_10102_wilddog.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        },
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_10102_wilddog.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        },
+        {
+          "key": "Str_1",
+          "kind": "str",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 1,
+          "source": "generic",
+          "src": {
+            "n": {
+              "kind": "monster",
+              "file": "mob_10102_wilddog.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "n"
+            }
+          }
+        }
+      ],
+      "gimmicks": [],
+      "fidelity": "approx",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss)",
+      "warnings": [],
+      "fidelity_digits": "exact",
+      "fidelity_gimmicks": "exact",
+      "sim": [],
+      "gimmick_report": [],
+      "gimmick_tier": ""
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_10103_slime.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_10103_slime.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_10103_Slime",
+      "name": "슬라임",
+      "enabled": true,
+      "act": 1,
+      "tier": "easy",
+      "grade": "normal",
+      "difficulty": "easy",
+      "hp": 160,
+      "strength": 0,
+      "ai": "random",
+      "patterns": [
+        {
+          "key": "SlimeSingle",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "단타 맞 다음 턴 자기 상자 분리 (해당 턴에만 적용)",
+          "effects": [
+            {
+              "op": "split_box",
+              "target": "self",
+              "timing": "next_turn",
+              "duration": 1
+            }
+          ],
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "slimesingle.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_10103_slime.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        }
+      ],
+      "gimmicks": [
+        "next_turn:split_box"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: next_turn:split_box",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "approx",
+      "sim": [],
+      "gimmick_report": [
+        {
+          "gimmick": "SlimeSingle:split_box",
+          "tier": "GB",
+          "fidelity": "approx",
+          "reason": "다음 턴 상자 분할 — 지속시간이 없는 효과도 1턴으로 근사"
+        }
+      ],
+      "gimmick_tier": "GB"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_10104_mushroomman.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_10104_mushroomman.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_10104_MushroomMan",
+      "name": "버섯인간",
+      "enabled": true,
+      "act": 1,
+      "tier": "normal",
+      "grade": "normal",
+      "difficulty": "normal",
+      "hp": 220,
+      "strength": 0,
+      "ai": "random",
+      "patterns": [
+        {
+          "key": "MushroomLock",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "플레이어 상자 잠금",
+          "effects": [
+            {
+              "op": "lock_box",
+              "target": "player",
+              "timing": "next_turn"
+            }
+          ],
+          "kind": "skip",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {}
+        },
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_10104_mushroomman.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        },
+        {
+          "key": "Str_1",
+          "kind": "str",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 1,
+          "source": "generic",
+          "src": {
+            "n": {
+              "kind": "monster",
+              "file": "mob_10104_mushroomman.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "n"
+            }
+          }
+        },
+        {
+          "key": "2_Multi_1",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 1,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_10104_mushroomman.json",
+              "path": [
+                "ai",
+                "patterns",
+                3
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_10104_mushroomman.json",
+              "path": [
+                "ai",
+                "patterns",
+                3
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        }
+      ],
+      "gimmicks": [
+        "next_turn:lock_box"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: next_turn:lock_box",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "exact",
+      "sim": [],
+      "gimmick_report": [
+        {
+          "gimmick": "MushroomLock:lock_box",
+          "tier": "GB",
+          "fidelity": "exact",
+          "reason": "다음 턴 상자 잠금 (이동 불가)"
+        }
+      ],
+      "gimmick_tier": "GB"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_10105_frog.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_10105_frog.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_10105_Frog",
+      "name": "개구리",
+      "enabled": true,
+      "act": 1,
+      "tier": "normal",
+      "grade": "normal",
+      "difficulty": "normal",
+      "hp": 250,
+      "strength": 0,
+      "ai": "static",
+      "patterns": [
+        {
+          "key": "Skip",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "아무것도 안 함",
+          "kind": "skip",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {}
+        },
+        {
+          "key": "Skip",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "아무것도 안 함",
+          "kind": "skip",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {}
+        },
+        {
+          "key": "Skip",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "아무것도 안 함",
+          "kind": "skip",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {}
+        },
+        {
+          "key": "3_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 3,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_10105_frog.json",
+              "path": [
+                "ai",
+                "patterns",
+                3
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        }
+      ],
+      "gimmicks": [],
+      "fidelity": "approx",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss)",
+      "warnings": [],
+      "fidelity_digits": "exact",
+      "fidelity_gimmicks": "exact",
+      "sim": [],
+      "gimmick_report": [],
+      "gimmick_tier": ""
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_10106_giantbird.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_10106_giantbird.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_10106_GiantBird",
+      "name": "거대 새",
+      "enabled": true,
+      "act": 1,
+      "tier": "normal",
+      "grade": "normal",
+      "difficulty": "normal",
+      "hp": 225,
+      "strength": 0,
+      "ai": "static",
+      "patterns": [
+        {
+          "key": "2_Multi_1",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 1,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_10106_giantbird.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_10106_giantbird.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        },
+        {
+          "key": "Str_1",
+          "kind": "str",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 1,
+          "source": "generic",
+          "src": {
+            "n": {
+              "kind": "monster",
+              "file": "mob_10106_giantbird.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "n"
+            }
+          }
+        },
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_10106_giantbird.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        }
+      ],
+      "gimmicks": [],
+      "fidelity": "approx",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss)",
+      "warnings": [],
+      "fidelity_digits": "exact",
+      "fidelity_gimmicks": "exact",
+      "sim": [],
+      "gimmick_report": [],
+      "gimmick_tier": ""
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_10107_bandit.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_10107_bandit.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_10107_Bandit",
+      "name": "노상강도",
+      "enabled": true,
+      "act": 1,
+      "tier": "normal",
+      "grade": "normal",
+      "difficulty": "normal",
+      "hp": 250,
+      "strength": 0,
+      "ai": "static",
+      "patterns": [
+        {
+          "key": "BanditSingle",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "공격 시 입힌 피해량만큼 출혈 적용",
+          "effects": [
+            {
+              "op": "add_status",
+              "target": "player",
+              "timing": "immediate",
+              "type": "bleed",
+              "expr": "DamageDealt"
+            }
+          ],
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "banditsingle.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        }
+      ],
+      "gimmicks": [
+        "immediate:add_status"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: immediate:add_status",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "exact",
+      "sim": [],
+      "gimmick_report": [
+        {
+          "gimmick": "BanditSingle:add_status(bleed)",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "상태 추가 (힘·기절·출혈·중독·스택·방어막·디버프 상자·상자 잠금)"
+        }
+      ],
+      "gimmick_tier": "GA"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_10201_whiterabbit.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_10201_whiterabbit.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_10201_WhiteRabbit",
+      "name": "화이트 래빗",
+      "enabled": true,
+      "act": 1,
+      "tier": "elite",
+      "grade": "elite",
+      "difficulty": "normal",
+      "hp": 400,
+      "strength": 0,
+      "ai": "random",
+      "patterns": [
+        {
+          "key": "2_Multi_1",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 1,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_10201_whiterabbit.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_10201_whiterabbit.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        },
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_10201_whiterabbit.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        },
+        {
+          "key": "2_Multi_1",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 1,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_10201_whiterabbit.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_10201_whiterabbit.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        },
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_10201_whiterabbit.json",
+              "path": [
+                "ai",
+                "patterns",
+                3
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        },
+        {
+          "key": "Str_2",
+          "kind": "str",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 2,
+          "source": "generic",
+          "src": {
+            "n": {
+              "kind": "monster",
+              "file": "mob_10201_whiterabbit.json",
+              "path": [
+                "ai",
+                "patterns",
+                4
+              ],
+              "transform": "token_digits",
+              "part": "n"
+            }
+          }
+        }
+      ],
+      "gimmicks": [
+        "countdown"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: countdown",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "exact",
+      "sim": [
+        {
+          "kind": "countdown",
+          "init": 3,
+          "min": 0,
+          "max": 9,
+          "editable": true,
+          "amount": 1,
+          "on_zero": "escape",
+          "pattern": null,
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "특수 상자 값이 매 턴 1 감소, 0 이면 도주(승리와 같은 종료, 보상 없음 — 사용자 확인 Q24)",
+          "src": {
+            "init": {
+              "kind": "monster",
+              "file": "mob_10201_whiterabbit.json",
+              "path": [
+                "passives",
+                0,
+                "box",
+                "initialValue"
+              ],
+              "transform": "identity"
+            }
+          }
+        }
+      ],
+      "gimmick_report": [
+        {
+          "gimmick": "countdown",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "특수 상자 값이 매 턴 1 감소, 0 이면 도주(승리와 같은 종료, 보상 없음 — 사용자 확인 Q24)"
+        }
+      ],
+      "gimmick_tier": "GA"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_10202_littlewitch.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_10202_littlewitch.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_10202_LittleWitch",
+      "name": "작은 마녀",
+      "enabled": true,
+      "act": 1,
+      "tier": "elite",
+      "grade": "elite",
+      "difficulty": "normal",
+      "hp": 425,
+      "strength": 0,
+      "ai": "static",
+      "patterns": [
+        {
+          "key": "LittleWitchSkill",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "플레이어 힘 1 감소",
+          "effects": [
+            {
+              "op": "add_status",
+              "target": "player",
+              "timing": "immediate",
+              "type": "minus_box",
+              "amount": 1,
+              "duration": 2
+            }
+          ],
+          "kind": "skip",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {}
+        },
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_10202_littlewitch.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        },
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_10202_littlewitch.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        }
+      ],
+      "gimmicks": [
+        "immediate:add_status"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: immediate:add_status",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "exact",
+      "sim": [],
+      "gimmick_report": [
+        {
+          "gimmick": "LittleWitchSkill:add_status(minus_box)",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "상태 추가 (힘·기절·출혈·중독·스택·방어막·디버프 상자·상자 잠금)"
+        }
+      ],
+      "gimmick_tier": "GA"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_10203_hunter.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_10203_hunter.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_10203_Hunter",
+      "name": "사냥꾼",
+      "enabled": true,
+      "act": 1,
+      "tier": "elite",
+      "grade": "elite",
+      "difficulty": "normal",
+      "hp": 450,
+      "strength": 0,
+      "ai": "static",
+      "patterns": [
+        {
+          "key": "HunterSingle",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "플레이어 기본 피해량 상자를 분리시킨 뒤 하나를 잠금",
+          "effects": [
+            {
+              "op": "split_box",
+              "target": "player",
+              "timing": "next_turn"
+            },
+            {
+              "op": "add_status",
+              "target": "player",
+              "timing": "next_turn",
+              "type": "box_lock",
+              "amount": 1,
+              "duration": 1
+            }
+          ],
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "huntersingle.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "key": "HunterSingle",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "플레이어 기본 피해량 상자를 분리시킨 뒤 하나를 잠금",
+          "effects": [
+            {
+              "op": "split_box",
+              "target": "player",
+              "timing": "next_turn"
+            },
+            {
+              "op": "add_status",
+              "target": "player",
+              "timing": "next_turn",
+              "type": "box_lock",
+              "amount": 1,
+              "duration": 1
+            }
+          ],
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "huntersingle.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_10203_hunter.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        },
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_10203_hunter.json",
+              "path": [
+                "ai",
+                "patterns",
+                3
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        },
+        {
+          "key": "Str_1",
+          "kind": "str",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 1,
+          "source": "generic",
+          "src": {
+            "n": {
+              "kind": "monster",
+              "file": "mob_10203_hunter.json",
+              "path": [
+                "ai",
+                "patterns",
+                4
+              ],
+              "transform": "token_digits",
+              "part": "n"
+            }
+          }
+        }
+      ],
+      "gimmicks": [
+        "next_turn:add_status",
+        "next_turn:split_box"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: next_turn:add_status, next_turn:split_box",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "approx",
+      "sim": [],
+      "gimmick_report": [
+        {
+          "gimmick": "HunterSingle:split_box",
+          "tier": "GB",
+          "fidelity": "approx",
+          "reason": "다음 턴 상자 분할 — 지속시간이 없는 효과도 1턴으로 근사"
+        },
+        {
+          "gimmick": "HunterSingle:add_status(box_lock)",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "상태 추가 (힘·기절·출혈·중독·스택·방어막·디버프 상자·상자 잠금)"
+        }
+      ],
+      "gimmick_tier": "GB"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_10301_heartqueen.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_10301_heartqueen.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_10301_HeartQueen",
+      "name": "하트 여왕",
+      "enabled": true,
+      "act": 1,
+      "tier": "boss",
+      "grade": "boss",
+      "difficulty": "normal",
+      "hp": 600,
+      "strength": 0,
+      "ai": "static",
+      "patterns": [
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_10301_heartqueen.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        },
+        {
+          "key": "2_Multi_1",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 1,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_10301_heartqueen.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_10301_heartqueen.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        },
+        {
+          "key": "Str_1",
+          "kind": "str",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 1,
+          "source": "generic",
+          "src": {
+            "n": {
+              "kind": "monster",
+              "file": "mob_10301_heartqueen.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "n"
+            }
+          }
+        },
+        {
+          "key": "HeartQueenSkill",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "",
+          "effects": [
+            {
+              "op": "deal_damage",
+              "target": "player",
+              "timing": "immediate",
+              "amount": 9999
+            }
+          ],
+          "condition": "heart_queen_box==0",
+          "kind": "skip",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {}
+        }
+      ],
+      "gimmicks": [
+        "countdown",
+        "immediate:deal_damage",
+        "사용 조건(condition) — 항상 사용 가능으로 근사"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: countdown, immediate:deal_damage, 사용 조건(condition) — 항상 사용 가능으로 근사",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "approx",
+      "sim": [
+        {
+          "kind": "countdown",
+          "init": 5,
+          "min": 0,
+          "max": 9,
+          "editable": true,
+          "amount": 1,
+          "on_zero": "pattern",
+          "pattern": "HeartQueenSkill",
+          "tier": "GA",
+          "fidelity": "approx",
+          "reason": "0 이면 지정 패턴 실행. 패턴 조건 heart_queen_box 는 게임 평가기에 없는 변수(항상 0) — 시뮬은 카운트다운 값으로 해석(불일치 보고)",
+          "src": {
+            "init": {
+              "kind": "monster",
+              "file": "mob_10301_heartqueen.json",
+              "path": [
+                "passives",
+                0,
+                "box",
+                "initialValue"
+              ],
+              "transform": "identity"
+            }
+          }
+        }
+      ],
+      "gimmick_report": [
+        {
+          "gimmick": "countdown",
+          "tier": "GA",
+          "fidelity": "approx",
+          "reason": "0 이면 지정 패턴 실행. 패턴 조건 heart_queen_box 는 게임 평가기에 없는 변수(항상 0) — 시뮬은 카운트다운 값으로 해석(불일치 보고)"
+        },
+        {
+          "gimmick": "HeartQueenSkill:deal_damage",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "직접 피해 (표현식, 환상 피해 감소 없음 — 게임과 같음)"
+        },
+        {
+          "gimmick": "HeartQueenSkill:사용 조건 heart_queen_box==0",
+          "tier": "GA",
+          "fidelity": "approx",
+          "reason": "게임 평가기에 없는 변수 → 시뮬은 카운트다운 값으로 해석"
+        }
+      ],
+      "gimmick_tier": "GA"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_10302_witch.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_10302_witch.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_10302_Witch",
+      "name": "마녀",
+      "enabled": true,
+      "act": 1,
+      "tier": "boss",
+      "grade": "boss",
+      "difficulty": "normal",
+      "hp": 750,
+      "strength": 0,
+      "ai": "static",
+      "patterns": [
+        {
+          "key": "WitchSkill",
+          "source": "pattern",
+          "max_uses": 1,
+          "note": "",
+          "effects": [
+            {
+              "op": "add_status",
+              "target": "player",
+              "timing": "immediate",
+              "type": "divide_box",
+              "amount": 1
+            }
+          ],
+          "kind": "skip",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {}
+        },
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_10302_witch.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        },
+        {
+          "key": "2_Multi_1",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 1,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_10302_witch.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_10302_witch.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        },
+        {
+          "key": "Str_1",
+          "kind": "str",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 1,
+          "source": "generic",
+          "src": {
+            "n": {
+              "kind": "monster",
+              "file": "mob_10302_witch.json",
+              "path": [
+                "ai",
+                "patterns",
+                3
+              ],
+              "transform": "token_digits",
+              "part": "n"
+            }
+          }
+        }
+      ],
+      "gimmicks": [
+        "lock_random_player_matches",
+        "immediate:add_status"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: lock_random_player_matches, immediate:add_status",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "exact",
+      "sim": [
+        {
+          "kind": "lock_matches",
+          "timing": "battle_start",
+          "count": 4,
+          "tier": "GB",
+          "fidelity": "exact",
+          "reason": "플레이어 기본 피해 상자의 성냥을 무작위로 잠금(tag=lock) — 잠긴 성냥은 이동 불가"
+        }
+      ],
+      "gimmick_report": [
+        {
+          "gimmick": "lock_matches",
+          "tier": "GB",
+          "fidelity": "exact",
+          "reason": "플레이어 기본 피해 상자의 성냥을 무작위로 잠금(tag=lock) — 잠긴 성냥은 이동 불가"
+        },
+        {
+          "gimmick": "WitchSkill:add_status(divide_box)",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "상태 추가 (힘·기절·출혈·중독·스택·방어막·디버프 상자·상자 잠금)"
+        }
+      ],
+      "gimmick_tier": "GB"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_10303_elf.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_10303_elf.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_10303_Elf",
+      "name": "엘프",
+      "enabled": true,
+      "act": 1,
+      "tier": "boss",
+      "grade": "boss",
+      "difficulty": "normal",
+      "hp": 500,
+      "strength": 0,
+      "ai": "random",
+      "patterns": [
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_10303_elf.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        },
+        {
+          "key": "2_Multi_2",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 2,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_10303_elf.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_10303_elf.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        }
+      ],
+      "gimmicks": [
+        "aimed_shot"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: aimed_shot",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "exact",
+      "sim": [
+        {
+          "kind": "aimed_shot",
+          "multiplier": 3,
+          "tier": "GB",
+          "fidelity": "exact",
+          "reason": "매 턴 0~9 숫자, 플레이어 상자(피해·타수·디버프)에 있으면 몬스터 피해 × 배수",
+          "src": {
+            "multiplier": {
+              "kind": "monster",
+              "file": "mob_10303_elf.json",
+              "path": [
+                "passives",
+                0,
+                "multiplier"
+              ],
+              "transform": "identity"
+            }
+          }
+        }
+      ],
+      "gimmick_report": [
+        {
+          "gimmick": "aimed_shot",
+          "tier": "GB",
+          "fidelity": "exact",
+          "reason": "매 턴 0~9 숫자, 플레이어 상자(피해·타수·디버프)에 있으면 몬스터 피해 × 배수"
+        }
+      ],
+      "gimmick_tier": "GB"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_20101_snowman.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_20101_snowman.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_20101_Snowman",
+      "name": "눈사람",
+      "enabled": true,
+      "act": 2,
+      "tier": "easy",
+      "grade": "normal",
+      "difficulty": "easy",
+      "hp": 560,
+      "strength": 0,
+      "ai": "static",
+      "patterns": [
+        {
+          "key": "2_Multi_1",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 1,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_20101_snowman.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_20101_snowman.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        },
+        {
+          "key": "2_Multi_2",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 2,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_20101_snowman.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_20101_snowman.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        },
+        {
+          "key": "3_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 3,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_20101_snowman.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        }
+      ],
+      "gimmicks": [],
+      "fidelity": "approx",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss)",
+      "warnings": [],
+      "fidelity_digits": "exact",
+      "fidelity_gimmicks": "exact",
+      "sim": [],
+      "gimmick_report": [],
+      "gimmick_tier": ""
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_20102_robber.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_20102_robber.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_20102_Robber",
+      "name": "강도",
+      "enabled": true,
+      "act": 2,
+      "tier": "easy",
+      "grade": "normal",
+      "difficulty": "easy",
+      "hp": 520,
+      "strength": 0,
+      "ai": "random",
+      "patterns": [
+        {
+          "key": "RobberSingle",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "공격 시 입힌 피해량 50%만큼 중독 적용",
+          "effects": [
+            {
+              "op": "add_status",
+              "target": "player",
+              "timing": "immediate",
+              "type": "poison",
+              "expr": "DamageDealt*0.5"
+            }
+          ],
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "robbersingle.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        }
+      ],
+      "gimmicks": [
+        "immediate:add_status"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: immediate:add_status",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "exact",
+      "sim": [],
+      "gimmick_report": [
+        {
+          "gimmick": "RobberSingle:add_status(poison)",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "상태 추가 (힘·기절·출혈·중독·스택·방어막·디버프 상자·상자 잠금)"
+        }
+      ],
+      "gimmick_tier": "GA"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_20103_ghost.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_20103_ghost.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_20103_Ghost",
+      "name": "유령",
+      "enabled": true,
+      "act": 2,
+      "tier": "easy",
+      "grade": "normal",
+      "difficulty": "easy",
+      "hp": 640,
+      "strength": 0,
+      "ai": "random",
+      "patterns": [
+        {
+          "key": "GhostSingle",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "단타 + 다음 턴 내 상자 분리",
+          "effects": [
+            {
+              "op": "split_box",
+              "target": "player",
+              "timing": "next_turn",
+              "duration": 1
+            }
+          ],
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "ghostsingle.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "key": "GhostMulti",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "연타1 + 다음 턴 자기 상자 분리",
+          "effects": [
+            {
+              "op": "split_box",
+              "target": "self",
+              "timing": "next_turn",
+              "duration": 1
+            }
+          ],
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 1,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "ghostmulti.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            },
+            "hits": {
+              "kind": "pattern",
+              "file": "ghostmulti.json",
+              "path": [
+                "attack",
+                "hits",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        }
+      ],
+      "gimmicks": [
+        "next_turn:split_box"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: next_turn:split_box",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "approx",
+      "sim": [],
+      "gimmick_report": [
+        {
+          "gimmick": "GhostSingle:split_box",
+          "tier": "GB",
+          "fidelity": "approx",
+          "reason": "다음 턴 상자 분할 — 지속시간이 없는 효과도 1턴으로 근사"
+        }
+      ],
+      "gimmick_tier": "GB"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_20104_magician.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_20104_magician.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_20104_Magician",
+      "name": "마술사",
+      "enabled": true,
+      "act": 2,
+      "tier": "normal",
+      "grade": "normal",
+      "difficulty": "normal",
+      "hp": 680,
+      "strength": 0,
+      "ai": "random",
+      "patterns": [
+        {
+          "key": "2_Multi_1",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 1,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_20104_magician.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_20104_magician.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        },
+        {
+          "key": "2_Multi_2",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 2,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_20104_magician.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_20104_magician.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        },
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_20104_magician.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        }
+      ],
+      "gimmicks": [
+        "aimed_shot",
+        "add_formula_decoy_digits"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: aimed_shot, add_formula_decoy_digits",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "approx",
+      "sim": [
+        {
+          "kind": "aimed_shot",
+          "multiplier": 1,
+          "tier": "GB",
+          "fidelity": "exact",
+          "reason": "매 턴 0~9 숫자, 플레이어 상자(피해·타수·디버프)에 있으면 몬스터 피해 × 배수 (배수 1 → 효과 없음, 게임과 같음)",
+          "src": {
+            "multiplier": {
+              "kind": "monster",
+              "file": "mob_20104_magician.json",
+              "path": [
+                "passives",
+                0,
+                "multiplier"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "kind": "decoy",
+          "count": 1,
+          "tier": "GC",
+          "fidelity": "approx",
+          "reason": "사용자 결정(Q25): 마술사 데코이 기믹은 반영하지 않음 — 몬스터 상자에 가짜 숫자가 없는 것으로 계산"
+        }
+      ],
+      "gimmick_report": [
+        {
+          "gimmick": "aimed_shot",
+          "tier": "GB",
+          "fidelity": "exact",
+          "reason": "매 턴 0~9 숫자, 플레이어 상자(피해·타수·디버프)에 있으면 몬스터 피해 × 배수 (배수 1 → 효과 없음, 게임과 같음)"
+        },
+        {
+          "gimmick": "decoy",
+          "tier": "GC",
+          "fidelity": "approx",
+          "reason": "사용자 결정(Q25): 마술사 데코이 기믹은 반영하지 않음 — 몬스터 상자에 가짜 숫자가 없는 것으로 계산"
+        }
+      ],
+      "gimmick_tier": "GC"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_20105_automaton.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_20105_automaton.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_20105_Automaton",
+      "name": "자동인형",
+      "enabled": true,
+      "act": 2,
+      "tier": "normal",
+      "grade": "normal",
+      "difficulty": "normal",
+      "hp": 720,
+      "strength": 0,
+      "ai": "static",
+      "patterns": [
+        {
+          "key": "AutomatonSingle",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "단타 + 힘 증가",
+          "effects": [
+            {
+              "op": "add_status",
+              "target": "self",
+              "timing": "immediate",
+              "type": "strength",
+              "amount": 1
+            }
+          ],
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 1,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "automatonsingle.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "key": "AutomatonSingle",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "단타 + 힘 증가",
+          "effects": [
+            {
+              "op": "add_status",
+              "target": "self",
+              "timing": "immediate",
+              "type": "strength",
+              "amount": 1
+            }
+          ],
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 1,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "automatonsingle.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "key": "AutomatonSingle",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "단타 + 힘 증가",
+          "effects": [
+            {
+              "op": "add_status",
+              "target": "self",
+              "timing": "immediate",
+              "type": "strength",
+              "amount": 1
+            }
+          ],
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 1,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "automatonsingle.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "key": "AutomatonSingleStun",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "단타 + 자체 스턴, 이후 증가한 힘 초기화",
+          "effects": [
+            {
+              "op": "add_status",
+              "target": "self",
+              "timing": "immediate",
+              "type": "stun",
+              "duration": 1
+            },
+            {
+              "op": "set_status",
+              "target": "self",
+              "timing": "immediate",
+              "type": "strength",
+              "amount": 0
+            }
+          ],
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 1,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "automatonsinglestun.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        }
+      ],
+      "gimmicks": [
+        "immediate:add_status",
+        "immediate:set_status"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: immediate:add_status, immediate:set_status",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "exact",
+      "sim": [],
+      "gimmick_report": [
+        {
+          "gimmick": "AutomatonSingle:add_status(strength)",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "상태 추가 (힘·기절·출혈·중독·스택·방어막·디버프 상자·상자 잠금)"
+        },
+        {
+          "gimmick": "AutomatonSingleStun:add_status(stun)",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "상태 추가 (힘·기절·출혈·중독·스택·방어막·디버프 상자·상자 잠금)"
+        },
+        {
+          "gimmick": "AutomatonSingleStun:set_status(strength)",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "상태 설정"
+        }
+      ],
+      "gimmick_tier": "GA"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_20106_giantrat.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_20106_giantrat.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_20106_GiantRat",
+      "name": "쥐",
+      "enabled": true,
+      "act": 2,
+      "tier": "normal",
+      "grade": "normal",
+      "difficulty": "normal",
+      "hp": 560,
+      "strength": 0,
+      "ai": "static",
+      "patterns": [
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_20106_giantrat.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        },
+        {
+          "key": "2_Multi_1",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 1,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_20106_giantrat.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_20106_giantrat.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        },
+        {
+          "key": "GiantRatSkill",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "3자릿수의 체력 회복(회복 상자 조작 가능) 및 힘1 증가",
+          "effects": [
+            {
+              "op": "heal",
+              "target": "self",
+              "timing": "immediate",
+              "amount": 3
+            },
+            {
+              "op": "add_status",
+              "target": "self",
+              "timing": "immediate",
+              "type": "strength",
+              "amount": 1
+            }
+          ],
+          "heal": {
+            "editable": true,
+            "expr": null,
+            "amount": 3
+          },
+          "kind": "skip",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {}
+        }
+      ],
+      "gimmicks": [
+        "immediate:add_status",
+        "immediate:heal"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: immediate:add_status, immediate:heal",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "exact",
+      "sim": [],
+      "gimmick_report": [
+        {
+          "gimmick": "GiantRatSkill:heal",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "회복 (편집 가능 회복 상자는 배분 대상)"
+        },
+        {
+          "gimmick": "GiantRatSkill:add_status(strength)",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "상태 추가 (힘·기절·출혈·중독·스택·방어막·디버프 상자·상자 잠금)"
+        }
+      ],
+      "gimmick_tier": "GA"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_20107_guard.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_20107_guard.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_20107_Guard",
+      "name": "경비병",
+      "enabled": true,
+      "act": 2,
+      "tier": "normal",
+      "grade": "normal",
+      "difficulty": "normal",
+      "hp": 297,
+      "strength": 0,
+      "ai": "static",
+      "patterns": [
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_20107_guard.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        }
+      ],
+      "gimmicks": [
+        "limit_incoming_damage"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: limit_incoming_damage",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "exact",
+      "sim": [
+        {
+          "kind": "cap_per_hit",
+          "value": 45,
+          "until_taken": null,
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "ApplyDamage: 1타 상한 → 방어막 → 체력",
+          "src": {
+            "value": {
+              "kind": "monster",
+              "file": "mob_20107_guard.json",
+              "path": [
+                "passives",
+                0,
+                "maximum"
+              ],
+              "transform": "identity"
+            }
+          }
+        }
+      ],
+      "gimmick_report": [
+        {
+          "gimmick": "cap_per_hit",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "ApplyDamage: 1타 상한 → 방어막 → 체력"
+        }
+      ],
+      "gimmick_tier": "GA"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_20201_fortuneteller.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_20201_fortuneteller.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_20201_FortuneTeller",
+      "name": "점술사",
+      "enabled": true,
+      "act": 2,
+      "tier": "elite",
+      "grade": "elite",
+      "difficulty": "normal",
+      "hp": 800,
+      "strength": 0,
+      "ai": "random",
+      "patterns": [
+        {
+          "key": "FortuneTellerSingle",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "때릴 때마다 점술사가 자신이 가하는 피해량만큼 스택 버프 누적",
+          "effects": [
+            {
+              "op": "add_status",
+              "target": "self",
+              "timing": "immediate",
+              "type": "fortune_stack",
+              "expr": "DamageDealt"
+            }
+          ],
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "fortunetellersingle.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "key": "FortuneTellerMulti",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "",
+          "effects": [
+            {
+              "op": "add_status",
+              "target": "self",
+              "timing": "immediate",
+              "type": "fortune_stack",
+              "expr": "DamageDealt"
+            }
+          ],
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 1,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "fortunetellermulti.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            },
+            "hits": {
+              "kind": "pattern",
+              "file": "fortunetellermulti.json",
+              "path": [
+                "attack",
+                "hits",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "key": "FortuneTellerExplode",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "쌓인 스택만큼 데미지",
+          "effects": [
+            {
+              "op": "set_status",
+              "target": "self",
+              "timing": "immediate",
+              "type": "fortune_stack",
+              "amount": 0
+            }
+          ],
+          "condition": "hprate<=0.4",
+          "dynamic": "FortuneStack",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 1,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "fortunetellerexplode.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        }
+      ],
+      "gimmicks": [
+        "immediate:add_status",
+        "immediate:set_status",
+        "사용 조건(condition) — 항상 사용 가능으로 근사",
+        "피해 초기값 표현식 {\"expression\": \"FortuneStack\"}"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: immediate:add_status, immediate:set_status, 사용 조건(condition) — 항상 사용 가능으로 근사, 피해 초기값 표현식 {\"expression\": \"FortuneStack\"}",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "exact",
+      "sim": [],
+      "gimmick_report": [
+        {
+          "gimmick": "FortuneTellerSingle:add_status(fortune_stack)",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "상태 추가 (힘·기절·출혈·중독·스택·방어막·디버프 상자·상자 잠금)"
+        },
+        {
+          "gimmick": "FortuneTellerExplode:set_status(fortune_stack)",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "상태 설정"
+        },
+        {
+          "gimmick": "FortuneTellerExplode:사용 조건 hprate<=0.4",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "패턴 사용 조건 (표현식 평가기)"
+        },
+        {
+          "gimmick": "FortuneTellerExplode:동적 피해 FortuneStack",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "피해 = 표현식 값, 자릿수 = 패턴 값"
+        }
+      ],
+      "gimmick_tier": "GA"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_20202_alchemist.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_20202_alchemist.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_20202_Alchemist",
+      "name": "연금술사",
+      "enabled": true,
+      "act": 2,
+      "tier": "elite",
+      "grade": "elite",
+      "difficulty": "normal",
+      "hp": 960,
+      "strength": 0,
+      "ai": "static",
+      "patterns": [
+        {
+          "key": "AlchemistSingle",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "공격 시 입힌 피해량 50%만큼 출혈 적용",
+          "effects": [
+            {
+              "op": "add_status",
+              "target": "self",
+              "timing": "immediate",
+              "type": "bleed",
+              "expr": "DamageDealt"
+            }
+          ],
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "alchemistsingle.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "key": "AlchemistSkill",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "[출혈 아이콘] [x] [1자릿수] -> 출혈 수치 n배",
+          "effects": [
+            {
+              "op": "multiply_stat",
+              "target": "player",
+              "timing": "next_turn",
+              "type": "bleed",
+              "amount": 3
+            }
+          ],
+          "kind": "skip",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {}
+        }
+      ],
+      "gimmicks": [
+        "immediate:add_status",
+        "next_turn:multiply_stat"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: immediate:add_status, next_turn:multiply_stat",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "exact",
+      "sim": [],
+      "gimmick_report": [
+        {
+          "gimmick": "AlchemistSingle:add_status(bleed)",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "상태 추가 (힘·기절·출혈·중독·스택·방어막·디버프 상자·상자 잠금)"
+        },
+        {
+          "gimmick": "AlchemistSkill:multiply_stat(bleed)",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "상태 곱"
+        }
+      ],
+      "gimmick_tier": "GA"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_20203_conductor.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_20203_conductor.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_20203_Conductor",
+      "name": "지휘자",
+      "enabled": true,
+      "act": 2,
+      "tier": "elite",
+      "grade": "elite",
+      "difficulty": "normal",
+      "hp": 720,
+      "strength": 0,
+      "ai": "random",
+      "patterns": [
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_20203_conductor.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        },
+        {
+          "key": "2_Multi_2",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 2,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_20203_conductor.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_20203_conductor.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        }
+      ],
+      "gimmicks": [
+        "aimed_shot",
+        "require_formula_condition"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: aimed_shot, require_formula_condition",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "exact",
+      "sim": [
+        {
+          "kind": "aimed_shot",
+          "multiplier": 1,
+          "tier": "GB",
+          "fidelity": "exact",
+          "reason": "매 턴 0~9 숫자, 플레이어 상자(피해·타수·디버프)에 있으면 몬스터 피해 × 배수 (배수 1 → 효과 없음, 게임과 같음)",
+          "src": {
+            "multiplier": {
+              "kind": "monster",
+              "file": "mob_20203_conductor.json",
+              "path": [
+                "passives",
+                0,
+                "multiplier"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "kind": "formula_condition",
+          "type": "DigitCount",
+          "value_min": 0,
+          "value_max": 9,
+          "count_min": 0,
+          "count_max": 9,
+          "count_editable": true,
+          "tier": "GC",
+          "fidelity": "exact",
+          "reason": "사용자 규칙(Q25): [숫자 V] × [개수 C] 상자, 플레이어 상자(피해·타수·디버프)의 V 개수가 C 와 같아야 피해. C 상자(1자리)는 성냥으로 편집 가능 — 코드 그대로 구현"
+        }
+      ],
+      "gimmick_report": [
+        {
+          "gimmick": "aimed_shot",
+          "tier": "GB",
+          "fidelity": "exact",
+          "reason": "매 턴 0~9 숫자, 플레이어 상자(피해·타수·디버프)에 있으면 몬스터 피해 × 배수 (배수 1 → 효과 없음, 게임과 같음)"
+        },
+        {
+          "gimmick": "formula_condition",
+          "tier": "GC",
+          "fidelity": "exact",
+          "reason": "사용자 규칙(Q25): [숫자 V] × [개수 C] 상자, 플레이어 상자(피해·타수·디버프)의 V 개수가 C 와 같아야 피해. C 상자(1자리)는 성냥으로 편집 가능 — 코드 그대로 구현"
+        }
+      ],
+      "gimmick_tier": "GC"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_20301_piedpiper.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_20301_piedpiper.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_20301_PiedPiper",
+      "name": "피리부는사나이",
+      "enabled": true,
+      "act": 2,
+      "tier": "boss",
+      "grade": "boss",
+      "difficulty": "normal",
+      "hp": 1120,
+      "strength": 0,
+      "ai": "static",
+      "patterns": [
+        {
+          "key": "Str_1",
+          "kind": "str",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 1,
+          "source": "generic",
+          "src": {
+            "n": {
+              "kind": "monster",
+              "file": "mob_20301_piedpiper.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "n"
+            }
+          }
+        },
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_20301_piedpiper.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        },
+        {
+          "key": "2_Multi_2",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 2,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_20301_piedpiper.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_20301_piedpiper.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        }
+      ],
+      "gimmicks": [
+        "aimed_shot",
+        "require_formula_condition"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: aimed_shot, require_formula_condition",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "exact",
+      "sim": [
+        {
+          "kind": "aimed_shot",
+          "multiplier": 1,
+          "tier": "GB",
+          "fidelity": "exact",
+          "reason": "매 턴 0~9 숫자, 플레이어 상자(피해·타수·디버프)에 있으면 몬스터 피해 × 배수 (배수 1 → 효과 없음, 게임과 같음)",
+          "src": {
+            "multiplier": {
+              "kind": "monster",
+              "file": "mob_20301_piedpiper.json",
+              "path": [
+                "passives",
+                0,
+                "multiplier"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "kind": "formula_condition",
+          "type": "Compare",
+          "value_min": 10,
+          "value_max": 99,
+          "operators": [
+            "<",
+            ">"
+          ],
+          "tier": "GC",
+          "fidelity": "exact",
+          "reason": "사용자 규칙(Q25): 턴 시작 시 [부등호][10~99] 제시, 플레이어 기본 피해(1타 공식 값)가 만족하지 않으면 피해 0 — 코드 그대로 구현"
+        }
+      ],
+      "gimmick_report": [
+        {
+          "gimmick": "aimed_shot",
+          "tier": "GB",
+          "fidelity": "exact",
+          "reason": "매 턴 0~9 숫자, 플레이어 상자(피해·타수·디버프)에 있으면 몬스터 피해 × 배수 (배수 1 → 효과 없음, 게임과 같음)"
+        },
+        {
+          "gimmick": "formula_condition",
+          "tier": "GC",
+          "fidelity": "exact",
+          "reason": "사용자 규칙(Q25): 턴 시작 시 [부등호][10~99] 제시, 플레이어 기본 피해(1타 공식 값)가 만족하지 않으면 피해 0 — 코드 그대로 구현"
+        }
+      ],
+      "gimmick_tier": "GC"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_20302_plaguedoctor.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_20302_plaguedoctor.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_20302_PlagueDoctor",
+      "name": "역병 의사",
+      "enabled": true,
+      "act": 2,
+      "tier": "boss",
+      "grade": "boss",
+      "difficulty": "normal",
+      "hp": 1200,
+      "strength": 0,
+      "ai": "static",
+      "patterns": [
+        {
+          "key": "PlagueDoctorSingle",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "공격 시 입힌 피해량만큼 중독 적용",
+          "effects": [
+            {
+              "op": "add_status",
+              "target": "player",
+              "timing": "immediate",
+              "type": "poison",
+              "expr": "DamageDealt"
+            }
+          ],
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "plaguedoctorsingle.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "key": "PlagueDoctorSkill",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "[중독 아이콘] [x] [1자릿수] -> 중독 수치 n배",
+          "effects": [
+            {
+              "op": "multiply_stat",
+              "target": "player",
+              "timing": "immediate",
+              "type": "poison",
+              "amount": 2
+            }
+          ],
+          "kind": "skip",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {}
+        }
+      ],
+      "gimmicks": [
+        "immediate:add_status",
+        "immediate:multiply_stat"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: immediate:add_status, immediate:multiply_stat",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "exact",
+      "sim": [],
+      "gimmick_report": [
+        {
+          "gimmick": "PlagueDoctorSingle:add_status(poison)",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "상태 추가 (힘·기절·출혈·중독·스택·방어막·디버프 상자·상자 잠금)"
+        },
+        {
+          "gimmick": "PlagueDoctorSkill:multiply_stat(poison)",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "상태 곱"
+        }
+      ],
+      "gimmick_tier": "GA"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_20303_prophet.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_20303_prophet.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_20303_Prophet",
+      "name": "예언자",
+      "enabled": true,
+      "act": 2,
+      "tier": "boss",
+      "grade": "boss",
+      "difficulty": "normal",
+      "hp": 1320,
+      "strength": 0,
+      "ai": "static",
+      "patterns": [
+        {
+          "key": "ProphetSingle",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "예언자가 공격 시 자신이 가하는 피해량만큼 스택 상자에 수치 누적",
+          "effects": [
+            {
+              "op": "add_status",
+              "target": "self",
+              "timing": "immediate",
+              "type": "prophet_stack",
+              "expr": "DamageDealt"
+            }
+          ],
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "prophetsingle.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "key": "ProphetMulti",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "예언자가 공격 시 예언자가 자신이 가하는 피해량만큼 스택 버프 누적",
+          "effects": [
+            {
+              "op": "add_status",
+              "target": "self",
+              "timing": "immediate",
+              "type": "prophet_stack",
+              "expr": "DamageDealt"
+            }
+          ],
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 1,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "prophetmulti.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            },
+            "hits": {
+              "kind": "pattern",
+              "file": "prophetmulti.json",
+              "path": [
+                "attack",
+                "hits",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "key": "ProphetSingle",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "예언자가 공격 시 자신이 가하는 피해량만큼 스택 상자에 수치 누적",
+          "effects": [
+            {
+              "op": "add_status",
+              "target": "self",
+              "timing": "immediate",
+              "type": "prophet_stack",
+              "expr": "DamageDealt"
+            }
+          ],
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "prophetsingle.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "key": "ProphetExplode",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "버프 수치만큼 데미지 주고 지금까지 쌓인 스택을 제거",
+          "effects": [
+            {
+              "op": "set_status",
+              "target": "self",
+              "timing": "immediate",
+              "type": "prophet_stack",
+              "amount": 0
+            }
+          ],
+          "dynamic": "ProphetStack",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 1,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "prophetexplode.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        }
+      ],
+      "gimmicks": [
+        "immediate:add_status",
+        "immediate:set_status",
+        "피해 초기값 표현식 {\"expression\": \"ProphetStack\"}"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: immediate:add_status, immediate:set_status, 피해 초기값 표현식 {\"expression\": \"ProphetStack\"}",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "exact",
+      "sim": [],
+      "gimmick_report": [
+        {
+          "gimmick": "ProphetSingle:add_status(prophet_stack)",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "상태 추가 (힘·기절·출혈·중독·스택·방어막·디버프 상자·상자 잠금)"
+        },
+        {
+          "gimmick": "ProphetExplode:set_status(prophet_stack)",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "상태 설정"
+        },
+        {
+          "gimmick": "ProphetExplode:동적 피해 ProphetStack",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "피해 = 표현식 값, 자릿수 = 패턴 값"
+        }
+      ],
+      "gimmick_tier": "GA"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_30101_steelscarecrow.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_30101_steelscarecrow.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_30101_SteelScarecrow",
+      "name": "강철 허수아비",
+      "enabled": true,
+      "act": 3,
+      "tier": "easy",
+      "grade": "normal",
+      "difficulty": "easy",
+      "hp": 900,
+      "strength": 0,
+      "ai": "static",
+      "patterns": [
+        {
+          "key": "Str_1",
+          "kind": "str",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 1,
+          "source": "generic",
+          "src": {
+            "n": {
+              "kind": "monster",
+              "file": "mob_30101_steelscarecrow.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "n"
+            }
+          }
+        },
+        {
+          "key": "2_Multi_1",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 1,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_30101_steelscarecrow.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_30101_steelscarecrow.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        },
+        {
+          "key": "2_Multi_2",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 2,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_30101_steelscarecrow.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_30101_steelscarecrow.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        }
+      ],
+      "gimmicks": [
+        "lock_box"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: lock_box",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "exact",
+      "sim": [
+        {
+          "kind": "lock_monster_damage",
+          "tier": "GB",
+          "fidelity": "exact",
+          "reason": "monster.damage 상자 편집 불가 (k = 0)"
+        }
+      ],
+      "gimmick_report": [
+        {
+          "gimmick": "lock_monster_damage",
+          "tier": "GB",
+          "fidelity": "exact",
+          "reason": "monster.damage 상자 편집 불가 (k = 0)"
+        }
+      ],
+      "gimmick_tier": "GB"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_30102_jellyfish.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_30102_jellyfish.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_30102_Jellyfish",
+      "name": "해파리",
+      "enabled": true,
+      "act": 3,
+      "tier": "easy",
+      "grade": "normal",
+      "difficulty": "easy",
+      "hp": 800,
+      "strength": 0,
+      "ai": "static",
+      "patterns": [
+        {
+          "key": "JellyfishSingle",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "해파리가 가하는 피해의 50%가 각각 출혈/중독 적용",
+          "effects": [
+            {
+              "op": "add_status",
+              "target": "player",
+              "timing": "immediate",
+              "type": "bleed",
+              "expr": "DamageDealt*0.5"
+            },
+            {
+              "op": "add_status",
+              "target": "player",
+              "timing": "immediate",
+              "type": "poison",
+              "expr": "DamageDealt*0.5"
+            }
+          ],
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "jellyfishsingle.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "key": "JellyfishSingle",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "해파리가 가하는 피해의 50%가 각각 출혈/중독 적용",
+          "effects": [
+            {
+              "op": "add_status",
+              "target": "player",
+              "timing": "immediate",
+              "type": "bleed",
+              "expr": "DamageDealt*0.5"
+            },
+            {
+              "op": "add_status",
+              "target": "player",
+              "timing": "immediate",
+              "type": "poison",
+              "expr": "DamageDealt*0.5"
+            }
+          ],
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "jellyfishsingle.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "key": "JellyfishSkill",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "플레이어의 출혈/중독 수치만큼 회복",
+          "effects": [
+            {
+              "op": "heal",
+              "target": "self",
+              "timing": "immediate",
+              "expr": "PlayerBleed"
+            },
+            {
+              "op": "heal",
+              "target": "self",
+              "timing": "immediate",
+              "expr": "PlayerPoison"
+            }
+          ],
+          "kind": "skip",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {}
+        }
+      ],
+      "gimmicks": [
+        "immediate:add_status",
+        "immediate:heal"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: immediate:add_status, immediate:heal",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "exact",
+      "sim": [],
+      "gimmick_report": [
+        {
+          "gimmick": "JellyfishSingle:add_status(bleed)",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "상태 추가 (힘·기절·출혈·중독·스택·방어막·디버프 상자·상자 잠금)"
+        },
+        {
+          "gimmick": "JellyfishSingle:add_status(poison)",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "상태 추가 (힘·기절·출혈·중독·스택·방어막·디버프 상자·상자 잠금)"
+        },
+        {
+          "gimmick": "JellyfishSkill:heal",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "회복 (편집 가능 회복 상자는 배분 대상)"
+        }
+      ],
+      "gimmick_tier": "GA"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_30103_orb.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_30103_orb.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_30103_Orb",
+      "name": "구체",
+      "enabled": true,
+      "act": 3,
+      "tier": "easy",
+      "grade": "normal",
+      "difficulty": "easy",
+      "hp": 850,
+      "strength": 0,
+      "ai": "static",
+      "patterns": [
+        {
+          "key": "2_Multi_1",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 1,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_30103_orb.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_30103_orb.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        },
+        {
+          "key": "2_Multi_2",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 2,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_30103_orb.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_30103_orb.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        },
+        {
+          "key": "2_Multi_3",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 3,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_30103_orb.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_30103_orb.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        },
+        {
+          "key": "OrbSkill",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "4번째 턴 종료 시 자폭, 플레이어 체력 30% 잠금 피해",
+          "effects": [
+            {
+              "op": "deal_damage",
+              "target": "player",
+              "timing": "immediate",
+              "expr": "PlayerHP*0.3"
+            }
+          ],
+          "self_destruct": true,
+          "kind": "skip",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {}
+        }
+      ],
+      "gimmicks": [
+        "immediate:deal_damage"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: immediate:deal_damage",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "exact",
+      "sim": [],
+      "gimmick_report": [
+        {
+          "gimmick": "OrbSkill:deal_damage",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "직접 피해 (표현식, 환상 피해 감소 없음 — 게임과 같음)"
+        }
+      ],
+      "gimmick_tier": "GA"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_30104_librarian.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_30104_librarian.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_30104_Librarian",
+      "name": "사서",
+      "enabled": true,
+      "act": 3,
+      "tier": "normal",
+      "grade": "normal",
+      "difficulty": "normal",
+      "hp": 900,
+      "strength": 0,
+      "ai": "random",
+      "patterns": [
+        {
+          "key": "LibrarianSingle",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "",
+          "effects": [
+            {
+              "op": "librarian_skill",
+              "target": "player",
+              "timing": "immediate",
+              "amount": 1
+            }
+          ],
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 3,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "librariansingle.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "key": "LibrarianMulti",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "",
+          "effects": [
+            {
+              "op": "librarian_skill",
+              "target": "player",
+              "timing": "immediate",
+              "amount": 1
+            }
+          ],
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 2,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "librarianmulti.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            },
+            "hits": {
+              "kind": "pattern",
+              "file": "librarianmulti.json",
+              "path": [
+                "attack",
+                "hits",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        }
+      ],
+      "gimmicks": [
+        "immediate:librarian_skill"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: immediate:librarian_skill",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "exact",
+      "sim": [],
+      "gimmick_report": [
+        {
+          "gimmick": "LibrarianSingle:librarian_skill",
+          "tier": "GB",
+          "fidelity": "exact",
+          "reason": "플레이어 공식의 숫자(피해·타수 상자) 중 하나를 골라 직접 피해"
+        }
+      ],
+      "gimmick_tier": "GB"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_30105_golem.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_30105_golem.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_30105_Golem",
+      "name": "골렘",
+      "enabled": true,
+      "act": 3,
+      "tier": "normal",
+      "grade": "normal",
+      "difficulty": "normal",
+      "hp": 1000,
+      "strength": 0,
+      "ai": "static",
+      "patterns": [
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_30105_golem.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        }
+      ],
+      "gimmicks": [
+        "set_match_mobility"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: set_match_mobility",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "exact",
+      "sim": [
+        {
+          "kind": "player_immovable",
+          "tier": "GB",
+          "fidelity": "exact",
+          "reason": "player 성냥 이동 불가 (k = 0)"
+        }
+      ],
+      "gimmick_report": [
+        {
+          "gimmick": "player_immovable",
+          "tier": "GB",
+          "fidelity": "exact",
+          "reason": "player 성냥 이동 불가 (k = 0)"
+        }
+      ],
+      "gimmick_tier": "GB"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_30106_anglerfish.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_30106_anglerfish.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_30106_Anglerfish",
+      "name": "초롱아귀",
+      "enabled": true,
+      "act": 3,
+      "tier": "normal",
+      "grade": "normal",
+      "difficulty": "normal",
+      "hp": 1500,
+      "strength": 0,
+      "ai": "random",
+      "patterns": [
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_30106_anglerfish.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        },
+        {
+          "key": "2_Multi_3",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 3,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_30106_anglerfish.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_30106_anglerfish.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        }
+      ],
+      "gimmicks": [
+        "react_to_box_edits"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: react_to_box_edits",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "approx",
+      "sim": [
+        {
+          "kind": "reactive_boxes",
+          "boxes": [
+            "player.damage",
+            "monster.damage",
+            "monster.hits"
+          ],
+          "group": 2,
+          "per_group": 1,
+          "strength": 1,
+          "once": true,
+          "tier": "GB",
+          "fidelity": "approx",
+          "reason": "반응 상자를 편집하면 힘 +1 (상자별 1회). 배분 정책은 힘 증가의 기대 비용을 벌점으로 근사"
+        }
+      ],
+      "gimmick_report": [
+        {
+          "gimmick": "reactive_boxes",
+          "tier": "GB",
+          "fidelity": "approx",
+          "reason": "반응 상자를 편집하면 힘 +1 (상자별 1회). 배분 정책은 힘 증가의 기대 비용을 벌점으로 근사"
+        }
+      ],
+      "gimmick_tier": "GB"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_30107_shadow.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_30107_shadow.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_30107_Shadow",
+      "name": "그림자",
+      "enabled": true,
+      "act": 3,
+      "tier": "normal",
+      "grade": "normal",
+      "difficulty": "normal",
+      "hp": 1200,
+      "strength": 0,
+      "ai": "static",
+      "patterns": [
+        {
+          "key": "3_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 3,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_30107_shadow.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        },
+        {
+          "key": "3_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 3,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_30107_shadow.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        },
+        {
+          "key": "3_Multi_1",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 3,
+          "hit_digits": 1,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_30107_shadow.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_30107_shadow.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        }
+      ],
+      "gimmicks": [
+        "accumulate_lock_debuff"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: accumulate_lock_debuff",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "approx",
+      "sim": [
+        {
+          "kind": "moves_decay",
+          "per_turn": 1,
+          "tier": "GC",
+          "fidelity": "approx",
+          "reason": "사용자 규칙(Q25): 잠금 디버프 대신 '매 턴 플레이어 이동 횟수 1 씩 감소'로 반영 (턴 t 의 이동 한도 = 기본 − (t−1), 0 하한)"
+        }
+      ],
+      "gimmick_report": [
+        {
+          "gimmick": "moves_decay",
+          "tier": "GC",
+          "fidelity": "approx",
+          "reason": "사용자 규칙(Q25): 잠금 디버프 대신 '매 턴 플레이어 이동 횟수 1 씩 감소'로 반영 (턴 t 의 이동 한도 = 기본 − (t−1), 0 하한)"
+        }
+      ],
+      "gimmick_tier": "GC"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_30201_vampire.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_30201_vampire.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_30201_Vampire",
+      "name": "뱀파이어",
+      "enabled": true,
+      "act": 3,
+      "tier": "elite",
+      "grade": "elite",
+      "difficulty": "normal",
+      "hp": 2000,
+      "strength": 0,
+      "ai": "random",
+      "patterns": [
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_30201_vampire.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        },
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_30201_vampire.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        },
+        {
+          "key": "2_Multi_3",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 3,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_30201_vampire.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_30201_vampire.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        },
+        {
+          "key": "VampireSkill",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "[체력 아이콘] [X] [2자릿수] [%] 데미지 패턴",
+          "effects": [
+            {
+              "op": "deal_damage",
+              "target": "player",
+              "timing": "immediate",
+              "expr": "PlayerHP_Multi_2"
+            }
+          ],
+          "condition": "hprate<=0.5",
+          "kind": "skip",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {}
+        }
+      ],
+      "gimmicks": [
+        "lifesteal",
+        "immediate:deal_damage",
+        "사용 조건(condition) — 항상 사용 가능으로 근사"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: lifesteal, immediate:deal_damage, 사용 조건(condition) — 항상 사용 가능으로 근사",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "exact",
+      "sim": [
+        {
+          "kind": "lifesteal",
+          "rate": 0.3,
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "공격 후 floor(준 피해 × 비율) 회복",
+          "src": {
+            "rate": {
+              "kind": "monster",
+              "file": "mob_30201_vampire.json",
+              "path": [
+                "passives",
+                0,
+                "ratio"
+              ],
+              "transform": "identity"
+            }
+          }
+        }
+      ],
+      "gimmick_report": [
+        {
+          "gimmick": "lifesteal",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "공격 후 floor(준 피해 × 비율) 회복"
+        },
+        {
+          "gimmick": "VampireSkill:deal_damage",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "직접 피해 (표현식, 환상 피해 감소 없음 — 게임과 같음)"
+        },
+        {
+          "gimmick": "VampireSkill:사용 조건 hprate<=0.5",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "패턴 사용 조건 (표현식 평가기)"
+        }
+      ],
+      "gimmick_tier": "GA"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_30202_knight.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_30202_knight.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_30202_Knight",
+      "name": "기사",
+      "enabled": true,
+      "act": 3,
+      "tier": "elite",
+      "grade": "elite",
+      "difficulty": "normal",
+      "hp": 900,
+      "strength": 0,
+      "ai": "random",
+      "patterns": [
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_30202_knight.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        },
+        {
+          "key": "2_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_30202_knight.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        },
+        {
+          "key": "2_Multi_3",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 3,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_30202_knight.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_30202_knight.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        },
+        {
+          "key": "KnightSkill",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "피해를 400 받으면 해당 버프를 없애고, 힘을 1 얻음",
+          "effects": [
+            {
+              "op": "remove_status",
+              "target": "self",
+              "timing": "immediate",
+              "type": "shield"
+            },
+            {
+              "op": "add_status",
+              "target": "self",
+              "timing": "immediate",
+              "type": "strength",
+              "amount": 1
+            }
+          ],
+          "condition": "damage_taken>=400",
+          "kind": "skip",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {}
+        }
+      ],
+      "gimmicks": [
+        "limit_incoming_damage",
+        "immediate:add_status",
+        "immediate:remove_status",
+        "사용 조건(condition) — 항상 사용 가능으로 근사"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: limit_incoming_damage, immediate:add_status, immediate:remove_status, 사용 조건(condition) — 항상 사용 가능으로 근사",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "exact",
+      "sim": [
+        {
+          "kind": "cap_per_hit",
+          "value": 20,
+          "until_taken": 400,
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "ApplyDamage: 1타 상한 → 방어막 → 체력, 누적 400 이상이면 해제 패턴 사용 가능",
+          "src": {
+            "value": {
+              "kind": "monster",
+              "file": "mob_30202_knight.json",
+              "path": [
+                "passives",
+                0,
+                "maximum"
+              ],
+              "transform": "identity"
+            }
+          }
+        }
+      ],
+      "gimmick_report": [
+        {
+          "gimmick": "cap_per_hit",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "ApplyDamage: 1타 상한 → 방어막 → 체력, 누적 400 이상이면 해제 패턴 사용 가능"
+        },
+        {
+          "gimmick": "KnightSkill:remove_status(shield)",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "상태 제거 (방어막이면 1타 상한도 해제)"
+        },
+        {
+          "gimmick": "KnightSkill:add_status(strength)",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "상태 추가 (힘·기절·출혈·중독·스택·방어막·디버프 상자·상자 잠금)"
+        },
+        {
+          "gimmick": "KnightSkill:사용 조건 damage_taken>=400",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "패턴 사용 조건 (표현식 평가기)"
+        }
+      ],
+      "gimmick_tier": "GA"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_30203_planetarium.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_30203_planetarium.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_30203_Planetarium",
+      "name": "천체투영기",
+      "enabled": true,
+      "act": 3,
+      "tier": "elite",
+      "grade": "elite",
+      "difficulty": "normal",
+      "hp": 1900,
+      "strength": 0,
+      "ai": "static",
+      "patterns": [
+        {
+          "key": "2_Multi_2",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 2,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_30203_planetarium.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_30203_planetarium.json",
+              "path": [
+                "ai",
+                "patterns",
+                0
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        },
+        {
+          "key": "3_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 3,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_30203_planetarium.json",
+              "path": [
+                "ai",
+                "patterns",
+                1
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        },
+        {
+          "key": "2_Multi_3",
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 3,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_30203_planetarium.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            },
+            "hits": {
+              "kind": "monster",
+              "file": "mob_30203_planetarium.json",
+              "path": [
+                "ai",
+                "patterns",
+                2
+              ],
+              "transform": "token_digits",
+              "part": "hits"
+            }
+          }
+        },
+        {
+          "key": "3_Single",
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 3,
+          "hit_digits": null,
+          "str_units": 0,
+          "source": "generic",
+          "src": {
+            "digits": {
+              "kind": "monster",
+              "file": "mob_30203_planetarium.json",
+              "path": [
+                "ai",
+                "patterns",
+                3
+              ],
+              "transform": "token_digits",
+              "part": "digits"
+            }
+          }
+        }
+      ],
+      "gimmicks": [
+        "assign_hidden_digits"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: assign_hidden_digits",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "approx",
+      "sim": [
+        {
+          "kind": "hidden_digits",
+          "count": 2,
+          "ratio": 0.5,
+          "tier": "GB",
+          "fidelity": "approx",
+          "reason": "서로 다른 숨은 숫자 2개, 포함 개수 × 비율(최대 1)만큼 피해. 발견 전 배분은 '포함될 기대 개수'로 판단(정책 근사)"
+        }
+      ],
+      "gimmick_report": [
+        {
+          "gimmick": "hidden_digits",
+          "tier": "GB",
+          "fidelity": "approx",
+          "reason": "서로 다른 숨은 숫자 2개, 포함 개수 × 비율(최대 1)만큼 피해. 발견 전 배분은 '포함될 기대 개수'로 판단(정책 근사)"
+        }
+      ],
+      "gimmick_tier": "GB"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_30301_stargazer.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_30301_stargazer.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_30301_Stargazer",
+      "name": "별관찰자",
+      "enabled": true,
+      "act": 3,
+      "tier": "boss",
+      "grade": "boss",
+      "difficulty": "normal",
+      "hp": 3000,
+      "strength": 0,
+      "ai": "static",
+      "patterns": [
+        {
+          "key": "StargazerSingle",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "3자릿수 단타 + 별 상자에 무작위 0~9까지 숫자 넣기",
+          "effects": [
+            {
+              "op": "create_formula_box",
+              "target": "self",
+              "timing": "immediate",
+              "expr": "Random"
+            }
+          ],
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 3,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "stargazersingle.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "key": "StargazerSingle",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "3자릿수 단타 + 별 상자에 무작위 0~9까지 숫자 넣기",
+          "effects": [
+            {
+              "op": "create_formula_box",
+              "target": "self",
+              "timing": "immediate",
+              "expr": "Random"
+            }
+          ],
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 3,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "stargazersingle.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "key": "StargazerSingle",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "3자릿수 단타 + 별 상자에 무작위 0~9까지 숫자 넣기",
+          "effects": [
+            {
+              "op": "create_formula_box",
+              "target": "self",
+              "timing": "immediate",
+              "expr": "Random"
+            }
+          ],
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 3,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "stargazersingle.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "key": "StargazerSkill",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "지정숫자 3개를 이어놓은 잠금타수만큼의 연타3 패턴 \"유성우\"",
+          "effects": [
+            {
+              "op": "deal_damage",
+              "target": "player",
+              "timing": "immediate",
+              "expr": "Stargazing_Multi_3"
+            }
+          ],
+          "kind": "skip",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {}
+        }
+      ],
+      "gimmicks": [
+        "split_player_boxes",
+        "lock_random_player_matches",
+        "zero_player_special_digits",
+        "immediate:create_formula_box",
+        "immediate:deal_damage"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: split_player_boxes, lock_random_player_matches, zero_player_special_digits, immediate:create_formula_box, immediate:deal_damage",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "exact",
+      "sim": [
+        {
+          "kind": "split_player",
+          "tier": "GB",
+          "fidelity": "exact",
+          "reason": "플레이어 상자 항상 분할 — 자릿수 사이 이동 불가 (사용자 규칙과 같음)"
+        },
+        {
+          "kind": "lock_matches",
+          "timing": "turn_start",
+          "count": 3,
+          "tier": "GB",
+          "fidelity": "exact",
+          "reason": "플레이어 기본 피해 상자의 성냥을 무작위로 잠금(tag=lock) — 잠긴 성냥은 이동 불가"
+        },
+        {
+          "kind": "zero_special_digits",
+          "tier": "GB",
+          "fidelity": "exact",
+          "reason": "별 상자에 든 숫자를 플레이어 기본 피해에서 0 으로 보고 비율만큼 피해 (BattleController 그대로)"
+        }
+      ],
+      "gimmick_report": [
+        {
+          "gimmick": "split_player",
+          "tier": "GB",
+          "fidelity": "exact",
+          "reason": "플레이어 상자 항상 분할 — 자릿수 사이 이동 불가 (사용자 규칙과 같음)"
+        },
+        {
+          "gimmick": "lock_matches",
+          "tier": "GB",
+          "fidelity": "exact",
+          "reason": "플레이어 기본 피해 상자의 성냥을 무작위로 잠금(tag=lock) — 잠긴 성냥은 이동 불가"
+        },
+        {
+          "gimmick": "zero_special_digits",
+          "tier": "GB",
+          "fidelity": "exact",
+          "reason": "별 상자에 든 숫자를 플레이어 기본 피해에서 0 으로 보고 비율만큼 피해 (BattleController 그대로)"
+        },
+        {
+          "gimmick": "StargazerSingle:create_formula_box",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "특수 상자 생성·숫자 추가"
+        },
+        {
+          "gimmick": "StargazerSkill:deal_damage",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "직접 피해 (표현식, 환상 피해 감소 없음 — 게임과 같음)"
+        }
+      ],
+      "gimmick_tier": "GB"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_30302_cosmictree.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_30302_cosmictree.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_30302_CosmicTree",
+      "name": "세계수",
+      "enabled": true,
+      "act": 3,
+      "tier": "boss",
+      "grade": "boss",
+      "difficulty": "normal",
+      "hp": 3000,
+      "strength": 0,
+      "ai": "static",
+      "patterns": [
+        {
+          "key": "CosmictreeSingle",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "공격과 함께 힘 증가",
+          "effects": [
+            {
+              "op": "add_status",
+              "target": "self",
+              "timing": "immediate",
+              "type": "strength",
+              "amount": 1
+            }
+          ],
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "cosmictreesingle.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "key": "CosmictreeSingle",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "공격과 함께 힘 증가",
+          "effects": [
+            {
+              "op": "add_status",
+              "target": "self",
+              "timing": "immediate",
+              "type": "strength",
+              "amount": 1
+            }
+          ],
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 2,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "cosmictreesingle.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "key": "CosmictreeHeal",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "힘 수치 자릿수만큼 힐",
+          "effects": [
+            {
+              "op": "heal",
+              "target": "self",
+              "timing": "immediate",
+              "expr": "CosmictreeHeal"
+            }
+          ],
+          "heal": {
+            "editable": true,
+            "expr": "CosmictreeHeal",
+            "amount": null
+          },
+          "kind": "skip",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {}
+        }
+      ],
+      "gimmicks": [
+        "react_to_zero_damage",
+        "once_per_battle_strength_reset",
+        "immediate:add_status",
+        "immediate:heal"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: react_to_zero_damage, once_per_battle_strength_reset, immediate:add_status, immediate:heal",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "approx",
+      "sim": [
+        {
+          "kind": "zero_damage_str_down",
+          "amount": -1,
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "몬스터가 입힌 피해가 0 이면 힘 감소"
+        },
+        {
+          "kind": "strength_reset",
+          "lock_all": true,
+          "tier": "GB",
+          "fidelity": "approx",
+          "reason": "플레이어가 1회 힘 초기화(이후 플레이어 성냥 전체 잠금). 사용 시점은 정책: 힘이 기본보다 player.policy.reset_at_strength 이상 높으면 사용"
+        }
+      ],
+      "gimmick_report": [
+        {
+          "gimmick": "zero_damage_str_down",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "몬스터가 입힌 피해가 0 이면 힘 감소"
+        },
+        {
+          "gimmick": "strength_reset",
+          "tier": "GB",
+          "fidelity": "approx",
+          "reason": "플레이어가 1회 힘 초기화(이후 플레이어 성냥 전체 잠금). 사용 시점은 정책: 힘이 기본보다 player.policy.reset_at_strength 이상 높으면 사용"
+        },
+        {
+          "gimmick": "CosmictreeSingle:add_status(strength)",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "상태 추가 (힘·기절·출혈·중독·스택·방어막·디버프 상자·상자 잠금)"
+        },
+        {
+          "gimmick": "CosmictreeHeal:heal",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "회복 (편집 가능 회복 상자는 배분 대상)"
+        }
+      ],
+      "gimmick_tier": "GB"
+    },
+    {
+      "src": {
+        "hp": {
+          "kind": "monster",
+          "file": "mob_30303_whale.json",
+          "path": [
+            "stats",
+            "health"
+          ],
+          "transform": "identity"
+        },
+        "strength": {
+          "kind": "monster",
+          "file": "mob_30303_whale.json",
+          "path": [
+            "stats",
+            "strength"
+          ],
+          "transform": "identity"
+        }
+      },
+      "id": "Mob_30303_Whale",
+      "name": "고래",
+      "enabled": true,
+      "act": 3,
+      "tier": "boss",
+      "grade": "boss",
+      "difficulty": "normal",
+      "hp": 3000,
+      "strength": 0,
+      "ai": "random",
+      "patterns": [
+        {
+          "key": "WhaleSingle",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "3자릿수 단타 + 다음턴 고래 전용상자에 무작위 숫자 2개 설정",
+          "effects": [
+            {
+              "op": "create_formula_box",
+              "target": "whale_box",
+              "timing": "next_turn",
+              "expr": "Random",
+              "repeat": 2
+            }
+          ],
+          "kind": "attack",
+          "multi": false,
+          "dmg_digits": 3,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "whalesingle.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        },
+        {
+          "key": "WhalePhase2",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "고래 전용버프 초기화 이후 \"2페이즈\" 버프 설정, 조건은 기초체력 50% 이하로 내려갔을 때 및 Phase 버프값이 1인 경우",
+          "effects": [
+            {
+              "op": "remove_status",
+              "target": "self",
+              "timing": "immediate",
+              "type": "whale_buff"
+            },
+            {
+              "op": "add_status",
+              "target": "self",
+              "timing": "immediate",
+              "type": "phase2"
+            }
+          ],
+          "condition": "HPRate<=0.5 && Phase==1",
+          "kind": "skip",
+          "multi": false,
+          "dmg_digits": null,
+          "hit_digits": null,
+          "str_units": 0,
+          "src": {}
+        },
+        {
+          "key": "WhaleMulti",
+          "source": "pattern",
+          "max_uses": null,
+          "note": "2x3 연타 + 다음턴 고래 전용상자에 무작위 숫자 2개 설정",
+          "effects": [
+            {
+              "op": "create_formula_box",
+              "target": "whale_box",
+              "timing": "next_turn",
+              "expr": "Random",
+              "repeat": 2
+            }
+          ],
+          "kind": "attack",
+          "multi": true,
+          "dmg_digits": 2,
+          "hit_digits": 3,
+          "str_units": 0,
+          "src": {
+            "digits": {
+              "kind": "pattern",
+              "file": "whalemulti.json",
+              "path": [
+                "attack",
+                "damage",
+                "digits"
+              ],
+              "transform": "identity"
+            },
+            "hits": {
+              "kind": "pattern",
+              "file": "whalemulti.json",
+              "path": [
+                "attack",
+                "hits",
+                "digits"
+              ],
+              "transform": "identity"
+            }
+          }
+        }
+      ],
+      "gimmicks": [
+        "require_player_suffix",
+        "phase_transition",
+        "immediate:add_status",
+        "immediate:remove_status",
+        "next_turn:create_formula_box",
+        "사용 조건(condition) — 항상 사용 가능으로 근사"
+      ],
+      "fidelity": "none",
+      "notes": "체력·패턴 종류·순서는 원본, 피해 크기는 등급 평균(gauss) / 미모델링 기믹: require_player_suffix, phase_transition, immediate:add_status, immediate:remove_status, next_turn:create_formula_box, 사용 조건(condition) — 항상 사용 가능으로 근사",
+      "warnings": [],
+      "fidelity_digits": "none",
+      "fidelity_gimmicks": "exact",
+      "sim": [
+        {
+          "kind": "suffix",
+          "digits": 2,
+          "tier": "GC",
+          "fidelity": "exact",
+          "reason": "사용자 규칙(Q25): 1페이즈에 고래 상자 2자리 제시, 기본 피해 끝 2자리가 같을 때만 피해"
+        },
+        {
+          "kind": "phase_two",
+          "hp_rate": 0.5,
+          "split_all": true,
+          "move_limit": 2,
+          "tier": "GC",
+          "fidelity": "exact",
+          "reason": "체력 ≤ floor(기본 × 비율) 이면 2페이즈: 모든 상자 분할, 이동 한도 덮어쓰기 (사용자 규칙과 같음)"
+        }
+      ],
+      "gimmick_report": [
+        {
+          "gimmick": "suffix",
+          "tier": "GC",
+          "fidelity": "exact",
+          "reason": "사용자 규칙(Q25): 1페이즈에 고래 상자 2자리 제시, 기본 피해 끝 2자리가 같을 때만 피해"
+        },
+        {
+          "gimmick": "phase_two",
+          "tier": "GC",
+          "fidelity": "exact",
+          "reason": "체력 ≤ floor(기본 × 비율) 이면 2페이즈: 모든 상자 분할, 이동 한도 덮어쓰기 (사용자 규칙과 같음)"
+        },
+        {
+          "gimmick": "WhaleSingle:create_formula_box",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "특수 상자 생성·숫자 추가"
+        },
+        {
+          "gimmick": "WhalePhase2:remove_status(whale_buff)",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "상태 제거 (방어막이면 1타 상한도 해제)"
+        },
+        {
+          "gimmick": "WhalePhase2:add_status(phase2)",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "상태 추가 (힘·기절·출혈·중독·스택·방어막·디버프 상자·상자 잠금)"
+        },
+        {
+          "gimmick": "WhalePhase2:사용 조건 HPRate<=0.5 && Phase==1",
+          "tier": "GA",
+          "fidelity": "exact",
+          "reason": "패턴 사용 조건 (표현식 평가기)"
+        }
+      ],
+      "gimmick_tier": "GC"
+    }
+  ]
+}

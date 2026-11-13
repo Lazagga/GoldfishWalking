@@ -1,0 +1,33 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_shop_heal",
+    "sourceId":  6,
+    "designerName":  "쿠키",
+    "designerNote":  "상점에 들어갈 때마다, 체력 +200",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "white",
+    "tags":  [
+                 "shop_enter"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "shop_enter"
+                                    },
+                        "target":  {
+                                       "actor":  "player",
+                                       "stat":  "health"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  300.0
+                    }
+                ]
+}

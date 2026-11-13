@@ -1,0 +1,36 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_10101_Fairy",
+    "sourceId":  10101,
+    "designerName":  "요정",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite": "Art/Enemies/Mob_10101_Fairy",
+                         "idleFrames": 4,
+                         "framesPerSecond": 4
+                     },
+    "encounter":  {
+                      "act":  1,
+                      "grade":  "normal",
+                      "difficulty":  "easy"
+                  },
+    "stats":  {
+                  "health":  150,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "random",
+               "patterns":  [
+                                "2_Single",
+                                "2_Multi_1"
+                            ]
+           },
+    "passives":  [
+
+                 ]
+}

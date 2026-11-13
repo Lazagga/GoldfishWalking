@@ -1,0 +1,32 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_number_domino",
+    "sourceId":  55,
+    "designerName":  "도미노",
+    "designerNote":  "내 5보다 작은 숫자가 모두 5로 취급됨",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "blue",
+    "tags":  [
+                 "passive"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "passive"
+                                    },
+                        "target":  {
+                                       "key":  "player_number"
+                                   },
+                        "operation":  "digit_min",
+                        "mode":  "digit_min",
+                        "amount":  5.0
+                    }
+                ]
+}

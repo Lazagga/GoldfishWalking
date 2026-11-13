@@ -1,0 +1,33 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_acquire_watermelon",
+    "sourceId":  23,
+    "designerName":  "수박",
+    "designerNote":  "획득 시 체력 +150",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "white",
+    "tags":  [
+                 "on_acquire"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "on_acquire"
+                                    },
+                        "target":  {
+                                       "actor":  "player",
+                                       "stat":  "health"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  200.0
+                    }
+                ]
+}

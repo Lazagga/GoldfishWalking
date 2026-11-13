@@ -1,0 +1,33 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_end_strawberry",
+    "sourceId":  24,
+    "designerName":  "딸기",
+    "designerNote":  "전투 종료 후 체력 +30",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "white",
+    "tags":  [
+                 "battle_end"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "battle_end"
+                                    },
+                        "target":  {
+                                       "actor":  "player",
+                                       "stat":  "health"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  30.0
+                    }
+                ]
+}

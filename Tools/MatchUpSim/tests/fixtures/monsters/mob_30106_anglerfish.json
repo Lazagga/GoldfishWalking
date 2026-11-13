@@ -1,0 +1,49 @@
+{
+    "schemaVersion":  1,
+    "id":  "Mob_30106_Anglerfish",
+    "sourceId":  30106,
+    "designerName":  "초롱아귀",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite": "Art/Enemies/Mob_30106_Anglerfish"
+                     },
+    "encounter":  {
+                      "act":  3,
+                      "grade":  "normal",
+                      "difficulty":  "normal"
+                  },
+    "stats":  {
+                  "health":  1500,
+                  "strength":  0
+              },
+    "ai":  {
+               "mode":  "random",
+               "patterns":  [
+                                "2_Single",
+                                "2_Multi_3"
+                            ]
+           },
+    "passives":  [
+                     {
+                         "operation":  "react_to_box_edits",
+                         "boxes":  [
+                                       "player.damage",
+                                       "monster.damage",
+                                       "monster.hits"
+                                   ],
+                         "selection":  {
+                                           "groupSize":  2,
+                                           "countPerGroup":  1
+                                       },
+                         "reaction":  {
+                                          "strength":  1,
+                                          "oncePerBox":  true
+                                      }
+                     }
+                 ]
+}

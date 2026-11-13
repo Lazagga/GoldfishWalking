@@ -1,0 +1,46 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_end_trumpcard",
+    "sourceId":  18,
+    "designerName":  "트럼프 카드",
+    "designerNote":  "내 턴이 끝날 때 남아있는 이동 횟수가 임시 이동횟수로 전환",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "white",
+    "tags":  [
+                 "turn_end"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "turn_end"
+                                    },
+                        "target":  {
+                                       "key":  "temporary_movement"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  {
+                                       "expression":  "RemainingMoves"
+                                   }
+                    },
+                    {
+                        "trigger":  {
+                                        "event":  "turn_end"
+                                    },
+                        "target":  {
+                                       "system":  "battle",
+                                       "property":  "movement_limit"
+                                   },
+                        "operation":  "set_value",
+                        "mode":  "set",
+                        "amount":  0
+                    }
+                ]
+}

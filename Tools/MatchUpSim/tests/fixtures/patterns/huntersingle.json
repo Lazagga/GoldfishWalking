@@ -1,0 +1,56 @@
+{
+    "schemaVersion":  1,
+    "id":  "HunterSingle",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "플레이어 기본 피해량 상자를 분리시킨 뒤 하나를 잠금",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  null
+                     },
+    "attack":  {
+                   "damage":  {
+                                  "digits":  2,
+                                  "editable":  true
+                              },
+                   "hits":  {
+                                "fixed":  1
+                            }
+               },
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "next_turn"
+                                    },
+                        "target":  {
+                                       "actor":  "player"
+                                   },
+                        "operation":  "split_box"
+                    },
+                    {
+                        "trigger":  {
+                                        "event":  "next_turn"
+                                    },
+                        "target":  {
+                                       "actor":  "player"
+                                   },
+                        "operation":  "add_status",
+                        "type":  "box_lock",
+                        "amount":  1,
+                        "duration":  {
+                                         "turns":  1,
+                                         "decreaseAt":  "turn_end"
+                                     }
+                    }
+                ],
+    "metadata":  {
+
+                 }
+}

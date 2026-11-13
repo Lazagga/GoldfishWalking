@@ -1,0 +1,60 @@
+{
+    "schemaVersion": 1,
+    "id": "fan_damage_scorpio",
+    "sourceId": 68,
+    "designerName": "전갈자리",
+    "designerNote": "받는 피해의 절반이 출혈 스택으로 전환됨",
+    "enabled": true,
+    "localization": {
+        "name": "",
+        "description": ""
+    },
+    "presentation": {
+        "sprite": ""
+    },
+    "rarity": "red",
+    "tags": [
+        "take_damage",
+        "turn_end"
+    ],
+    "effects": [
+        {
+            "trigger": {
+                "event": "take_damage"
+            },
+            "target": {
+                "key": "damage_taken"
+            },
+            "operation": "modify_value",
+            "mode": "multiply",
+            "amount": 0.5
+        },
+        {
+            "trigger": {
+                "event": "take_damage"
+            },
+            "target": {
+                "key": "scorpio_bleed_stack"
+            },
+            "operation": "modify_value",
+            "mode": "add",
+            "amount": {
+                "expression": "IncomingDamageAmount*0.5"
+            }
+        },
+        {
+            "trigger": {
+                "event": "turn_end"
+            },
+            "target": {
+                "actor": "player",
+                "stat": "health"
+            },
+            "operation": "modify_value",
+            "mode": "add",
+            "amount": {
+                "expression": "-scorpio_bleed_stack"
+            }
+        }
+    ]
+}

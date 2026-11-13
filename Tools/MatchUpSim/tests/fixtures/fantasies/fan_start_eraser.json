@@ -1,0 +1,32 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_start_eraser",
+    "sourceId":  10,
+    "designerName":  "떡지우개",
+    "designerNote":  "전투 시작 시 임시 지우개 +1",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "white",
+    "tags":  [
+                 "battle_start"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "battle_start"
+                                    },
+                        "target":  {
+                                       "key":  "eraser"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  1.0
+                    }
+                ]
+}

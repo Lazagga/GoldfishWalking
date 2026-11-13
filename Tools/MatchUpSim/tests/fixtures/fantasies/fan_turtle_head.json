@@ -1,0 +1,33 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_turtle_head",
+    "sourceId":  2,
+    "designerName":  "거북이 인형",
+    "designerNote":  "머리 위에 거북이를 업고 다닐 수 있음",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "white",
+    "tags":  [
+                 "passive"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "passive"
+                                    },
+                        "target":  {
+                                       "key":  "cosmetic"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  0,
+                        "options":  "Turtle"
+                    }
+                ]
+}

@@ -1,0 +1,1698 @@
+{
+ "meta": {
+  "generated_at": "2026-11-13T12:09:51",
+  "seed": "mon1",
+  "runs": 3000,
+  "monster_model": "table",
+  "damage_model": "gauss",
+  "hp_scale": 1.0,
+  "turn_targets": {
+   "easy": [
+    3,
+    4
+   ],
+   "normal": [
+    3,
+    4
+   ],
+   "elite": [
+    5,
+    6
+   ],
+   "boss": [
+    7,
+    9
+   ]
+  },
+  "gimmicks": "off",
+  "note": "피해 크기는 등급 평균(gauss) — 원본 자릿수 미사용. 기믹 미모델링 몬스터는 경고 표시."
+ },
+ "runs": 3000,
+ "deaths": 842,
+ "wins": 2158,
+ "win_rate": 0.7193,
+ "monsters": [
+  {
+   "id": "Mob_10102_WildDog",
+   "name": "들개",
+   "act": 1,
+   "tier": "easy",
+   "hp": 120,
+   "fidelity": "approx",
+   "gimmicks": [],
+   "warning": "",
+   "battles": 3695,
+   "avg_turns": 2.517,
+   "turns_ci": [
+    2.483,
+    2.55
+   ],
+   "turn_target": [
+    3,
+    4
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 6.75,
+   "death_rate_in_battle": 0.0008,
+   "death_share": 0.0036,
+   "timeouts": 0,
+   "max_hit_avg": 8.11,
+   "max_hit_max": 17,
+   "escapes": 0,
+   "battle_wins": 3692,
+   "battle_win_rate": 0.9992,
+   "battle_win_ci": [
+    0.9976,
+    0.9997
+   ],
+   "runs_met": 2167,
+   "run_win_rate_met": 0.7711,
+   "run_win_ci_met": [
+    0.753,
+    0.7883
+   ]
+  },
+  {
+   "id": "Mob_10103_Slime",
+   "name": "슬라임",
+   "act": 1,
+   "tier": "easy",
+   "hp": 160,
+   "fidelity": "none",
+   "gimmicks": [
+    "next_turn:split_box"
+   ],
+   "warning": "미모델링 기믹: next_turn:split_box",
+   "battles": 3778,
+   "avg_turns": 3.25,
+   "turns_ci": [
+    3.205,
+    3.295
+   ],
+   "turn_target": [
+    3,
+    4
+   ],
+   "turn_verdict": "범위 내",
+   "avg_taken": 11.29,
+   "death_rate_in_battle": 0.0037,
+   "death_share": 0.0166,
+   "timeouts": 0,
+   "max_hit_avg": 8.53,
+   "max_hit_max": 15,
+   "escapes": 0,
+   "battle_wins": 3764,
+   "battle_win_rate": 0.9963,
+   "battle_win_ci": [
+    0.9938,
+    0.9978
+   ],
+   "runs_met": 2224,
+   "run_win_rate_met": 0.7612,
+   "run_win_ci_met": [
+    0.7431,
+    0.7785
+   ]
+  },
+  {
+   "id": "Mob_10101_Fairy",
+   "name": "요정",
+   "act": 1,
+   "tier": "easy",
+   "hp": 150,
+   "fidelity": "approx",
+   "gimmicks": [],
+   "warning": "",
+   "battles": 6753,
+   "avg_turns": 3.57,
+   "turns_ci": [
+    3.539,
+    3.602
+   ],
+   "turn_target": [
+    3,
+    4
+   ],
+   "turn_verdict": "범위 내",
+   "avg_taken": 18.9,
+   "death_rate_in_battle": 0.0028,
+   "death_share": 0.0226,
+   "timeouts": 0,
+   "max_hit_avg": 8.79,
+   "max_hit_max": 16,
+   "escapes": 0,
+   "battle_wins": 6734,
+   "battle_win_rate": 0.9972,
+   "battle_win_ci": [
+    0.9956,
+    0.9982
+   ],
+   "runs_met": 3000,
+   "run_win_rate_met": 0.7193,
+   "run_win_ci_met": [
+    0.703,
+    0.7351
+   ]
+  },
+  {
+   "id": "Mob_10105_Frog",
+   "name": "개구리",
+   "act": 1,
+   "tier": "normal",
+   "hp": 250,
+   "fidelity": "approx",
+   "gimmicks": [],
+   "warning": "",
+   "battles": 2205,
+   "avg_turns": 3.417,
+   "turns_ci": [
+    3.351,
+    3.483
+   ],
+   "turn_target": [
+    3,
+    4
+   ],
+   "turn_verdict": "범위 내",
+   "avg_taken": 1.7,
+   "death_rate_in_battle": 0.0005,
+   "death_share": 0.0012,
+   "timeouts": 0,
+   "max_hit_avg": 3.66,
+   "max_hit_max": 21,
+   "escapes": 0,
+   "battle_wins": 2204,
+   "battle_win_rate": 0.9995,
+   "battle_win_ci": [
+    0.9974,
+    0.9999
+   ],
+   "runs_met": 1545,
+   "run_win_rate_met": 0.8142,
+   "run_win_ci_met": [
+    0.7941,
+    0.8328
+   ]
+  },
+  {
+   "id": "Mob_10106_GiantBird",
+   "name": "거대 새",
+   "act": 1,
+   "tier": "normal",
+   "hp": 225,
+   "fidelity": "approx",
+   "gimmicks": [],
+   "warning": "",
+   "battles": 2239,
+   "avg_turns": 3.284,
+   "turns_ci": [
+    3.217,
+    3.351
+   ],
+   "turn_target": [
+    3,
+    4
+   ],
+   "turn_verdict": "범위 내",
+   "avg_taken": 16.98,
+   "death_rate_in_battle": 0.0112,
+   "death_share": 0.0297,
+   "timeouts": 0,
+   "max_hit_avg": 12.3,
+   "max_hit_max": 22,
+   "escapes": 0,
+   "battle_wins": 2214,
+   "battle_win_rate": 0.9888,
+   "battle_win_ci": [
+    0.9836,
+    0.9924
+   ],
+   "runs_met": 1589,
+   "run_win_rate_met": 0.7885,
+   "run_win_ci_met": [
+    0.7678,
+    0.8079
+   ]
+  },
+  {
+   "id": "Mob_10107_Bandit",
+   "name": "노상강도",
+   "act": 1,
+   "tier": "normal",
+   "hp": 250,
+   "fidelity": "none",
+   "gimmicks": [
+    "immediate:add_status"
+   ],
+   "warning": "미모델링 기믹: immediate:add_status",
+   "battles": 2256,
+   "avg_turns": 3.721,
+   "turns_ci": [
+    3.643,
+    3.799
+   ],
+   "turn_target": [
+    3,
+    4
+   ],
+   "turn_verdict": "범위 내",
+   "avg_taken": 17.73,
+   "death_rate_in_battle": 0.0204,
+   "death_share": 0.0546,
+   "timeouts": 0,
+   "max_hit_avg": 12.55,
+   "max_hit_max": 22,
+   "escapes": 0,
+   "battle_wins": 2210,
+   "battle_win_rate": 0.9796,
+   "battle_win_ci": [
+    0.9729,
+    0.9847
+   ],
+   "runs_met": 1602,
+   "run_win_rate_met": 0.7728,
+   "run_win_ci_met": [
+    0.7516,
+    0.7926
+   ]
+  },
+  {
+   "id": "Mob_10104_MushroomMan",
+   "name": "버섯인간",
+   "act": 1,
+   "tier": "normal",
+   "hp": 220,
+   "fidelity": "none",
+   "gimmicks": [
+    "next_turn:lock_box"
+   ],
+   "warning": "미모델링 기믹: next_turn:lock_box",
+   "battles": 2202,
+   "avg_turns": 3.144,
+   "turns_ci": [
+    3.079,
+    3.209
+   ],
+   "turn_target": [
+    3,
+    4
+   ],
+   "turn_verdict": "범위 내",
+   "avg_taken": 10.3,
+   "death_rate_in_battle": 0.0082,
+   "death_share": 0.0214,
+   "timeouts": 0,
+   "max_hit_avg": 9.68,
+   "max_hit_max": 22,
+   "escapes": 0,
+   "battle_wins": 2184,
+   "battle_win_rate": 0.9918,
+   "battle_win_ci": [
+    0.9871,
+    0.9948
+   ],
+   "runs_met": 1550,
+   "run_win_rate_met": 0.8077,
+   "run_win_ci_met": [
+    0.7874,
+    0.8266
+   ]
+  },
+  {
+   "id": "Mob_10203_Hunter",
+   "name": "사냥꾼",
+   "act": 1,
+   "tier": "elite",
+   "hp": 450,
+   "fidelity": "none",
+   "gimmicks": [
+    "next_turn:add_status",
+    "next_turn:split_box"
+   ],
+   "warning": "미모델링 기믹: next_turn:add_status, next_turn:split_box",
+   "battles": 2055,
+   "avg_turns": 6.151,
+   "turns_ci": [
+    6.008,
+    6.294
+   ],
+   "turn_target": [
+    5,
+    6
+   ],
+   "turn_verdict": "길다",
+   "avg_taken": 42.17,
+   "death_rate_in_battle": 0.0535,
+   "death_share": 0.1306,
+   "timeouts": 0,
+   "max_hit_avg": 18.21,
+   "max_hit_max": 33,
+   "escapes": 0,
+   "battle_wins": 1945,
+   "battle_win_rate": 0.9465,
+   "battle_win_ci": [
+    0.9359,
+    0.9554
+   ],
+   "runs_met": 1579,
+   "run_win_rate_met": 0.7524,
+   "run_win_ci_met": [
+    0.7305,
+    0.773
+   ]
+  },
+  {
+   "id": "Mob_10202_LittleWitch",
+   "name": "작은 마녀",
+   "act": 1,
+   "tier": "elite",
+   "hp": 425,
+   "fidelity": "none",
+   "gimmicks": [
+    "immediate:add_status"
+   ],
+   "warning": "미모델링 기믹: immediate:add_status",
+   "battles": 1964,
+   "avg_turns": 5.64,
+   "turns_ci": [
+    5.507,
+    5.772
+   ],
+   "turn_target": [
+    5,
+    6
+   ],
+   "turn_verdict": "범위 내",
+   "avg_taken": 24.24,
+   "death_rate_in_battle": 0.0112,
+   "death_share": 0.0261,
+   "timeouts": 0,
+   "max_hit_avg": 15.93,
+   "max_hit_max": 29,
+   "escapes": 0,
+   "battle_wins": 1942,
+   "battle_win_rate": 0.9888,
+   "battle_win_ci": [
+    0.9831,
+    0.9926
+   ],
+   "runs_met": 1463,
+   "run_win_rate_met": 0.8175,
+   "run_win_ci_met": [
+    0.7969,
+    0.8365
+   ]
+  },
+  {
+   "id": "Mob_10201_WhiteRabbit",
+   "name": "화이트 래빗",
+   "act": 1,
+   "tier": "elite",
+   "hp": 400,
+   "fidelity": "none",
+   "gimmicks": [
+    "countdown"
+   ],
+   "warning": "미모델링 기믹: countdown",
+   "battles": 2037,
+   "avg_turns": 5.454,
+   "turns_ci": [
+    5.326,
+    5.581
+   ],
+   "turn_target": [
+    5,
+    6
+   ],
+   "turn_verdict": "범위 내",
+   "avg_taken": 48.59,
+   "death_rate_in_battle": 0.0977,
+   "death_share": 0.2363,
+   "timeouts": 0,
+   "max_hit_avg": 20.73,
+   "max_hit_max": 50,
+   "escapes": 0,
+   "battle_wins": 1838,
+   "battle_win_rate": 0.9023,
+   "battle_win_ci": [
+    0.8886,
+    0.9145
+   ],
+   "runs_met": 1588,
+   "run_win_rate_met": 0.7286,
+   "run_win_ci_met": [
+    0.7062,
+    0.7499
+   ]
+  },
+  {
+   "id": "Mob_10302_Witch",
+   "name": "마녀",
+   "act": 1,
+   "tier": "boss",
+   "hp": 750,
+   "fidelity": "none",
+   "gimmicks": [
+    "lock_random_player_matches",
+    "immediate:add_status"
+   ],
+   "warning": "미모델링 기믹: lock_random_player_matches, immediate:add_status",
+   "battles": 848,
+   "avg_turns": 5.318,
+   "turns_ci": [
+    5.109,
+    5.528
+   ],
+   "turn_target": [
+    7,
+    9
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 31.46,
+   "death_rate_in_battle": 0.0212,
+   "death_share": 0.0214,
+   "timeouts": 0,
+   "max_hit_avg": 20.45,
+   "max_hit_max": 40,
+   "escapes": 0,
+   "battle_wins": 830,
+   "battle_win_rate": 0.9788,
+   "battle_win_ci": [
+    0.9667,
+    0.9865
+   ],
+   "runs_met": 848,
+   "run_win_rate_met": 0.8384,
+   "run_win_ci_met": [
+    0.8122,
+    0.8617
+   ]
+  },
+  {
+   "id": "Mob_10303_Elf",
+   "name": "엘프",
+   "act": 1,
+   "tier": "boss",
+   "hp": 500,
+   "fidelity": "none",
+   "gimmicks": [
+    "aimed_shot"
+   ],
+   "warning": "미모델링 기믹: aimed_shot",
+   "battles": 860,
+   "avg_turns": 3.671,
+   "turns_ci": [
+    3.522,
+    3.819
+   ],
+   "turn_target": [
+    7,
+    9
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 32.24,
+   "death_rate_in_battle": 0.0163,
+   "death_share": 0.0166,
+   "timeouts": 0,
+   "max_hit_avg": 19.18,
+   "max_hit_max": 32,
+   "escapes": 0,
+   "battle_wins": 846,
+   "battle_win_rate": 0.9837,
+   "battle_win_ci": [
+    0.9729,
+    0.9903
+   ],
+   "runs_met": 860,
+   "run_win_rate_met": 0.8349,
+   "run_win_ci_met": [
+    0.8086,
+    0.8582
+   ]
+  },
+  {
+   "id": "Mob_10301_HeartQueen",
+   "name": "하트 여왕",
+   "act": 1,
+   "tier": "boss",
+   "hp": 600,
+   "fidelity": "none",
+   "gimmicks": [
+    "countdown",
+    "immediate:deal_damage",
+    "사용 조건(condition) — 항상 사용 가능으로 근사"
+   ],
+   "warning": "미모델링 기믹: countdown, immediate:deal_damage, 사용 조건(condition) — 항상 사용 가능으로 근사",
+   "battles": 836,
+   "avg_turns": 4.286,
+   "turns_ci": [
+    4.113,
+    4.459
+   ],
+   "turn_target": [
+    7,
+    9
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 27.9,
+   "death_rate_in_battle": 0.0156,
+   "death_share": 0.0154,
+   "timeouts": 0,
+   "max_hit_avg": 19.43,
+   "max_hit_max": 33,
+   "escapes": 0,
+   "battle_wins": 823,
+   "battle_win_rate": 0.9844,
+   "battle_win_ci": [
+    0.9736,
+    0.9909
+   ],
+   "runs_met": 835,
+   "run_win_rate_met": 0.8731,
+   "run_win_ci_met": [
+    0.8488,
+    0.8939
+   ]
+  },
+  {
+   "id": "Mob_20102_Robber",
+   "name": "강도",
+   "act": 2,
+   "tier": "easy",
+   "hp": 520,
+   "fidelity": "none",
+   "gimmicks": [
+    "immediate:add_status"
+   ],
+   "warning": "미모델링 기믹: immediate:add_status",
+   "battles": 2539,
+   "avg_turns": 2.683,
+   "turns_ci": [
+    2.61,
+    2.755
+   ],
+   "turn_target": [
+    3,
+    4
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 8.65,
+   "death_rate_in_battle": 0.0102,
+   "death_share": 0.0309,
+   "timeouts": 0,
+   "max_hit_avg": 13.62,
+   "max_hit_max": 26,
+   "escapes": 0,
+   "battle_wins": 2513,
+   "battle_win_rate": 0.9898,
+   "battle_win_ci": [
+    0.985,
+    0.993
+   ],
+   "runs_met": 1589,
+   "run_win_rate_met": 0.932,
+   "run_win_ci_met": [
+    0.9186,
+    0.9434
+   ]
+  },
+  {
+   "id": "Mob_20101_Snowman",
+   "name": "눈사람",
+   "act": 2,
+   "tier": "easy",
+   "hp": 560,
+   "fidelity": "approx",
+   "gimmicks": [],
+   "warning": "",
+   "battles": 2459,
+   "avg_turns": 2.728,
+   "turns_ci": [
+    2.647,
+    2.808
+   ],
+   "turn_target": [
+    3,
+    4
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 12.39,
+   "death_rate_in_battle": 0.0098,
+   "death_share": 0.0285,
+   "timeouts": 0,
+   "max_hit_avg": 13.53,
+   "max_hit_max": 27,
+   "escapes": 0,
+   "battle_wins": 2435,
+   "battle_win_rate": 0.9902,
+   "battle_win_ci": [
+    0.9855,
+    0.9934
+   ],
+   "runs_met": 1582,
+   "run_win_rate_met": 0.9292,
+   "run_win_ci_met": [
+    0.9155,
+    0.9408
+   ]
+  },
+  {
+   "id": "Mob_20103_Ghost",
+   "name": "유령",
+   "act": 2,
+   "tier": "easy",
+   "hp": 640,
+   "fidelity": "none",
+   "gimmicks": [
+    "next_turn:split_box"
+   ],
+   "warning": "미모델링 기믹: next_turn:split_box",
+   "battles": 2564,
+   "avg_turns": 3.052,
+   "turns_ci": [
+    2.965,
+    3.139
+   ],
+   "turn_target": [
+    3,
+    4
+   ],
+   "turn_verdict": "불확실",
+   "avg_taken": 12.28,
+   "death_rate_in_battle": 0.0152,
+   "death_share": 0.0463,
+   "timeouts": 0,
+   "max_hit_avg": 13.85,
+   "max_hit_max": 26,
+   "escapes": 0,
+   "battle_wins": 2525,
+   "battle_win_rate": 0.9848,
+   "battle_win_ci": [
+    0.9793,
+    0.9889
+   ],
+   "runs_met": 1613,
+   "run_win_rate_met": 0.9318,
+   "run_win_ci_met": [
+    0.9184,
+    0.9431
+   ]
+  },
+  {
+   "id": "Mob_20107_Guard",
+   "name": "경비병",
+   "act": 2,
+   "tier": "normal",
+   "hp": 297,
+   "fidelity": "none",
+   "gimmicks": [
+    "limit_incoming_damage"
+   ],
+   "warning": "미모델링 기믹: limit_incoming_damage",
+   "battles": 2550,
+   "avg_turns": 1.868,
+   "turns_ci": [
+    1.821,
+    1.915
+   ],
+   "turn_target": [
+    3,
+    4
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 7.76,
+   "death_rate_in_battle": 0.0067,
+   "death_share": 0.0202,
+   "timeouts": 0,
+   "max_hit_avg": 18.32,
+   "max_hit_max": 37,
+   "escapes": 0,
+   "battle_wins": 2533,
+   "battle_win_rate": 0.9933,
+   "battle_win_ci": [
+    0.9893,
+    0.9958
+   ],
+   "runs_met": 1614,
+   "run_win_rate_met": 0.9325,
+   "run_win_ci_met": [
+    0.9192,
+    0.9437
+   ]
+  },
+  {
+   "id": "Mob_20104_Magician",
+   "name": "마술사",
+   "act": 2,
+   "tier": "normal",
+   "hp": 680,
+   "fidelity": "none",
+   "gimmicks": [
+    "aimed_shot",
+    "add_formula_decoy_digits"
+   ],
+   "warning": "미모델링 기믹: aimed_shot, add_formula_decoy_digits",
+   "battles": 2571,
+   "avg_turns": 3.14,
+   "turns_ci": [
+    3.057,
+    3.223
+   ],
+   "turn_target": [
+    3,
+    4
+   ],
+   "turn_verdict": "범위 내",
+   "avg_taken": 23.44,
+   "death_rate_in_battle": 0.0327,
+   "death_share": 0.0998,
+   "timeouts": 0,
+   "max_hit_avg": 20.16,
+   "max_hit_max": 37,
+   "escapes": 0,
+   "battle_wins": 2487,
+   "battle_win_rate": 0.9673,
+   "battle_win_ci": [
+    0.9597,
+    0.9735
+   ],
+   "runs_met": 1631,
+   "run_win_rate_met": 0.9068,
+   "run_win_ci_met": [
+    0.8917,
+    0.92
+   ]
+  },
+  {
+   "id": "Mob_20105_Automaton",
+   "name": "자동인형",
+   "act": 2,
+   "tier": "normal",
+   "hp": 720,
+   "fidelity": "none",
+   "gimmicks": [
+    "immediate:add_status",
+    "immediate:set_status"
+   ],
+   "warning": "미모델링 기믹: immediate:add_status, immediate:set_status",
+   "battles": 2558,
+   "avg_turns": 3.403,
+   "turns_ci": [
+    3.302,
+    3.505
+   ],
+   "turn_target": [
+    3,
+    4
+   ],
+   "turn_verdict": "범위 내",
+   "avg_taken": 17.92,
+   "death_rate_in_battle": 0.0262,
+   "death_share": 0.0796,
+   "timeouts": 0,
+   "max_hit_avg": 20.49,
+   "max_hit_max": 38,
+   "escapes": 0,
+   "battle_wins": 2491,
+   "battle_win_rate": 0.9738,
+   "battle_win_ci": [
+    0.9669,
+    0.9793
+   ],
+   "runs_met": 1614,
+   "run_win_rate_met": 0.9157,
+   "run_win_ci_met": [
+    0.9012,
+    0.9283
+   ]
+  },
+  {
+   "id": "Mob_20106_GiantRat",
+   "name": "쥐",
+   "act": 2,
+   "tier": "normal",
+   "hp": 560,
+   "fidelity": "none",
+   "gimmicks": [
+    "immediate:add_status",
+    "immediate:heal"
+   ],
+   "warning": "미모델링 기믹: immediate:add_status, immediate:heal",
+   "battles": 2543,
+   "avg_turns": 2.696,
+   "turns_ci": [
+    2.614,
+    2.778
+   ],
+   "turn_target": [
+    3,
+    4
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 14.85,
+   "death_rate_in_battle": 0.0114,
+   "death_share": 0.0344,
+   "timeouts": 1,
+   "max_hit_avg": 19.06,
+   "max_hit_max": 36,
+   "escapes": 0,
+   "battle_wins": 2513,
+   "battle_win_rate": 0.9882,
+   "battle_win_ci": [
+    0.9832,
+    0.9917
+   ],
+   "runs_met": 1601,
+   "run_win_rate_met": 0.9407,
+   "run_win_ci_met": [
+    0.928,
+    0.9512
+   ]
+  },
+  {
+   "id": "Mob_20202_Alchemist",
+   "name": "연금술사",
+   "act": 2,
+   "tier": "elite",
+   "hp": 960,
+   "fidelity": "none",
+   "gimmicks": [
+    "immediate:add_status",
+    "next_turn:multiply_stat"
+   ],
+   "warning": "미모델링 기믹: immediate:add_status, next_turn:multiply_stat",
+   "battles": 2159,
+   "avg_turns": 3.579,
+   "turns_ci": [
+    3.468,
+    3.689
+   ],
+   "turn_target": [
+    5,
+    6
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 14.68,
+   "death_rate_in_battle": 0.0056,
+   "death_share": 0.0143,
+   "timeouts": 0,
+   "max_hit_avg": 24.12,
+   "max_hit_max": 47,
+   "escapes": 0,
+   "battle_wins": 2147,
+   "battle_win_rate": 0.9944,
+   "battle_win_ci": [
+    0.9903,
+    0.9968
+   ],
+   "runs_met": 1473,
+   "run_win_rate_met": 0.9722,
+   "run_win_ci_met": [
+    0.9625,
+    0.9794
+   ]
+  },
+  {
+   "id": "Mob_20201_FortuneTeller",
+   "name": "점술사",
+   "act": 2,
+   "tier": "elite",
+   "hp": 800,
+   "fidelity": "none",
+   "gimmicks": [
+    "immediate:add_status",
+    "immediate:set_status",
+    "사용 조건(condition) — 항상 사용 가능으로 근사",
+    "피해 초기값 표현식 {\"expression\": \"FortuneStack\"}"
+   ],
+   "warning": "미모델링 기믹: immediate:add_status, immediate:set_status, 사용 조건(condition) — 항상 사용 가능으로 근사, 피해 초기값 표현식 {\"expression\": \"FortuneStack\"}",
+   "battles": 2203,
+   "avg_turns": 3.081,
+   "turns_ci": [
+    2.99,
+    3.173
+   ],
+   "turn_target": [
+    5,
+    6
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 25.07,
+   "death_rate_in_battle": 0.0095,
+   "death_share": 0.0249,
+   "timeouts": 0,
+   "max_hit_avg": 26.37,
+   "max_hit_max": 50,
+   "escapes": 0,
+   "battle_wins": 2182,
+   "battle_win_rate": 0.9905,
+   "battle_win_ci": [
+    0.9855,
+    0.9938
+   ],
+   "runs_met": 1489,
+   "run_win_rate_met": 0.9637,
+   "run_win_ci_met": [
+    0.953,
+    0.9721
+   ]
+  },
+  {
+   "id": "Mob_20203_Conductor",
+   "name": "지휘자",
+   "act": 2,
+   "tier": "elite",
+   "hp": 720,
+   "fidelity": "none",
+   "gimmicks": [
+    "aimed_shot",
+    "require_formula_condition"
+   ],
+   "warning": "미모델링 기믹: aimed_shot, require_formula_condition",
+   "battles": 2192,
+   "avg_turns": 2.78,
+   "turns_ci": [
+    2.699,
+    2.86
+   ],
+   "turn_target": [
+    5,
+    6
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 24.89,
+   "death_rate_in_battle": 0.01,
+   "death_share": 0.0261,
+   "timeouts": 0,
+   "max_hit_avg": 25.78,
+   "max_hit_max": 45,
+   "escapes": 0,
+   "battle_wins": 2170,
+   "battle_win_rate": 0.99,
+   "battle_win_ci": [
+    0.9848,
+    0.9934
+   ],
+   "runs_met": 1448,
+   "run_win_rate_met": 0.971,
+   "run_win_ci_met": [
+    0.961,
+    0.9785
+   ]
+  },
+  {
+   "id": "Mob_20302_PlagueDoctor",
+   "name": "역병 의사",
+   "act": 2,
+   "tier": "boss",
+   "hp": 1200,
+   "fidelity": "none",
+   "gimmicks": [
+    "immediate:add_status",
+    "immediate:multiply_stat"
+   ],
+   "warning": "미모델링 기믹: immediate:add_status, immediate:multiply_stat",
+   "battles": 720,
+   "avg_turns": 2.779,
+   "turns_ci": [
+    2.635,
+    2.924
+   ],
+   "turn_target": [
+    7,
+    9
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 11.2,
+   "death_rate_in_battle": 0.0028,
+   "death_share": 0.0024,
+   "timeouts": 0,
+   "max_hit_avg": 27.96,
+   "max_hit_max": 48,
+   "escapes": 0,
+   "battle_wins": 718,
+   "battle_win_rate": 0.9972,
+   "battle_win_ci": [
+    0.9899,
+    0.9992
+   ],
+   "runs_met": 720,
+   "run_win_rate_met": 0.9819,
+   "run_win_ci_met": [
+    0.9694,
+    0.9894
+   ]
+  },
+  {
+   "id": "Mob_20303_Prophet",
+   "name": "예언자",
+   "act": 2,
+   "tier": "boss",
+   "hp": 1320,
+   "fidelity": "none",
+   "gimmicks": [
+    "immediate:add_status",
+    "immediate:set_status",
+    "피해 초기값 표현식 {\"expression\": \"ProphetStack\"}"
+   ],
+   "warning": "미모델링 기믹: immediate:add_status, immediate:set_status, 피해 초기값 표현식 {\"expression\": \"ProphetStack\"}",
+   "battles": 724,
+   "avg_turns": 2.844,
+   "turns_ci": [
+    2.707,
+    2.981
+   ],
+   "turn_target": [
+    7,
+    9
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 25.34,
+   "death_rate_in_battle": 0.0,
+   "death_share": 0.0,
+   "timeouts": 0,
+   "max_hit_avg": 30.92,
+   "max_hit_max": 50,
+   "escapes": 0,
+   "battle_wins": 724,
+   "battle_win_rate": 1.0,
+   "battle_win_ci": [
+    0.9947,
+    1.0
+   ],
+   "runs_met": 724,
+   "run_win_rate_met": 0.982,
+   "run_win_ci_met": [
+    0.9695,
+    0.9895
+   ]
+  },
+  {
+   "id": "Mob_20301_PiedPiper",
+   "name": "피리부는사나이",
+   "act": 2,
+   "tier": "boss",
+   "hp": 1120,
+   "fidelity": "none",
+   "gimmicks": [
+    "aimed_shot",
+    "require_formula_condition"
+   ],
+   "warning": "미모델링 기믹: aimed_shot, require_formula_condition",
+   "battles": 750,
+   "avg_turns": 2.575,
+   "turns_ci": [
+    2.452,
+    2.697
+   ],
+   "turn_target": [
+    7,
+    9
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 13.23,
+   "death_rate_in_battle": 0.008,
+   "death_share": 0.0071,
+   "timeouts": 0,
+   "max_hit_avg": 25.11,
+   "max_hit_max": 64,
+   "escapes": 0,
+   "battle_wins": 744,
+   "battle_win_rate": 0.992,
+   "battle_win_ci": [
+    0.9827,
+    0.9963
+   ],
+   "runs_met": 749,
+   "run_win_rate_met": 0.988,
+   "run_win_ci_met": [
+    0.9773,
+    0.9937
+   ]
+  },
+  {
+   "id": "Mob_30101_SteelScarecrow",
+   "name": "강철 허수아비",
+   "act": 3,
+   "tier": "easy",
+   "hp": 900,
+   "fidelity": "none",
+   "gimmicks": [
+    "lock_box"
+   ],
+   "warning": "미모델링 기믹: lock_box",
+   "battles": 2375,
+   "avg_turns": 1.59,
+   "turns_ci": [
+    1.549,
+    1.632
+   ],
+   "turn_target": [
+    3,
+    4
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 3.04,
+   "death_rate_in_battle": 0.0,
+   "death_share": 0.0,
+   "timeouts": 0,
+   "max_hit_avg": 7.38,
+   "max_hit_max": 35,
+   "escapes": 0,
+   "battle_wins": 2375,
+   "battle_win_rate": 1.0,
+   "battle_win_ci": [
+    0.9984,
+    1.0
+   ],
+   "runs_met": 1497,
+   "run_win_rate_met": 0.996,
+   "run_win_ci_met": [
+    0.9913,
+    0.9982
+   ]
+  },
+  {
+   "id": "Mob_30103_Orb",
+   "name": "구체",
+   "act": 3,
+   "tier": "easy",
+   "hp": 850,
+   "fidelity": "none",
+   "gimmicks": [
+    "immediate:deal_damage"
+   ],
+   "warning": "미모델링 기믹: immediate:deal_damage",
+   "battles": 2395,
+   "avg_turns": 1.539,
+   "turns_ci": [
+    1.498,
+    1.58
+   ],
+   "turn_target": [
+    3,
+    4
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 6.39,
+   "death_rate_in_battle": 0.0004,
+   "death_share": 0.0012,
+   "timeouts": 0,
+   "max_hit_avg": 16.4,
+   "max_hit_max": 36,
+   "escapes": 0,
+   "battle_wins": 2394,
+   "battle_win_rate": 0.9996,
+   "battle_win_ci": [
+    0.9976,
+    0.9999
+   ],
+   "runs_met": 1519,
+   "run_win_rate_met": 0.9941,
+   "run_win_ci_met": [
+    0.9888,
+    0.9969
+   ]
+  },
+  {
+   "id": "Mob_30102_Jellyfish",
+   "name": "해파리",
+   "act": 3,
+   "tier": "easy",
+   "hp": 800,
+   "fidelity": "none",
+   "gimmicks": [
+    "immediate:add_status",
+    "immediate:heal"
+   ],
+   "warning": "미모델링 기믹: immediate:add_status, immediate:heal",
+   "battles": 2331,
+   "avg_turns": 1.512,
+   "turns_ci": [
+    1.471,
+    1.552
+   ],
+   "turn_target": [
+    3,
+    4
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 3.26,
+   "death_rate_in_battle": 0.0004,
+   "death_share": 0.0012,
+   "timeouts": 0,
+   "max_hit_avg": 16.31,
+   "max_hit_max": 35,
+   "escapes": 0,
+   "battle_wins": 2330,
+   "battle_win_rate": 0.9996,
+   "battle_win_ci": [
+    0.9976,
+    0.9999
+   ],
+   "runs_met": 1492,
+   "run_win_rate_met": 0.994,
+   "run_win_ci_met": [
+    0.9886,
+    0.9968
+   ]
+  },
+  {
+   "id": "Mob_30105_Golem",
+   "name": "골렘",
+   "act": 3,
+   "tier": "normal",
+   "hp": 1000,
+   "fidelity": "none",
+   "gimmicks": [
+    "set_match_mobility"
+   ],
+   "warning": "미모델링 기믹: set_match_mobility",
+   "battles": 2348,
+   "avg_turns": 1.776,
+   "turns_ci": [
+    1.723,
+    1.828
+   ],
+   "turn_target": [
+    3,
+    4
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 8.51,
+   "death_rate_in_battle": 0.0038,
+   "death_share": 0.0107,
+   "timeouts": 0,
+   "max_hit_avg": 24.99,
+   "max_hit_max": 48,
+   "escapes": 0,
+   "battle_wins": 2339,
+   "battle_win_rate": 0.9962,
+   "battle_win_ci": [
+    0.9927,
+    0.998
+   ],
+   "runs_met": 1471,
+   "run_win_rate_met": 0.9939,
+   "run_win_ci_met": [
+    0.9884,
+    0.9968
+   ]
+  },
+  {
+   "id": "Mob_30107_Shadow",
+   "name": "그림자",
+   "act": 3,
+   "tier": "normal",
+   "hp": 1200,
+   "fidelity": "none",
+   "gimmicks": [
+    "accumulate_lock_debuff"
+   ],
+   "warning": "미모델링 기믹: accumulate_lock_debuff",
+   "battles": 2250,
+   "avg_turns": 1.967,
+   "turns_ci": [
+    1.907,
+    2.026
+   ],
+   "turn_target": [
+    3,
+    4
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 10.32,
+   "death_rate_in_battle": 0.0027,
+   "death_share": 0.0071,
+   "timeouts": 0,
+   "max_hit_avg": 25.44,
+   "max_hit_max": 57,
+   "escapes": 0,
+   "battle_wins": 2244,
+   "battle_win_rate": 0.9973,
+   "battle_win_ci": [
+    0.9942,
+    0.9988
+   ],
+   "runs_met": 1429,
+   "run_win_rate_met": 0.9916,
+   "run_win_ci_met": [
+    0.9854,
+    0.9952
+   ]
+  },
+  {
+   "id": "Mob_30104_Librarian",
+   "name": "사서",
+   "act": 3,
+   "tier": "normal",
+   "hp": 900,
+   "fidelity": "none",
+   "gimmicks": [
+    "immediate:librarian_skill"
+   ],
+   "warning": "미모델링 기믹: immediate:librarian_skill",
+   "battles": 2270,
+   "avg_turns": 1.571,
+   "turns_ci": [
+    1.527,
+    1.615
+   ],
+   "turn_target": [
+    3,
+    4
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 9.62,
+   "death_rate_in_battle": 0.0013,
+   "death_share": 0.0036,
+   "timeouts": 0,
+   "max_hit_avg": 24.16,
+   "max_hit_max": 53,
+   "escapes": 0,
+   "battle_wins": 2267,
+   "battle_win_rate": 0.9987,
+   "battle_win_ci": [
+    0.9961,
+    0.9996
+   ],
+   "runs_met": 1435,
+   "run_win_rate_met": 0.9951,
+   "run_win_ci_met": [
+    0.99,
+    0.9976
+   ]
+  },
+  {
+   "id": "Mob_30106_Anglerfish",
+   "name": "초롱아귀",
+   "act": 3,
+   "tier": "normal",
+   "hp": 1500,
+   "fidelity": "none",
+   "gimmicks": [
+    "react_to_box_edits"
+   ],
+   "warning": "미모델링 기믹: react_to_box_edits",
+   "battles": 2312,
+   "avg_turns": 2.236,
+   "turns_ci": [
+    2.165,
+    2.307
+   ],
+   "turn_target": [
+    3,
+    4
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 15.56,
+   "death_rate_in_battle": 0.003,
+   "death_share": 0.0083,
+   "timeouts": 0,
+   "max_hit_avg": 26.22,
+   "max_hit_max": 52,
+   "escapes": 0,
+   "battle_wins": 2305,
+   "battle_win_rate": 0.997,
+   "battle_win_ci": [
+    0.9938,
+    0.9985
+   ],
+   "runs_met": 1475,
+   "run_win_rate_met": 0.9932,
+   "run_win_ci_met": [
+    0.9876,
+    0.9963
+   ]
+  },
+  {
+   "id": "Mob_30202_Knight",
+   "name": "기사",
+   "act": 3,
+   "tier": "elite",
+   "hp": 900,
+   "fidelity": "none",
+   "gimmicks": [
+    "limit_incoming_damage",
+    "immediate:add_status",
+    "immediate:remove_status",
+    "사용 조건(condition) — 항상 사용 가능으로 근사"
+   ],
+   "warning": "미모델링 기믹: limit_incoming_damage, immediate:add_status, immediate:remove_status, 사용 조건(condition) — 항상 사용 가능으로 근사",
+   "battles": 2327,
+   "avg_turns": 1.419,
+   "turns_ci": [
+    1.382,
+    1.456
+   ],
+   "turn_target": [
+    5,
+    6
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 7.59,
+   "death_rate_in_battle": 0.0,
+   "death_share": 0.0,
+   "timeouts": 0,
+   "max_hit_avg": 24.87,
+   "max_hit_max": 58,
+   "escapes": 0,
+   "battle_wins": 2327,
+   "battle_win_rate": 1.0,
+   "battle_win_ci": [
+    0.9984,
+    1.0
+   ],
+   "runs_met": 1512,
+   "run_win_rate_met": 0.9974,
+   "run_win_ci_met": [
+    0.9932,
+    0.999
+   ]
+  },
+  {
+   "id": "Mob_30201_Vampire",
+   "name": "뱀파이어",
+   "act": 3,
+   "tier": "elite",
+   "hp": 2000,
+   "fidelity": "none",
+   "gimmicks": [
+    "lifesteal",
+    "immediate:deal_damage",
+    "사용 조건(condition) — 항상 사용 가능으로 근사"
+   ],
+   "warning": "미모델링 기믹: lifesteal, immediate:deal_damage, 사용 조건(condition) — 항상 사용 가능으로 근사",
+   "battles": 2394,
+   "avg_turns": 2.425,
+   "turns_ci": [
+    2.35,
+    2.501
+   ],
+   "turn_target": [
+    5,
+    6
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 16.52,
+   "death_rate_in_battle": 0.0017,
+   "death_share": 0.0048,
+   "timeouts": 0,
+   "max_hit_avg": 30.41,
+   "max_hit_max": 60,
+   "escapes": 0,
+   "battle_wins": 2390,
+   "battle_win_rate": 0.9983,
+   "battle_win_ci": [
+    0.9957,
+    0.9994
+   ],
+   "runs_met": 1545,
+   "run_win_rate_met": 0.9968,
+   "run_win_ci_met": [
+    0.9924,
+    0.9986
+   ]
+  },
+  {
+   "id": "Mob_30203_Planetarium",
+   "name": "천체투영기",
+   "act": 3,
+   "tier": "elite",
+   "hp": 1900,
+   "fidelity": "none",
+   "gimmicks": [
+    "assign_hidden_digits"
+   ],
+   "warning": "미모델링 기믹: assign_hidden_digits",
+   "battles": 2360,
+   "avg_turns": 2.3,
+   "turns_ci": [
+    2.221,
+    2.379
+   ],
+   "turn_target": [
+    5,
+    6
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 22.76,
+   "death_rate_in_battle": 0.0008,
+   "death_share": 0.0024,
+   "timeouts": 0,
+   "max_hit_avg": 34.72,
+   "max_hit_max": 66,
+   "escapes": 0,
+   "battle_wins": 2358,
+   "battle_win_rate": 0.9992,
+   "battle_win_ci": [
+    0.9969,
+    0.9998
+   ],
+   "runs_met": 1541,
+   "run_win_rate_met": 0.9961,
+   "run_win_ci_met": [
+    0.9915,
+    0.9982
+   ]
+  },
+  {
+   "id": "Mob_30303_Whale",
+   "name": "고래",
+   "act": 3,
+   "tier": "boss",
+   "hp": 3000,
+   "fidelity": "none",
+   "gimmicks": [
+    "require_player_suffix",
+    "phase_transition",
+    "immediate:add_status",
+    "immediate:remove_status",
+    "next_turn:create_formula_box",
+    "사용 조건(condition) — 항상 사용 가능으로 근사"
+   ],
+   "warning": "미모델링 기믹: require_player_suffix, phase_transition, immediate:add_status, immediate:remove_status, next_turn:create_formula_box, 사용 조건(condition) — 항상 사용 가능으로 근사",
+   "battles": 710,
+   "avg_turns": 2.266,
+   "turns_ci": [
+    2.112,
+    2.42
+   ],
+   "turn_target": [
+    7,
+    9
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 15.85,
+   "death_rate_in_battle": 0.0042,
+   "death_share": 0.0036,
+   "timeouts": 0,
+   "max_hit_avg": 32.24,
+   "max_hit_max": 67,
+   "escapes": 0,
+   "battle_wins": 707,
+   "battle_win_rate": 0.9958,
+   "battle_win_ci": [
+    0.9877,
+    0.9986
+   ],
+   "runs_met": 709,
+   "run_win_rate_met": 0.9972,
+   "run_win_ci_met": [
+    0.9898,
+    0.9992
+   ]
+  },
+  {
+   "id": "Mob_30301_Stargazer",
+   "name": "별관찰자",
+   "act": 3,
+   "tier": "boss",
+   "hp": 3000,
+   "fidelity": "none",
+   "gimmicks": [
+    "split_player_boxes",
+    "lock_random_player_matches",
+    "zero_player_special_digits",
+    "immediate:create_formula_box",
+    "immediate:deal_damage"
+   ],
+   "warning": "미모델링 기믹: split_player_boxes, lock_random_player_matches, zero_player_special_digits, immediate:create_formula_box, immediate:deal_damage",
+   "battles": 749,
+   "avg_turns": 2.235,
+   "turns_ci": [
+    2.106,
+    2.364
+   ],
+   "turn_target": [
+    7,
+    9
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 15.05,
+   "death_rate_in_battle": 0.0,
+   "death_share": 0.0,
+   "timeouts": 0,
+   "max_hit_avg": 40.97,
+   "max_hit_max": 68,
+   "escapes": 0,
+   "battle_wins": 749,
+   "battle_win_rate": 1.0,
+   "battle_win_ci": [
+    0.9949,
+    1.0
+   ],
+   "runs_met": 749,
+   "run_win_rate_met": 1.0,
+   "run_win_ci_met": [
+    0.9949,
+    1.0
+   ]
+  },
+  {
+   "id": "Mob_30302_CosmicTree",
+   "name": "세계수",
+   "act": 3,
+   "tier": "boss",
+   "hp": 3000,
+   "fidelity": "none",
+   "gimmicks": [
+    "react_to_zero_damage",
+    "once_per_battle_strength_reset",
+    "immediate:add_status",
+    "immediate:heal"
+   ],
+   "warning": "미모델링 기믹: react_to_zero_damage, once_per_battle_strength_reset, immediate:add_status, immediate:heal",
+   "battles": 702,
+   "avg_turns": 2.131,
+   "turns_ci": [
+    2.0,
+    2.262
+   ],
+   "turn_target": [
+    7,
+    9
+   ],
+   "turn_verdict": "짧다",
+   "avg_taken": 13.3,
+   "death_rate_in_battle": 0.0,
+   "death_share": 0.0,
+   "timeouts": 0,
+   "max_hit_avg": 40.16,
+   "max_hit_max": 68,
+   "escapes": 0,
+   "battle_wins": 702,
+   "battle_win_rate": 1.0,
+   "battle_win_ci": [
+    0.9946,
+    1.0
+   ],
+   "runs_met": 702,
+   "run_win_rate_met": 1.0,
+   "run_win_ci_met": [
+    0.9946,
+    1.0
+   ]
+  }
+ ]
+}

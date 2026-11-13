@@ -1,0 +1,61 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_turn_pisces",
+    "sourceId":  32,
+    "designerName":  "물고기자리",
+    "designerNote":  "턴 시작 시 이동 횟수가 0이 되는 대신, 그만큼 임시 여분성냥과 지우개 획득",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "red",
+    "tags":  [
+                 "turn_start"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "turn_start"
+                                    },
+                        "target":  {
+                                       "key":  "extra_match"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  {
+                                       "expression":  "RemainingMoves"
+                                   },
+                        "lifetime":  "battle"
+                    },
+                    {
+                        "trigger":  {
+                                        "event":  "turn_start"
+                                    },
+                        "target":  {
+                                       "key":  "eraser"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  {
+                                       "expression":  "RemainingMoves"
+                                   },
+                        "lifetime":  "battle"
+                    },
+                    {
+                        "trigger":  {
+                                        "event":  "turn_start"
+                                    },
+                        "target":  {
+                                       "system":  "battle",
+                                       "property":  "movement_limit"
+                                   },
+                        "operation":  "set_value",
+                        "mode":  "set",
+                        "amount":  0
+                    }
+                ]
+}

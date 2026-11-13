@@ -1,0 +1,39 @@
+{
+    "schemaVersion":  1,
+    "id":  "LittleWitchSkill",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "플레이어 힘 1 감소",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  null
+                     },
+    "attack":  null,
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "player"
+                                   },
+                        "operation":  "add_status",
+                        "type":  "minus_box",
+                        "amount":  1,
+                        "duration":  {
+                                         "turns":  2,
+                                         "decreaseAt":  "turn_end"
+                                     }
+                    }
+                ],
+    "metadata":  {
+
+                 }
+}

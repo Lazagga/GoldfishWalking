@@ -1,0 +1,4 @@
+run_id,result,end_act,end_floor,final_hp,fantasies,notes
+example-1,lose,2,7,0,fan_turn_boots|fan_damage_anchor,예시 행 — 실제 기록으로 바꾸세요. end_floor 는 막 안의 층(1~15)
+example-2,win,3,15,84,fan_damage_slingshot|fan_end_strawberry|fan_rest_pillow,승리면 end_act=3 end_floor=15
+example-3,lose,1,12,0,,fantasies 와 notes 는 비워도 됨

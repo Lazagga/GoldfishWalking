@@ -1,0 +1,55 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_start_capricorn",
+    "sourceId":  35,
+    "designerName":  "염소자리",
+    "designerNote":  "전투 시작 시 이동횟수, 임시 지우개, 임시 여분성냥 +1",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "red",
+    "tags":  [
+                 "battle_start"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "battle_start"
+                                    },
+                        "target":  {
+                                       "system":  "battle",
+                                       "property":  "movement_limit"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  1.0
+                    },
+                    {
+                        "trigger":  {
+                                        "event":  "battle_start"
+                                    },
+                        "target":  {
+                                       "key":  "eraser"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  1.0
+                    },
+                    {
+                        "trigger":  {
+                                        "event":  "battle_start"
+                                    },
+                        "target":  {
+                                       "key":  "extra_match"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  1.0
+                    }
+                ]
+}

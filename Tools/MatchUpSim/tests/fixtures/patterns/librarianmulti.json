@@ -1,0 +1,44 @@
+{
+    "schemaVersion":  1,
+    "id":  "LibrarianMulti",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  null
+                     },
+    "attack":  {
+                   "damage":  {
+                                  "digits":  2,
+                                  "editable":  true
+                              },
+                   "hits":  {
+                                "digits":  2,
+                                "editable":  true,
+                                "minimum":  0
+                            }
+               },
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "immediate"
+                                    },
+                        "target":  {
+                                       "actor":  "player"
+                                   },
+                        "operation":  "librarian_skill",
+                        "amount":  1
+                    }
+                ],
+    "metadata":  {
+
+                 }
+}

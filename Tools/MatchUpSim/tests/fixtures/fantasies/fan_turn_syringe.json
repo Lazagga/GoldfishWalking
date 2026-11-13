@@ -1,0 +1,44 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_turn_syringe",
+    "sourceId":  40,
+    "designerName":  "주사기",
+    "designerNote":  "매 턴 공격 횟수 +1",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "blue",
+    "tags":  [
+                 "passive"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "passive"
+                                    },
+                        "target":  {
+                                       "formula":  "player.hits"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  1.0
+                    },
+                    {
+                        "trigger":  {
+                                        "event":  "passive"
+                                    },
+                        "target":  {
+                                       "key":  "availability"
+                                   },
+                        "operation":  "exclude",
+                        "mode":  "exclude",
+                        "amount":  1,
+                        "execution":  "capability"
+                    }
+                ]
+}

@@ -1,0 +1,25 @@
+{
+    "schemaVersion":  1,
+    "id":  "Skip",
+    "sourceId":  null,
+    "designerName":  "",
+    "designerNote":  "아무것도 안 함",
+    "enabled":  true,
+    "localization":  {
+                         "name":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "availability":  {
+                         "maxUsesPerBattle":  null,
+                         "condition":  null
+                     },
+    "attack":  null,
+    "effects":  [
+
+                ],
+    "metadata":  {
+
+                 }
+}

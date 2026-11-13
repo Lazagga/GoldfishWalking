@@ -1,0 +1,35 @@
+{
+    "schemaVersion": 1,
+    "id": "fan_damage_humitcrab",
+    "sourceId": 62,
+    "designerName": "소라게",
+    "designerNote": "100의 피해를 받을 때마다 체력을 20 얻음",
+    "enabled": true,
+    "localization": {
+        "name": "",
+        "description": ""
+    },
+    "presentation": {
+        "sprite": ""
+    },
+    "rarity": "white",
+    "tags": [
+        "take_damage"
+    ],
+    "effects": [
+        {
+            "trigger": {
+                "event": "take_damage"
+            },
+            "target": {
+                "actor": "player",
+                "stat": "health"
+            },
+            "operation": "modify_value",
+            "mode": "add",
+            "amount": {
+                "expression": "floor(IncomingDamageAmount/100)*20"
+            }
+        }
+    ]
+}

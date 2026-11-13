@@ -1,0 +1,36 @@
+{
+    "schemaVersion":  1,
+    "id":  "fan_turn4_clockwork",
+    "sourceId":  49,
+    "designerName":  "시계태엽",
+    "designerNote":  "첫 턴에 공격 횟수 +1",
+    "enabled":  true,
+    "localization":  {
+                         "name":  "",
+                         "description":  ""
+                     },
+    "presentation":  {
+                         "sprite":  ""
+                     },
+    "rarity":  "blue",
+    "tags":  [
+                 "battle_start"
+             ],
+    "effects":  [
+                    {
+                        "trigger":  {
+                                        "event":  "battle_start"
+                                    },
+                        "target":  {
+                                       "formula":  "player.hits"
+                                   },
+                        "operation":  "modify_value",
+                        "mode":  "add",
+                        "amount":  1.0,
+                        "duration":  {
+                                         "turns":  1,
+                                         "decreaseAt":  "turn_end"
+                                     }
+                    }
+                ]
+}
