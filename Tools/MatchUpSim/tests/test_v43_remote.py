@@ -295,6 +295,26 @@ class ExternalEditUI(unittest.TestCase):
         self.assertEqual(errs, [])
         ctx.close()
 
+    def test_name_click_shows_edit_panel(self):
+        """환상 이름을 누르면 편집 패널이 차트 바로 아래에 열리고 화면 안으로 스크롤된다."""
+        ctx = self.browser.new_context(viewport={"width": 1400, "height": 900})
+        pg = ctx.new_page()
+        errs = []
+        pg.on("pageerror", lambda e: errs.append(str(e)))
+        pg.goto(f"http://127.0.0.1:{self.sb.port}/#t=curve")
+        pg.wait_for_function("window.__viewerReady === true", timeout=90000)
+        for fid in ("fan_damage_anchor", "fan_damage_poinsettia"):      # 둘 체크 → 조합 패널까지 있는 상태
+            pg.click(f'#list .row[data-id="{fid}"] input')
+        pg.click(f'#list .row[data-id="{BOOTS}"] .fname')
+        ed = pg.wait_for_selector(f'#detail .editor[data-fid="{BOOTS}"]')
+        order = pg.evaluate("() => [...document.querySelector('#tab-curve').children].map(e => e.id).filter(Boolean)")
+        self.assertLess(order.index("detail"), order.index("comboPanel"))
+        self.assertLess(order.index("chart"), order.index("detail"))
+        pg.wait_for_function("() => { const r = document.querySelector('#detail').getBoundingClientRect(); return r.top >= 0 && r.top < window.innerHeight; }")
+        self.assertTrue(ed.is_visible())
+        self.assertEqual(errs, [])
+        ctx.close()
+
 
 if __name__ == "__main__":
     unittest.main()

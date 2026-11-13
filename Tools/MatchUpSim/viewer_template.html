@@ -459,9 +459,9 @@ app.innerHTML = `
       <svg class="chart" id="chart" role="img" aria-label="승률 곡선"></svg>
       <div class="tooltip" id="tip"></div>
       <div class="small" id="smoothLabel"></div>
+      <div id="detail" class="detail"></div>
       <div class="eq" id="eq"></div>
       <div id="comboPanel"></div>
-      <div id="detail" class="detail"></div>
     </section>
     <section class="panel" id="tab-surv">
       <div class="legend" id="legend2"></div>
@@ -1985,7 +1985,9 @@ $("sort").addEventListener("change", e => { S.sort = e.target.value; renderList(
 $("clearSel").addEventListener("click", () => { S.sel = []; S.slot = {}; update(); });
 listEl.addEventListener("click", e => {
   const r = e.target.closest(".row"); if (!r) return;
-  if (e.target.closest(".fname")) { S.focus = r.dataset.id; if (!S.sel.includes(r.dataset.id)) toggle(r.dataset.id); else update(); if (S.tab !== "curve") setTab("curve"); return; }
+  if (e.target.closest(".fname")) { S.focus = r.dataset.id; if (!S.sel.includes(r.dataset.id)) toggle(r.dataset.id); else update(); if (S.tab !== "curve") setTab("curve");
+    requestAnimationFrame(() => { const d = $("detail"); if (d && d.firstChild) d.scrollIntoView({ behavior: "smooth", block: "nearest" }); });   // 편집 패널이 화면 밖이면 보이게
+    return; }
   if (e.target.tagName === "INPUT") e.preventDefault();
   toggle(r.dataset.id);
 });
