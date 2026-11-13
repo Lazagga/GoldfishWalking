@@ -66,6 +66,116 @@ def run_chunk(task):
             "agg": agg, "fbf_sum": fbf_sum, "fbf_n": fbf_n}
 
 
+class Progress:
+    """계산 진행 집계 (v4.3): 여러 ensure 호출(단계)에 걸쳐 완료·전체·캐시 판 수와 속도·남은 시간을 모은다.
+
+    - begin(todo, cached): ensure 가 시작될 때. todo = 새로 돌릴 판, cached = 이미 저장돼 있던 판.
+    - chunk(runs): 조각이 끝날 때마다. emit(snapshot) 을 최대 min_interval 초에 한 번 부른다.
+    - end(remaining): ensure 가 끝났을 때(취소·양보로 남은 판이 있으면 전체에서 뺀다).
+    - plan(total): 작업 전체에서 새로 돌릴 판 수를 미리 알면 준다(남은 시간이 단계를 넘어 정확해진다).
+    결과(시뮬레이션 값)에는 영향이 없다."""
+
+    def __init__(self, emit=None, min_interval=0.3, log=None, log_interval=10.0, label=""):
+        self.emit_fn, self.log_fn, self.label = emit, log, label
+        self.min_interval, self.log_interval = min_interval, log_interval
+        self.planned = None
+        self.planned_cached = None
+        self.total = 0          # 지금까지 알려진 "새로 돌릴" 판 수
+        self.done = 0           # 돌린 판 수
+        self.cached = 0         # 캐시에서 가져온(돌리지 않은) 판 수
+        self.carry = 0          # 끊긴 ensure 가 저장해 둔 판(다음 begin 의 cached 에서 뺌)
+        self.t0 = None
+        self.call_done = 0
+        self._last = 0.0
+        self._last_log = 0.0
+        self._lock = threading.Lock()
+
+    def plan(self, total, cached=None):
+        """작업 전체에서 새로 돌릴 판 수(와 이미 저장돼 있던 판 수)를 미리 알려 준다. 단계가 여럿인 작업용."""
+        self.planned = max(0, int(total))
+        if cached is not None:
+            self.planned_cached = max(0, int(cached))
+
+    def begin(self, todo, cached):
+        with self._lock:
+            cached = max(0, cached - self.carry)
+            self.carry = 0
+            self.total += todo
+            if self.planned_cached is None:
+                self.cached += cached
+            else:
+                self.cached = self.planned_cached
+            self.call_done = 0
+            if todo > 0 and self.t0 is None:
+                self.t0 = time.perf_counter()
+        self._emit(force=True)
+
+    def chunk(self, runs):
+        with self._lock:
+            self.done += runs
+            self.call_done += runs
+        self._emit()
+
+    def end(self, remaining=0):
+        with self._lock:
+            if remaining > 0:
+                self.total -= remaining
+                self.carry += self.call_done
+        self._emit(force=True)
+
+    def snapshot(self):
+        with self._lock:
+            total = self.planned if self.planned is not None else self.total
+            total = max(total, self.done)
+            rate = None
+            if self.t0 is not None and self.done > 0:
+                dt = time.perf_counter() - self.t0
+                if dt > 0.2:
+                    rate = self.done / dt
+            left = max(0, total - self.done)
+            eta = (left / rate) if rate else None
+            return {"done": self.done, "total": total, "cached": self.cached,
+                    "rate": round(rate, 2) if rate else None, "eta_s": round(eta, 1) if eta is not None else None,
+                    "elapsed_s": round(time.perf_counter() - self.t0, 1) if self.t0 is not None else 0.0,
+                    "total_final": self.planned is not None}
+
+    def _emit(self, force=False):
+        now = time.perf_counter()
+        # 오래 걸리는 작업일수록 간격을 늘려 이벤트 수가 불어나지 않게 한다(10시간 작업도 수천 개 이내)
+        gap = max(self.min_interval, ((now - self.t0) / 200.0) if self.t0 is not None else 0.0)
+        if not force and now - self._last < gap:
+            return
+        self._last = now
+        snap = self.snapshot()
+        if self.emit_fn:
+            self.emit_fn(snap)
+        if self.log_fn and (force and snap["done"] == 0 or now - self._last_log >= self.log_interval):
+            self._last_log = now
+            self.log_fn(format_progress(snap, self.label))
+
+
+def _fmt_time(sec):
+    if sec is None:
+        return "?"
+    sec = int(sec)
+    if sec < 90:
+        return f"{sec}초"
+    if sec < 5400:
+        return f"{sec // 60}분"
+    h = sec / 3600
+    return f"{h:.1f}시간" if h < 48 else f"{h / 24:.1f}일"
+
+
+def format_progress(s, label=""):
+    """한 줄 요약: `[라벨] 12,300 / 385,000판 (3.2%) · 캐시 40,000 · 17.0판/초 · 남은 약 6.1시간`."""
+    pct = 100.0 * s["done"] / s["total"] if s["total"] else 100.0
+    head = f"[{label}] " if label else ""
+    tot = f"{s['total']:,}" + ("" if s.get("total_final") else "+")
+    rate = f"{s['rate']:.1f}판/초" if s["rate"] else "속도 측정 중"
+    cache = f" · 캐시 {s['cached']:,}" if s["cached"] else ""
+    return f"{head}{s['done']:,} / {tot}판 ({pct:.1f}%){cache} · {rate} · 남은 약 {_fmt_time(s['eta_s'])}"
+
+
 class Cancelled(Exception):
     pass
 
@@ -95,9 +205,10 @@ class Engine:
         return self.store.load(req["key"]) or st.empty_record(req["key"], req["fids"], req["seed"], req["thash"],
                                                               req.get("dhash"), req.get("banned", ()))
 
-    def ensure(self, reqs, n_target, on_point=None, cancel=None, n_targets=None, chunk=None):
+    def ensure(self, reqs, n_target, on_point=None, cancel=None, n_targets=None, chunk=None, progress=None):
         """reqs 를 각각 n_target(또는 n_targets[key]) 판까지 채운다. 반환 {key: rec}.
         on_point(req, rec): 요청이 목표에 도달할 때(이미 도달했으면 즉시). cancel(): True 면 Cancelled.
+        progress: Progress (v4.3) — 조각마다 완료 판 수를 알린다. 결과에는 영향 없음.
         취소되면 그때까지 시드 순서대로 이어진 부분은 저장한다."""
         uniq = {}
         for r in reqs:
@@ -115,6 +226,16 @@ class Engine:
             step = int(chunk or self.chunk)   # 조각 크기는 결과에 영향 없음 (시드 순서대로 이어 붙임)
             for s in range(rec["n"], tgt, step):
                 pending.append((key, s, min(s + step, tgt)))
+        if progress is not None:
+            progress.begin(sum(e - s_ for _, s_, e in pending),
+                           sum(min(recs[k]["n"], target[k]) for k in recs))
+            try:
+                return self._ensure_run(uniq, recs, pending, target, on_point, cancel, progress)
+            finally:
+                progress.end(max(0, sum(e - s_ for _, s_, e in pending) - progress.call_done))
+        return self._ensure_run(uniq, recs, pending, target, on_point, cancel, None)
+
+    def _ensure_run(self, uniq, recs, pending, target, on_point, cancel, progress):
         if not pending:
             return recs
         t_start, n_start = time.perf_counter(), self.runs_computed
@@ -145,6 +266,8 @@ class Engine:
                     raise Cancelled()
                 res = run_chunk((uniq[key]["cfg"], uniq[key]["seed"], s, e))
                 self.runs_computed += e - s
+                if progress is not None:
+                    progress.chunk(e - s)
                 absorb(key, res)
             return recs
 
@@ -181,6 +304,8 @@ class Engine:
                 cancelled = True
                 continue
             self.runs_computed += len(res["wins"])
+            if progress is not None:
+                progress.chunk(len(res["wins"]))
             absorb(key, res)
             if cancel and cancel():
                 cancelled = True

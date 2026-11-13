@@ -102,7 +102,7 @@ class Scan:
     """
 
     def __init__(self, engine, cfg, thash, seed, x_key, stages=(3000,), adaptive=False, epsilon=0.015,
-                 forced_at=None, cancel=None, on_point=None, log=print):
+                 forced_at=None, cancel=None, on_point=None, log=print, progress=None):
         self.engine, self.cfg, self.thash, self.seed, self.x_key = engine, cfg, thash, seed, x_key
         self.stages = sorted(set(int(s) for s in stages))
         self.adaptive = adaptive
@@ -113,6 +113,7 @@ class Scan:
         self.cancel = cancel
         self.on_point = on_point
         self.log = log
+        self.progress = progress   # cp.Progress (v4.3) — 없으면 진행 표시 없음
         self.final_n = {}     # (fid, x) → 결정된 n
         self.recs = {}        # (fid, x) → 레코드
         self.reqs = {}
@@ -159,7 +160,7 @@ class Scan:
             def on_pt(req, rec):
                 self.recs[req["tag"]] = rec
 
-            self.engine.ensure(targets, n, on_point=on_pt, cancel=self.cancel)
+            self.engine.ensure(targets, n, on_point=on_pt, cancel=self.cancel, progress=self.progress)
             still = []
             for fid, x in fant:
                 if not last:
@@ -222,7 +223,7 @@ def refine_points(curves_pts, T, integer):
 
 def run_scan(engine, cfg, thash, seed, x_key, x_values, fids, *, stages=(3000,), adaptive=False, epsilon=0.015,
              refine=False, refine_iters=2, target=0.10, facet_key=None, facet_values=(None,), forced_at=None,
-             cancel=None, on_point=None, log=print):
+             cancel=None, on_point=None, log=print, progress=None):
     """여러 패싯에 걸친 스캔. 반환: {facet_label: {"baseline": [pts], "curves": {fid: [pts]}, "scan": Scan}}"""
     integer = all(float(x).is_integer() for x in x_values)
     out = {}
@@ -231,7 +232,7 @@ def run_scan(engine, cfg, thash, seed, x_key, x_values, fids, *, stages=(3000,),
         if facet_key:
             ms.set_path(c, facet_key, fv)
         sc = Scan(engine, c, thash, seed, x_key, stages, adaptive, epsilon, forced_at, cancel,
-                  (lambda fid, x, p, fv=fv: on_point(fv, fid, x, p)) if on_point else None, log)
+                  (lambda fid, x, p, fv=fv: on_point(fv, fid, x, p)) if on_point else None, log, progress)
         xs = {fid: list(x_values) for fid in [BASELINE_ID] + fids}
         sc.compute([(fid, x) for fid in fids for x in x_values] + [(BASELINE_ID, x) for x in x_values])
         for it in range(refine_iters if refine else 0):
@@ -468,11 +469,13 @@ def main(argv=None):
             last[0] = now
             log(f"  점 {done[0]} 확정 | 경과 {now - t0:6.0f}s | 계산한 판 {engine.runs_computed:,}", flush=True)
 
+    progress = cp.Progress(log=(lambda line: print(line, flush=True)), log_interval=5.0, label="스캔") \
+        if not args.quiet else None
     try:
         res = run_scan(engine, cfg, thash, args.seed, x_key, x_values, fids, stages=stages, adaptive=args.adaptive,
                        epsilon=args.epsilon, refine=args.refine_around_target, refine_iters=args.refine_iters,
                        target=args.target, facet_key=facet_key, facet_values=facet_values, forced_at=args.force_at,
-                       on_point=on_point, log=log)
+                       on_point=on_point, log=log, progress=progress)
     finally:
         engine.close()
     el = time.perf_counter() - t0

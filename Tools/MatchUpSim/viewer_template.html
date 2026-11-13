@@ -66,6 +66,11 @@ input[type=search] { width: 100%; }
 .row { display: grid; grid-template-columns: 18px 1fr auto; gap: 2px 8px; padding: 6px 4px; border-bottom: 1px solid var(--ring); cursor: pointer; align-items: start; }
 .row:hover { background: var(--surface-2); }
 .row.focus { box-shadow: inset 3px 0 0 var(--accent); }
+.row .editBtn { border: 0; background: none; color: var(--ink-2); cursor: pointer; padding: 0 2px; font-size: 13px; }
+.row .editBtn:hover { color: var(--accent); }
+#panelChip { margin: 0 0 6px; }
+#panelChip:empty { display: none; }
+#srvNote:empty { display: none; }
 .row.edited { background: var(--edit-bg); }
 .row input { margin: 3px 0 0; }
 .row .nm { font-weight: 600; overflow-wrap: anywhere; }
@@ -91,6 +96,13 @@ input[type=search] { width: 100%; }
 .controls label { display: inline-flex; gap: 6px; align-items: center; }
 .changebar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: var(--edit-bg); border: 1px solid var(--accent); border-radius: 8px; padding: 6px 10px; position: sticky; top: 0; z-index: 6; }
 .changebar .status { margin-left: auto; font-size: 12px; color: var(--ink-2); }
+.progbar { position: sticky; top: 0; z-index: 7; background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; padding: 6px 10px; display: flex; flex-direction: column; gap: 4px; }
+.progbar .ptxt { font-size: 12.5px; color: var(--ink); display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; }
+.progbar .ptxt b { font-variant-numeric: tabular-nums; }
+.progbar .ptrack { height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
+.progbar .pfill { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s linear; }
+.progbar.remote .pfill { background: var(--ink-2); }
+.progbar.est .pfill { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.35) 0 6px, transparent 6px 12px); }
 .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--ring); flex-wrap: wrap; }
 .tab { border: 0; background: transparent; padding: 6px 12px; border-bottom: 2px solid transparent; color: var(--ink-2); }
 .tab[aria-selected=true] { color: var(--ink); border-bottom-color: var(--ink); font-weight: 600; }
@@ -337,6 +349,7 @@ function readHash() {
   if (h.has("rk")) S.rankMode = h.get("rk") === "avg" ? "avg" : "x";
   if (h.has("fc") && FACETS && FACETS.values.includes(h.get("fc"))) S.facet = h.get("fc");
   if (h.has("ov")) S.overlay = h.get("ov") === "1";
+  if (h.has("p") && BYID[h.get("p")]) S.focus = h.get("p");      // F13.2 패널 대상 복원 (없는 ID 는 무시)
   S.slot = {};
   S.sel.forEach((id, k) => (S.slot[id] = k));
 }
@@ -347,6 +360,7 @@ function writeHash() {
   p.set("x", fmtX(S.x)); p.set("t", S.tab); p.set("T", String(S.T));
   p.set("ci", S.ci ? "1" : "0"); if (S.smooth) p.set("sm", "1"); if (S.rankMode !== "x") p.set("rk", S.rankMode);
   if (FACETS) { p.set("fc", S.facet); if (S.overlay) p.set("ov", "1"); }
+  if (S.focus && BYID[S.focus]) p.set("p", S.focus);
   const s = "#" + p.toString().replace(/%2C/g, ",");
   if (location.hash !== s) history.replaceState(null, "", s);
 }
@@ -419,6 +433,10 @@ app.innerHTML = `
     <div id="list" role="list"></div>
   </aside>
   <main>
+    <div class="progbar hidden" id="progBar" role="status" aria-live="off">
+      <div class="ptxt"><span id="progLabel"></span><b id="progCount"></b><span id="progPct"></span><span id="progCache" class="small"></span><span id="progRate" class="small"></span><span id="progEta"></span></div>
+      <div class="ptrack"><i class="pfill" id="progFill"></i></div>
+    </div>
     <div class="changebar hidden" id="changebar">
       <b id="chgCount">변경 0개</b>
       <button class="btn" id="btnUndo" title="되돌리기 (Ctrl+Z)">↶ 실행 취소</button>
@@ -452,6 +470,7 @@ app.innerHTML = `
       ${FACETS ? `<label>${esc(FACETS.key)} <select id="facet">${FACETS.values.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join("")}</select></label>
       <label><input type="checkbox" id="overlay"> 패싯 겹쳐 그리기</label>` : ""}
     </div>
+    <div id="panelChip"></div>
     <div class="tabs" role="tablist">${TABS.map(([t, l]) => `<button class="tab" role="tab" data-t="${t}">${l}</button>`).join("")}</div>
     <section class="panel" id="tab-curve">
       <div class="legend" id="legend"></div>
@@ -597,31 +616,42 @@ function fidBadge(f) { return f.fidelity === "exact" ? "" : `<span class="badge 
 const editedSet = () => new Set(S.edits.filter(e => e.fid).map(e => e.fid).concat(REF ? REF.changed.fantasies : []));
 function renderList() {
   const ed = editedSet();
+  const PT = panelTarget();
   const html = listOrder().map(f => {
     const pts = curPts(f.id), p = ptAt(pts, S.x), on = S.sel.includes(f.id), z = p && ciZero(p);
     const stale = isStale(pts);
     const sw = on ? `<svg width="22" height="10" style="vertical-align:middle">${legendMark(S.slot[f.id])}</svg>` : "";
-    return `<div class="row${S.focus === f.id ? " focus" : ""}${ed.has(f.id) ? " edited" : ""}" role="listitem" data-id="${esc(f.id)}" title="${esc(f.description || "")}${f.notes ? "\n\n" + esc(f.notes) : ""}">
+    return `<div class="row${PT === f.id ? " focus" : ""}${ed.has(f.id) ? " edited" : ""}" role="listitem" data-id="${esc(f.id)}" title="${esc(f.description || "")}${f.notes ? "\n\n" + esc(f.notes) : ""}">
       <input type="checkbox" ${on ? "checked" : ""} aria-label="${esc(f.name)} 곡선 표시">
       <div class="nm"><span class="gtag ${f.grade}">${GRADE_KO[f.grade][0]}</span><span class="fname">${esc(f.name)}</span> ${fidBadge(f)}${f.src_linked ? '<span class="badge link" title="원본 JSON 연결">🔗</span>' : ""}${ed.has(f.id) ? '<span class="badge">수정</span>' : ""}${stale ? '<span class="badge stale">이전</span>' : ""} ${sw}</div>
       <div class="d num ${z ? "dim" : ""}">${p && p.delta != null ? pp(p.delta) : "–"}${z ? '<div class="small">구분 불가</div>' : ""}</div>
-      <div class="eff">${esc(f.summary)}</div></div>`;
+      <div class="eff">${esc(f.summary)} <button class="editBtn" title="편집 패널 열기" aria-label="${esc(f.name)} 편집 패널 열기">✎</button></div></div>`;
   }).join("");
   listEl.innerHTML = html || '<div class="small" style="padding:8px">조건에 맞는 환상이 없습니다.</div>';
   $("selCount").textContent = `선택 ${S.sel.length}/${MAX_SEL}`;
   $("listX").textContent = fmtX(S.x);
 }
+// v4.3 F13.1: 편집 패널 대상. 이름 클릭·체크가 모두 setFocus 를 거친다. 포커스가 없으면 선택의 마지막 환상.
+function panelTarget() { return S.focus && BYID[S.focus] ? S.focus : (S.sel.length ? S.sel[S.sel.length - 1] : null); }
+function setFocus(id) { S.focus = id && BYID[id] ? id : null; }
 function toggle(id) {
   const i = S.sel.indexOf(id);
-  if (i >= 0) { S.sel.splice(i, 1); delete S.slot[id]; }
+  if (i >= 0) { S.sel.splice(i, 1); delete S.slot[id]; if (S.focus === id) setFocus(S.sel.length ? S.sel[S.sel.length - 1] : null); }
   else {
     if (S.sel.length >= MAX_SEL) { flash(`최대 ${MAX_SEL}개까지 선택할 수 있습니다.`); return; }
     const used = new Set(Object.values(S.slot));
     let s = 0; while (used.has(s)) s++;
     S.slot[id] = s; S.sel.push(id);
+    setFocus(id);
     if (liveActive()) scheduleRecompute();
   }
   update();
+}
+// F13.4: 다른 탭·목록 버튼에서 패널 열기 → 곡선 탭으로 가서 패널로 스크롤
+function openPanel(id) {
+  if (id) setFocus(id);
+  if (S.tab !== "curve") setTab("curve"); else update();
+  requestAnimationFrame(() => { const d = $("detail"); if (d) d.scrollIntoView({ behavior: "smooth", block: "nearest" }); });
 }
 function flash(msg) { const n = $("noneNotes"); n.innerHTML = `<div class="notice">${esc(msg)}</div>`; setTimeout(() => renderNoneNotes(), 1800); }
 
@@ -925,14 +955,19 @@ function editableKeys(fid) { return (SRVF && SRVF[fid] ? SRVF[fid].editable_keys
 function stepOf(sch, v) { if (sch.int) return 1; const span = sch.max - sch.min; return span <= 1 ? 0.01 : span <= 10 ? 0.05 : 1; }
 function renderDetail() {
   const el = $("detail");
-  const fid = S.focus;
-  if (!fid || !BYID[fid]) { el.innerHTML = ""; return; }
+  const fid = panelTarget();
+  const srvLine = srvNoteHTML();
+  if (!fid || !BYID[fid]) {
+    el.innerHTML = srvLine + `<div class="small" id="detailEmpty">환상 이름을 누르거나 체크하면 상세·편집 패널이 열립니다${!SRV ? " (편집은 서버 모드에서만 가능합니다 — python viewer_server.py)" : ""}.</div>`;
+    return;
+  }
   const f = BYID[fid];
   const keys = editableKeys(fid);
   const effs = baseEffects(fid);
   const parts = [`<div><b>${esc(f.name)}</b> <span class="small">${esc(f.id)} · ${GRADE_KO[f.grade]} · ${esc(f.mapping || "")}</span> ${fidBadge(f)}</div>`,
     `<div class="small">${esc(f.description || "")}</div>`, f.notes ? `<div class="small">메모: ${esc(f.notes)}</div>` : ""];
-  if (!SRV || !srvOK) parts.push(`<div class="small">편집은 서버 모드에서만 가능합니다 (python viewer_server.py).</div>`);
+  if (!SRV) parts.push(`<div class="small">편집은 서버 모드에서만 가능합니다 (python viewer_server.py).</div>`);
+  else if (srvLine) parts.unshift(srvLine);
   effs.forEach((ef, i) => {
     const ks = keys.filter(k => k.effect === i);
     const rows = ks.map(k => {
@@ -1017,14 +1052,36 @@ function applyEditsSnapshot(snap) { const o = JSON.parse(snap); S.edits = o.e; S
 
 // ---------------- 서버 통신 ----------------
 let srvOK = false, SRV_STATE = {}, MON = null;
-async function loadMonsters() { try { MON = await api("/api/monsters"); if (S.tab === "mon" || S.tab === "json") update(); } catch (e) { MON = null; } }
+const SRVC = { fail: null, partial: [], build: null, started: null, sim: null, restarted: false };   // v4.3 F13.5·F13.6
+function srvNoteHTML() {
+  if (!SRV) return "";
+  if (SRVC.restarted) return '<div class="notice" id="srvRestart">서버가 재시작되었습니다 — 새로고침하세요 (뷰어와 서버 코드가 다를 수 있음)</div>';
+  if (!srvOK && SRVC.fail) return `<div class="notice" id="srvFail">서버에 연결하지 못했습니다: ${esc(SRVC.fail)} <button class="btn" id="btnReconnect">다시 연결</button></div>`;
+  if (SRVC.partial.length) return `<div class="small" id="srvPartial">일부 기능 실패: ${esc(SRVC.partial.join(" / "))}</div>`;
+  return "";
+}
+function checkBuild(info) {
+  if (!info || !info.build) return;
+  if (SRVC.build && info.build !== SRVC.build && !SRVC.restarted) { SRVC.restarted = true; flash("서버가 재시작되었습니다 — 새로고침하세요"); update(); }
+}
+function renderModeBadge() {
+  const b = $("modeBadge"); if (!b) return;
+  if (!SRV) { b.textContent = "읽기 전용"; b.title = "정적 HTML — 편집은 서버 모드에서만"; return; }
+  b.classList.toggle("server", srvOK);
+  b.textContent = SRVC.restarted ? "서버 재시작됨 — 새로고침" : !srvOK ? "읽기 전용 (서버 연결 실패)" : SRVC.partial.length ? "서버 모드 · 편집 가능 · 일부 기능 실패" : "서버 모드 · 편집 가능";
+  const ver = SRVC.build ? `서버 build ${SRVC.build} · 시작 ${SRVC.started} · SIM_VERSION ${SRVC.sim}` : "";
+  b.title = [ver, SRVC.fail ? "연결 실패: " + SRVC.fail : "", SRVC.partial.length ? "일부 기능 실패: " + SRVC.partial.join(" / ") : ""].filter(Boolean).join("\n");
+}
+async function loadMonsters() { try { MON = await api("/api/monsters"); if (S.tab === "mon" || S.tab === "json") update(); return null; } catch (e) { MON = null; return e; } }
 async function api(path, opts = {}) {
   const r = await fetch(path, Object.assign({}, opts, { headers: Object.assign({ "X-MatchUp-Token": SRV.token, "Content-Type": "application/json" }, opts.headers || {}) }));
   const txt = await r.text();
   let j; try { j = JSON.parse(txt); } catch (e) { j = { error: txt }; }
-  if (!r.ok) throw new Error(j.error || r.statusText);
+  if (!r.ok) { const err = new Error(j.error || r.statusText); err.status = r.status; err.path = path; throw err; }
   return j;
 }
+// 연결 오류 문구: 어떤 호출이 왜 실패했는지 (HTTP 상태·메시지, 네트워크 오류)
+function apiErrText(what, e) { return `${what} → ${e && e.status ? "HTTP " + e.status + ": " : (e && e.name === "TypeError" ? "네트워크 오류: " : "")}${(e && e.message) || e}`; }
 const post = (path, body) => api(path, { method: "POST", body: JSON.stringify(body) });
 async function streamJob(id, onEvent) {
   const r = await fetch(`/api/jobs/${id}/events`, { headers: { "X-MatchUp-Token": SRV.token } });
@@ -1045,6 +1102,44 @@ let recomputeTimer = null, jobSeq = 0;
 function scheduleRecompute() { if (COMBO.busy) return; clearTimeout(recomputeTimer); recomputeTimer = setTimeout(startRecompute, 400); setStatus("편집 대기…"); }
 function cancelJob() { if (LIVE.job) { const id = LIVE.job; LIVE.job = null; api(`/api/jobs/${id}`, { method: "DELETE" }).catch(() => {}); } }
 function setStatus(t) { LIVE.status = t; const s = $("jobStatus"); if (s) s.textContent = t; }
+// ── 계산 진행 (v4.3 F12): 서버가 보낸 progress 이벤트(또는 /api/progress)를 막대·문구로 보여 준다 ──
+function fmtDur(sec) {
+  if (sec == null || !isFinite(sec)) return "?";
+  sec = Math.round(sec);
+  if (sec < 90) return sec + "초";
+  if (sec < 5400) return Math.round(sec / 60) + "분";
+  const h = sec / 3600;
+  return h < 48 ? h.toFixed(1) + "시간" : (h / 24).toFixed(1) + "일";
+}
+function showProgress(p, label, remote) {
+  const box = $("progBar"); if (!box) return;
+  window.__progress = p;
+  const total = Math.max(p.total || 0, p.done || 0);
+  const pct = total ? 100 * p.done / total : 0;
+  box.classList.remove("hidden"); box.classList.toggle("remote", !!remote); box.classList.toggle("est", !p.total_final);
+  $("progLabel").textContent = (remote ? "서버 계산 중 — " : "") + (label || "");
+  $("progCount").textContent = `${p.done.toLocaleString()} / ${total.toLocaleString()}${p.total_final || p.done >= total ? "" : "+"}판`;
+  $("progPct").textContent = `(${pct.toFixed(1)}%)`;
+  $("progCache").textContent = p.cached ? `캐시 ${p.cached.toLocaleString()}판 재사용` : "";
+  $("progRate").textContent = p.rate ? `${p.rate.toFixed(1)}판/초` : "속도 측정 중";
+  $("progEta").textContent = p.done >= total && total ? "마무리 중" : `남은 약 ${fmtDur(p.eta_s)}${p.total_final ? "" : " (늘어날 수 있음)"}`;
+  $("progFill").style.width = Math.min(100, pct).toFixed(2) + "%";
+  setStatus(`${label || "계산"}: ${p.done.toLocaleString()}판 · ${pct.toFixed(0)}%`);
+}
+function hideProgress() { const box = $("progBar"); if (box) box.classList.add("hidden"); }
+// 다른 기기에서 돌린 작업이나 새로고침 뒤에도 서버가 계산 중이면 진행을 보여 준다 (3초마다 확인, 이 탭이 작업 중이면 쉼)
+let progPoll = null;
+async function pollServerProgress() {
+  if (LIVE.busy) return;
+  try {
+    const r = await api("/api/progress");
+    checkBuild(r);
+    const j = r && r.job && !r.job.done ? r.job : (r && r.training && !r.training.done ? r.training : null);
+    if (j && !LIVE.busy) showProgress(j, j.kind === "surrogate_train" || r.training === j ? "근사 모델 학습" : j.kind, true);
+    else if (!LIVE.busy && window.__progress && $("progBar") && $("progBar").classList.contains("remote")) hideProgress();
+  } catch (e) { if (e && e.status === 403 && srvOK && SRVC.build && !SRVC.restarted) { SRVC.restarted = true; renderModeBadge(); update(); } /* 그 밖에는 서버가 바쁘거나 꺼진 동안이라 조용히 넘김 */ }
+}
+if (typeof SRV !== "undefined" && SRV) { progPoll = setInterval(pollServerProgress, 3000); setTimeout(pollServerProgress, 500); }
 let renderPending = false;
 function scheduleRender() { if (renderPending) return; renderPending = true; requestAnimationFrame(() => { renderPending = false; update(); }); }
 async function runJob(body, onPoint, label) {
@@ -1055,19 +1150,30 @@ async function runJob(body, onPoint, label) {
   setStatus(`${label}: 시작`);
   await streamJob(id, ev => {
     if (my !== jobSeq) return;
-    if (ev.type === "plan" && ev.table_hash && ["recompute", "scan"].includes(body.kind)) { LIVE.hash = ev.data_hash || ev.table_hash; LIVE.cfgTag = cfgTag(body.cfg_edits, body.cfg_set); }
+    if (ev.type === "plan" && ev.table_hash && ["recompute", "scan"].includes(body.kind)) { LIVE.hash = ev.data_hash || ev.table_hash; LIVE.cfgTag = cfgTag(body.cfg_edits, body.cfg_set); pruneLive(LIVE.hash, LIVE.cfgTag, ev.ref_hash); }
     if (ev.type === "point") { if (window.__lastJob.first == null && ev.series === "after") window.__lastJob.first = performance.now(); onPoint && onPoint(ev); scheduleRender(); }
+    if (ev.type === "progress") showProgress(ev, label, false);
     if (ev.type === "stage") setStatus(`${label}: 단계 ${ev.stage} (시드 ${ev.n}개) 완료`);
     if (["sweep_point", "solve_eval", "combo", "cell", "plan", "tune_point"].includes(ev.type)) { onPoint && onPoint(ev); }
     if (["done", "cancelled", "error"].includes(ev.type)) {
       window.__lastJob.end = performance.now(); window.__lastJob.result = ev;
       LIVE.busy = false; if (LIVE.job === id) LIVE.job = null;
+      hideProgress();
       setStatus(ev.type === "done" ? `${label}: 완료 (${ev.t}s)` : ev.type === "cancelled" ? `${label}: 취소됨` : `${label}: 오류 — ${ev.message}`);
       scheduleRender();
     }
   });
   return window.__lastJob.result;
 }
+// 서버 결과 중 지금 데이터(수정 후 해시·설정)와 맞는 점만 남긴다. 수정 전(before)은 비교 기준 해시와 맞는 점만.
+function pruneLive(hash, tag, refHash) {
+  const keep = (series, ok) => { for (const fid of Object.keys(LIVE[series])) { const m = LIVE[series][fid];
+    for (const [x, p] of [...m.entries()]) if (!ok(p)) m.delete(x);
+    if (!m.size) delete LIVE[series][fid]; } };
+  keep("after", p => (p.data_hash || p.table_hash) === hash && (p.cfg_tag || "") === (tag || ""));
+  if (refHash) keep("before", p => (p.data_hash || p.table_hash) === refHash); else LIVE.before = {};
+}
+window.__pruneLive = pruneLive;
 function storeLive(ev) {
   const p = Object.assign({}, ev.point, { cfg_tag: ev.series === "after" ? cfgTag(S.cfgEdits, S.cfgSet) : "" });
   const fid = ev.fid;
@@ -1077,7 +1183,7 @@ async function startRecompute() {
   await syncServerTable();
   if (!needsCompute()) return;
   cancelJob();
-  LIVE.after = {}; LIVE.before = {};
+  // 이전 결과를 지우지 않는다: 새 작업의 plan 이벤트(해시)를 받으면 그 해시와 다른 점만 버린다 (pruneLive)
   if (S.preview) S.preview.pending = true;
   runJob({ kind: "recompute", edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet, fids: S.sel, x_sel: S.x }, storeLive, "재계산")
     .then(sgOnRecomputeDone).catch(e => setStatus("오류: " + e.message));
@@ -1387,7 +1493,7 @@ function fxText(fx) { return Object.entries(fx || {}).map(([t, arr]) => `${t}: $
 function renderTrace() {
   const el = $("tab-trace"); if (!SRV) { el.innerHTML = ""; return; }
   if (!srvOK) { el.innerHTML = `<div class="small">서버에 연결되지 않았습니다.</div>`; return; }
-  const fid = TR.fid || S.focus || S.sel[0];
+  const fid = TR.fid || panelTarget() || S.sel[0];
   const opts = FANTS.map(f => `<option value="${esc(f.id)}" ${f.id === fid ? "selected" : ""}>${esc(f.name)}</option>`).join("");
   const sg = TR.suggest ? Object.entries({ turned_win: "기준선 패배 → 환상 승리", turned_lose: "기준선 승리 → 환상 패배", win: "환상 승리", lose: "환상 패배" })
     .map(([k, l]) => `<div class="small">${l}: ${(TR.suggest[k] || []).map(s => `<button class="chip seed" data-seed="${esc(s)}">${esc(s)}</button>`).join(" ") || "없음"}</div>`).join("") : "";
@@ -1762,7 +1868,7 @@ function renderJson() {
   const el = $("tab-json");
   if (!(SRV && srvOK)) { el.innerHTML = '<div class="small">JSON 편집기는 서버 모드에서 동작합니다.</div>'; return; }
   const ids = jsonIds(JS.kind);
-  if (!JS.id || !ids.some(x => x[0] === JS.id)) JS.id = (JS.kind === "fantasy" && S.focus) || (ids[0] || [null])[0];
+  if (!JS.id || !ids.some(x => x[0] === JS.id)) JS.id = (JS.kind === "fantasy" && panelTarget()) || (ids[0] || [null])[0];
   if (JS.id && JS.loaded !== JS.kind + "/" + JS.id) { el.innerHTML = '<div class="small">불러오는 중…</div>'; jsonLoad(); return; }
   const info = JS.info || {};
   const msgs = (JS.msgs || []).map(m => `<div class="${m.level === "error" ? "notice" : "small"} jmsg" data-level="${m.level}">${m.level === "error" ? "오류" : "경고"}${m.line ? ` (${m.line}줄 ${m.col}열)` : ""}: ${esc(m.msg)}</div>`).join("");
@@ -1873,7 +1979,7 @@ async function loadSG() {
     SG.models = {}; r.models.filter(m => m.kind !== "monster_probe").forEach(m => SG.models[sgKey(m.kind, m.id, m.field)] = m);
     SG.probe = {}; r.models.filter(m => m.kind === "monster_probe").forEach(m => SG.probe[m.id + "|" + m.field] = m);
     SG.candidates = r.candidates; SG.training = r.training; SG.loaded = true; window.__SG = SG;
-    if (S.tab === "curve" && S.focus) renderDetail();
+    if (S.tab === "curve" && panelTarget()) renderDetail();
   } catch (e) { SG.loaded = false; }
 }
 function sgModel(kind, id, field) { const m = SG.models[sgKey(kind, id, field)]; return m && m.validity !== "invalid" ? m : null; }
@@ -1922,7 +2028,7 @@ function sgOnRecomputeDone(res) {
 }
 
 // ---------------- 비교 기준 (§6.8) ----------------
-async function loadRef() { try { REF = await api("/api/reference"); window.__REF = REF; } catch (e) { REF = null; } }
+async function loadRef() { try { REF = await api("/api/reference"); window.__REF = REF; return null; } catch (e) { REF = null; return e; } }
 function renderRefChip() {
   const el = $("refChip"); if (!el) return;
   if (!(SRV && srvOK) || !REF) { el.innerHTML = ""; return; }
@@ -1960,6 +2066,7 @@ function update() {
   const mixed = sysNow !== SCAN_SYSTEM && [BASE_ID].concat(S.sel).some(id => isStale(curPts(id)));
   $("mixBadge").innerHTML = mixed ? '<span class="badge stale" id="mixWarn">획득 시스템 혼합 — 일부 곡선은 ' + esc(SYS_KO[SCAN_SYSTEM] || SCAN_SYSTEM) + ' 규칙 기준</span>' : "";
   renderRefChip();
+  renderModeBadge();
   $("modelWrap").classList.toggle("hidden", !(SRV && srvOK));
   $("dmodel").value = curModel() === "digits" ? (curGimmicks() === "on" ? "digits+g" : "digits") : "gauss";
   // 스캔·랭킹·고스트는 스캔의 모델, 재계산한 곡선은 현재 모델 → 모델이 다르면 화면에 두 모델이 섞인다
@@ -1969,6 +2076,8 @@ function update() {
   $("modelBadge").innerHTML = modelMixed ? '<span class="badge stale" id="modelMix" title="gauss 와 digits 결과를 같은 순위표·차트에 섞지 않습니다 (해석 가이드 ⑬)">피해 모델 혼합 — 스캔·랭킹·수정 전(고스트)은 ' + esc(modelLabel(SCAN_MODEL, SCAN_GIMMICKS)) + ', 재계산한 곡선은 ' + esc(modelLabel(curModel(), curGimmicks())) + ' 기준</span>' : "";
   $("btnUndo").disabled = !S.undo.length; $("btnRedo").disabled = !S.redo.length; $("btnRevertAll").disabled = !liveActive(); $("btnApply").disabled = !S.edits.length && !S.fileEdits.length;
   renderList();
+  const pt = panelTarget();
+  $("panelChip").innerHTML = S.tab !== "curve" && pt ? `<button class="chip" id="btnPanelChip">편집 패널 열기 ▸ ${esc(BYID[pt].name)}</button>` : "";
   if (S.tab === "curve") renderCurve(); else if (S.tab === "surv") renderSurv(); else if (S.tab === "rank") renderRank();
   else if (S.tab === "mon") renderMon(); else if (S.tab === "cal") renderCal(); else if (S.tab === "trace") renderTrace();
   else if (S.tab === "ember") renderEmber(); else if (S.tab === "guide") renderGuide(); else if (S.tab === "json") renderJson();
@@ -1985,12 +2094,13 @@ $("sort").addEventListener("change", e => { S.sort = e.target.value; renderList(
 $("clearSel").addEventListener("click", () => { S.sel = []; S.slot = {}; update(); });
 listEl.addEventListener("click", e => {
   const r = e.target.closest(".row"); if (!r) return;
-  if (e.target.closest(".fname")) { S.focus = r.dataset.id; if (!S.sel.includes(r.dataset.id)) toggle(r.dataset.id); else update(); if (S.tab !== "curve") setTab("curve");
-    requestAnimationFrame(() => { const d = $("detail"); if (d && d.firstChild) d.scrollIntoView({ behavior: "smooth", block: "nearest" }); });   // 편집 패널이 화면 밖이면 보이게
-    return; }
+  if (e.target.closest(".editBtn")) { openPanel(r.dataset.id); return; }
+  if (e.target.closest(".fname")) { const id = r.dataset.id; if (!S.sel.includes(id) && S.sel.length < MAX_SEL) { S.sel.push(id); const used = new Set(Object.values(S.slot)); let k = 0; while (used.has(k)) k++; S.slot[id] = k; if (liveActive()) scheduleRecompute(); }
+    openPanel(id); return; }
   if (e.target.tagName === "INPUT") e.preventDefault();
   toggle(r.dataset.id);
 });
+$("panelChip").addEventListener("click", e => { if (e.target.closest("#btnPanelChip")) openPanel(panelTarget()); });
 $("metric").addEventListener("change", e => { S.metric = e.target.value; update(); });
 $("act").addEventListener("change", e => { S.act = +e.target.value; update(); });
 $("xsel").addEventListener("change", e => { S.x = +e.target.value; update(); if (liveActive()) scheduleRecompute(); });
@@ -2028,7 +2138,8 @@ $("detail").addEventListener("input", e => {
   }
 });
 $("detail").addEventListener("click", async e => {
-  if (e.target.id === "btnTrace") { TR.fid = S.focus; setTab("trace"); return; }
+  if (e.target.id === "btnTrace") { TR.fid = panelTarget(); setTab("trace"); return; }
+  if (e.target.id === "btnReconnect") { e.target.disabled = true; await connectServer(); update(); return; }
   if (e.target.classList.contains("sgFit")) { const row = e.target.closest(".kv").querySelector(".editor"); sgFit([{ kind: "fantasy", id: row.dataset.fid, field: row.dataset.effect + "." + row.dataset.key }], "근사 학습 " + BYID[row.dataset.fid].name); return; }
   const ed = e.target.closest(".editor"); if (!ed) return;
   if (ed.classList.contains("cfged")) { if (e.target.classList.contains("reset")) setCfgEdit(ed.dataset.path, +ed.dataset.old, +ed.dataset.old); return; }
@@ -2118,26 +2229,44 @@ window.__setPreview = P => setPreview(P);
 applyModelFidelity(); FANTS.forEach(summarize);
 update();
 
-// ---------------- 서버 모드 감지 (/api/ping 실패 시 읽기 전용) ----------------
-(async () => {
-  if (SRV && location.protocol.startsWith("http")) {
-    try {
-      const ping = await api("/api/ping");
-      const [schema, state, fj] = await Promise.all([api("/api/schema"), api("/api/state"), api("/api/fantasies")]);
-      SCHEMA = schema; BASE_CFG = state.base_cfg || {};
-      srvOK = true;
-      absorbFantasies(fj);
-      const ph = ping.data_hash || ping.table_hash;
-      if (!BASE_HASH) BASE_HASH = ph;
-      if (ph !== BASE_HASH) { BASE_HASH = ph; $("hashLabel").textContent = BASE_HASH.slice(0, 10) + " (스캔과 다름)"; }
-      S.fileEdits = fj.dirty_files || [];
-      SRV_STATE = state;
-      if (state.has_monsters) loadMonsters();
-      await loadRef();
-      await loadSG();
-      $("modeBadge").textContent = "서버 모드 · 편집 가능"; $("modeBadge").classList.add("server");
-    } catch (e) { srvOK = false; $("modeBadge").textContent = "읽기 전용 (서버 연결 실패)"; }
+// ---------------- 서버 연결 (v4.3 F13.5: 필수·부가 분리, 원인 표시, 다시 연결 / F13.6: build 확인) ----------------
+async function connectServer() {
+  if (!(SRV && location.protocol.startsWith("http"))) { renderModeBadge(); return; }
+  SRVC.fail = null; SRVC.partial = [];
+  let step = "/api/ping";
+  try {   // 필수: ping, 스키마, 상태, 환상 목록 — 하나라도 실패하면 읽기 전용
+    const ping = await api("/api/ping");
+    if (!SRVC.build) { SRVC.build = ping.build || null; } else checkBuild(ping);
+    SRVC.started = ping.started_at || null; SRVC.sim = ping.sim_version;
+    step = "/api/schema · /api/state · /api/fantasies";
+    const [schema, state, fj] = await Promise.all([
+      api("/api/schema").catch(e => { throw Object.assign(e, { what: "/api/schema" }); }),
+      api("/api/state").catch(e => { throw Object.assign(e, { what: "/api/state" }); }),
+      api("/api/fantasies").catch(e => { throw Object.assign(e, { what: "/api/fantasies" }); })]);
+    SCHEMA = schema; BASE_CFG = state.base_cfg || {};
+    srvOK = true;
+    SRV_STATE = state;
+    S.fileEdits = fj.dirty_files || [];
+    const ph = ping.data_hash || ping.table_hash;
+    if (!BASE_HASH) BASE_HASH = ph;
+    if (ph !== BASE_HASH) { BASE_HASH = ph; $("hashLabel").textContent = BASE_HASH.slice(0, 10) + " (스캔과 다름)"; }
+    // 부가: 각자 실패해도 편집은 허용하고 배지에 '일부 기능 실패'
+    const part = (what, e) => { if (!e) return; const t = apiErrText(what, e); SRVC.partial.push(t); console.error("[MatchUp] 일부 기능 실패:", t, e); };
+    try { absorbFantasies(fj); } catch (e) { part("환상 정보 반영", e); }
+    if (state.has_monsters) part("/api/monsters", await loadMonsters());
+    part("/api/reference", await loadRef());
+    try { await loadSG(); } catch (e) { part("/api/surrogate/models", e); }
+  } catch (e) {
+    srvOK = false;
+    SRVC.fail = apiErrText(e.what || step, e);
+    console.error("[MatchUp] 서버 연결 실패:", SRVC.fail, e);
   }
+  window.__SRVC = SRVC;
+  renderModeBadge();
+}
+window.__connectServer = connectServer;
+(async () => {
+  await connectServer();
   update();
   window.__viewerReady = true;
 })();

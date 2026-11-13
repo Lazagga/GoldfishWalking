@@ -54,7 +54,7 @@ def plan(cfg, x_key, xs, ids, order, baseline_type, seed, thash, engine, n_targe
 
 
 def run_combo(engine, cfg, thash, seed, x_key, xs, ids, order, baseline_type="natural", stages=(300, 1000, 3000),
-              epsilon=0.015, cancel=None, on_stage=None, arms="all"):
+              epsilon=0.015, cancel=None, on_stage=None, arms="all", progress=None):
     """반환: {"ids", "baseline_type", "x_values", "by_x": {x: combo_stats}, "n"}.
     단계마다 on_stage(n, by_x) 를 부르고, 모든 쌍의 I 95% CI 반폭 ≤ ε 이면 일찍 멈춘다."""
     ids = sorted(ids, key=order.index)
@@ -62,7 +62,7 @@ def run_combo(engine, cfg, thash, seed, x_key, xs, ids, order, baseline_type="na
     full = frozenset(ids)
     by_x = {}
     for n in stages:
-        recs = engine.ensure(reqs, n, cancel=cancel)
+        recs = engine.ensure(reqs, n, cancel=cancel, progress=progress)
         by_x = {}
         for x in xs:
             rs = {r["tag"][1]: recs[r["key"]] for r in reqs if r["tag"][0] == x}

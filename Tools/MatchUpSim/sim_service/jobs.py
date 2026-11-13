@@ -17,6 +17,7 @@ from . import stats as S
 from . import store as st
 
 BASE = "__baseline__"
+PROGRESS_LOG = True      # 서버 콘솔에 진행 상황을 ~10초마다 한 줄 찍는다 (테스트에서는 끈다)
 
 
 class Job:
@@ -32,6 +33,11 @@ class Job:
         self.done = False
         self.t0 = time.perf_counter()
         self.t_cancel = None
+        # 진행 집계 (v4.3 F12): 계산 호출부가 progress=job.progress 로 넘기면 `progress` 이벤트가 흘러나간다.
+        self.progress = cp.Progress(
+            emit=lambda snap: self.emit("progress", **snap),
+            log=(lambda line: print(line, flush=True)) if PROGRESS_LOG else None,
+            label=f"{kind} {self.id}")
 
     def emit(self, type_, **data):
         with self.cond:
@@ -197,6 +203,12 @@ class SeriesSet:
         """items: [(series, fid, x)] 우선순위 순서. 단계마다 모두 채우고 점마다 이벤트를 보낸다."""
         job = self.job
         total = len(items) * stages[-1]
+        eng = self.app.engine
+        try:   # 전체 계획: 새로 돌릴 판 수 = Σ max(0, 최종 n − 저장된 n)  (캐시에 있는 판은 제외)
+            have = [min(eng.record(self.req(*it))["n"], stages[-1]) for it in items]
+            job.progress.plan(sum(stages[-1] - h for h in have), cached=sum(have))
+        except Exception:  # noqa: BLE001 — 계획 실패는 진행 표시만 덜 정확하게 할 뿐
+            pass
         for si, n in enumerate(stages):
             reqs = [self.req(*it) for it in items]
 
@@ -214,7 +226,7 @@ class SeriesSet:
                 for t in targets:
                     job.emit("point", series=t[0], fid=t[1], x=t[2], stage=si + 1, point=self.point(*t, n))
 
-            self.app.engine.ensure(reqs, n, on_point=on_pt, cancel=lambda: job.cancelled)
+            self.app.engine.ensure(reqs, n, on_point=on_pt, cancel=lambda: job.cancelled, progress=job.progress)
             job.emit("stage", stage=si + 1, n=n, done_runs=len(items) * n, total_runs=total)
 
 
@@ -281,7 +293,7 @@ def job_scan(app, job):
     res = fs.run_scan(app.engine, cfg, h, app.seed, app.x_key, app.x_values, fids, stages=stages,
                       adaptive=bool(p.get("adaptive", True)), epsilon=float(p.get("epsilon", app.epsilon)),
                       facet_key=facet_key, facet_values=facet_values, cancel=lambda: job.cancelled,
-                      on_point=on_point, log=lambda *a, **k: None)
+                      on_point=on_point, log=lambda *a, **k: None, progress=job.progress)
     if p.get("save"):
         ctx = ms.SimContext(cfg)
         data = fs.assemble(res, cfg, fids, ctx, h, seed=app.seed, x_key=app.x_key, fixed=app.fixed,
@@ -305,7 +317,7 @@ def _delta_at(app, job, table_data, cfg_edits, fid, x, stages, epsilon):
     rf = cp.make_req(cfg, [fid], app.seed, h)
     d = None
     for n in stages:
-        recs = app.engine.ensure([rb, rf], n, cancel=lambda: job.cancelled)
+        recs = app.engine.ensure([rb, rf], n, cancel=lambda: job.cancelled, progress=job.progress)
         d = S.paired_delta(recs[rf["key"]], recs[rb["key"]], n)
         if S.half_width(d["delta_se"]) <= epsilon:
             break
@@ -444,7 +456,7 @@ def job_combo(app, job):
         job.emit("combo", stage_n=n, combo=cb.to_json(tmp, label, by_x))
 
     res = cb.run_combo(app.engine, cfg, h, app.seed, app.x_key, xs, ids, order, typ, stages,
-                       float(p.get("epsilon", app.epsilon)), cancel=lambda: job.cancelled, on_stage=on_stage, arms=arms)
+                       float(p.get("epsilon", app.epsilon)), cancel=lambda: job.cancelled, on_stage=on_stage, arms=arms, progress=job.progress)
     out = cb.to_json(res, label)
     # 등가 체력 이득 (선택 X): 빈 집합 팔 곡선을 단조 회귀로 고른 뒤 역산
     x0 = p.get("x_sel", xs[len(xs) // 2])
@@ -537,7 +549,7 @@ def job_ember_sweep(app, job):
         cells.append(cell)
         job.emit("cell", **cell)
 
-    app.engine.ensure(list(reqs.values()), n, on_point=on_pt, cancel=lambda: job.cancelled)
+    app.engine.ensure(list(reqs.values()), n, on_point=on_pt, cancel=lambda: job.cancelled, progress=job.progress)
     return {"x": x, "n": n, "cells": cells, "slot_sizes": slots, "blue_chances": chances}
 
 
@@ -583,7 +595,7 @@ def job_tune(app, job):
         c = copy.deepcopy(cfg)
         ms.set_path(c, key, x)
         req = cp.make_req(c, [], seed, h)
-        rec = app.engine.ensure([req], runs, cancel=lambda: job.cancelled)[req["key"]]
+        rec = app.engine.ensure([req], runs, cancel=lambda: job.cancelled, progress=job.progress)[req["key"]]
         w = round(rec["wins"][:runs].count("1") / runs, 4)      # CLI summarize() 와 같은 반올림
         job.emit("tune_point", x=x, win_rate=w, n=runs)
         return w

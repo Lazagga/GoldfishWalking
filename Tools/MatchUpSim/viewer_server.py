@@ -61,6 +61,26 @@ LOOPBACK = ("127.0.0.1", "localhost", "::1")
 TOKEN_FILE = os.path.join(HERE, ".matchupsim_remote_token")
 
 
+BUILD_FILES = ("viewer_server.py", "viewer_template.html", "build_viewer.py", "matchup_sim.py", "fantasy_scan.py",
+               "import_fantasies.py", "import_monsters.py")
+
+
+def code_build():
+    """서버가 읽은 코드 파일들의 (이름, 크기, 수정 시각) → 짧은 해시 (v4.3 F13.6). 코드가 바뀐 뒤 재시작하면 달라진다."""
+    import hashlib
+    files = [os.path.join(HERE, f) for f in BUILD_FILES]
+    sd = os.path.join(HERE, "sim_service")
+    files += sorted(os.path.join(sd, f) for f in os.listdir(sd) if f.endswith(".py"))
+    h = hashlib.sha1()
+    for f in files:
+        try:
+            st_ = os.stat(f)
+            h.update(f"{os.path.basename(f)}|{st_.st_size}|{st_.st_mtime_ns};".encode())
+        except OSError:
+            pass
+    return h.hexdigest()[:10]
+
+
 def remote_token(path=TOKEN_FILE):
     """원격 모드 토큰: 파일에 저장해 재시작해도 같은 주소로 접속할 수 있게 한다 (파일은 .gitignore)."""
     try:
@@ -108,6 +128,8 @@ class App:
                                extra_allowed=[self.scen_dir, self.results, os.path.dirname(self.monster_table_path)],
                                dirs={"monster": self.mon_dir, "pattern": self.pat_dir}, overlay=self.overlay)
         self.monster_data = None
+        self.build = code_build()                                   # v4.3 F13.6: 서버·뷰어 버전 확인
+        self.started_at = time.strftime("%Y-%m-%dT%H:%M:%S")
         self.load_scan()
         self._disk_sig = self.disk_signature()
         self.load_table()
@@ -171,6 +193,9 @@ class App:
         if monster_data is not None:   # tier_avg 에서도 넣어 둔다 (digits 전환용, 키·해시에는 영향 없음)
             cfg["monsters"]["table_file"] = self.materialize_monsters(monster_data)
         return cfg
+
+    def build_info(self):
+        return {"build": self.build, "started_at": self.started_at, "sim_version": ms.SIM_VERSION}
 
     def disk_signature(self):
         """원본 폴더(환상·몬스터·패턴)와 overrides 의 (파일, 수정 시각, 크기). 바뀌면 서버 밖에서 고친 것."""
@@ -253,6 +278,20 @@ class App:
 
     def changed(self):
         return rf.changed_set(self.ref, self.table_data, self.monster_data, self.base_cfg)
+
+    def progress_info(self):
+        """진행 중인 작업의 계산 진행 (v4.3 F12). 다른 기기(폰 등)에서 서버의 계산 상황만 볼 때 쓴다.
+        작업이 없으면 {"job": None}. 학습 작업이 돌고 있으면 "training" 에 따로 담는다."""
+        def one(job):
+            if job is None:
+                return None
+            return {"id": job.id, "kind": job.kind, "done": job.done, "cancelled": job.cancelled,
+                    "age_s": round(time.perf_counter() - job.t0, 1), **job.progress.snapshot()}
+        cur = self.jobs.current
+        tr = getattr(self.trainer, "current", None)
+        return {"job": one(cur), "training": one(tr),
+                "engine": {"workers": self.engine.workers, "rate": self.engine.rate,
+                           "runs_computed": self.engine.runs_computed}}
 
     def reference_info(self):
         return rf.info(self.ref, self.data_hash, self.changed(), self.disk_files())
@@ -476,10 +515,10 @@ class Handler(BaseHTTPRequestHandler):
                 self.app.refresh_from_disk()
             if path == "/api/ping":
                 return self._json({"ok": True, "sim_version": ms.SIM_VERSION, "table_hash": self.app.table_hash,
-                                   "data_hash": self.app.data_hash})
+                                   "data_hash": self.app.data_hash, **self.app.build_info()})
             if path == "/api/state":
                 a = self.app
-                return self._json({"table_hash": a.table_hash, "data_hash": a.data_hash,
+                return self._json({"table_hash": a.table_hash, "data_hash": a.data_hash, **a.build_info(),
                                    "dirty_files": [{"kind": k, "id": i} for k, i in a.overlay.dirty()],
                                    "has_monsters": a.monster_data is not None,
                                    "monster_model": a.base_cfg["monsters"].get("model"),
@@ -489,6 +528,8 @@ class Handler(BaseHTTPRequestHandler):
                                    "epsilon": a.epsilon, "last_apply": a.wb.last,
                                    "current_job": a.jobs.current.id if a.jobs.current else None,
                                    "base_cfg": {k: ed.get_path(a.base_cfg, k) for k in ed.CFG_EDITABLE}})
+            if path == "/api/progress":
+                return self._json({**self.app.progress_info(), **self.app.build_info()})
             if path == "/api/fantasies":
                 return self._json(self.app.fantasies_payload())
             if path == "/api/reference":

@@ -238,7 +238,8 @@ class Trainer:
             try:
                 if jm.pending > 0:
                     continue
-                return self.app.engine.ensure(reqs, n, cancel=lambda: jm.pending > 0 or job.cancelled, chunk=BG_CHUNK)
+                return self.app.engine.ensure(reqs, n, cancel=lambda: jm.pending > 0 or job.cancelled, chunk=BG_CHUNK,
+                                              progress=getattr(job, "progress", None))
             except cp.Cancelled:
                 if job.cancelled:
                     raise
