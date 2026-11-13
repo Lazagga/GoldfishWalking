@@ -26,7 +26,7 @@
                                    },
                         "operation":  "modify_value",
                         "mode":  "add",
-                        "amount":  -20.0
+                        "amount":  -5.0
                     }
                 ]
 }
