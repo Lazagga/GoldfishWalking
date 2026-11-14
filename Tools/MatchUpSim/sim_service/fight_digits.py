@@ -236,22 +236,25 @@ def pick_segments(rng, masks, n):
 # ---------------------------------------------------------------------------
 # 배분 (F8.4)
 # ---------------------------------------------------------------------------
-def prune(reach, better, feat=None, keep_all=False):
+def prune(reach, better, feat=None, keep_all=False, rank=None):
     """reach = {값: 최소 이동}. 특징이 같은 값끼리 (이동 수 오름차순) 파레토 프런트만 남긴다.
-    better = +1 이면 큰 값이 좋음, -1 이면 작은 값이 좋음."""
+    better = +1 이면 큰 값이 좋음, -1 이면 작은 값이 좋음.
+    rank 가 있으면 값의 좋고 나쁨을 rank(값) 으로 비교한다 (값 자체는 화면 숫자 그대로 유지)."""
+    rk = rank or (lambda v: v)
     if keep_all:
-        return sorted(((v, c) for v, c in reach.items()), key=lambda x: (x[1], -better * x[0]))
+        return sorted(((v, c) for v, c in reach.items()), key=lambda x: (x[1], -better * rk(x[0]), x[0]))
     groups = {}
     for v, c in reach.items():
         groups.setdefault(feat(v) if feat else None, []).append((v, c))
     out = []
     for items in groups.values():
-        items.sort(key=lambda x: (x[1], -better * x[0]))
+        items.sort(key=lambda x: (x[1], -better * rk(x[0]), x[0]))
         best = None
         for v, c in items:
-            if best is None or better * v > better * best:
+            r = rk(v)
+            if best is None or better * r > better * best:
                 out.append((v, c))
-                best = v
+                best = r
     return out
 
 
@@ -354,6 +357,11 @@ def fight_digits(cfg, st, tier, act, rng):
     skip_add = fx.sum("monster_skip_chance_add")
     str_add = list(fx.items("monster_str_add"))
     digit_max = [int(ef["value"]) for ef, c in fx.items("monster_dmg_digit_max")]
+    # 몬스터 피해 숫자 상한(사과파이): 화면 숫자(성냥 이동 대상)는 그대로 두고, 피해 계산에 쓸 때만 각 자릿수를 상한으로 깎는다.
+    digit_cap = min(digit_max) if digit_max else None
+
+    def eff_d(v):
+        return v if digit_cap is None else ms._digits_map(v, lambda d: min(d, digit_cap))
     has_transform = fx.has("base_dmg_transform")
     pstr_list = list(fx.items("player_str_add"))
     hits_plain = sum(int(ef.get("value", 0)) * c for ef, c in fx.items("hits_add") if not ef.get("when") and not ef.get("per"))
@@ -544,8 +552,6 @@ def fight_digits(cfg, st, tier, act, rng):
                     dD = max(1, int(pt.get("dmg_digits") or 1), ndig(D))
                 else:
                     D = roll(turn, "mdmg").randint(dmin(dD), dmax(dD))
-                for v in digit_max:
-                    D = ms._digits_map(D, lambda d, v=v: min(d, v))
                 if pt.get("multi"):
                     hD = max(1, int(pt.get("hit_digits") or 1))
                     H = roll(turn, "mhit").randint(dmin(hD), dmax(hD))
@@ -596,7 +602,7 @@ def fight_digits(cfg, st, tier, act, rng):
             n_items = 0
             inv = st.matches + st.erasers + temp_items
             if inv and use_items != "never" and kind == "attack":
-                inc = max(0, D + taken_flat) * H
+                inc = max(0, eff_d(D) + taken_flat) * H
                 if use_items == "always" or (inc > 0 and inc >= st.hp * danger):
                     n_items = n = min(inv, max_items)
                     for _ in range(n):
@@ -652,9 +658,9 @@ def fight_digits(cfg, st, tier, act, rng):
             boxes.append(("P", prune(pr, +1, p_feat, keep_all=p_keep_all)))
             if kind == "attack" and not stunned:
                 d_ok = m_movable and not m_dmg_locked and pt.get("dmg_editable", True)
-                dr = bm.reach_best(dD, D, K if d_ok else 0, -1, split=m_split, movable=d_ok)
+                dr = bm.reach_best(dD, D, K if d_ok else 0, -1, split=m_split, movable=d_ok, cap=digit_cap)
                 d_feat = (lambda v: (ms._consecutive_pairs(v) if feat_pairs else 0, str(v).count("8") if feat_8 else 0))
-                boxes.append(("D", prune(dr, -1, d_feat, keep_all=joint_pd)))
+                boxes.append(("D", prune(dr, -1, d_feat, keep_all=joint_pd, rank=eff_d if digit_cap is not None else None)))
                 if pt.get("multi"):
                     hr_ = bm.reach_best(hD, H, K if m_movable else 0, -1, split=m_split, movable=m_movable)
                     boxes.append(("H", prune(hr_, -1)))
@@ -682,7 +688,7 @@ def fight_digits(cfg, st, tier, act, rng):
                 one = max(0, round(Pp * dmg_mult) + flat)
                 fm = 1.0
                 for cnd, factor in final_list:
-                    if cnd == "base_eq_monster_dmg" and Pp != vals.get("D", D):
+                    if cnd == "base_eq_monster_dmg" and Pp != eff_d(vals.get("D", D)):
                         continue
                     fm *= factor
                 d = int(one * fm)
@@ -739,14 +745,14 @@ def fight_digits(cfg, st, tier, act, rng):
                 return d
 
             def per_hit_in(vals):
-                per = vals.get("D", D)
+                per = eff_d(vals.get("D", D))
                 if aim is not None and amul > 1:
                     s = str(vals["P"]) + str(p_hits) + (str(vals.get("X", p.debuff["value"])) if p.debuff else "")
                     if str(aim) in s:
                         per = int(per * amul)
                 v = max(0, round(per * (1 - def_cut)) + taken_flat)
                 for cnd, factor in taken_mult:
-                    if cnd == "monster_dmg_ge_player_base" and not vals.get("D", D) >= vals["P"]:
+                    if cnd == "monster_dmg_ge_player_base" and not eff_d(vals.get("D", D)) >= vals["P"]:
                         continue
                     v = int(v * factor)
                 return v
@@ -842,8 +848,8 @@ def fight_digits(cfg, st, tier, act, rng):
             hits = p_hits + (ms._consecutive_pairs(Pp, Dp) * pairs_c if pairs_c else 0)
             mon_vals = {"P": Pp, "D": Dp, "X": vals.get("X")}
             per_in = per_hit_in(mon_vals) if (kind == "attack" and not stunned) else 0
-            if Dp > max_hit:
-                max_hit = Dp
+            if eff_d(Dp) > max_hit:
+                max_hit = eff_d(Dp)
 
             def end_turn_dmg():
                 total = 0
@@ -1006,7 +1012,7 @@ def fight_digits(cfg, st, tier, act, rng):
                         elif m.hp <= 0:
                             res = "win"
             if tr is not None:
-                tr.append({"ev": "turn", "t": turn, "intent": kind, "pattern": pt.get("key"), "mon_dmg": D, "mon_dmg_edit": Dp,
+                tr.append({"ev": "turn", "t": turn, "intent": kind, "pattern": pt.get("key"), "mon_dmg": D, "mon_dmg_edit": Dp, "mon_dmg_eff": eff_d(Dp),
                            "hits": H, "hits_edit": Hp, "base": Pv, "base_edit": Pp, "moves": M, "K": K, "used": used,
                            "items": n_items, "p_hits": hits, "cand": ncand, "beam": beam, "dealt": mhp_before - m.hp, "etd": etd_real,
                            "taken": taken_turn, "hp_change": st.hp - hp_before, "hp": st.hp, "mhp": m.hp, "end": res,

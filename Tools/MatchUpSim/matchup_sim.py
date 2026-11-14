@@ -69,7 +69,7 @@ import time
 from datetime import datetime
 
 # 시뮬레이션 의미가 바뀌는 수정(같은 입력에서 결과가 달라지는 수정)마다 올린다. 스캔 캐시 키에 들어간다.
-SIM_VERSION = 1
+SIM_VERSION = 2   # 2: digits 모델 몬스터 피해 숫자 상한(사과파이)을 화면 숫자는 그대로 두고 피해 계산에만 적용
 
 ACTS = 3
 FLOORS_PER_ACT = 15

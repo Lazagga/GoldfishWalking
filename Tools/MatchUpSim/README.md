@@ -38,6 +38,13 @@ digits 는 이 PC 에서 초당 약 17판이라 느리다. 계산은 빠른 PC(�
 - **조우한 런 승률** = 이 몬스터를 한 번이라도 만난 런이 끝까지 클리어한 비율. 뒤쪽 막 몬스터일수록 거기까지 살아남은 런만 만나므로 높게 나온다 — 같은 막·등급끼리, 그리고 전체 승률과 견준다. 요정은 모든 런의 첫 전투라 조우한 런 승률 = 전체 승률이다.
 - 결과 파일 필드: `battle_win_rate`·`battle_win_ci`·`battle_wins`, `run_win_rate_met`·`run_win_ci_met`·`runs_met`, 최상위 `wins`·`win_rate`.
 
+## 몬스터 피해 숫자 상한(사과파이) — 화면 숫자는 그대로, 피해 계산에만 적용 (SIM_VERSION 2)
+- 이전: digits 모델이 몬스터 피해 숫자를 굴리자마자 5 이하로 깎은 뒤 성냥을 옮겼다. 실제 게임은 숫자가 그대로 뜨고, 피해를 계산할 때만 5보다 큰 자리를 5로 본다.
+- 지금: 성냥 이동은 굴린 **원래 숫자**에서 시작하고, 플레이어는 상한을 적용한 값이 가장 작아지는 배치를 고른다(예: 원래 숫자로는 58 < 61 이지만 상한 5 를 적용하면 58 > 51 이라 61 을 고른다). 큰 상자용 DP(`box_moves.best_per_cost`)도 같은 기준으로 비교한다.
+- 상한을 적용하는 곳: 받는 피해 계산, `base_eq_monster_dmg`·`monster_dmg_ge_player_base` 조건, 아이템 사용 판단, 최대 1타 기록. 화면 숫자 그대로 쓰는 곳: 연속 숫자 쌍 수, 8 의 개수(`digit8`), 반응형 몬스터의 상자 변경 판정. 트레이스 턴에 `mon_dmg_eff`(상한 적용 값)를 추가했다.
+- 가우스 모델은 몬스터 숫자의 성냥을 옮기지 않아 이미 '피해 계산 시 적용'과 같아 바꾸지 않았다.
+- 시뮬레이션 결과가 달라져 `SIM_VERSION` 을 1 → 2 로 올렸다. 이전 버전으로 계산한 점은 캐시에서 쓰이지 않으므로 서버 PC 에서 전체 재계산(스캔 포함)이 필요하다.
+
 ## v4.2 (명세 F11, M27~M29) — 몬스터 체력 = 원본 JSON, X축 = 시작 체력, 목표 승률 맞추기
 - **기본 설정이 바뀌었다**: `monsters.model = "table"`(체력 = 몬스터 JSON 그대로, `table_file = monster_table.json`), `damage_model = "digits"`, `gimmicks = "on"`. 인자 없이 돌린 `matchup_sim.py`·스캔·도구가 모두 이 설정이다. `hp_base`·`act_hp_growth`·`tier_hp_ratio`·`hp_model`·`tiers.*.hp_mean/hp_cv`·`act_scale.*.hp`(그리고 게임 배정 규칙에서 `easy_battles`)는 table 에서 쓰이지 않고, `--x`·`--set`·`--sweep`·`--tune` 으로 건드리면 경고한다.
 - **구버전 호환**: `--set 'monsters.model="tier_avg"'` 를 주면 피해 모델이 자동으로 gauss·기믹 끔이 되고(`ms.normalize_models`, tier_avg 는 gauss 만 지원) 변경 전과 **행 단위로 같은 결과**가 나온다(`test_identity`, AC-H3). 점 캐시 키도 그대로라 이전 캐시를 다시 쓴다. 새 기본 설정의 키는 구버전 키와 다르다(AC-H11, `store.KEY_STRIP_VALUES`). 테스트·`tools/bench.py` 는 구버전 설정을 `ms.legacy_config()` 로 명시한다. 과거 `fantasy_curves.json`(x_param = hp_base, tier_avg)은 서버가 스캔 메타의 모델로 설정을 재현해 열고, 뷰어에 `구버전(평균 몬스터)` 배지가 붙는다.
@@ -461,6 +468,7 @@ python -m unittest test_v42_ui              # v4.2 AC-H3, H4, H7, H8, H9 (Playwr
 python -m unittest test_v43_progress            # v4.3 F12 진행 보고 AC-P1~P6 (서버 없이 엔진만)   ~1분
 python -m unittest test_v43_panel           # v4.3 F13 AC-D1~D7, 재계산 사이 곡선 유지 (Playwright)   ~2분
 python -m unittest test_v43_remote          # 원격 모드 토큰·Origin, 외부 수정 반영(서버·뷰어), 기기별 취소, 조합 k+2 팔   ~1분
+python -m unittest test_v43_digit_cap        # 몬스터 피해 숫자 상한: 화면 숫자 유지·상한 기준 최적 배치·DP 대조   ~1초
 ```
 테스트는 `tests/fixtures/`의 사본을 임시 폴더에 복사해 쓰고, 실제 `Assets/` 아래 쓰기를 막는 가드(`MATCHUPSIM_FORBID_PATH`)를 건다.
 시뮬레이션 의미가 바뀌는 수정을 하면 `matchup_sim.SIM_VERSION`을 올려 캐시를 무효화한다.

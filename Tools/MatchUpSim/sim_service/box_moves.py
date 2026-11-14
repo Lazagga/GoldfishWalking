@@ -149,53 +149,57 @@ def reach(d, v, k, split=False, locked=None, locked_digits=(), movable=True):
 EXACT_LIMIT = 50000   # 조합 수가 이보다 크면 reach_best 는 DP(이동 수별 최선 값)로 계산
 
 
-def best_per_cost(masks, k, cons, better):
+def best_per_cost(masks, k, cons, better, cap=None):
     """자릿수 DP: 이동 수 c(= Σa = Σr ≤ k)별 최선 값(better=+1 최대, −1 최소)만 정확히 구한다.
-    접두 값의 대소는 같은 접미에 대해 보존되므로(빈 자릿수는 곱하지 않음) 상태 (Σa, Σr, 비지 않음) 별 최선 접두만 남기면 된다."""
+    접두 값의 대소는 같은 접미에 대해 보존되므로(빈 자릿수는 곱하지 않음) 상태 (Σa, Σr, 비지 않음) 별 최선 접두만 남기면 된다.
+    cap 이 있으면 값의 대소를 '각 자릿수를 min(자릿수, cap) 으로 바꾼 값' 기준으로 비교한다(화면 숫자는 그대로, 계산에서만 상한).
+    반환하는 값은 항상 화면에 뜨는 원래 숫자다."""
     split, locked, locked_digits, movable = cons
     v0 = parse(masks)
     if not movable or k <= 0:
         return {v0: 0} if v0 is not None else {}
-    states = {(0, 0, False): 0}
+    states = {(0, 0, False): (0, 0)}            # 상태 → (비교 값, 화면 값)
     for o in _options(masks, k, cons):
         nxt = {}
-        for (sa, sr, ne), val in states.items():
+        for (sa, sr, ne), (rk, raw) in states.items():
             for Tm, a, r in o:
                 na, nr = sa + a, sr + r
                 if na > k or nr > k:
                     continue
                 if Tm == EMPTY:
-                    key, nv = (na, nr, ne), val
+                    key, nv = (na, nr, ne), (rk, raw)
                 else:
-                    key, nv = (na, nr, True), val * 10 + MASK_DIGIT[Tm]
+                    dg = MASK_DIGIT[Tm]
+                    key, nv = (na, nr, True), (rk * 10 + (dg if cap is None else min(dg, cap)), raw * 10 + dg)
                 cur = nxt.get(key)
-                if cur is None or better * nv > better * cur:
+                if cur is None or better * nv[0] > better * cur[0]:
                     nxt[key] = nv
         states = nxt
     by_cost = {}
-    for (sa, sr, ne), val in states.items():
+    for (sa, sr, ne), nv in states.items():
         if sa == sr and ne:
             cur = by_cost.get(sa)
-            if cur is None or better * val > better * cur:
-                by_cost[sa] = val
+            if cur is None or better * nv[0] > better * cur[0]:
+                by_cost[sa] = nv
     out, best = {}, None
     for c in sorted(by_cost):
-        v = by_cost[c]
-        if best is None or better * v > better * best:
-            out.setdefault(v, c)
-            best = v
+        rk, raw = by_cost[c]
+        if best is None or better * rk > better * best:
+            out.setdefault(raw, c)
+            best = rk
     return out
 
 
-def reach_best(d, v, k, better, split=False, locked=None, locked_digits=(), movable=True, limit=None):
+def reach_best(d, v, k, better, split=False, locked=None, locked_digits=(), movable=True, limit=None, cap=None):
     """배분 정책용: 작은 상자는 reach() 와 같고(완전 열거), 조합 수가 limit 를 넘는 큰 상자(자릿수·이동이 큰 경우)는
-    이동 수별 최선 값만 정확히 구한다 (숫자 내용 특징은 쓰지 않음). 반환 {값: 최소 이동}."""
+    이동 수별 최선 값만 정확히 구한다 (숫자 내용 특징은 쓰지 않음). 반환 {값: 최소 이동}.
+    cap: 값 비교에만 쓰는 자릿수 상한 (몬스터 피해 숫자 상한 환상). 반환 값은 화면 숫자 그대로."""
     d = max(d, len(str(int(v))))
     masks = masks_of(v, d)
     cons = norm_cons(d, split, locked, locked_digits, movable, masks)
     if space_size(masks, int(k), cons) <= (limit or EXACT_LIMIT):
         return dict(_reach(masks, int(k), cons))
-    return best_per_cost(masks, int(k), cons, better)
+    return best_per_cost(masks, int(k), cons, better, cap)
 
 
 def reach_masks(masks, k, split=False, locked=None, locked_digits=(), movable=True):
