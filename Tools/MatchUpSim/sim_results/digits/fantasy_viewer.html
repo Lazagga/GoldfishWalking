@@ -1135,7 +1135,7 @@ async function pollServerProgress() {
     const r = await api("/api/progress");
     checkBuild(r);
     const j = r && r.job && !r.job.done ? r.job : (r && r.training && !r.training.done ? r.training : null);
-    if (j && !LIVE.busy) showProgress(j, j.kind === "surrogate_train" || r.training === j ? "근사 모델 학습" : j.kind, true);
+    if (j && !LIVE.busy) showProgress(j, j.kind === "surrogate_train" || r.training === j ? "근사 모델 학습" : j.kind === "monster_metrics" ? "몬스터별 지표" : j.kind, true);
     else if (!LIVE.busy && window.__progress && $("progBar") && $("progBar").classList.contains("remote")) hideProgress();
   } catch (e) { if (e && e.status === 403 && srvOK && SRVC.build && !SRVC.restarted) { SRVC.restarted = true; renderModeBadge(); update(); } /* 그 밖에는 서버가 바쁘거나 꺼진 동안이라 조용히 넘김 */ }
 }
@@ -1181,6 +1181,7 @@ function storeLive(ev) {
 }
 async function startRecompute() {
   await syncServerTable();
+  if (S.tab === "mon") mmCheck(true);       // ‘버튼만’ 모드에서도 재계산 버튼이 몬스터별 지표를 갱신한다
   if (!needsCompute()) return;
   cancelJob();
   // 이전 결과를 지우지 않는다: 새 작업의 plan 이벤트(해시)를 받으면 그 해시와 다른 점만 버린다 (pruneLive)
@@ -1385,12 +1386,67 @@ function sgMonPreview(input, e0) {
   } else html += ' · <span class="small">기준선 근사 없음 (근사 학습 버튼)</span>';
   out.innerHTML = html; window.__sgMonOut = out.textContent;
 }
+// ── 몬스터별 지표 (서버 모드): 현재 편집을 반영해 서버가 다시 계산한다. 곡선 재계산과 별도 슬롯(client ID 가 달라 서로 취소하지 않음) ──
+const MM = { key: null, want: null, timer: null, job: null, seq: 0, data: null, dataKey: null, prog: null, err: null, running: false, stage: 0,
+  stages: window.__MMSTAGES || null };   // 판 수 단계 (null = 서버 기본 500 → 1500 → 3000). 테스트가 줄일 수 있게 둔 훅
+window.__MM = MM;
+function mmKey() { return JSON.stringify([BASE_HASH, S.edits, S.cfgEdits, S.cfgSet, S.fileEdits]); }
+function mmCheck(force) {
+  if (!(SRV && srvOK) || !MON) return;
+  const key = mmKey();
+  if (key === MM.key || key === MM.want) return;                 // 이미 이 상태로 계산했거나 곧 시작
+  if (S.rcMode === "button" && !force && MM.data) { mmBanner(); return; }   // ‘버튼만’ 모드: 재계산 버튼을 눌러야 갱신
+  clearTimeout(MM.timer); MM.want = key;
+  MM.timer = setTimeout(startMetrics, 500);
+}
+async function startMetrics() {
+  MM.want = null;
+  await syncServerTable();
+  const key = mmKey();
+  if (key === MM.key) return;
+  const my = ++MM.seq;
+  if (MM.job) { const old = MM.job; MM.job = null; api(`/api/jobs/${old}`, { method: "DELETE" }).catch(() => {}); }
+  MM.key = key; MM.err = null; MM.prog = null; MM.running = true; mmBanner();
+  try {
+    const { id } = await post("/api/jobs", { kind: "monster_metrics", client: CLIENT + "m", edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet, stages: MM.stages });
+    if (my !== MM.seq) { api(`/api/jobs/${id}`, { method: "DELETE" }).catch(() => {}); return; }
+    MM.job = id;
+    await streamJob(id, ev => {
+      if (my !== MM.seq) return;
+      if (ev.type === "progress") { MM.prog = ev; mmBanner(); }
+      else if (ev.type === "metrics") { MM.data = ev.data; MM.dataKey = key; MM.stage = ev.stage; mmRender(); }
+      else if (ev.type === "error") MM.err = ev.message;         // MM.key 는 그대로 둔다 — 실패한 상태를 자동으로 다시 시도하지 않음
+      if (["done", "cancelled", "error"].includes(ev.type)) { MM.running = false; if (MM.job === id) MM.job = null; mmBanner(); }
+    });
+  } catch (e) { if (my === MM.seq) { MM.err = e.message; MM.running = false; MM.job = null; mmBanner(); } }
+}
+function mmBanner() {
+  const el = $("mmBanner"); if (!el) return;
+  const fresh = MM.dataKey === mmKey(), p = MM.prog;
+  let h;
+  if (MM.err) h = `<span class="badge stale">계산 실패</span> ${esc(MM.err)} <button class="btn" id="mmRetry">다시 시도</button>`;
+  else if (MM.running) h = `<span class="badge">서버에서 계산 중</span> ${p ? `${p.done.toLocaleString()} / ${p.total.toLocaleString()}판${p.eta_s != null ? ` · 남은 약 ${fmtDur(p.eta_s)}` : ""}` : "서버 대기 중"} — ${MM.data ? (fresh ? "판 수가 늘며 갱신됩니다" : "아래는 이전 값") : "아래는 스캔 파일에 저장된 값"}`;
+  else if (!MM.data) h = '<span class="badge stale">저장된 값</span> 스캔 파일의 결과입니다 (현재 편집 미반영)';
+  else if (!fresh) h = '<span class="badge stale">이전 값</span> 편집이 반영되지 않았습니다 <button class="btn" id="mmNow">지금 계산</button>';
+  else h = `<span class="badge link">현재 편집 반영</span> 서버 계산 ${MM.data.meta.runs.toLocaleString()}판`;
+  el.innerHTML = h;
+  if ($("mmRetry")) $("mmRetry").onclick = () => { MM.key = null; MM.err = null; mmCheck(true); };
+  if ($("mmNow")) $("mmNow").onclick = () => mmCheck(true);
+}
+function mmRender() {
+  const box = $("monMetrics"); if (!box) return;
+  const D = MM.data || DATA.monster_metrics;
+  box.innerHTML = '<div id="mmBanner" class="small"></div><div id="monMetricsTable"></div>';
+  if (D) renderMonMetrics($("monMetricsTable"), D);
+  mmBanner();
+}
 function renderMon() {
   const el = $("tab-mon"); const D = DATA.monster_metrics;
   if (SRV && srvOK) {
-    el.innerHTML = `<h4 style="margin:0 0 4px">몬스터·패턴 편집</h4><div id="monEditBox">${renderMonEdit()}</div>${MON ? renderHpReport(monsWithEdits()) : ""}${D ? '<h4 style="margin:12px 0 4px">몬스터별 지표 (런 전체 시뮬)</h4><div id="monMetrics"></div>' : ""}`;
+    el.innerHTML = `<h4 style="margin:0 0 4px">몬스터·패턴 편집</h4><div id="monEditBox">${renderMonEdit()}</div>${MON ? renderHpReport(monsWithEdits()) : ""}<h4 style="margin:12px 0 4px">몬스터별 지표 (런 전체 시뮬)</h4><div id="monMetrics"></div>`;
     if (MON) bindMonEdit(el);
-    if (D) renderMonMetrics($("monMetrics"), D);
+    mmRender();
+    mmCheck();
     return;
   }
   if (!D) { el.innerHTML = ""; return; }

@@ -99,7 +99,11 @@ def warning_for(cfg, m):
 def run_metrics(cfg, seed, n, pool=None, chunk=250, monster_table=None):
     tasks = [(cfg, seed, s, min(n, s + chunk)) for s in range(0, n, chunk)]
     parts = pool.map(chunk_metrics, tasks) if pool is not None else [chunk_metrics(t) for t in tasks]
-    agg, deaths, runs, wins = merge(parts)
+    return build_result(cfg, *merge(parts), monster_table=monster_table)
+
+
+def build_result(cfg, agg, deaths, runs, wins, monster_table=None):
+    """merge() 결과 → 몬스터별 지표 행. 서버 작업(monster_metrics)도 같은 함수를 쓴다."""
     info = {}
     if monster_table:
         info = {m["id"]: m for m in monster_table.get("monsters", [])}
@@ -138,15 +142,18 @@ def run_metrics(cfg, seed, n, pool=None, chunk=250, monster_table=None):
     return {"runs": runs, "deaths": deaths, "wins": wins, "win_rate": round(wins / max(1, runs), 4), "monsters": rows}
 
 
+def meta_of(cfg, seed, n):
+    return {"generated_at": datetime.now().isoformat(timespec="seconds"), "seed": seed, "runs": n,
+            "monster_model": cfg["monsters"].get("model"), "damage_model": cfg["monsters"].get("damage_model"),
+            "hp_scale": cfg["monsters"].get("hp_scale"), "turn_targets": TURN_TARGETS,
+            "gimmicks": cfg["monsters"].get("gimmicks", "off"),
+            "note": ("피해 크기는 등급 평균(gauss) — 원본 자릿수 미사용. 기믹 미모델링 몬스터는 경고 표시."
+                     if cfg["monsters"].get("damage_model", "gauss") != "digits" else
+                     "digits: 자릿수 굴림 + 상자 안 성냥 이동(정책). 기믹 " + cfg["monsters"].get("gimmicks", "off"))}
+
+
 def write(result, cfg, seed, n, path):
-    data = {"meta": {"generated_at": datetime.now().isoformat(timespec="seconds"), "seed": seed, "runs": n,
-                     "monster_model": cfg["monsters"].get("model"), "damage_model": cfg["monsters"].get("damage_model"),
-                     "hp_scale": cfg["monsters"].get("hp_scale"), "turn_targets": TURN_TARGETS,
-                     "gimmicks": cfg["monsters"].get("gimmicks", "off"),
-                     "note": ("피해 크기는 등급 평균(gauss) — 원본 자릿수 미사용. 기믹 미모델링 몬스터는 경고 표시."
-                              if cfg["monsters"].get("damage_model", "gauss") != "digits" else
-                              "digits: 자릿수 굴림 + 상자 안 성냥 이동(정책). 기믹 " + cfg["monsters"].get("gimmicks", "off"))},
-            **result}
+    data = {"meta": meta_of(cfg, seed, n), **result}
     with open(path, "w", encoding="utf-8") as fp:
         json.dump(data, fp, ensure_ascii=False, indent=1)
     return data

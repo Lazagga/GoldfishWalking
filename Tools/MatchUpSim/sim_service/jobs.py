@@ -4,7 +4,10 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import itertools
+import json
+import queue
 import threading
 import time
 import traceback
@@ -553,7 +556,118 @@ def job_ember_sweep(app, job):
     return {"x": x, "n": n, "cells": cells, "slot_sizes": slots, "blue_chances": chances}
 
 
+MON_CACHE_MAX = 800       # 몬스터 지표 조각(≤250판) 캐시 항목 수 — 한 항목은 몬스터 수십 종의 합계라 작다
+
+
+def _pool_run(app, job, tasks, fn, on_done):
+    """tasks = [(key, args)] 를 엔진 풀(워커가 1명이면 직접)에서 돌리고 끝나는 대로 on_done(key, 결과).
+    취소하면 진행 중인 조각만 마저 받고 Cancelled. (Engine._ensure_run 과 같은 방식)"""
+    pool = app.engine.pool
+    if pool is None:
+        for key, args in tasks:
+            if job.cancelled:
+                raise cp.Cancelled()
+            on_done(key, fn(args))
+        return
+    q = queue.Queue()
+    inflight, exhausted, cancelled, errors = 0, False, False, []
+    it = iter(tasks)
+    max_inflight = app.engine.workers * 2
+    while True:
+        while not exhausted and not cancelled and inflight < max_inflight:
+            try:
+                key, args = next(it)
+            except StopIteration:
+                exhausted = True
+                break
+            pool.apply_async(fn, (args,), callback=lambda res, key=key: q.put((key, res)),
+                             error_callback=lambda exc: q.put((None, exc)))
+            inflight += 1
+        if inflight == 0:
+            break
+        try:
+            key, res = q.get(timeout=0.05)
+        except queue.Empty:
+            if job.cancelled:
+                cancelled = True
+            continue
+        inflight -= 1
+        if key is None:
+            errors.append(res)
+            cancelled = True
+            continue
+        on_done(key, res)
+        if job.cancelled:
+            cancelled = True
+    if errors:
+        raise errors[0]
+    if cancelled:
+        raise cp.Cancelled()
+
+
+def job_monster_metrics(app, job):
+    """몬스터별 지표를 현재 편집(환상·몬스터·패턴·설정)을 반영해 다시 계산한다 (런 전체 시뮬, 몬스터 테이블 모델).
+    판 수를 단계(기본 500 → 1500 → 3000)로 늘리며 단계마다 `metrics` 이벤트로 전체 표를 보낸다.
+    같은 설정·시드의 조각(≤250판)은 서버 메모리에 캐시해 단계가 올라가거나 같은 상태로 다시 열 때 다시 돌리지 않는다.
+    CLI monster_metrics.py 와 같은 조각 집계·시드 규칙(f"{seed}-{i}")을 쓴다 (설정은 서버의 현재 작업 사본 기준)."""
+    from . import monsters as mo
+    p = job.params
+    if app.monster_data is None:
+        raise ValueError("몬스터 데이터 없음")
+    edits = p.get("edits") or []
+    cfg, h = prepare(app, edits, p.get("cfg_edits"), p.get("cfg_set"))
+    m_edits = [e for e in edits if e.get("target") in ("monster", "pattern", "gimmick")]
+    mdata, c, e = ed.apply_monster_edits(app.monster_data, m_edits)
+    if c or e:
+        raise ValueError("몬스터 편집 적용 실패: " + "; ".join(str(x.get("reason")) for x in c + e))
+    cfg["monsters"]["model"] = "table"          # 몬스터별 지표는 실제 몬스터 테이블로만 의미가 있다 (CLI 와 같음)
+    cfg["monsters"]["table_file"] = app.materialize_monsters(mdata)
+    seed = str(p.get("seed") or "mon1")
+    stages = sorted(set(int(s) for s in (p.get("stages") or [500, 1500, 3000])))
+    chunk = max(1, int(p.get("chunk") or 250))
+    ckey = hashlib.sha1(json.dumps([cfg, seed, ms.SIM_VERSION], sort_keys=True, default=str).encode("utf-8")).hexdigest()
+    cache = app.__dict__.setdefault("mon_cache", {})
+    dh = dh_of(cfg, h)
+
+    def chunks(n):
+        return [(s, min(n, s + chunk)) for s in range(0, n, chunk)]
+
+    need_all = {(s, e) for n in stages for s, e in chunks(n) if (ckey, s, e) not in cache}
+    have_all = {(s, e) for n in stages for s, e in chunks(n) if (ckey, s, e) in cache}
+    job.emit("plan", stages=stages, seed=seed, data_hash=dh, cached_runs=sum(e - s for s, e in have_all))
+    job.progress.plan(sum(e - s for s, e in need_all), cached=sum(e - s for s, e in have_all))
+    last = None
+    for si, n in enumerate(stages):
+        parts, tasks = {}, []
+        for s, e in chunks(n):
+            hit = cache.get((ckey, s, e))
+            if hit is not None:
+                parts[s] = hit
+            else:
+                tasks.append(((ckey, s, e), (cfg, seed, s, e)))
+        todo = sum(t[1][3] - t[1][2] for t in tasks)
+        job.progress.begin(todo, sum(e - s for s, e in chunks(n)) - todo)
+
+        def on_done(key, res):
+            cache[key] = res
+            parts[key[1]] = res
+            while len(cache) > MON_CACHE_MAX:
+                cache.pop(next(iter(cache)))
+            job.progress.chunk(res["runs"])
+
+        try:
+            _pool_run(app, job, tasks, mo.chunk_metrics, on_done)
+        finally:
+            job.progress.end(0)
+        agg, deaths, runs, wins = mo.merge([parts[s] for s in sorted(parts)])
+        res = mo.build_result(cfg, agg, deaths, runs, wins, monster_table=mdata)
+        last = {"meta": mo.meta_of(cfg, seed, n), **res}
+        job.emit("metrics", stage=si + 1, n=n, data=last, data_hash=dh)
+    return {"data_hash": dh, "n": stages[-1], "runs": last["runs"] if last else 0}
+
+
 JOB_KINDS = {
+    "monster_metrics": job_monster_metrics,
     "monster_probe": job_monster_probe,
     "combo": job_combo,
     "ember_sweep": job_ember_sweep,
