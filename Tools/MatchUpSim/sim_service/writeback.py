@@ -581,6 +581,7 @@ class WriteBack:
                                   pv["overrides"], "@overrides" in targets and ov_raw is None)
         self.snapshot()
         self.last = bdir
+        self.prune_backups()
         return {"backup_dir": bdir, "files": list(files) + (["@overrides"] if ov_raw is not None else []),
                 "raw_files": [fn for fn, v in files.items() if v.get("raw")] + (["@overrides"] if ov_raw is not None else []),
                 "monster_rows": [x for fn in files for x in files[fn]["rows"] if x.get("target", "fantasy") != "fantasy"],
@@ -604,6 +605,51 @@ class WriteBack:
                 if got is None or not ed.num_eq(got, r["new"]):
                     bad.append({**r, "got": got})
         return bad
+
+    BACKUP_KEEP = 20      # 최근 저장 이력 개수 (v4.5 F17 11.4(d)) — 넘으면 오래된 백업 폴더부터 정리
+
+    def history(self, limit=None):
+        """최근 저장 이력 (최신 먼저): {id, at, files, file_names, rows, can_revert}. can_revert = 반영한 파일이 아직 그대로인지."""
+        out = []
+        try:
+            names = sorted((n for n in os.listdir(self.backup_root) if os.path.isfile(os.path.join(self.backup_root, n, "manifest.json"))), reverse=True)
+        except OSError:
+            return out
+        for n in names[:limit or self.BACKUP_KEEP]:
+            try:
+                with open(os.path.join(self.backup_root, n, "manifest.json"), encoding="utf-8") as fp:
+                    mf = json.load(fp)
+                ok = bool(mf.get("files"))
+                for fn, info in mf["files"].items():
+                    with open(self.resolve(fn), "rb") as fp:
+                        if sha1_bytes(fp.read()) != info.get("new_sha1"):
+                            ok = False
+                            break
+            except (OSError, ValueError, KeyError, WriteBackError):
+                continue
+            out.append({"id": n, "at": mf.get("at"), "files": len(mf.get("files") or {}), "file_names": list(mf.get("files") or {}),
+                        "can_revert": ok, "last": os.path.realpath(os.path.join(self.backup_root, n)) == (os.path.realpath(self.last) if self.last else None)})
+        return out
+
+    def prune_backups(self):
+        """오래된 백업 폴더 정리: 최근 BACKUP_KEEP 개와 마지막 반영(self.last)은 남긴다."""
+        try:
+            names = sorted(n for n in os.listdir(self.backup_root) if os.path.isfile(os.path.join(self.backup_root, n, "manifest.json")))
+        except OSError:
+            return 0
+        keep_last = os.path.realpath(self.last) if self.last else None
+        n = 0
+        for name in names[:-self.BACKUP_KEEP]:
+            d = os.path.realpath(os.path.join(self.backup_root, name))
+            if d == keep_last or os.path.dirname(d) != self.backup_root:
+                continue
+            try:
+                check_allowed(d, self.allowed)
+                shutil.rmtree(d)
+                n += 1
+            except (OSError, WriteBackError):
+                pass
+        return n
 
     def revert(self, backup_dir, reimport):
         bdir = os.path.realpath(backup_dir)

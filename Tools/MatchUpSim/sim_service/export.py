@@ -83,14 +83,34 @@ MON_COLS = [("id", "몬스터 ID"), ("name", "이름"), ("act", "막"), ("tier",
             ("battle_wins", "이긴 전투 수"), ("battle_win_rate", "조우 시 전투 승률"), ("battle_win_ci_lo", "전투 승률 95% 하한"),
             ("battle_win_ci_hi", "전투 승률 95% 상한"), ("runs_met", "이 몬스터를 만난 런 수"),
             ("run_win_rate_met", "조우한 런 승률"), ("run_win_ci_met_lo", "조우한 런 승률 95% 하한"),
-            ("run_win_ci_met_hi", "조우한 런 승률 95% 상한"), ("gimmicks", "기믹"), ("warning", "경고")]
-TEXT_COLS = {"fantasy_name", "name", "gimmicks", "warning", "key", "path", "id", "fantasy_id", "arm", "turn_verdict", "facet"}
+            ("run_win_ci_met_hi", "조우한 런 승률 95% 상한"), ("gimmicks", "기믹"), ("warning", "경고"),
+            # v4.5 F16.5: 이상치 대응 열 (기존 열 뒤에 추가 — 기존 CSV 소비자가 깨지지 않는다)
+            ("avg_taken_cap", "전투당 체력 한도 받은 피해 평균"), ("taken_p50", "받은 피해 중앙값(로그 눈금 근사 ±5%)"), ("taken_p90", "받은 피해 90% 분위"),
+            ("max_hit_p50", "전투 중 최대 1타 중앙값"), ("max_hit_p90", "전투 중 최대 1타 90% 분위"),
+            ("overkill_share", "사망 전투 중 받은 피해가 시작 체력의 2배를 넘은 비율"), ("outlier", "이상치 배지 (1 = ⚠)")]
+BATTLE_COLS = [("mid", "몬스터 ID"), ("name", "몬스터 이름"), ("category", "표본 분류: death·max_hit·taken·long·short·win·escape·random"),
+               ("run", "런 번호(시드 = master_seed-run)"), ("ord", "그 런에서 이 몬스터의 전투 순번(0부터)"), ("act", "막"), ("floor", "층"),
+               ("hp0", "전투 시작 체력"), ("hp1", "전투 종료 체력"), ("turns", "턴 수"), ("taken", "받은 피해(원본)"),
+               ("taken_cap", "체력 한도 받은 피해"), ("max_hit", "최대 1타"), ("outcome", "결과 win/death/escape/timeout"), ("nfant", "보유 환상 수")]
+TURN_COLS = [("t", "턴"), ("intent", "몬스터 행동"), ("pattern", "패턴 키"), ("mon_dmg", "몬스터 피해 굴린 값"), ("mon_dmg_edit", "내가 편집한 값"),
+             ("mon_dmg_eff", "피해 계산에 쓰인 유효 값"), ("hits", "몬스터 타수 굴린 값"), ("hits_edit", "편집한 타수"), ("base", "내 기본 피해 굴린 값"),
+             ("base_edit", "편집한 기본 피해"), ("p_hits", "내 타수"), ("moves", "이동 한도"), ("K", "쓸모 있게 쓴 이동 수"), ("used", "실제 사용 이동"),
+             ("items", "아이템 사용"), ("dealt", "내가 준 피해"), ("mhp", "몬스터 체력(턴 끝)"), ("taken", "내가 받은 피해"),
+             ("taken_cap", "체력 한도 받은 피해"), ("over", "체력 한도를 넘은 초과 피해"), ("hp_change", "내 체력 변화"), ("hp", "내 체력(턴 끝)"),
+             ("mstr", "몬스터 힘"), ("countdown", "카운트다운"), ("phase", "페이즈"), ("aim", "조준 숫자"), ("special", "접미 숫자"),
+             ("notes", "기믹 주석(JSON)"), ("end", "종료 사유")]
+OWNED_COLS = [("n", "획득 순번"), ("fid", "환상 ID"), ("name", "이름"), ("grade", "등급"), ("floor_act", "획득 막"), ("floor", "획득 층"),
+              ("source", "경로"), ("fx", "이 전투에서 효과가 관여한 환상 1/0")]
+TEXT_COLS = {"fantasy_name", "name", "gimmicks", "warning", "key", "path", "id", "fantasy_id", "arm", "turn_verdict", "facet", "notes",
+             "pattern", "intent", "fid", "mid", "category", "source", "grade"}
 
 DATASETS = {
     "curves": {"title": "곡선 점", "formats": ["csv", "json"], "columns": CURVE_COLS},
     "reach": {"title": "층 도달률", "formats": ["csv"], "columns": REACH_COLS},
     "edits": {"title": "변경 목록", "formats": ["csv", "json"], "columns": EDITS_COLS},
     "monsters": {"title": "몬스터별 지표", "formats": ["csv", "json"], "columns": MON_COLS},
+    "battles": {"title": "몬스터 전투 표본 목록", "formats": ["csv", "json"], "columns": BATTLE_COLS},
+    "battle_log": {"title": "선택한 전투의 턴 로그", "formats": ["csv", "json", "zip"], "columns": TURN_COLS},
     "runs": {"title": "판별 원자료", "formats": ["csv", "ndjson"], "columns": RUNS_COLS},
     "scans": {"title": "저장된 스캔(원본 그대로)", "formats": ["json", "csv"], "columns": []},
     "workspace": {"title": "작업 공간", "formats": ["json"], "columns": []},
@@ -382,8 +402,8 @@ def rows_edits(ctx):
         yield {"target": "cfg_set", "id": "", "name": "", "effect": "", "key": "", "path": k, "old": "", "new": v, "source": "설정"}
 
 
-def monster_rows(app, ctx):
-    """몬스터별 지표: 지금 상태로 저장된 결과 → 없으면 CLI 가 만든 monster_metrics.json."""
+def monster_data(app, ctx):
+    """몬스터별 지표 원본 데이터(저장된 서버 결과 → 없으면 CLI monster_metrics.json) 와 출처."""
     data, src = None, None
     try:
         xs = ctx.scope["x"]
@@ -401,6 +421,22 @@ def monster_rows(app, ctx):
                 data, src = json.load(fp), "monster_metrics.json(스캔 시점 값 — 현재 편집 미반영)"
         except (OSError, ValueError):
             data, src = {"monsters": []}, "없음"
+    return data, src
+
+
+def battle_rows(app, ctx):
+    data, src = monster_data(app, ctx)
+    rows = []
+    for m in data.get("monsters", []):
+        for cat, lst in (m.get("samples") or {}).items():
+            for s_ in lst:
+                rows.append({"mid": m["id"], "name": m.get("name"), "category": cat, **{k: s_.get(k) for k, _ in BATTLE_COLS[3:]}})
+    return rows, src, data.get("meta")
+
+
+def monster_rows(app, ctx):
+    """몬스터별 지표: 지금 상태로 저장된 결과 → 없으면 CLI 가 만든 monster_metrics.json."""
+    data, src = monster_data(app, ctx)
     rows = []
     for m in data.get("monsters", []):
         ci = m.get("turns_ci") or [None, None]
@@ -470,6 +506,12 @@ def build(app, dataset, body):
         rows = list(rows_edits(ctx))
         meta = _meta(app, ctx, dataset, [], len(rows))
         return _table(dataset, fm, ctx.after_hash, DATASETS[dataset]["columns"], iter(rows), meta, len(rows), 0, _bom(body))
+    if dataset == "battles":
+        rows, src, mm = battle_rows(app, ctx)
+        meta = {**_meta(app, ctx, dataset, [], len(rows)), "source": src, "monster_meta": mm}
+        return _table(dataset, fm, ctx.after_hash, BATTLE_COLS, iter(rows), meta, len(rows), 0, _bom(body))
+    if dataset == "battle_log":
+        return _battle_log(app, ctx, body, fm)
     if dataset == "monsters":
         rows, src, mm = monster_rows(app, ctx)
         meta = {**_meta(app, ctx, dataset, [], len(rows)), "source": src, "monster_meta": mm}
@@ -501,6 +543,29 @@ def _table(dataset, fm, h, columns, rows, meta, nrows, nmissing, bom):
     if fm == "ndjson":
         return Export(_fname(dataset, h, "ndjson"), "application/x-ndjson; charset=utf-8", meta, ndjson_stream(rows), nrows, nmissing)
     return Export(_fname(dataset, h, "json"), "application/json; charset=utf-8", meta, json_stream(meta, rows), nrows, nmissing)
+
+
+def _battle_log(app, ctx, body, fm):
+    """선택한 전투의 턴 로그 + 보유 환상. csv = 턴 로그, zip = 턴 로그 + 보유 환상 + meta, json = 전체 재생 결과."""
+    sc = body.get("scope") or {}
+    res = app.monster_log({"mid": sc.get("mid"), "seed": sc.get("seed") or "mon1", "run": sc.get("run"), "ord": sc.get("ord"),
+                           "x": sc.get("x_value"), "edits": ctx.edits, "cfg_edits": ctx.cfg_edits, "cfg_set": ctx.cfg_set})
+    meta = {**_meta(app, ctx, "battle_log", [], len(res["turns"])), "mid": res["mid"], "seed": res["seed"], "replay_match": res["replay_match"]}
+    turn_rows = [{**t, "notes": json.dumps(t.get("notes") or [], ensure_ascii=False)} for t in res["turns"]]
+    owned_rows = [{**o, "floor_act": (o.get("floor") or [None, None])[0], "floor": (o.get("floor") or [None, None])[1]} for o in res["owned"]]
+    h = ctx.after_hash
+    if fm == "json":
+        return Export(_fname("battle_log", h, "json"), "application/json; charset=utf-8", meta,
+                      iter([json.dumps(res, ensure_ascii=False).encode("utf-8")]), len(turn_rows))
+    if fm == "csv":
+        return _table("battle_log", "csv", h, TURN_COLS, iter(turn_rows), meta, len(turn_rows), 0, _bom(body))
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr("turns.csv", b"".join(csv_stream(TURN_COLS, iter(turn_rows), _bom(body))))
+        zf.writestr("owned.csv", b"".join(csv_stream(OWNED_COLS, iter(owned_rows), _bom(body))))
+        zf.writestr("battle.json", json.dumps({k: res[k] for k in ("mid", "seed", "run", "battle", "items", "replay_match", "data_hash")}, ensure_ascii=False, indent=1))
+        zf.writestr("meta.json", json.dumps(meta, ensure_ascii=False, indent=1))
+    return Export(_fname("battle_log", h, "zip"), "application/zip", meta, iter([buf.getvalue()]), len(turn_rows))
 
 
 def _file_chunks(path, size=1 << 20):
@@ -607,6 +672,9 @@ def estimate(app, dataset, body):
         return {"rows": n, "bytes_est": n * 90, "missing_count": 0, "missing": []}
     if dataset == "monsters":
         return {"rows": len((app.monster_data or {}).get("monsters", [])), "bytes_est": 60 * 220, "missing_count": 0, "missing": []}
+    if dataset in ("battles", "battle_log"):
+        n = len((app.monster_data or {}).get("monsters", [])) * 64 if dataset == "battles" else 20
+        return {"rows": n, "bytes_est": n * 120, "missing_count": 0, "missing": []}
     present, missing = ctx.plan()
     pts = len(present) + len(ctx.scan_points())
     if dataset == "curves":

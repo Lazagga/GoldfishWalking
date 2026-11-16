@@ -134,6 +134,17 @@ table.rank tr:hover td { background: var(--surface-2); }
 .exgrid label { display: inline-block; margin-right: 12px; }
 .banner h1 .spacer { flex: 1; }
 .exbtns { display: inline-flex; gap: 6px; margin-left: 8px; }
+.flash { animation: mflash .6s ease-out; }
+@keyframes mflash { from { background: rgba(80, 140, 255, .28); } to { background: transparent; } }
+#monTable tbody tr { cursor: pointer; }
+#monTable tbody tr.open, #mlSamples tbody tr.open { outline: 2px solid var(--accent); }
+.monlog { margin-top: 8px; }
+.mlturn.last td { background: rgba(200, 60, 60, .10); font-weight: 600; }
+.mlturn .over { color: #b32; font-weight: 600; }
+.mlRow { cursor: pointer; }
+.mlflow { margin-top: 8px; }
+button.mlOut { cursor: pointer; border: 0; }
+#baseBand { margin-top: 6px; }
 .hidden { display: none !important; }
 .detail { display: grid; gap: 8px; }
 .efx { border: 1px solid var(--ring); border-radius: 6px; padding: 6px 8px; }
@@ -170,6 +181,11 @@ table.rank tr:hover td { background: var(--surface-2); }
 .jsoned { width: 100%; min-height: 320px; font: 12px/1.5 ui-monospace, Consolas, monospace; background: var(--surface-2); color: var(--ink); border: 1px solid var(--axis); border-radius: 6px; padding: 6px; white-space: pre; tab-size: 4; }
 .jsonwrap { display: grid; grid-template-columns: 44px 1fr; } .lnum { font: 12px/1.5 ui-monospace, Consolas, monospace; color: var(--muted); text-align: right; padding: 7px 6px 0 0; white-space: pre; overflow: hidden; }
 .bar { display: inline-block; height: 8px; background: var(--accent); border-radius: 2px; vertical-align: middle; }
+.drafted { outline: 2px dashed var(--accent); outline-offset: 1px; }
+.dtag { font-size: 11px; color: var(--accent); font-weight: 600; }
+.draftbar.empty { visibility: hidden; }
+.draftbar { position: sticky; top: var(--cbh, 44px); z-index: 5; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: var(--edit-bg); border: 1px dashed var(--accent); border-radius: 6px; padding: 4px 8px; margin: 0 0 6px; }
+#saveToast { position: fixed; right: 16px; bottom: 16px; z-index: 50; background: var(--edit-bg); border: 1px solid var(--accent); border-radius: 8px; padding: 8px 12px; box-shadow: 0 2px 10px rgba(0,0,0,.25); font-size: 13px; max-width: 560px; }
 </style>
 </head>
 <body>
@@ -289,10 +305,10 @@ FANTS.forEach(summarize);
 const S = { sel: [], slot: {}, metric: "win", act: 1, x: XS[Math.floor(XS.length / 2)], tab: "curve", T: META.target_win_rate ?? 0.1,
   ci: true, smooth: false, q: "", grades: { white: true, blue: true, red: true }, sort: "delta_desc", rankMode: "x", rankSort: "delta", rankDir: -1,
   facet: FACETS ? FACETS.default : null, overlay: false, focus: null,
-  edits: [], cfgEdits: [], cfgSet: {}, fileEdits: [], undo: [], redo: [], sweepMetric: "win_rate",
+  edits: [], cfgEdits: [], cfgSet: {}, fileEdits: [], undo: [], redo: [], draft: { edits: null, cfgEdits: null, cfgSet: null }, draftAt: null, sweepMetric: "win_rate",
   simN: null, monN: 300000 };   // simN: 점당 최대 판 수(null = 서버 기본), monN: 몬스터별 지표 최대 판 수
 const COMBO = { res: null, busy: false, est: null, cache: {} };   // cache: 조합 키 → 결과 (체크를 바꿨다 돌아와도 유지)
-const CLIENT = Math.random().toString(36).slice(2, 12);           // 이 탭의 작업만 취소하도록 서버에 보내는 ID (여러 기기 공용 서버)
+const CLIENT = (() => { const mk = () => Math.random().toString(36).slice(2, 12); try { let v = sessionStorage.getItem("mu_client"); if (!v) { v = mk(); sessionStorage.setItem("mu_client", v); } return v; } catch (e) { return mk(); } })();           // 이 탭의 작업만 취소하도록 서버에 보내는 ID (여러 기기 공용 서버)
 const COMBO_SLOT = 5;                                              // 조합 곡선 색 (단독 선택은 0~3)
 const EMB = { sweep: null };
 const SCAN_SYSTEM = META.reward_system || META.reward_mode || "fantasy";
@@ -321,15 +337,15 @@ function applyModelFidelity() {   // 환상 충실도는 피해 모델에 맞는
 }
 function setModel(v) {
   pushUndo();
+  const imm = immediateEdits(), CS = imm ? S.cfgSet : dCfgSet();   // 선택만으로는 계산하지 않는다 — 초안에 넣고 저장할 때 적용 (F17 Q74)
   const m = v.startsWith("digits") ? "digits" : "gauss", g = v === "digits+g" ? "on" : "off";
-  if (m === SCAN_MODEL) delete S.cfgSet["monsters.damage_model"]; else S.cfgSet["monsters.damage_model"] = m;
-  if (g === SCAN_GIMMICKS && m === SCAN_MODEL) delete S.cfgSet["monsters.gimmicks"]; else S.cfgSet["monsters.gimmicks"] = g;
+  if (m === SCAN_MODEL) delete CS["monsters.damage_model"]; else CS["monsters.damage_model"] = m;
+  if (g === SCAN_GIMMICKS && m === SCAN_MODEL) delete CS["monsters.gimmicks"]; else CS["monsters.gimmicks"] = g;
   const scanTable = (META.fixed_overrides || {})["monsters.model"] === "table" || META.monster_model === "table";
-  if (m === "digits" && !scanTable) { S.cfgSet["monsters.model"] = "table"; flash("digits 는 몬스터 테이블 모델이 필요합니다 — monsters.model=table 로 전환합니다. 현재 X축(" + xName(META.x_param) + ")이 monsters.hp_scale 이 아니면 곡선이 X에 반응하지 않습니다."); }
-  else if (m === "gauss") delete S.cfgSet["monsters.model"];
-  applyModelFidelity(); FANTS.forEach(summarize);
-  COMBO.res = null; COMBO.cache = {};
-  afterEditChange();
+  if (m === "digits" && !scanTable) { CS["monsters.model"] = "table"; flash("digits 는 몬스터 테이블 모델이 필요합니다 — monsters.model=table 로 전환합니다. 현재 X축(" + xName(META.x_param) + ")이 monsters.hp_scale 이 아니면 곡선이 X에 반응하지 않습니다."); }
+  else if (m === "gauss") delete CS["monsters.model"];
+  if (imm) { applyModelFidelity(); FANTS.forEach(summarize); COMBO.res = null; COMBO.cache = {}; afterEditChange(); }
+  else afterDraftChange(true);
 }
 // 서버 계산 결과 (수정 후 = after, 수정 전 고스트 = before)
 const LIVE = { hash: null, cfgTag: "", after: {}, before: {}, job: null, status: "", busy: false };
@@ -425,6 +441,7 @@ app.innerHTML = `
   <div class="caveat">환상 효과는 추상화된 근사입니다. 절대 수치보다 <b>환상 간 상대 비교와 방향</b>에 의미를 두세요. 모델링 수준: 정확 ${nFid.exact || 0} · 근사 ${nFid.approx || 0} · 미모델링 ${nFid.none || 0}.
   Δ는 같은 시드끼리 짝지은 차이이며, 점당 ${NPT.toLocaleString()}판에서 대략 <span id="minDetect"></span> 보다 작은 Δ는 구분할 수 없습니다.</div>
   <div id="wsBanner" class="hidden"></div>
+  <div id="baseBand" class="notice hidden">다른 탭에서 원본이 저장되었습니다 — <button class="btn" id="baseReload">새로 불러오기</button></div>
 </header>
 <div class="layout">
   <aside>
@@ -444,7 +461,7 @@ app.innerHTML = `
   </aside>
   <main>
     <div class="progbar hidden" id="progBar" role="status" aria-live="off">
-      <div class="ptxt"><span id="progLabel"></span><b id="progCount"></b><span id="progPct"></span><span id="progCache" class="small"></span><span id="progRate" class="small"></span><span id="progEta"></span></div>
+      <div class="ptxt"><span id="progLabel"></span><b id="progCount"></b><span id="progPct"></span><span id="progCache" class="small"></span><span id="progRate" class="small"></span><span id="progEta"></span><span id="progLine" class="small"></span></div>
       <div class="ptrack"><i class="pfill" id="progFill"></i></div>
     </div>
     <div class="changebar hidden" id="changebar">
@@ -455,8 +472,9 @@ app.innerHTML = `
       <button class="btn" id="btnSave">저장(시나리오)</button>
       <button class="btn" id="btnLoad">불러오기</button>
       <button class="btn" id="btnFull">전체 재계산</button>
-      <button class="btn primary" id="btnApply">원본에 반영</button>
-      <button class="btn" id="btnUnapply" title="마지막 반영 되돌리기">반영 되돌리기</button>
+      <button class="btn primary" id="btnApply" title="초안을 원본 JSON에 저장하고 한 번 재계산합니다 (Ctrl+Enter)">저장하고 재계산</button>
+      <button class="btn" id="btnDiscard" title="저장하지 않은 초안을 모두 버립니다 (계산하지 않음)">초안 버리기</button>
+      <button class="btn" id="btnUnapply" title="저장 이력에서 골라 되돌리기">저장 되돌리기</button>
       <button class="btn csvBtn" data-ds="edits" title="변경 목록 CSV">변경 CSV</button>
       <span class="status" id="jobStatus"></span>
       <span class="refchip" id="refChip"></span>
@@ -972,7 +990,7 @@ function renderDetail() {
   const fid = panelTarget();
   const srvLine = srvNoteHTML();
   if (!fid || !BYID[fid]) {
-    el.innerHTML = srvLine + `<div class="small" id="detailEmpty">환상 이름을 누르거나 체크하면 상세·편집 패널이 열립니다${!SRV ? " (편집은 서버 모드에서만 가능합니다 — python viewer_server.py)" : ""}.</div>`;
+    el._h = null; el.innerHTML = srvLine + `<div class="small" id="detailEmpty">환상 이름을 누르거나 체크하면 상세·편집 패널이 열립니다${!SRV ? " (편집은 서버 모드에서만 가능합니다 — python viewer_server.py)" : ""}.</div>`;
     return;
   }
   const f = BYID[fid];
@@ -1014,7 +1032,10 @@ function renderDetail() {
     parts.push(`<div class="efx"><div class="hd"><b>시뮬레이터 설정</b> <span class="small">(원본 반영 대상 아님)</span></div>${cfgEditorsHTML()}</div>`);
     parts.push(`<div><button class="btn" id="btnTrace">대표 런 보기</button></div>`);
   }
-  el.innerHTML = parts.join("");
+  const html = parts.join("");
+  const rebuilt = el._h !== html || !el.firstChild;
+  if (rebuilt) { keepScroll(() => { el.innerHTML = html; }); el._h = html; }   // 같으면 DOM 을 건드리지 않는다 (입력 포커스·캐럿 유지)
+  draftSync(rebuilt);
 }
 let BASE_CFG = {};
 function cfgEditorsHTML() {
@@ -1035,24 +1056,67 @@ function validate(sch, v) {
   if (v > sch.max) return `최댓값 ${sch.max}`;
   return null;
 }
-function pushUndo() { S.undo.push(JSON.stringify({ e: S.edits, c: S.cfgEdits, s: S.cfgSet })); if (S.undo.length > 200) S.undo.shift(); S.redo = []; }
+// ════════ v4.5 F17: 편집 초안 — 값을 고치는 동안에는 초안에만 쓰고, 저장할 때 원본 반영 + 재계산 ════════
+// S.draft.{edits,cfgEdits,cfgSet} 는 null(변경 없음)이거나 '저장된 값 위에 얹은 전체 작업 사본'이다.
+// 계산·곡선·순위·isStale·mmKey 는 저장된 S.edits·S.cfgEdits·S.cfgSet 만 본다. 테스트 훅 window.__IMMEDIATE_EDITS 가 참이면 예전처럼 즉시 반영한다.
+let SAVING = false;
+function immediateEdits() { return !!window.__IMMEDIATE_EDITS; }
+const cloneJ = o => JSON.parse(JSON.stringify(o));
+const emptyDraft = () => ({ edits: null, cfgEdits: null, cfgSet: null });
+function wEdits() { return S.draft.edits || S.edits; }
+function wCfgEdits() { return S.draft.cfgEdits || S.cfgEdits; }
+function wCfgSet() { return S.draft.cfgSet || S.cfgSet; }
+function dEdits() { return S.draft.edits || (S.draft.edits = cloneJ(S.edits)); }
+function dCfgEdits() { return S.draft.cfgEdits || (S.draft.cfgEdits = cloneJ(S.cfgEdits)); }
+function dCfgSet() { return S.draft.cfgSet || (S.draft.cfgSet = cloneJ(S.cfgSet)); }
+const eKey = e => JSON.stringify([e.target || "fantasy", e.fid, e.effect, e.mid, e.pid, e.step, e.gi, e.key]);
+function diffKeys(a, b, keyf, valf) {   // 두 목록에서 값이 다르거나 한쪽에만 있는 키
+  const ma = new Map(a.map(x => [keyf(x), valf(x)])), mb = new Map(b.map(x => [keyf(x), valf(x)])), out = [];
+  for (const [k, v] of ma) if (!mb.has(k) || mb.get(k) !== v) out.push(k);
+  for (const k of mb.keys()) if (!ma.has(k)) out.push(k);
+  return out;
+}
+function draftChanges(D = S.draft) {   // 저장된 값과 다른 항목: { edits: [키], cfgEdits: [path], cfgSet: [path] }
+  const o = { edits: [], cfgEdits: [], cfgSet: [] };
+  if (D.edits) o.edits = diffKeys(D.edits, S.edits, eKey, e => e.new);
+  if (D.cfgEdits) o.cfgEdits = diffKeys(D.cfgEdits, S.cfgEdits, c => c.path, c => c.new);
+  if (D.cfgSet) { const ks = new Set([...Object.keys(D.cfgSet), ...Object.keys(S.cfgSet)]); o.cfgSet = [...ks].filter(k => D.cfgSet[k] !== S.cfgSet[k]); }
+  return o;
+}
+function draftCount(D = S.draft) { const c = draftChanges(D); return c.edits.length + c.cfgEdits.length + c.cfgSet.length; }
+function draftNorm() {   // 저장된 값과 같아진 계층은 초안에서 뺀다
+  const c = draftChanges(), D = S.draft;
+  if (D.edits && !c.edits.length) D.edits = null;
+  if (D.cfgEdits && !c.cfgEdits.length) D.cfgEdits = null;
+  if (D.cfgSet && !c.cfgSet.length) D.cfgSet = null;
+}
+const snapNow = () => JSON.stringify({ e: S.edits, c: S.cfgEdits, s: S.cfgSet, d: S.draft });
+function pushUndo() { S.undo.push(snapNow()); if (S.undo.length > 200) S.undo.shift(); S.redo = []; }
+function commitEdit() { if (immediateEdits()) afterEditChange(); else afterDraftChange(); }
+function afterDraftChange(force) {   // 초안만 바뀜: 화면 재그리기·계산·파일 쓰기 없음. 입력 칸 표시만 고친다
+  draftNorm(); S.draftAt = new Date().toISOString();
+  if (force && S.tab === "ember" && typeof renderEmber === "function") renderEmber();
+  draftSync(force); wsTouch();
+}
 function setEdit(fid, effect, key, old, v) {
   const k = editableKeys(fid).find(k => k.effect === effect && k.key === key);
   const err = validate(k && k.schema, v);
-  if (err) { flash(`${BYID[fid].name} ${key}: ${err}`); renderDetail(); return false; }
+  if (err) { flash(`${BYID[fid].name} ${key}: ${err}`); if (immediateEdits()) renderDetail(); else overlayDetail(true); return false; }
   pushUndo();
-  S.edits = S.edits.filter(e => !(e.fid === fid && e.effect === effect && e.key === key));
-  if (Math.abs(v - old) > 1e-12) S.edits.push({ fid, effect, key, old, new: v });
-  afterEditChange();
+  const imm = immediateEdits(), rest = (imm ? S.edits : dEdits()).filter(e => !(e.fid === fid && e.effect === effect && e.key === key));
+  if (Math.abs(v - old) > 1e-12) rest.push({ fid, effect, key, old, new: v });
+  if (imm) S.edits = rest; else S.draft.edits = rest;
+  commitEdit();
   return true;
 }
 function setCfgEdit(path, old, v) {
   const err = validate(SCHEMA && SCHEMA.cfg[path], v);
-  if (err) { flash(`${path}: ${err}`); renderDetail(); return; }
+  if (err) { flash(`${path}: ${err}`); if (immediateEdits()) renderDetail(); else { overlayDetail(true); topControls(); if (S.tab === "ember") renderEmber(); } return; }
   pushUndo();
-  S.cfgEdits = S.cfgEdits.filter(c => c.path !== path);
-  if (Math.abs(v - old) > 1e-12) S.cfgEdits.push({ path, old, new: v });
-  afterEditChange();
+  const imm = immediateEdits(), rest = (imm ? S.cfgEdits : dCfgEdits()).filter(c => c.path !== path);
+  if (Math.abs(v - old) > 1e-12) rest.push({ path, old, new: v });
+  if (imm) S.cfgEdits = rest; else S.draft.cfgEdits = rest;
+  commitEdit();
 }
 function afterEditChange() {
   if (S.preview) S.preview.pending = true;     // 실제 재계산이 시작되면 근사선은 회색 (F10.6-1)
@@ -1062,7 +1126,96 @@ function afterEditChange() {
   scheduleSGLoad();
   update();
 }
-function applyEditsSnapshot(snap) { const o = JSON.parse(snap); S.edits = o.e; S.cfgEdits = o.c; S.cfgSet = o.s || {}; afterEditChange(); }
+function applyEditsSnapshot(snap) {
+  const o = JSON.parse(snap), same = JSON.stringify([o.e, o.c, o.s || {}]) === JSON.stringify([S.edits, S.cfgEdits, S.cfgSet]);
+  S.edits = o.e; S.cfgEdits = o.c; S.cfgSet = o.s || {}; S.draft = o.d || emptyDraft();
+  if (same && !immediateEdits()) { if (S.preview && !S.preview.keep) S.preview = null; afterDraftChange(true); } else afterEditChange();
+}
+function discardDraft() {
+  if (!draftCount()) return;
+  pushUndo(); S.draft = emptyDraft(); if (S.preview && !S.preview.keep) S.preview = null;
+  afterDraftChange(true);
+}
+
+// ── 입력 칸 표시: 저장된 값(sv)·초안 값(wv)·원본(old) ──
+function setEditorView(box, inp, sv, wv, old, withReset, force) {
+  const drafted = Math.abs(sv - wv) > 1e-12;
+  if ((force || document.activeElement !== inp) && +inp.value !== wv) inp.value = fmtNum(wv);
+  const rng = box.querySelector(".rng"); if (rng && (force || document.activeElement !== rng) && +rng.value !== wv) rng.value = wv;
+  inp.classList.toggle("drafted", drafted);
+  let tag = box.querySelector(".dtag");
+  if (drafted) {
+    if (!tag) { tag = document.createElement("span"); tag.className = "dtag"; (box.querySelector(".orig") || inp).insertAdjacentElement("afterend", tag); }
+    tag.textContent = `수정 중(원래 ${fmtNum(sv)})`;
+  } else if (tag) tag.remove();
+  const orig = box.querySelector(".orig"); if (orig) orig.style.display = drafted ? "none" : "";
+  if (withReset) {
+    const has = Math.abs(wv - old) > 1e-12; let rb = box.querySelector(".reset");
+    if (has && !rb) { rb = document.createElement("button"); rb.className = "btn reset"; rb.textContent = "되돌리기"; (box.querySelector(".dtag") || box.querySelector(".orig") || inp).insertAdjacentElement("afterend", rb); }
+    else if (!has && rb) rb.remove();
+  }
+}
+function overlayDetail(force) {   // 환상 패널·설정 칸에 초안 값을 얹는다 (DOM 은 그대로)
+  const root = $("detail"); if (!root || !(SRV && srvOK)) return;
+  root.querySelectorAll(".editor").forEach(ed => {
+    const inp = ed.querySelector(".val"); if (!inp) return;
+    const old = +ed.dataset.old; let s, w;
+    if (ed.classList.contains("cfged")) { s = S.cfgEdits.find(c => c.path === ed.dataset.path); w = wCfgEdits().find(c => c.path === ed.dataset.path); }
+    else { const f = e => e.fid === ed.dataset.fid && e.effect === +ed.dataset.effect && e.key === ed.dataset.key; s = S.edits.find(f); w = wEdits().find(f); }
+    setEditorView(ed, inp, s ? s.new : old, w ? w.new : old, old, true, force);
+  });
+}
+function overlayMon(force) {   // 몬스터 표의 입력 칸
+  const root = $("monEditBox"); if (!root || !(SRV && srvOK)) return;
+  root.querySelectorAll(".monIn").forEach(inp => {
+    const e = inp._e || (inp._e = JSON.parse(inp.dataset.e));
+    const s = monEdit(e), w = wEdits().find(x => sameEditTarget(x, e));
+    setEditorView(inp.closest("label") || inp.parentElement, inp, s ? s.new : e.old, w ? w.new : e.old, e.old, false, force);
+  });
+}
+function barFor(root, n) {   // 몬스터 탭·환상 패널 맨 위의 고정 저장 줄
+  if (!root) return;
+  let b = root.querySelector(":scope > .draftbar");
+  if (!(SRV && srvOK) || immediateEdits()) { if (b) b.remove(); return; }
+  if (!b) { b = document.createElement("div"); b.className = "draftbar"; root.insertBefore(b, root.firstChild); }   // 자리를 항상 잡아 둔다 — 줄이 생길 때 아래 내용이 밀리지 않게
+  b.classList.toggle("empty", !n);
+  const h = `<b class="dcount">저장 안 됨 ${n}개</b> <button class="btn primary dSave" title="원본 JSON에 저장하고 재계산 (Ctrl+Enter)">저장하고 재계산</button> <button class="btn dDiscard">초안 버리기</button>`;
+  if (b.dataset.h !== h) { b.innerHTML = h; b.dataset.h = h; }
+}
+function topControls() {   // 상단 선택 상자·플레이어 실력 칸: 초안 값을 보인다 (선택만으로는 계산하지 않음)
+  const vals = (cs, ce) => { const sys = cs["rewards.normal_battle.mode"] || SCAN_SYSTEM, dm = cs["monsters.damage_model"] || SCAN_MODEL, gm = cs["monsters.gimmicks"] || (dm === SCAN_MODEL ? SCAN_GIMMICKS : "off");
+    const sk = ce.find(c => c.path === "player.skill");
+    return { system: ce.some(c => c.path.startsWith("rewards.ember")) || cs["rewards.ember.blue_mode"] || cs["rewards.ember.blue_reward"] ? "custom" : (sys === "ember" ? "ember" : sys === "fantasy" ? "fantasy" : "custom"),
+      model: dm === "digits" ? (gm === "on" ? "digits+g" : "digits") : "gauss", skill: sk ? sk.new : BASE_CFG["player.skill"] }; };
+  const w = vals(wCfgSet(), wCfgEdits()), s = vals(S.cfgSet, S.cfgEdits);
+  $("system").value = w.system; $("dmodel").value = w.model;
+  $("system").classList.toggle("drafted", w.system !== s.system); $("dmodel").classList.toggle("drafted", w.model !== s.model);
+  const sk = $("skillIn"); if (sk) { if (document.activeElement !== sk) sk.value = w.skill ?? ""; sk.classList.toggle("drafted", w.skill !== s.skill); }
+}
+let HPR_H = "";
+function hpReportRefresh() {
+  const el = $("hpReport"); if (!el || !MON) return;
+  const h = renderHpReport(monsWithEdits(true)); if (h === HPR_H) return;
+  HPR_H = h; el.outerHTML = h;
+}
+function syncButtons(n = draftCount()) {
+  const imm = immediateEdits();
+  $("btnUndo").disabled = !S.undo.length; $("btnRedo").disabled = !S.redo.length; $("btnRevertAll").disabled = !liveActive() && !n;
+  $("btnApply").disabled = imm ? (!S.edits.length && !S.fileEdits.length) : ((!n && !S.fileEdits.length) || SAVING);
+  $("btnApply").textContent = imm ? "원본에 반영" : "저장하고 재계산";
+  $("btnDiscard").classList.toggle("hidden", imm); $("btnDiscard").disabled = !n;
+  $("chgCount").textContent = `변경 ${S.edits.length + S.cfgEdits.length + Object.keys(S.cfgSet).length + S.fileEdits.length}개` + (n ? ` · 저장 안 됨 ${n}개` : "");
+  $("chgCount").classList.toggle("drafted", n > 0);
+}
+function draftSync(force) {   // update() 마다·초안이 바뀔 때마다: 입력 칸·저장 줄·버튼만 고친다
+  if (!(SRV && srvOK)) return;
+  const n = draftCount();
+  syncButtons(n); topControls();
+  overlayDetail(force); overlayMon(force);
+  barFor($("detail"), n); barFor($("tab-mon"), n);
+  hpReportRefresh();
+  const cb = $("changebar"); if (cb) document.documentElement.style.setProperty("--cbh", cb.offsetHeight + "px");
+}
 
 // ---------------- 서버 통신 ----------------
 let srvOK = false, SRV_STATE = {}, MON = null;
@@ -1086,7 +1239,8 @@ function renderModeBadge() {
   const ver = SRVC.build ? `서버 build ${SRVC.build} · 시작 ${SRVC.started} · SIM_VERSION ${SRVC.sim}` : "";
   b.title = [ver, SRVC.fail ? "연결 실패: " + SRVC.fail : "", SRVC.partial.length ? "일부 기능 실패: " + SRVC.partial.join(" / ") : ""].filter(Boolean).join("\n");
 }
-async function loadMonsters() { try { MON = await api("/api/monsters"); if (S.tab === "mon" || S.tab === "json") update(); return null; } catch (e) { MON = null; return e; } }
+let MON_GEN = 0;
+async function loadMonsters() { try { MON = await api("/api/monsters"); MON_GEN++; if (S.tab === "mon" || S.tab === "json") update(); return null; } catch (e) { MON = null; return e; } }
 async function api(path, opts = {}) {
   const r = await fetch(path, Object.assign({}, opts, { headers: Object.assign({ "X-MatchUp-Token": SRV.token, "Content-Type": "application/json" }, opts.headers || {}) }));
   const txt = await r.text();
@@ -1113,7 +1267,7 @@ async function streamJob(id, onEvent) {
   }
 }
 let recomputeTimer = null, jobSeq = 0;
-function scheduleRecompute() { if (COMBO.busy) return; clearTimeout(recomputeTimer); recomputeTimer = setTimeout(startRecompute, 400); setStatus("편집 대기…"); }
+function scheduleRecompute() { if (COMBO.busy) return; clearTimeout(recomputeTimer); recomputeTimer = setTimeout(() => startRecompute(), 400); setStatus("편집 대기…"); }
 function cancelJob() { if (LIVE.job) { const id = LIVE.job; LIVE.job = null; api(`/api/jobs/${id}`, { method: "DELETE" }).catch(() => {}); } }
 function setStatus(t) { LIVE.status = t; const s = $("jobStatus"); if (s) s.textContent = t; }
 // ── 계산 진행 (v4.3 F12): 서버가 보낸 progress 이벤트(또는 /api/progress)를 막대·문구로 보여 준다 ──
@@ -1125,35 +1279,57 @@ function fmtDur(sec) {
   const h = sec / 3600;
   return h < 48 ? h.toFixed(1) + "시간" : (h / 24).toFixed(1) + "일";
 }
+const SRVP = { last: null, resolve: null, band: false, disk: null };   // disk: 이 탭이 원본을 읽은 시점의 디스크 서명
+SRVP.ready = new Promise(r => { SRVP.resolve = r; });
+const KIND_KO = { monster_metrics: "몬스터별 지표", recompute: "재계산", scan: "전체 재계산", combo: "조합 계산", ember_sweep: "불씨 스윕", tune: "목표 승률 맞추기", value_sweep: "수치 스윕", solve_value: "목표 Δ 역산", surrogate_train: "근사 모델 학습", surrogate_fit: "근사 모델 학습", surrogate_probe: "근사 모델 학습" };
+function ageText(sec) { return sec == null ? "" : ` · ${sec < 90 ? Math.round(sec) + "초" : Math.round(sec / 60) + "분"} 전`; }
 function showProgress(p, label, remote) {
   const box = $("progBar"); if (!box) return;
   window.__progress = p;
-  const total = Math.max(p.total || 0, p.done || 0);
-  const pct = total ? 100 * p.done / total : 0;
+  const done = p.runs_done != null ? p.runs_done : (typeof p.done === "number" ? p.done : 0);   // /api/progress 는 runs_done, SSE 이벤트는 done
+  const total = Math.max(p.total || 0, done), queued = p.state === "queued";
+  const pct = total ? 100 * done / total : 0;
   box.classList.remove("hidden"); box.classList.toggle("remote", !!remote); box.classList.toggle("est", !p.total_final);
   $("progLabel").textContent = (remote ? "서버 계산 중 — " : "") + (label || "");
-  $("progCount").textContent = `${p.done.toLocaleString()} / ${total.toLocaleString()}${p.total_final || p.done >= total ? "" : "+"}판`;
-  $("progPct").textContent = `(${pct.toFixed(1)}%)`;
-  $("progCache").textContent = p.cached ? `캐시 ${p.cached.toLocaleString()}판 재사용` : "";
-  $("progRate").textContent = p.rate ? `${p.rate.toFixed(1)}판/초` : "속도 측정 중";
-  $("progEta").textContent = p.done >= total && total ? "마무리 중" : `남은 약 ${fmtDur(p.eta_s)}${p.total_final ? "" : " (늘어날 수 있음)"}`;
-  $("progFill").style.width = Math.min(100, pct).toFixed(2) + "%";
-  setStatus(`${label || "계산"}: ${p.done.toLocaleString()}판 · ${pct.toFixed(0)}%`);
+  if (!total) {   // 0 / 0판이 아니라 상태 문구 (F18 D5)
+    $("progCount").textContent = queued ? "대기 중" : p.cached ? `캐시 ${p.cached.toLocaleString()}판 재사용 · 즉시 완료` : "준비 중";
+    ["progPct", "progCache", "progRate", "progEta"].forEach(i => { $(i).textContent = ""; }); $("progFill").style.width = "0%";
+  } else {
+    $("progCount").textContent = `${done.toLocaleString()} / ${total.toLocaleString()}${p.total_final || done >= total ? "" : "+"}판`;
+    $("progPct").textContent = `(${pct.toFixed(1)}%)`;
+    $("progCache").textContent = p.cached ? `캐시 ${p.cached.toLocaleString()}판 재사용` : "";
+    $("progRate").textContent = p.rate ? `${p.rate.toFixed(1)}판/초` : "속도 측정 중";
+    $("progEta").textContent = done >= total && total ? "마무리 중" : `남은 약 ${fmtDur(p.eta_s)}${p.total_final ? "" : " (늘어날 수 있음)"}`;
+    $("progFill").style.width = Math.min(100, pct).toFixed(2) + "%";
+  }
+  $("progLine").textContent = remote && p.line ? ` ${p.line}${ageText(p.line_age_s)}` : "";   // 서버 콘솔과 같은 마지막 진행 줄 그대로
+  setStatus(`${label || "계산"}: ${total ? done.toLocaleString() + "판 · " + pct.toFixed(0) + "%" : queued ? "대기 중" : "준비 중"}`);
 }
 function hideProgress() { const box = $("progBar"); if (box) box.classList.add("hidden"); }
+function hideProgressSoon() {   // 전부 캐시에서 끝난 작업은 '캐시 N판 재사용 · 즉시 완료'를 3초 보이고 숨긴다
+  const pg = window.__progress;
+  if (pg && !pg.total && pg.cached) { setTimeout(hideProgress, 3000); } else hideProgress();
+}
+function baseBand() { const b = $("baseBand"); if (b) b.classList.toggle("hidden", !(SRVP.band && SRV && srvOK)); }
 // 다른 기기에서 돌린 작업이나 새로고침 뒤에도 서버가 계산 중이면 진행을 보여 준다 (3초마다 확인, 이 탭이 작업 중이면 쉼)
 let progPoll = null;
 async function pollServerProgress() {
-  if (LIVE.busy) return;
   try {
-    const r = await api("/api/progress");
+    const r = await api(`/api/progress?client=${encodeURIComponent(CLIENT)}`);
     checkBuild(r);
-    const j = r && r.job && !r.job.done ? r.job : (r && r.training && !r.training.done ? r.training : null);
-    if (j && !LIVE.busy) showProgress(j, j.kind === "surrogate_train" || r.training === j ? "근사 모델 학습" : j.kind === "monster_metrics" ? "몬스터별 지표" : j.kind, true);
+    SRVP.last = r; if (SRVP.resolve) { SRVP.resolve(); SRVP.resolve = null; }
+    if (SRVP.disk == null && r.disk_sig) SRVP.disk = r.disk_sig;                     // 처음(또는 다시 읽은 뒤) 본 서명을 이 탭의 기준으로
+    const diff = !!((r.data_hash && BASE_HASH && r.data_hash !== BASE_HASH) || (SRVP.disk && r.disk_sig && r.disk_sig !== SRVP.disk));   // 다른 탭이 원본을 저장했으면 띠 (초안은 그대로)
+    if (diff !== SRVP.band) { SRVP.band = diff; baseBand(); }
+    const jobs = r.jobs || [], mj = jobs.find(j => j.kind === "monster_metrics");
+    MM.live = mj ? { line: mj.line, age: mj.line_age_s, state: mj.state } : null; mmBanner();
+    if (LIVE.busy) return;
+    const j = jobs[0] || (r.training && !r.training.finished ? r.training : null);
+    if (j) showProgress(j, KIND_KO[j.kind] || j.kind, true);
     else if (!LIVE.busy && window.__progress && $("progBar") && $("progBar").classList.contains("remote")) hideProgress();
   } catch (e) { if (e && e.status === 403 && srvOK && SRVC.build && !SRVC.restarted) { SRVC.restarted = true; renderModeBadge(); update(); } /* 그 밖에는 서버가 바쁘거나 꺼진 동안이라 조용히 넘김 */ }
 }
-if (typeof SRV !== "undefined" && SRV) { progPoll = setInterval(pollServerProgress, 3000); setTimeout(pollServerProgress, 500); }
+if (typeof SRV !== "undefined" && SRV) { progPoll = setInterval(pollServerProgress, 3000); setTimeout(pollServerProgress, 300); }
 let renderPending = false;
 function scheduleRender() { if (renderPending) return; renderPending = true; requestAnimationFrame(() => { renderPending = false; update(); }); }
 async function runJob(body, onPoint, label) {
@@ -1172,7 +1348,7 @@ async function runJob(body, onPoint, label) {
     if (["done", "cancelled", "error"].includes(ev.type)) {
       window.__lastJob.end = performance.now(); ev.jobId = id; window.__lastJob.result = ev;
       LIVE.busy = false; if (LIVE.job === id) LIVE.job = null;
-      hideProgress();
+      hideProgressSoon();
       setStatus(ev.type === "done" ? `${label}: 완료 (${ev.t}s)` : ev.type === "cancelled" ? `${label}: 취소됨` : `${label}: 오류 — ${ev.message}`);
       scheduleRender();
     }
@@ -1194,10 +1370,10 @@ function storeLive(ev) {
   const fid = ev.fid;
   (LIVE[ev.series][fid] = LIVE[ev.series][fid] || new Map()).set(ev.x, p);
 }
-async function startRecompute() {
+async function startRecompute(force) {
   await syncServerTable();
   if (S.tab === "mon") mmCheck(true);       // ‘버튼만’ 모드에서도 재계산 버튼이 몬스터별 지표를 갱신한다
-  if (!needsCompute()) return;
+  if (force !== true && !needsCompute()) return;    // 저장 직후(F17)에는 편집이 0개여도 강제로 계산한다
   cancelJob();
   // 이전 결과를 지우지 않는다: 새 작업의 plan 이벤트(해시)를 받으면 그 해시와 다른 점만 버린다 (pruneLive)
   if (S.preview) S.preview.pending = true;
@@ -1326,12 +1502,14 @@ function renderRank() {
 function monEdit(e) { return S.edits.find(x => x.target === e.target && x.mid === e.mid && x.pid === e.pid && x.step === e.step && x.key === e.key); }
 function setMonEdit(e, v) {
   const sch = MON.schema[e.key];
-  const err = validate(sch, v); if (err) { flash(`${e.mid || e.pid} ${e.key}: ${err}`); return; }
+  const err = validate(sch, v); if (err) { flash(`${e.mid || e.pid} ${e.key}: ${err}`); if (!immediateEdits()) overlayMon(true); return false; }
   if (sch.warn_above && v > sch.warn_above) flash(`${e.key} = ${v}: 원본 규칙에서 허용 범위를 확인하지 못한 값입니다 (경고만).`);
   pushUndo();
-  S.edits = S.edits.filter(x => !(x.target === e.target && x.mid === e.mid && x.pid === e.pid && x.step === e.step && x.key === e.key));
-  if (v !== e.old) S.edits.push(Object.assign({}, e, { new: v }));
-  afterEditChange();
+  const imm = immediateEdits(), rest = (imm ? S.edits : dEdits()).filter(x => !(x.target === e.target && x.mid === e.mid && x.pid === e.pid && x.step === e.step && x.key === e.key));
+  if (v !== e.old) rest.push(Object.assign({}, e, { new: v }));
+  if (imm) S.edits = rest; else S.draft.edits = rest;
+  commitEdit();
+  return true;
 }
 const PROBE = {};
 function renderMonEdit() {
@@ -1369,7 +1547,7 @@ function bindMonEdit(el) {
     if (!monTable()) { flash("tier_avg 몬스터 모델에서는 몬스터 편집이 곡선에 반영되지 않아 근사도 없습니다"); return; }
     sgFit([{ kind: "monster", id: mid, field: b.dataset.f }], `근사 학습 ${mid} ${b.dataset.f}`); });
   el.querySelectorAll(".monIn").forEach(i => i.onchange = () => { const e = JSON.parse(i.dataset.e);
-    if (e.pid && (MON.pattern_users[e.pid] || []).length > 1 && !confirm(`패턴 ${e.pid} 는 몬스터 ${MON.pattern_users[e.pid].length}종이 함께 씁니다 (${MON.pattern_users[e.pid].join(", ")}). 계속할까요?`)) { i.value = e.old; return; }
+    if (e.pid && (MON.pattern_users[e.pid] || []).length > 1 && !confirm(`패턴 ${e.pid} 는 몬스터 ${MON.pattern_users[e.pid].length}종이 함께 씁니다 (${MON.pattern_users[e.pid].join(", ")}). 계속할까요?`)) { if (immediateEdits()) i.value = e.old; else overlayMon(true); return; }
     setMonEdit(e, +i.value); });
   el.querySelectorAll(".monJson").forEach(b => b.onclick = () => { JS.kind = "monster"; JS.id = b.closest("tr").dataset.mid; JS.loaded = null; setTab("json"); });
   el.querySelectorAll(".monCmp").forEach(b => b.onclick = async () => { const mid = b.closest("tr").dataset.mid; cancelJob();
@@ -1415,7 +1593,7 @@ function sgMonPreview(input, e0) {
   out.innerHTML = html; window.__sgMonOut = out.textContent;
 }
 // ── 몬스터별 지표 (서버 모드): 현재 편집을 반영해 서버가 다시 계산한다. 곡선 재계산과 별도 슬롯(client ID 가 달라 서로 취소하지 않음) ──
-const MM = { key: null, want: null, timer: null, job: null, seq: 0, data: null, dataKey: null, prog: null, err: null, running: false, stage: 0,
+const MM = { live: null, dataSnap: null, key: null, want: null, timer: null, job: null, seq: 0, data: null, dataKey: null, prog: null, err: null, running: false, stage: 0,
   stages: window.__MMSTAGES || null };   // 판 수 단계 (null = 서버 기본 500 → 1500 → 3000). 테스트가 줄일 수 있게 둔 훅
 window.__MM = MM;
 function mmKey() { return JSON.stringify([BASE_HASH, S.edits, S.cfgEdits, S.cfgSet, S.fileEdits, S.x, S.monN]); }   // 선택 X 도 키에 포함 — X 를 바꾸면 그 X 에서 다시 계산
@@ -1429,9 +1607,11 @@ function mmCheck(force) {
 }
 async function startMetrics() {
   MM.want = null;
+  await Promise.race([SRVP.ready, new Promise(r => setTimeout(r, 1500))]);   // 새로고침 직후에는 서버의 진행 상태를 먼저 본다 (F18 D3)
   await syncServerTable();
   const key = mmKey();
   if (key === MM.key) return;
+  const snap = JSON.parse(JSON.stringify({ edits: S.edits, cfgEdits: S.cfgEdits, cfgSet: S.cfgSet, x: S.x }));   // 이 지표를 계산한 상태 — 로그 재생에 같은 값을 쓴다
   const my = ++MM.seq;
   if (MM.job) { const old = MM.job; MM.job = null; api(`/api/jobs/${old}`, { method: "DELETE" }).catch(() => {}); }
   MM.key = key; MM.err = null; MM.prog = null; MM.running = true; mmBanner();
@@ -1442,7 +1622,7 @@ async function startMetrics() {
     await streamJob(id, ev => {
       if (my !== MM.seq) return;
       if (ev.type === "progress") { MM.prog = ev; mmBanner(); }
-      else if (ev.type === "metrics") { MM.data = ev.data; MM.dataKey = key; MM.stage = ev.stage; mmRender(); }
+      else if (ev.type === "metrics") { MM.data = ev.data; MM.dataKey = key; MM.dataSnap = snap; MM.stage = ev.stage; mmRender(); }
       else if (ev.type === "error") MM.err = ev.message;         // MM.key 는 그대로 둔다 — 실패한 상태를 자동으로 다시 시도하지 않음
       if (["done", "cancelled", "error"].includes(ev.type)) { MM.running = false; if (MM.job === id) MM.job = null; mmBanner(); }
     });
@@ -1453,7 +1633,9 @@ function mmBanner() {
   const fresh = MM.dataKey === mmKey(), p = MM.prog;
   let h;
   if (MM.err) h = `<span class="badge stale">계산 실패</span> ${esc(MM.err)} <button class="btn" id="mmRetry">다시 시도</button>`;
-  else if (MM.running) h = `<span class="badge">서버에서 계산 중</span> ${p ? `${p.done.toLocaleString()} / ${p.total.toLocaleString()}판${p.eta_s != null ? ` · 남은 약 ${fmtDur(p.eta_s)}` : ""}` : "서버 대기 중"} — ${MM.data ? (fresh ? "판 수가 늘며 갱신됩니다" : "아래는 이전 값") : "아래는 스캔 파일에 저장된 값"}`;
+  else if (MM.running) h = `<span class="badge">서버에서 계산 중</span> ${p ? `${p.done.toLocaleString()} / ${p.total.toLocaleString()}판${p.eta_s != null ? ` · 남은 약 ${fmtDur(p.eta_s)}` : ""}` : (MM.live && MM.live.line ? `지표 · ${esc(MM.live.line)}${ageText(MM.live.age)}` : "서버 대기 중")} — ${MM.data ? (fresh ? "판 수가 늘며 갱신됩니다" : "아래는 이전 값") : "아래는 스캔 파일에 저장된 값"}`;
+  else if (!MM.data && !SRVP.last) h = '서버 상태 확인 중…';
+  else if (!MM.data && MM.live) h = `<span class="badge">서버에서 계산 중</span> 지표 · ${esc(MM.live.line || "")}${ageText(MM.live.age)}`;
   else if (!MM.data) h = '<span class="badge stale">저장된 값</span> 스캔 파일의 결과입니다 (현재 편집 미반영)';
   else if (!fresh) h = '<span class="badge stale">이전 값</span> 편집이 반영되지 않았습니다 <button class="btn" id="mmNow">지금 계산</button>';
   else h = `<span class="badge link">현재 편집 반영</span> 서버 계산 ${MM.data.meta.runs.toLocaleString()}판`;
@@ -1461,25 +1643,241 @@ function mmBanner() {
   if ($("mmRetry")) $("mmRetry").onclick = () => { MM.key = null; MM.err = null; mmCheck(true); };
   if ($("mmNow")) $("mmNow").onclick = () => mmCheck(true);
 }
-function mmRender() {
-  const box = $("monMetrics"); if (!box) return;
-  const D = MM.data || DATA.monster_metrics;
-  box.innerHTML = '<div id="mmBanner" class="small"></div><div id="monMetricsTable"></div>';
-  if (D) renderMonMetrics($("monMetricsTable"), D);
-  mmBanner();
+// ════════ v4.5 F16: 몬스터 전투 로그 — 지표 표에서 몬스터를 누르면 표본 전투의 보유 환상·턴별 로그를 본다 ════════
+const MLOG = { mid: null, cat: null, sample: null, detail: null, loading: false, err: null, seq: 0 };
+window.__MLOG = MLOG;
+const CAT_ORDER = ["death", "max_hit", "taken", "long", "short", "win", "escape", "random"];
+const CAT_KO = { death: "사망", max_hit: "최대 1타", taken: "받은 피해", long: "긴 전투", short: "짧은 전투", win: "승리(아슬아슬)", escape: "도주·시간 초과", random: "무작위" };
+const OUT_KO = { win: "승리", death: "사망", escape: "도주", timeout: "시간 초과" };
+const qn = v => (v == null ? "–" : fmtNum(v));
+function monLogReason() {
+  if (!(SRV && srvOK)) return "서버 모드에서만 볼 수 있습니다";
+  if (!MM.data) return "지표 계산이 끝난 뒤에 볼 수 있습니다";
+  if ((MM.data.meta || {}).monster_model !== "table") return "tier_avg 지표에는 개별 몬스터가 없어 로그가 없습니다";
+  return "";
 }
+function monLogEligible() { return !monLogReason(); }
+function monLogRow() { return MM.data ? MM.data.monsters.find(m => m.id === MLOG.mid) : null; }
+function monLogSamples() { const r = monLogRow(); return (r && r.samples) || null; }
+function monLogOpen(mid, cat) {
+  if (!monLogEligible()) { flash(monLogReason()); return; }
+  if (MLOG.mid === mid && !cat) { MLOG.mid = null; MLOG.detail = null; MLOG.sample = null; monLogRefresh(); return; }   // 같은 행을 다시 누르면 닫힘 (한 번에 한 몬스터만)
+  MLOG.mid = mid; MLOG.detail = null; MLOG.sample = null; MLOG.err = null; MLOG.seq++;
+  const sm = monLogSamples() || {};
+  MLOG.cat = cat || CAT_ORDER.find(c => (sm[c] || []).length) || "death";
+  monLogRefresh();
+  const el = $("monLog"); if (el) el.scrollIntoView({ block: "nearest" });
+}
+async function monLogLoad(s) {
+  const my = ++MLOG.seq; MLOG.loading = true; MLOG.err = null; MLOG.sample = s; monLogRender();
+  const D = MM.data, snap = MM.dataSnap || { edits: S.edits, cfgEdits: S.cfgEdits, cfgSet: S.cfgSet, x: S.x };   // 지표를 계산할 때의 편집·설정·X 로 재생
+  try {
+    const r = await post("/api/monster_log", { mid: MLOG.mid, seed: D.seed || "mon1", run: s.run, ord: s.ord || 0, edits: snap.edits, cfg_edits: snap.cfgEdits, cfg_set: snap.cfgSet, x: snap.x,
+      expect: s.turns != null ? { turns: s.turns, taken: s.taken, max_hit: s.max_hit, outcome: s.outcome, floor: s.floor } : undefined });
+    if (my !== MLOG.seq) return;
+    MLOG.detail = r;
+  } catch (e) { if (my === MLOG.seq) MLOG.err = e.message; }
+  MLOG.loading = false; monLogRender();
+}
+function noteText(n) {
+  switch (n.k) {
+    case "str": return `힘 ${n.from}→${n.to} (${({ pattern: "패턴", zero_damage: "0 피해 반응", gimmick: "기믹", threshold_reset: "초기화" })[n.why] || n.why})`;
+    case "heal": return `회복 +${n.amount}${n.why === "lifesteal" ? " (흡혈)" : ""}`;
+    case "reset": return `힘 초기화 발동 (N=${n.n}, 입힌 ${n.dealt}${n.lock ? ", 이후 상자 잠금" : ""})`;
+    case "reset_check": return `초기화 확인 N=${n.n}, 입힌 ${n.dealt} → 불발`;
+    case "countdown": return `카운트다운 ${n.from ?? "–"}→${n.to ?? "–"}`;
+    case "phase": return `페이즈 ${n.from}→${n.to}`;
+    case "overkill": return `초과 ${n.over}`;
+    default: return JSON.stringify(n);
+  }
+}
+function monLogTurnsHTML(d) {
+  const rows = d.turns.map((t, i) => {
+    const last = i === d.turns.length - 1;
+    const dm = t.mon_dmg == null ? "–" : `${t.mon_dmg}${t.mon_dmg_edit !== t.mon_dmg ? ` → ${t.mon_dmg_edit}` : ""}${t.mon_dmg_eff !== t.mon_dmg_edit && t.mon_dmg_eff != null ? ` → ${t.mon_dmg_eff}` : ""}${t.hits > 1 ? ` ×${t.hits}${t.hits_edit !== t.hits ? `→${t.hits_edit}` : ""}` : ""}`;
+    const bs = `${t.base}${t.base_edit !== t.base ? ` → ${t.base_edit}` : ""}${t.p_hits > 1 ? ` ×${t.p_hits}` : ""}`;
+    const st = [`힘 ${t.mstr}`, t.countdown != null ? `카운트 ${t.countdown}` : "", t.phase ? `페이즈 ${t.phase}` : "", t.aim != null ? `조준 ${t.aim}` : "", t.special != null ? `접미 ${t.special}` : ""].filter(Boolean).join(" · ");
+    const nt = (t.notes || []).map(noteText).join("; ");
+    return `<tr class="mlturn${last ? " last" : ""}"><td class="n">${t.t}</td><td>${esc(t.intent)}${t.pattern ? ` <span class="small">${esc(t.pattern)}</span>` : ""}</td><td class="n">${esc(dm)}</td><td class="n">${esc(bs)}</td>
+      <td class="n small">${t.moves}/${t.K}/${t.used}${t.items ? `+${t.items}` : ""}</td><td class="n">${fmtNum(t.dealt)}</td><td class="n">${fmtNum(t.mhp)}</td>
+      <td class="n">${fmtNum(t.taken)}${t.over ? ` <span class="over" title="체력 한도를 넘은 피해">초과 ${fmtNum(t.over)}</span>` : ""}</td><td class="n">${fmtNum(t.hp)}</td><td class="small">${esc(st)}</td>
+      <td class="small">${esc(nt)}${t.end ? ` <b>${esc(OUT_KO[t.end] || t.end)}</b>` : ""}</td></tr>`;
+  }).join("");
+  return `<div class="rankwrap" style="max-height:44vh"><table class="rank" id="mlTurns"><thead><tr><th>턴</th><th>몬스터 행동</th><th>몬스터 수식 (굴린→편집→유효)</th><th>내 수식</th><th title="이동 한도 / 쓸모 있게 쓴 이동 / 실제 사용(+아이템)">이동</th><th>내가 준 피해</th><th>몬스터 체력</th><th>내가 받은 피해</th><th>내 체력</th><th>상태</th><th>비고</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function monLogDetailHTML(d) {
+  const b = d.battle, r = d.run || {};
+  const owned = d.owned.length ? d.owned.map(o => `<tr><td class="n">${o.n}</td><td><button class="chip mlFant" data-fid="${esc(o.fid)}" title="환상 상세">${esc(o.name)}</button> <span class="gtag ${esc(o.grade || "")}">${esc(GRADE_KO[o.grade] || o.grade || "")}</span></td><td class="n">${o.floor ? `${o.floor[0]}막 ${o.floor[1]}층` : "시작"}</td><td>${esc(({ reward: "보상", shop: "상점", ember: "불씨", forced: "강제" })[o.source] || o.source || "")}</td><td>${o.fx ? "●" : ""}</td></tr>`).join("") : '<tr><td colspan="5" class="small">이 전투 전에 얻은 환상이 없습니다</td></tr>';
+  const tl = d.timeline.map(t => `<tr><td>${t.act}막 ${t.floor}층</td><td>${esc(t.type)}</td><td class="n">${fmtNum(t.hp)}</td><td class="small">${esc(t.then === "battle_end" ? `전투 ${OUT_KO[t.outcome] || t.outcome} (${t.turns}턴)` : t.then === "rest" ? `휴식 +${t.heal}` : t.then === "shop" ? `상점 체력 −${t.hp_spent}` : "")}</td></tr>`).join("");
+  return `${d.replay_match ? "" : `<div class="notice" id="mlMismatch">재생한 전투가 지표 때 기록과 다릅니다 — ${esc(Object.entries(d.mismatch || {}).map(([k, v]) => `${k}: 기대 ${v.expected} / 재생 ${v.replayed}`).join(", "))}. 서버 코드가 바뀌었거나 설정이 달라졌을 수 있습니다. 로그는 재생한 그대로 보여 줍니다.</div>`}
+    <div class="small"><b>런 요약</b> 시드 <b class="num">${esc(d.seed)}</b> <button class="chip" id="mlCopy">시드 복사</button> · 런 결과 ${esc(r.result || "")}${r.reached_floor != null ? ` · 도달 ${r.reached_floor}층` : ""} · 이 전투 ${b.act}막 ${b.floor}층 · 이 몬스터와 ${b.ord + 1}번째 전투 · 시작 체력 ${fmtNum(b.hp0)} → 종료 ${fmtNum(b.hp1)} · 몬스터 체력 ${fmtNum(b.mhp0)}</div>
+    <div class="small"><b>보유 환상</b> ${d.owned.length}개 (이 전투 시작 시점, 획득 순서) · 성냥 ${d.items.matches ?? "–"}개 · 지우개 ${d.items.erasers ?? "–"}개${(d.acquire_void || []).length ? ` · 획득 무효 ${d.acquire_void.length}건` : ""} <span class="small">● = 이 전투에서 효과가 관여</span></div>
+    <div class="rankwrap" style="max-height:24vh"><table class="rank" id="mlOwned"><thead><tr><th>#</th><th>환상</th><th>획득</th><th>경로</th><th>fx</th></tr></thead><tbody>${owned}</tbody></table></div>
+    <div class="small"><b>턴 로그</b> ${d.turns.length}턴 · 받은 피해 ${fmtNum(b.taken)} (체력 한도 ${fmtNum(b.taken_cap)}) · 최대 1타 ${fmtNum(b.max_hit)} · 결과 <b>${esc(OUT_KO[b.outcome] || b.outcome)}</b></div>${monLogTurnsHTML(d)}
+    <details class="mlflow"><summary>이 전투 전까지의 런 흐름 (${d.timeline.length}개 노드)</summary><div class="rankwrap" style="max-height:30vh"><table class="rank"><thead><tr><th>위치</th><th>유형</th><th>체력</th><th>결과</th></tr></thead><tbody>${tl}</tbody></table></div></details>`;
+}
+function monLogRender() {
+  const el = $("monLog"); if (!el) return;
+  if (!MLOG.mid) { el.innerHTML = ""; return; }
+  const row = monLogRow(), D = MM.data;
+  if (!row) { el.innerHTML = '<div class="notice">이 몬스터의 지표가 없습니다.</div>'; return; }
+  const sm = row.samples, stale = MM.dataKey !== mmKey();
+  const head = `<h4 style="margin:10px 0 4px">전투 로그 — ${esc(row.name)} <button class="btn" id="mlClose">닫기</button>${stale ? ' <span class="badge stale" id="mlStale">이전</span> <button class="btn" id="mlRecollect">표본 다시 수집</button>' : ""}</h4>
+    <div class="small">${row.act}막 ${esc(row.tier)} · 체력 ${fmtNum(row.hp)} · 지표 ${D.meta.runs.toLocaleString()}판${D.meta.x != null ? ` (${esc(xName(D.meta.x_param))} = ${fmtX(D.meta.x)})` : ""} · 이 몬스터와 전투 ${row.battles.toLocaleString()}회 (사망 ${pct(row.death_rate_in_battle)} · 도주 ${row.escapes} · 시간 초과 ${row.timeouts}) · 시드 <b>${esc(D.seed || "mon1")}</b></div>`;
+  if (!sm) { el.innerHTML = `${head}<div class="small" id="mlPending">표본은 마지막 단계(${(MM.stage || 0)}단계 진행 중)가 끝나면 만들어집니다. 계산 중에는 지표만 단계별로 갱신됩니다.</div>`; return bindMonLog(); }
+  const tabs = CAT_ORDER.map(c => `<button class="chip mlCat" data-c="${c}" aria-pressed="${MLOG.cat === c}">${CAT_KO[c]} ${(sm[c] || []).length}</button>`).join("");
+  const list = sm[MLOG.cat] || [];
+  const tbl = list.length ? `<table class="rank" id="mlSamples"><thead><tr><th>런</th><th>막·층</th><th>체력</th><th>턴</th><th>받은 피해 (한도 / 원본)</th><th>최대 1타</th><th>결과</th><th>환상</th></tr></thead><tbody>${list.map((s, i) => `<tr class="mlRow${MLOG.sample && MLOG.sample.run === s.run && (MLOG.sample.ord || 0) === s.ord ? " open" : ""}" data-i="${i}" tabindex="0"><td class="n">${s.run}${s.ord ? `<span class="small">#${s.ord}</span>` : ""}</td><td>${s.act}막 ${s.floor}층</td><td class="n">${fmtNum(s.hp0)} → ${fmtNum(s.hp1)}</td><td class="n">${s.turns}</td><td class="n">${fmtNum(s.taken_cap)} / ${fmtNum(s.taken)}</td><td class="n">${fmtNum(s.max_hit)}</td><td>${esc(OUT_KO[s.outcome] || s.outcome)}</td><td class="n">${s.nfant}</td></tr>`).join("")}</tbody></table>` : '<div class="small" id="mlNone">해당 전투 없음</div>';
+  const tools = MLOG.detail ? `<div class="chips"><button class="btn" id="mlPrev">◀ 이전 표본</button><button class="btn" id="mlNext">다음 표본 ▶</button><button class="btn" id="mlCsv">CSV로 내려받기</button><button class="btn" id="mlJson">JSON으로 내려받기</button><button class="btn" id="mlZip">zip(턴 로그+보유 환상)</button><button class="btn" id="mlTrace">대표 런 보기에서 열기</button></div>` : "";
+  el.innerHTML = `${head}
+    <div class="small" id="mlRule">표본: 분류 8종, 분류당 최대 ${list.length ? 8 : 8}개 — 사망·무작위는 시드 해시로 정해 청크 구성과 무관하게 같고, 나머지는 해당 값이 큰/작은 순입니다. 극단 위주라 전체 분포의 대표가 아니고 ‘무작위’ 분류만 대표 표본입니다. 그 밖의 전투는 아래에서 런 번호를 직접 입력해 봅니다.</div>
+    <div class="chips" role="tablist">${tabs}</div>${tbl}
+    <div class="small">런 번호 직접 입력 <input type="number" id="mlRun" min="0" step="1" style="width:100px" class="num"> 전투 순번 <input type="number" id="mlOrd" min="0" step="1" value="0" style="width:60px" class="num"> <button class="btn" id="mlGo">보기</button></div>
+    ${MLOG.loading ? '<div class="small" id="mlLoading">불러오는 중…</div>' : ""}${MLOG.err ? `<div class="notice" id="mlErr">${esc(MLOG.err)}</div>` : ""}
+    <div id="mlDetail">${MLOG.detail && !MLOG.loading ? monLogDetailHTML(MLOG.detail) : ""}</div>${tools}`;
+  bindMonLog();
+}
+function monLogStep(dir) {
+  const list = (monLogSamples() || {})[MLOG.cat] || []; if (!list.length) return;
+  let i = list.findIndex(s => MLOG.sample && s.run === MLOG.sample.run && (s.ord || 0) === (MLOG.sample.ord || 0));
+  i = i < 0 ? 0 : (i + dir + list.length) % list.length;
+  monLogLoad(list[i]);
+}
+async function monLogDownload(fmt) {
+  const d = MLOG.detail; if (!d) return;
+  const D = MM.data, snap = MM.dataSnap || { edits: S.edits, cfgEdits: S.cfgEdits, cfgSet: S.cfgSet, x: S.x };
+  try { await exServer("battle_log", { format: fmt, bom: true, snap, scope: { mid: d.mid, seed: D.seed || "mon1", run: +d.seed.split("-").pop(), ord: d.battle.ord, x_value: snap.x } }); } catch (e) { flash("내려받기 실패: " + e.message); }
+}
+function bindMonLog() {
+  const el = $("monLog"); if (!el) return;
+  const on = (id, fn) => { const b = $(id); if (b) b.onclick = fn; };
+  on("mlClose", () => { MLOG.mid = null; MLOG.detail = null; monLogRefresh(); });
+  on("mlRecollect", () => mmCheck(true));
+  on("mlGo", () => { const r = +$("mlRun").value, o = +$("mlOrd").value || 0; if (!Number.isInteger(r) || r < 0) { flash("런 번호는 0 이상 정수"); return; } monLogLoad({ run: r, ord: o }); });
+  on("mlPrev", () => monLogStep(-1)); on("mlNext", () => monLogStep(1));
+  on("mlCsv", () => monLogDownload("csv")); on("mlJson", () => monLogDownload("json")); on("mlZip", () => monLogDownload("zip"));
+  on("mlCopy", () => { try { navigator.clipboard.writeText(MLOG.detail.seed); flash("시드를 복사했습니다: " + MLOG.detail.seed); } catch (e) { flash("복사하지 못했습니다"); } });
+  on("mlTrace", () => { TR.pendingSeed = MLOG.detail.seed; setTab("trace"); });
+  el.querySelectorAll(".mlCat").forEach(b => b.onclick = () => { MLOG.cat = b.dataset.c; MLOG.detail = null; MLOG.sample = null; monLogRender(); });
+  el.querySelectorAll(".mlRow").forEach(r => { const go = () => monLogLoad(((monLogSamples() || {})[MLOG.cat] || [])[+r.dataset.i]); r.onclick = go; r.onkeydown = e => { if (e.key === "Enter") go(); }; });
+  el.querySelectorAll(".mlFant").forEach(b => b.onclick = () => { S.focus = b.dataset.fid; setTab("curve"); });
+}
+function monLogRefresh() { monLogRender(); markMonRows(); }
+function markMonRows() {
+  const t = $("monTable"); if (!t) return;
+  t.querySelectorAll("tbody tr[data-mid]").forEach(tr => { const open = tr.dataset.mid === MLOG.mid; tr.classList.toggle("open", open); tr.setAttribute("aria-expanded", open ? "true" : "false"); });
+}
+document.addEventListener("keydown", e => {   // 로그 패널이 열려 있으면 위·아래 화살표로 표본을 넘긴다
+  if (!MLOG.mid || !MLOG.detail || /^(INPUT|TEXTAREA|SELECT)$/.test((e.target || {}).tagName || "")) return;
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); monLogStep(e.key === "ArrowDown" ? 1 : -1); }
+});
+
+// ════════ 지표 표: 행 단위 patch — 갱신해도 표가 사라지지 않아 스크롤·열어 둔 로그 패널이 유지된다 (v4.5 F18 12.1) ════════
+function monRowCells(m, sc) {
+  const rate = (r, ci, cls) => ({ cls: "n " + cls, h: r == null ? "–" : `${pct(r)} <span class="small">[${pct(ci[0])}–${pct(ci[1])}]</span>` });
+  const extra = m.avg_taken_cap != null ? `<div class="small" title="체력 한도 평균 · 중앙값/90% 분위 (로그 눈금 근사 ±5%)">한도 ${m.avg_taken_cap.toFixed(1)} · 중앙 ${qn(m.taken_p50)}/${qn(m.taken_p90)}</div>` : "";
+  const mh = m.max_hit_p50 != null ? `<div class="small">중앙 ${qn(m.max_hit_p50)}/${qn(m.max_hit_p90)}</div>` : "";
+  const elig = monLogEligible();
+  return [{ h: String(m.act) }, { h: esc(m.tier) },
+    { h: `${esc(m.name)}${m.warning ? ' <span class="badge stale">⚠ 기믹</span>' : ""}${m.outlier ? ` <button class="badge stale mlOut" data-mid="${esc(m.id)}" title="이상치: 평균 받은 피해가 체력 한도 평균의 3배 이상이거나 최대 1타가 시작 체력의 100배 이상 — 눌러서 최대 1타 표본 보기">⚠ 이상치</button>` : ""}` },
+    { cls: "n", h: String(m.hp ?? "–") },
+    { h: `<svg width="170" height="14" role="img" aria-label="평균 턴"><rect x="${sc(m.turn_target ? m.turn_target[0] : 0)}" width="${m.turn_target ? sc(m.turn_target[1] - m.turn_target[0]) : 0}" y="0" height="14" fill="var(--band)"/><line x1="${sc(m.turns_ci[0])}" x2="${sc(m.turns_ci[1])}" y1="7" y2="7" stroke="var(--ink-2)" stroke-width="2"/><circle cx="${sc(m.avg_turns)}" cy="7" r="3.5" fill="var(--accent)"/></svg> <span class="num small">${m.avg_turns.toFixed(2)} [${m.turns_ci[0].toFixed(2)}, ${m.turns_ci[1].toFixed(2)}]</span>` },
+    { h: esc(m.turn_verdict || "–") }, { cls: "n", h: m.avg_taken.toFixed(1) + extra }, { cls: "n", h: pct(m.death_share) },
+    rate(m.battle_win_rate, m.battle_win_ci, "bwin"), rate(m.run_win_rate_met, m.run_win_ci_met, "rwin"),
+    { cls: "n", h: `${m.max_hit_avg} / ${m.max_hit_max}${mh}` }, { cls: "n", h: m.battles.toLocaleString() },
+    { h: `<button class="btn mlOpen" data-mid="${esc(m.id)}" ${elig ? "" : "disabled"} title="${esc(elig ? "이 몬스터와 싸운 표본 전투의 로그" : monLogReason())}">로그</button>` }];
+}
+function renderMonMetrics(el, D) {
+  const maxT = Math.max(10, ...D.monsters.map(m => m.turns_ci[1])), sc = v => (v / maxT * 160).toFixed(1);
+  if (!el.querySelector("#monTable")) {
+    el.innerHTML = `<div class="small" id="monNote"></div>
+  <div class="small" id="monWinNote"><b>조우 시 전투 승률</b> = 이 몬스터와 싸운 전투 중 이긴 비율(사망·카운트다운 도주·시간 초과 제외). <b>조우한 런 승률</b> = 이 몬스터를 한 번이라도 만난 런이 끝까지 클리어한 비율 — 뒤쪽 막 몬스터일수록 거기까지 살아남은 런만 만나므로 높게 나온다. 같은 막·등급끼리 비교하고, 전체 승률과 견준다. 사망 비중 = 전체 사망 중 이 몬스터에게 죽은 비율. <b>한도</b> = 체력 한도 받은 피해(턴마다 min(받은 피해, 그 턴 시작 체력)), <b>중앙/90%</b> = 로그 눈금 분위수 근사. 행을 누르면 그 몬스터의 표본 전투 로그가 열립니다.</div>
+  <div class="rankwrap"><table class="rank" id="monTable"><thead><tr><th>막</th><th>등급</th><th>몬스터</th><th>체력</th><th>평균 턴 [95% CI] · 목표 밴드</th><th>판정</th><th>전투당 받은 피해</th><th>사망 비중</th><th>조우 시 전투 승률 [95% CI]</th><th>조우한 런 승률 [95% CI]</th><th>최대 1타(평균/최대)</th><th>전투 수</th><th>로그</th></tr></thead><tbody></tbody></table></div>`;
+    const tb = el.querySelector("#monTable tbody");
+    tb.addEventListener("click", e => {
+      const o = e.target.closest(".mlOut"), b = e.target.closest(".mlOpen"), tr = e.target.closest("tr[data-mid]");
+      if (o) monLogOpen(o.dataset.mid, "max_hit"); else if (b) { if (!b.disabled) monLogOpen(b.dataset.mid); } else if (tr && monLogEligible()) monLogOpen(tr.dataset.mid);
+    });
+    tb.addEventListener("keydown", e => { const tr = e.target.closest("tr[data-mid]"); if (e.key === "Enter" && tr && e.target === tr && monLogEligible()) monLogOpen(tr.dataset.mid); });
+  }
+  $("monNote") && ($("monNote").innerHTML = `${esc(D.meta.note || "")} · ${D.meta.runs.toLocaleString()}판${D.meta.x != null ? ` · ${esc(xName(D.meta.x_param))} = <b id="monX">${fmtX(D.meta.x)}</b>` : ""}${D.win_rate != null ? ` · 전체 승률 <b id="monWinAll">${pct(D.win_rate)}</b>` : ""} · 몬스터 모델 ${esc(D.meta.monster_model)} · 피해 모델 ${esc(D.meta.damage_model)}. 목표 턴 수: 일반 3~4, 엘리트 5~6, 보스 7~9 (기획 문서). ⚠ = 미모델링 기믹(지표가 실제와 다를 수 있음)`);
+  const tb = el.querySelector("#monTable tbody"), keep = new Set();
+  D.monsters.forEach((m, i) => {
+    keep.add(m.id);
+    let tr = [...tb.children].find(r => r.dataset.mid === m.id);
+    const cells = monRowCells(m, sc);
+    if (!tr) {
+      tr = document.createElement("tr"); tr.dataset.mid = m.id; tr.tabIndex = 0;
+      tr.innerHTML = cells.map(c => `<td${c.cls ? ` class="${c.cls}"` : ""}>${c.h}</td>`).join("");
+      tb.insertBefore(tr, tb.children[i] || null);
+    } else {
+      cells.forEach((c, k) => { const td = tr.cells[k]; if (td && td.innerHTML !== c.h) { td.innerHTML = c.h; td.classList.remove("flash"); void td.offsetWidth; td.classList.add("flash"); } });   // 바뀐 칸만 갱신하고 0.6초 옅게 강조
+    }
+    tr.title = m.warning || "";
+  });
+  [...tb.children].forEach(r => { if (!keep.has(r.dataset.mid)) r.remove(); });
+  markMonRows();
+}
+function mmEnsure() {
+  const box = $("monMetrics"); if (!box) return null;
+  if (!$("mmBanner")) box.innerHTML = '<div id="mmBanner" class="small"></div><div id="monMetricsTable"></div><div id="monLog" class="monlog"></div>';
+  return box;
+}
+function mmRender() {
+  if (!mmEnsure()) return;
+  const D = MM.data || DATA.monster_metrics;
+  if (D) renderMonMetrics($("monMetricsTable"), D);
+  mmBanner(); monLogRender(); markMonRows();
+}
+// 스크롤·포커스 안전망 (v4.5 F17 11.4(g)): 전체를 다시 만들어야 하는 경우에 직전 위치를 저장했다가 복원한다
+function focusKey(ae) {   // 입력 칸을 다시 만든 뒤에도 같은 칸을 찾는 키
+  if (!ae || ae.tagName !== "INPUT") return null;
+  if (ae.dataset.e) return "e:" + ae.dataset.e;
+  if (ae.id) return "i:" + ae.id;
+  const ed = ae.closest && ae.closest(".editor");
+  return ed ? "d:" + [ed.dataset.fid, ed.dataset.effect, ed.dataset.key, ed.dataset.path, [...ae.classList].join(".")].join("|") : null;
+}
+function keepScroll(fn) {
+  const y = window.scrollY, x = window.scrollX;
+  const wraps = [...document.querySelectorAll(".rankwrap")].map(w => { const t = w.querySelector("table"); return t && t.id ? [t.id, w.scrollTop] : null; }).filter(Boolean);
+  const ae = document.activeElement, key = focusKey(ae), ss = key ? ae.selectionStart : null, se = key ? ae.selectionEnd : null;
+  fn();
+  window.scrollTo(x, y);
+  wraps.forEach(([id, top]) => { const t = document.getElementById(id); if (t && t.closest(".rankwrap")) t.closest(".rankwrap").scrollTop = top; });
+  if (key) { const el = [...document.querySelectorAll("input")].find(i => focusKey(i) === key); if (el) { el.focus({ preventScroll: true }); try { el.setSelectionRange(ss, se); } catch (e) { /* number 입력은 선택 범위가 없다 */ } } }
+}
+window.__keepScroll = keepScroll;
+
 function renderMon() {
   const el = $("tab-mon"); const D = DATA.monster_metrics;
   if (SRV && srvOK) {
-    el.innerHTML = `<h4 style="margin:0 0 4px">몬스터·패턴 편집 ${exportBtns("monsters", "monster_hp")} <label class="small" title="몬스터별 지표를 계산할 최대 판 수 (기본 30만). 단계적으로 늘며 표가 갱신됨">몬스터 지표 최대 판 수 <input type="number" id="monNIn" min="100" step="1000" value="${S.monN}" style="width:100px" class="num"></label></h4><div id="monEditBox">${renderMonEdit()}</div>${MON ? renderHpReport(monsWithEdits()) : ""}<h4 style="margin:12px 0 4px">몬스터별 지표 (런 전체 시뮬)</h4><div id="monMetrics"></div>`;
-    if (MON) bindMonEdit(el);
-    mmRender();
-    mmCheck();
+    const mk = monBuildKey();
+    if ($("monEditBox") && el.dataset.mk === mk) {   // monPatch: 이미 있는 DOM 은 그대로 두고 값·표시만 고친다 (스크롤·포커스 유지)
+      const ni = $("monNIn"); if (ni && document.activeElement !== ni && +ni.value !== S.monN) ni.value = S.monN;
+      mmRender(); mmCheck(); draftSync();
+      return;
+    }
+    keepScroll(() => { monBuild(el); el.dataset.mk = mk; });   // monBuild: 첫 진입·몬스터 데이터·저장된 값이 바뀔 때만 표 전체를 만든다
     return;
   }
+  renderMonStatic(el, D);
+}
+function monBuildKey() { return JSON.stringify([MON_GEN, !!MON, BASE_HASH, S.edits, curModel(), curGimmicks(), monTable(), PROBE]); }
+function monBuild(el) {
+  {
+    el.innerHTML = `<h4 style="margin:0 0 4px">몬스터·패턴 편집 ${exportBtns("monsters", "monster_hp")} <label class="small" title="몬스터별 지표를 계산할 최대 판 수 (기본 30만). 단계적으로 늘며 표가 갱신됨">몬스터 지표 최대 판 수 <input type="number" id="monNIn" min="100" step="1000" value="${S.monN}" style="width:100px" class="num"></label></h4><div id="monEditBox">${renderMonEdit()}</div>${MON ? renderHpReport(monsWithEdits(true)) : ""}<h4 style="margin:12px 0 4px">몬스터별 지표 (런 전체 시뮬)</h4><div id="monMetrics"></div>`;
+    if (MON) bindMonEdit(el);
+    HPR_H = MON ? renderHpReport(monsWithEdits(true)) : "";
+    mmRender();
+    mmCheck();
+    draftSync(true);
+  }
+}
+function renderMonStatic(el, D) {
   if (!D) { el.innerHTML = ""; return; }
   renderMonMetrics(el, D);
-  el.insertAdjacentHTML("afterbegin", `<div class="chips small">${exportBtns("monsters", "monster_hp")}</div>`);
+  el.querySelectorAll(".mon-extra").forEach(n => n.remove()); const hp0 = el.querySelector("#hpReport"); if (hp0) hp0.remove();
+  el.insertAdjacentHTML("afterbegin", `<div class="chips small mon-extra">${exportBtns("monsters", "monster_hp")}</div>`);
   if (D.monsters.some(m => m.hp != null)) el.insertAdjacentHTML("afterbegin", renderHpReport(D.monsters));
 }
 // v4.2 F11.5: 몬스터 체력 리포트 (원본에서 계산, 읽기 전용) — 막 × 등급 요약, 등급 간·막 간 비율, 설계 목표 비율 대조
@@ -1511,25 +1909,11 @@ function renderHpReport(mons) {
   <div class="small" id="hpTarget">설계 목표 normal:elite:boss = <b>${tgt}</b>${R.provisional ? ' <span class="badge">임시값</span>' : ""} (balance_targets.json 의 monster_hp_ratio, 참고용 대조이며 시뮬 입력이 아님)</div>
   <div class="rankwrap"><table class="rank" id="hpActRatio"><thead><tr><th>막 간 비율 (각 막 평균 ÷ ${R.acts[0]}막)</th>${R.acts.map(a => `<th>${a}막</th>`).join("")}</tr></thead><tbody>${act}</tbody></table></div></div>`;
 }
-function monsWithEdits() {   // 서버 모드: 작업 중인 체력 편집을 반영한 몬스터 목록
+function monsWithEdits(working) {   // 서버 모드: 작업 중인 체력 편집을 반영한 몬스터 목록 (working=true 면 초안 포함 — 화면용, 내보내기는 저장된 값만)
   if (!MON) return [];
-  return MON.monsters.map(m => { const e = S.edits.find(x => x.target === "monster" && x.mid === m.id && x.key === "hp"); return Object.assign({}, m, { hp: e ? e.new : m.hp }); });
+  const L = working ? wEdits() : S.edits;
+  return MON.monsters.map(m => { const e = L.find(x => x.target === "monster" && x.mid === m.id && x.key === "hp"); return Object.assign({}, m, { hp: e ? e.new : m.hp }); });
 }
-function renderMonMetrics(el, D) {
-  const maxT = Math.max(10, ...D.monsters.map(m => m.turns_ci[1]));
-  const sc = v => (v / maxT * 160).toFixed(1);
-  const rateCell = (r, ci, cls) => r == null ? `<td class="n ${cls}">–</td>` : `<td class="n ${cls}">${pct(r)} <span class="small">[${pct(ci[0])}–${pct(ci[1])}]</span></td>`;
-  el.innerHTML = `<div class="small">${esc(D.meta.note || "")} · ${D.meta.runs.toLocaleString()}판${D.meta.x != null ? ` · ${esc(xName(D.meta.x_param))} = <b id="monX">${fmtX(D.meta.x)}</b>` : ""}${D.win_rate != null ? ` · 전체 승률 <b id="monWinAll">${pct(D.win_rate)}</b>` : ""} · 몬스터 모델 ${esc(D.meta.monster_model)} · 피해 모델 ${esc(D.meta.damage_model)}. 목표 턴 수: 일반 3~4, 엘리트 5~6, 보스 7~9 (기획 문서). ⚠ = 미모델링 기믹(지표가 실제와 다를 수 있음)</div>
-  <div class="small" id="monWinNote"><b>조우 시 전투 승률</b> = 이 몬스터와 싸운 전투 중 이긴 비율(사망·카운트다운 도주·시간 초과 제외). <b>조우한 런 승률</b> = 이 몬스터를 한 번이라도 만난 런이 끝까지 클리어한 비율 — 뒤쪽 막 몬스터일수록 거기까지 살아남은 런만 만나므로 높게 나온다. 같은 막·등급끼리 비교하고, 전체 승률과 견준다. 사망 비중 = 전체 사망 중 이 몬스터에게 죽은 비율.</div>
-  <div class="rankwrap"><table class="rank" id="monTable"><thead><tr><th>막</th><th>등급</th><th>몬스터</th><th>체력</th><th>평균 턴 [95% CI] · 목표 밴드</th><th>판정</th><th>전투당 받은 피해</th><th>사망 비중</th><th>조우 시 전투 승률 [95% CI]</th><th>조우한 런 승률 [95% CI]</th><th>최대 1타(평균/최대)</th><th>전투 수</th></tr></thead><tbody>
-  ${D.monsters.map(m => `<tr title="${esc(m.warning)}"><td>${m.act}</td><td>${esc(m.tier)}</td><td>${esc(m.name)}${m.warning ? ' <span class="badge stale">⚠ 기믹</span>' : ""}</td><td class="n">${m.hp ?? "–"}</td>
-    <td><svg width="170" height="14" role="img" aria-label="평균 턴"><rect x="${sc(m.turn_target ? m.turn_target[0] : 0)}" width="${m.turn_target ? sc(m.turn_target[1] - m.turn_target[0]) : 0}" y="0" height="14" fill="var(--band)"/>
-      <line x1="${sc(m.turns_ci[0])}" x2="${sc(m.turns_ci[1])}" y1="7" y2="7" stroke="var(--ink-2)" stroke-width="2"/><circle cx="${sc(m.avg_turns)}" cy="7" r="3.5" fill="var(--accent)"/></svg>
-      <span class="num small">${m.avg_turns.toFixed(2)} [${m.turns_ci[0].toFixed(2)}, ${m.turns_ci[1].toFixed(2)}]</span></td>
-    <td>${esc(m.turn_verdict || "–")}</td><td class="n">${m.avg_taken.toFixed(1)}</td><td class="n">${pct(m.death_share)}</td>${rateCell(m.battle_win_rate, m.battle_win_ci, "bwin")}${rateCell(m.run_win_rate_met, m.run_win_ci_met, "rwin")}<td class="n">${m.max_hit_avg} / ${m.max_hit_max}</td><td class="n">${m.battles.toLocaleString()}</td></tr>`).join("")}
-  </tbody></table></div>`;
-}
-
 // ---------------- 탭: 보정 (F3) ----------------
 function renderCal() {
   const el = $("tab-cal"); const C = DATA.calibration; if (!C) { el.innerHTML = ""; return; }
@@ -1599,6 +1983,7 @@ function renderTrace() {
   $("trSuggest").onclick = async () => { TR.fid = $("trFid").value; try { const r = await post("/api/trace", { fid: TR.fid, x: S.x, edits: S.edits, cfg_edits: S.cfgEdits }); TR.suggest = r.suggest; renderTrace(); } catch (e) { flash(e.message); } };
   const run = async seed => { TR.fid = $("trFid").value; try { TR.res = await post("/api/trace", { fid: TR.fid, x: S.x, seed, edits: S.edits, cfg_edits: S.cfgEdits }); renderTrace(); const d = $("div-base"), f = $("div-forced"); if (d) d.scrollIntoView({ block: "center" }); if (f) f.scrollIntoView({ block: "center" }); } catch (e) { flash(e.message); } };
   $("trRun").onclick = () => run($("trSeed").value || `${META.master_seed}-0`);
+  if (TR.pendingSeed) { const sd = TR.pendingSeed; TR.pendingSeed = null; run(sd); }     // 몬스터 전투 로그에서 넘어온 시드
   el.querySelectorAll(".seed").forEach(b => b.onclick = () => run(b.dataset.seed));
 }
 
@@ -1607,7 +1992,7 @@ function modal(html) { $("modal").innerHTML = `<div class="modal-bg"><div class=
 function closeModal() { $("modal").innerHTML = ""; }
 function diffHTML(d) { return esc(d).split("\n").map(l => l.startsWith("+") && !l.startsWith("+++") ? `<span class="add">${l}</span>` : l.startsWith("-") && !l.startsWith("---") ? `<span class="del">${l}</span>` : l).join("\n"); }
 let lastScenario = null;
-async function openApply() {
+async function openApplyLegacy() {   // 즉시 반영 모드(테스트 훅 window.__IMMEDIATE_EDITS) 전용: v4.5 이전 흐름
   if (!S.edits.length && !S.fileEdits.length) { flash("반영할 변경이 없습니다 (설정 변경은 원본 반영 대상이 아님)."); return; }
   let pv; try { pv = await post("/api/apply/preview", { edits: S.edits }); } catch (e) { flash("미리보기 실패: " + e.message); return; }
   const files = Object.entries(pv.files);
@@ -1652,6 +2037,7 @@ async function reloadServerTable(hash) {
   absorbFantasies(fj);
   BASE_HASH = fj.data_hash || fj.table_hash;
   S.fileEdits = fj.dirty_files || [];
+  SRVP.disk = null; SRVP.band = false; baseBand();      // 다시 읽었으니 다음 확인 때 디스크 서명을 새 기준으로
   $("hashLabel").textContent = BASE_HASH.slice(0, 10);
   await loadRef();
   if (MON) loadMonsters();
@@ -1672,7 +2058,7 @@ function syncServerTable() {
 }
 window.__syncServerTable = syncServerTable;
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") syncServerTable().then(ch => { if (ch && needsCompute()) scheduleRecompute(); }); });
-async function unapply() {
+async function unapplyLegacy() {
   if (!confirm("마지막 원본 반영을 되돌릴까요? (반영 이후 파일이 바뀌었으면 거부됩니다)")) return;
   try { const r = await post("/api/apply/revert", {}); await reloadServerTable(r.table_hash); flash(`복원: ${r.restored.join(", ")}`); update(); } catch (e) { flash("되돌리기 실패: " + e.message); }
 }
@@ -1714,12 +2100,13 @@ async function loadScenario() {
 // ---------------- 획득 시스템 스위치 (§7.5) ----------------
 function setSystem(v) {
   pushUndo();
-  S.cfgEdits = S.cfgEdits.filter(c => !c.path.startsWith("rewards.ember"));
-  delete S.cfgSet["rewards.ember.blue_mode"]; delete S.cfgSet["rewards.ember.blue_reward"];
-  if (v === "fantasy") { if (SCAN_SYSTEM === "fantasy") delete S.cfgSet["rewards.normal_battle.mode"]; else S.cfgSet["rewards.normal_battle.mode"] = "fantasy"; }
-  else { if (SCAN_SYSTEM === "ember") delete S.cfgSet["rewards.normal_battle.mode"]; else S.cfgSet["rewards.normal_battle.mode"] = "ember"; if (v === "custom") S.tab = "ember"; }
-  COMBO.res = null; COMBO.cache = {};
-  afterEditChange();
+  const imm = immediateEdits(), CS = imm ? S.cfgSet : dCfgSet(), CE = wCfgEdits().filter(c => !c.path.startsWith("rewards.ember"));
+  if (imm) S.cfgEdits = CE; else S.draft.cfgEdits = CE;
+  delete CS["rewards.ember.blue_mode"]; delete CS["rewards.ember.blue_reward"];
+  if (v === "fantasy") { if (SCAN_SYSTEM === "fantasy") delete CS["rewards.normal_battle.mode"]; else CS["rewards.normal_battle.mode"] = "fantasy"; }
+  else { if (SCAN_SYSTEM === "ember") delete CS["rewards.normal_battle.mode"]; else CS["rewards.normal_battle.mode"] = "ember"; if (v === "custom") S.tab = "ember"; }
+  if (imm) { COMBO.res = null; COMBO.cache = {}; afterEditChange(); }
+  else { afterDraftChange(true); if (v === "custom") update(); }
 }
 
 // ---------------- 조합: 체크한 환상을 모두 가진 승률 (승률·생존 곡선에 같이 그린다) ----------------
@@ -1805,12 +2192,12 @@ function renderCombo() {
 function bindCombo() { const go = $("comboGo"); if (go) go.onclick = () => startCombo(); }
 
 // ---------------- 탭: 불씨 (§7.5) ----------------
-function cfgVal(path) { const e = S.cfgEdits.find(c => c.path === path); return e ? e.new : BASE_CFG[path]; }
+function cfgVal(path) { const e = wCfgEdits().find(c => c.path === path); return e ? e.new : BASE_CFG[path]; }
 function renderEmber() {
   const el = $("tab-ember"); if (!el) return;
   if (!(SRV && srvOK)) { el.innerHTML = '<div class="small">불씨 탭은 서버 모드에서 동작합니다.</div>'; return; }
   const sys = curSystem();
-  const sel = (path, opts) => `<select class="emSet" data-path="${path}">${opts.map(o => `<option value="${o}" ${(S.cfgSet[path] || EMB_DEF[path]) === o ? "selected" : ""}>${o}</option>`).join("")}</select>`;
+  const sel = (path, opts) => `<select class="emSet" data-path="${path}">${opts.map(o => `<option value="${o}" ${(wCfgSet()[path] || EMB_DEF[path]) === o ? "selected" : ""}>${o}</option>`).join("")}</select>`;
   const bA = ptAt(curPts(BASE_ID), S.x), bB = ptAt(livePts("before", BASE_ID) || [], S.x);
   const srcBar = (lab, p) => { if (!p || !p.src_mean) return ""; const m = p.src_mean, tot = m.reward + m.shop + m.forced || 1; const w = v => (v / Math.max(tot, 15) * 300).toFixed(0);
     return `<div class="small">${lab}: <span class="bar" style="width:${w(m.reward)}px;background:var(--s1)"></span><span class="bar" style="width:${w(m.shop)}px;background:var(--s2)"></span><span class="bar" style="width:${w(m.forced)}px;background:var(--s3)"></span> 보상 ${m.reward.toFixed(1)} · 상점 ${m.shop.toFixed(1)} · 강제 ${m.forced.toFixed(1)} = <b>${tot.toFixed(1)}개</b>/판 <span class="small">(전체 판 평균, n=${p.agg_n})</span></div>`; };
@@ -1844,8 +2231,8 @@ function renderEmber() {
   if (liveActive() && bB) fser.push({ id: "before", slot: 0, ghost: true, pts: fb(bB) });
   drawChart($("emFbf"), { series: fser, xs: floors, xticks: [1, 15, 30, 45], xfmt: v => v + "층", yfmt: v => v.toFixed(0), yZero: true, vlines: [15.5, 30.5], bands: [{ lo: 12, hi: 15, label: "목표 12~15" }] });
   renderSweepHeat();
-  el.querySelectorAll(".emNum").forEach(i => i.onchange = () => { if (curSystem() !== "ember") S.cfgSet["rewards.normal_battle.mode"] = "ember"; setCfgEdit(i.dataset.path, BASE_CFG[i.dataset.path], +i.value); });
-  el.querySelectorAll(".emSet").forEach(i => i.onchange = () => { pushUndo(); if (i.value === EMB_DEF[i.dataset.path]) delete S.cfgSet[i.dataset.path]; else S.cfgSet[i.dataset.path] = i.value; afterEditChange(); });
+  el.querySelectorAll(".emNum").forEach(i => i.onchange = () => { if ((wCfgSet()["rewards.normal_battle.mode"] || SCAN_SYSTEM) !== "ember") (immediateEdits() ? S.cfgSet : dCfgSet())["rewards.normal_battle.mode"] = "ember"; setCfgEdit(i.dataset.path, BASE_CFG[i.dataset.path], +i.value); });
+  el.querySelectorAll(".emSet").forEach(i => i.onchange = () => { pushUndo(); const CS = immediateEdits() ? S.cfgSet : dCfgSet(); if (i.value === EMB_DEF[i.dataset.path]) delete CS[i.dataset.path]; else CS[i.dataset.path] = i.value; commitEdit(); });
   const on = $("emOn"); if (on) on.onclick = () => setSystem("ember");
   const off = $("emOff"); if (off) off.onclick = () => setSystem("fantasy");
   $("emMetric").onchange = e => { S.sweepMetric = e.target.value; renderSweepHeat(); };
@@ -2149,9 +2536,8 @@ function update() {
   ["mon", "cal", "trace", "ember", "json", "guide"].forEach(t => { if (!TABS.some(x => x[0] === t)) $("tab-" + t).classList.add("hidden"); });
   const cb = $("changebar");
   cb.classList.toggle("hidden", !(SRV && srvOK));
-  $("chgCount").textContent = `변경 ${S.edits.length + S.cfgEdits.length + Object.keys(S.cfgSet).length + S.fileEdits.length}개`;
   $("sysWrap").classList.toggle("hidden", !(SRV && srvOK));
-  const sysNow = curSystem(); $("system").value = S.cfgEdits.some(c => c.path.startsWith("rewards.ember")) || S.cfgSet["rewards.ember.blue_mode"] || S.cfgSet["rewards.ember.blue_reward"] ? "custom" : (sysNow === "ember" ? "ember" : sysNow === "fantasy" ? "fantasy" : "custom");
+  const sysNow = curSystem();   topControls();
   // 획득 시스템 혼합: 화면의 곡선 중 다른 규칙으로 계산된 것이 섞여 있으면 배지
   const mixed = sysNow !== SCAN_SYSTEM && [BASE_ID].concat(S.sel).some(id => isStale(curPts(id)));
   $("mixBadge").innerHTML = mixed ? '<span class="badge stale" id="mixWarn">획득 시스템 혼합 — 일부 곡선은 ' + esc(SYS_KO[SCAN_SYSTEM] || SCAN_SYSTEM) + ' 규칙 기준</span>' : "";
@@ -2159,18 +2545,17 @@ function update() {
   renderModeBadge();
   $("btnWs").classList.toggle("hidden", !(SRV && srvOK));
   $("skillWrap").classList.toggle("hidden", !(SRV && srvOK)); $("runsWrap").classList.toggle("hidden", !(SRV && srvOK));
-  if (SRV && srvOK) { const sk = $("skillIn"), rn = $("runsIn"); if (document.activeElement !== sk) { const e = S.cfgEdits.find(c => c.path === "player.skill"); sk.value = e ? e.new : (BASE_CFG["player.skill"] ?? ""); } if (document.activeElement !== rn) rn.value = S.simN || ""; }
+  if (SRV && srvOK) { const sk = $("skillIn"), rn = $("runsIn"); if (document.activeElement !== rn) rn.value = S.simN || ""; }
   document.querySelectorAll('.csvBtn[data-ds="runs"], .csvBtn[data-ds="edits"]').forEach(b => { b.disabled = !(SRV && srvOK); });
   if (!(SRV && srvOK) && $("wsChip")) $("wsChip").classList.add("hidden");
   wsTouch();
   $("modelWrap").classList.toggle("hidden", !(SRV && srvOK));
-  $("dmodel").value = curModel() === "digits" ? (curGimmicks() === "on" ? "digits+g" : "digits") : "gauss";
   // 스캔·랭킹·고스트는 스캔의 모델, 재계산한 곡선은 현재 모델 → 모델이 다르면 화면에 두 모델이 섞인다
   const modelMixed = curModel() !== SCAN_MODEL || curGimmicks() !== SCAN_GIMMICKS;
   const scaleMis = curMonModel() === "table" && curModel() === "gauss";
   $("scaleBadge").innerHTML = scaleMis ? ' <span class="badge stale" id="scaleWarn" title="몬스터 체력은 원본 JSON, 피해는 등급 평균 파라미터(tiers.*.dmg_mean)라 규모가 맞지 않습니다 — digits 를 쓰세요 (v4.2 Q40)">원본 체력 + 파라미터 피해(규모 불일치)</span>' : "";
   $("modelBadge").innerHTML = modelMixed ? '<span class="badge stale" id="modelMix" title="gauss 와 digits 결과를 같은 순위표·차트에 섞지 않습니다 (해석 가이드 ⑬)">피해 모델 혼합 — 스캔·랭킹·수정 전(고스트)은 ' + esc(modelLabel(SCAN_MODEL, SCAN_GIMMICKS)) + ', 재계산한 곡선은 ' + esc(modelLabel(curModel(), curGimmicks())) + ' 기준</span>' : "";
-  $("btnUndo").disabled = !S.undo.length; $("btnRedo").disabled = !S.redo.length; $("btnRevertAll").disabled = !liveActive(); $("btnApply").disabled = !S.edits.length && !S.fileEdits.length;
+  syncButtons();
   renderList();
   const pt = panelTarget();
   $("panelChip").innerHTML = S.tab !== "curve" && pt ? `<button class="chip" id="btnPanelChip">편집 패널 열기 ▸ ${esc(BYID[pt].name)}</button>` : "";
@@ -2179,6 +2564,7 @@ function update() {
   else if (S.tab === "ember") renderEmber(); else if (S.tab === "guide") renderGuide(); else if (S.tab === "json") renderJson();
   const ses = FANTS.map(f => { const p = ptAt(curPts(f.id), S.x); return p && p.delta_se; }).filter(v => v > 0).sort((a, b) => a - b);
   $("minDetect").textContent = ses.length ? `±${(1.96 * ses[Math.floor(ses.length / 2)] * 100).toFixed(1)}%p` : "–";
+  draftSync();
   writeHash();
   window.__lastRenderMs = performance.now() - t0;
 }
@@ -2267,9 +2653,14 @@ $("detail").addEventListener("click", async e => {
   }
 });
 // 변경 상태 바
-$("btnUndo").onclick = () => { if (!S.undo.length) return; S.redo.push(JSON.stringify({ e: S.edits, c: S.cfgEdits, s: S.cfgSet })); applyEditsSnapshot(S.undo.pop()); };
-$("btnRedo").onclick = () => { if (!S.redo.length) return; S.undo.push(JSON.stringify({ e: S.edits, c: S.cfgEdits, s: S.cfgSet })); applyEditsSnapshot(S.redo.pop()); };
-$("btnRevertAll").onclick = () => { pushUndo(); S.edits = []; S.cfgEdits = []; S.cfgSet = {}; afterEditChange(); };
+$("btnUndo").onclick = () => { if (!S.undo.length) return; S.redo.push(snapNow()); applyEditsSnapshot(S.undo.pop()); };
+$("btnRedo").onclick = () => { if (!S.redo.length) return; S.undo.push(snapNow()); applyEditsSnapshot(S.redo.pop()); };
+$("btnRevertAll").onclick = () => { pushUndo(); S.edits = []; S.cfgEdits = []; S.cfgSet = {}; S.draft = emptyDraft(); afterEditChange(); };
+$("btnDiscard").onclick = discardDraft;
+document.addEventListener("click", e => {
+  if (e.target.closest && e.target.closest(".dSave")) saveDraft();
+  else if (e.target.closest && e.target.closest(".dDiscard")) discardDraft();
+});
 $("system").addEventListener("change", e => setSystem(e.target.value));
 $("dmodel").addEventListener("change", e => setModel(e.target.value));
 $("rcMode").addEventListener("change", e => { S.rcMode = e.target.value; });
@@ -2315,7 +2706,13 @@ async function startTune() {
 }
 $("btnTune").onclick = () => { $("tunePanel").classList.toggle("hidden"); renderTunePanel(); };
 document.addEventListener("click", e => { const a = e.target.closest(".info"); if (a) { e.preventDefault(); e.stopPropagation(); openGuide(a.dataset.g); } }, true);
-$("btnSave").onclick = saveScenario; $("btnLoad").onclick = loadScenario; $("btnFull").onclick = startFull; $("btnApply").onclick = openApply; $("btnUnapply").onclick = unapply;
+$("btnSave").onclick = saveScenario; $("btnLoad").onclick = loadScenario; $("btnFull").onclick = startFull; $("btnApply").onclick = () => immediateEdits() ? openApplyLegacy() : saveDraft(); $("btnUnapply").onclick = unapply;
+document.addEventListener("keydown", e => {   // Ctrl+Enter: 입력 칸에 포커스가 있어도 저장 (모달이 열려 있으면 '적용')
+  if (!((e.ctrlKey || e.metaKey) && e.key === "Enter") || !(SRV && srvOK)) return;
+  const go = $("applyGo"); if (go) { if (!go.disabled) { e.preventDefault(); go.click(); } return; }
+  if (immediateEdits() || $("modal").innerHTML) return;
+  e.preventDefault(); saveDraft();
+}, true);
 document.addEventListener("keydown", e => { if (!(SRV && srvOK) || e.target.tagName === "INPUT") return; if ((e.ctrlKey || e.metaKey) && e.key === "z") $("btnUndo").click(); if ((e.ctrlKey || e.metaKey) && e.key === "y") $("btnRedo").click(); });
 window.addEventListener("hashchange", () => { readHash(); update(); });
 let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(update, 80); });
@@ -2345,9 +2742,9 @@ function wsDraftSig() {   // 원문 초안은 JSON 탭에서만 바뀌므로 그
 function wsState() {
   return { schema: 1, base: { data_hash: BASE_HASH, sim_version: SRVC.sim, disk_signature: WS.diskSig }, edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet,
     undo: S.undo.slice(-50), redo: S.redo.slice(-50), view: wsView(), reference: { source: REF ? REF.source : "disk", pinned_file: null },
-    last_scenario: lastScenario, json_draft: wsDraft(), held: WS.held };
+    last_scenario: lastScenario, json_draft: wsDraft(), held: WS.held, draft: wsDraftOut() };
 }
-function wsSig() { return JSON.stringify([S.edits, S.cfgEdits, S.cfgSet, S.undo.length, S.redo.length, wsView(), WS.held.length, wsDraftSig(), lastScenario]); }
+function wsSig() { return JSON.stringify([S.edits, S.cfgEdits, S.cfgSet, S.draft, S.undo.length, S.redo.length, wsView(), WS.held.length, wsDraftSig(), lastScenario]); }
 function wsChip(status) {
   WS.status = status;
   const el = $("wsChip"); if (!el) return;
@@ -2390,6 +2787,158 @@ function wsFlush() { if (WS.ready && WS.dirty && WS.status !== "conflict") wsSav
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") wsFlush(); });
 window.addEventListener("pagehide", wsFlush);
 
+// ════════ v4.5 F17: 저장 = 원본 반영 + 재계산 ════════
+function isScenarioEdit(e) { if (!e.fid) return false; const k = editableKeys(e.fid).find(k => k.effect === e.effect && k.key === e.key); return !!k && k.target === "scenario"; }
+function validateDraft() {   // 저장 1단계: 초안의 모든 값을 검사 — 하나라도 틀리면 아무것도 쓰지 않는다
+  const D = S.draft;
+  for (const e of (D.edits || [])) {
+    let sch, name;
+    if (e.fid) { const k = editableKeys(e.fid).find(k => k.effect === e.effect && k.key === e.key); sch = k && k.schema; name = `${(BYID[e.fid] || {}).name || e.fid} ${e.key}`; }
+    else { sch = MON && MON.schema ? MON.schema[e.key] : null; name = `${e.mid || e.pid} ${e.key}`; }
+    const err = validate(sch, e.new); if (err) return `${name}: ${err}`;
+  }
+  for (const c of (D.cfgEdits || [])) { const err = validate(SCHEMA && SCHEMA.cfg[c.path], c.new); if (err) return `${c.path}: ${err}`; }
+  return null;
+}
+function toast(html, ms) {
+  let t = $("saveToast"); if (!t) { t = document.createElement("div"); t.id = "saveToast"; t.setAttribute("role", "status"); document.body.appendChild(t); }
+  t.innerHTML = html + ' <button class="btn" id="toastX" aria-label="닫기">×</button>';
+  clearTimeout(t._tm); t._tm = setTimeout(() => { if (t.parentNode) t.remove(); }, ms || 20000);
+  $("toastX").onclick = () => t.remove();
+  return t;
+}
+async function saveDraft() {
+  if (SAVING || !(SRV && srvOK) || immediateEdits()) return;
+  if (document.activeElement && document.activeElement.tagName === "INPUT") document.activeElement.blur();   // 확정되지 않은 입력을 초안에 넣는다
+  const D = S.draft, ch = draftChanges(), n = draftCount();
+  if (!n && !S.fileEdits.length) { flash("저장할 초안이 없습니다."); return; }
+  const bad = validateDraft(); if (bad) { flash("저장하지 않음 — " + bad); return; }
+  const newEdits = D.edits || S.edits;
+  const changed = ch.edits.length ? newEdits.filter(e => ch.edits.includes(eKey(e))) : [];
+  let pv = null;
+  if (changed.length || S.fileEdits.length) { try { pv = await post("/api/apply/preview", { edits: changed }); } catch (e) { flash("미리보기 실패: " + e.message); return; } }
+  const writes = pv && (Object.keys(pv.files).length || pv.overrides.length);
+  if (!writes) {   // 파일에 쓸 항목이 없는 저장(설정·시나리오 전용): 모달 없이 확정하고 재계산
+    if (pv && (pv.problems.length || pv.externally_changed.length)) { saveModal(pv, changed); return; }   // 문제가 있으면 모달에 이유를 보이고 적용을 막는다
+    await finishSave(null, changed); return;
+  }
+  saveModal(pv, changed);
+}
+function saveModal(pv, changed) {
+  const files = Object.entries(pv.files), blocked = pv.externally_changed.length || pv.problems.length;
+  modal(`<h3 style="margin:0 0 6px">저장하고 재계산 — 미리보기</h3>
+    ${pv.externally_changed.length ? `<div class="notice">뷰어가 읽은 뒤 바뀐 파일: ${pv.externally_changed.map(esc).join(", ")} — 저장이 거부됩니다. 서버를 다시 시작하거나 파일을 확인하세요.</div>` : ""}
+    <div class="small">원본 JSON 은 해당 숫자 토큰만 바뀝니다 (BOM·줄바꿈·들여쓰기·표기 보존). 저장 전 백업을 만들고, 저장 후 임포터를 다시 실행해 값이 같은지 확인합니다. 이어서 곡선과 몬스터별 지표를 한 번 다시 계산합니다. 서버는 커밋하지 않습니다.</div>
+    ${files.map(([fn, f]) => `<div class="efx"><label><input type="checkbox" class="applyFile" value="${esc(fn)}" checked> <b>${esc(fn)}</b></label>
+      <div class="small">${f.raw ? "JSON 편집기로 고친 파일 — 쓴 텍스트 그대로 반영 (파일 전체 diff)<br>" : ""}${f.rows.map(r => `${esc(r.fid ? ((BYID[r.fid] || {}).name || r.fid) + " effects[" + r.effect + "]" : (r.mid || r.pid) + (r.step != null ? " patterns[" + r.step + "]" : ""))}.${esc(r.key)}: ${fmtNum(r.old)} → ${fmtNum(r.new)} (토큰 ${esc(r.token_old)} → ${esc(r.token_new)})`).join("<br>")}</div><pre>${diffHTML(f.diff)}</pre></div>`).join("")}
+    ${pv.overrides.length ? `<div class="efx"><label><input type="checkbox" id="applyOv" checked> <b>fantasy_effects.overrides.json</b> (시뮬 전용 — 원본 JSON 은 건드리지 않음)</label><div class="small">${pv.overrides.map(r => `${esc((BYID[r.fid] || {}).name)} effects[${r.effect}].${esc(r.key)}: ${fmtNum(r.old)} → ${fmtNum(r.new)}`).join("<br>")}</div></div>` : ""}
+    ${pv.scenario_only.length ? `<div class="efx"><b>시나리오에만 저장되는 변경</b> (원본 연결 없음)<div class="small">${pv.scenario_only.map(r => `${esc((BYID[r.fid] || {}).name)} ${esc(r.key)} → ${fmtNum(r.new)}`).join("<br>")}</div></div>` : ""}
+    ${pv.problems.length ? `<div class="notice">문제: ${pv.problems.map(p => `${esc(p.fid || p.mid || p.pid || "")} ${esc(p.key)} ${esc(p.reason)}`).join("; ")} — 문제가 있으면 적용할 수 없습니다.</div>` : ""}
+    <div class="chips" style="margin-top:8px"><button class="btn primary" id="applyGo" ${blocked ? "disabled" : ""}>적용 (Ctrl+Enter)</button><button class="btn" id="applyCancel">취소</button></div>`);
+  $("applyCancel").onclick = closeModal;
+  $("applyGo").onclick = async () => {
+    if (SAVING) return;
+    const sel = [...document.querySelectorAll(".applyFile")].filter(c => c.checked).map(c => c.value);
+    const ov = $("applyOv") ? $("applyOv").checked : false;
+    SAVING = true; syncButtons(); $("applyGo").disabled = true;
+    try {
+      const r = await post("/api/apply", { edits: changed, files: sel, include_overrides: ov, scenario: lastScenario });
+      await finishSave(r, changed);
+    } catch (e) {   // 1~3단계 실패: 초안은 그대로, 파일은 바뀌지 않음(백업 후 쓰기)
+      modal(`<div class="notice" id="saveFail">저장 실패: ${esc(e.message)} — 초안은 그대로 남아 있습니다.</div><button class="btn" id="okClose">닫기</button>`); $("okClose").onclick = closeModal;
+    } finally { SAVING = false; syncButtons(); }
+  };
+}
+async function finishSave(r, changed) {   // 4~6단계: 새 기준 반영 → 초안 비움 → 강제 재계산 → 토스트
+  closeModal();
+  const D = S.draft, newEdits = D.edits || S.edits, newCE = D.cfgEdits || S.cfgEdits, newCS = D.cfgSet || S.cfgSet, modelChanged = JSON.stringify(newCS) !== JSON.stringify(S.cfgSet);
+  if (r) { try { await reloadServerTable(r.table_hash); } catch (e) { flash("저장은 됐지만 새 원본을 읽지 못했습니다: " + e.message); } }
+  S.edits = r ? newEdits.filter(e => !changed.includes(e) || isScenarioEdit(e)) : newEdits;   // 파일에 반영된 변경은 이제 기준값. 시나리오 전용 변경만 남김
+  S.cfgEdits = newCE; S.cfgSet = newCS; S.draft = emptyDraft(); S.undo = []; S.redo = [];
+  if (modelChanged) { applyModelFidelity(); FANTS.forEach(summarize); COMBO.res = null; COMBO.cache = {}; }
+  if (S.preview) S.preview.pending = true;
+  MM.key = null; MM.want = null;
+  update();
+  recomputeAfterSave();
+  scheduleSGLoad();
+  const back = r ? (r.backup_dir || "").split(/[\\/]/).filter(Boolean).pop() : "";
+  const mis = r && r.roundtrip_mismatch && r.roundtrip_mismatch.length;
+  toast(r ? `<b id="saveDone">저장 완료</b> · 파일 ${r.files.length}개${r.overrides && r.overrides.length ? " + overrides" : ""} · 백업 ${esc(r.backup_dir)}${mis ? ` <span class="notice">재임포트 값이 편집값과 다릅니다 — 되돌리세요: ${esc(JSON.stringify(r.roundtrip_mismatch))}</span>` : ""} <button class="btn" id="toastRevert" data-id="${esc(back)}">되돌리기</button>`
+    : '<b id="saveDone">저장 완료</b> · 파일에 쓴 항목 없음(설정·시나리오 전용 값은 작업 상태에 저장)', 20000);
+  const tr = $("toastRevert"); if (tr) tr.onclick = () => revertSave(tr.dataset.id);
+}
+function recomputeAfterSave() {   // 곡선 재계산과 몬스터별 지표 재계산을 각각 한 번만, 편집 0개·'버튼만' 모드와 상관없이 시작
+  clearTimeout(recomputeTimer); startRecompute(true);
+  if (SRV && srvOK && MON) mmCheck(true);
+}
+async function revertSave(id) {
+  if (SAVING) return; SAVING = true;
+  try {
+    const r = await post("/api/apply/revert", id ? { backup: id } : {});
+    await reloadServerTable(r.table_hash); S.undo = []; S.redo = [];
+    MM.key = null; MM.want = null; update(); recomputeAfterSave(); scheduleSGLoad();
+    closeModal(); toast(`<b id="revertDone">저장을 되돌렸습니다</b> · ${esc(r.restored.join(", "))}`, 8000);
+  } catch (e) { flash("되돌리기 실패: " + e.message); } finally { SAVING = false; syncButtons(); }
+}
+async function openHistory() {   // 저장 이력 (최근 20개) — 목록에서 골라 되돌린다
+  let h; try { h = (await api("/api/apply/history")).history; } catch (e) { flash("저장 이력을 불러오지 못함: " + e.message); return; }
+  modal(`<h3 style="margin:0 0 6px">저장 이력</h3><div class="small">저장마다 백업이 남습니다(최근 20개). 그 저장 이후 파일이 또 바뀌었으면 되돌릴 수 없습니다.</div>
+    ${h.length ? h.map(x => `<div class="efx histRow" data-id="${esc(x.id)}"><b>${esc(x.at || x.id)}</b> · 파일 ${x.files}개 <span class="small">${esc((x.file_names || []).join(", "))}</span>${x.last ? ' <span class="badge">최근</span>' : ""}
+      <button class="btn histRevert" data-id="${esc(x.id)}" ${x.can_revert ? "" : 'disabled title="이후 파일이 바뀌었거나 이미 되돌림"'}>되돌리기</button></div>`).join("") : '<div class="small">저장 이력 없음</div>'}
+    <div class="chips" style="margin-top:8px"><button class="btn" id="histClose">닫기</button></div>`);
+  $("histClose").onclick = closeModal;
+  document.querySelectorAll(".histRevert").forEach(b => b.onclick = () => { if (confirm("이 저장을 되돌릴까요? (저장 이후 파일이 바뀌었으면 거부됩니다)")) revertSave(b.dataset.id); });
+}
+async function unapply() {
+  if (immediateEdits()) return unapplyLegacy();
+  openHistory();
+}
+
+// ── F14 연계: 초안을 탭(CLIENT)별로 작업 공간에 자동 저장·복원 ──
+const DRAFT_KEEP_MS = 7 * 24 * 3600 * 1000;
+WS.drafts = {};
+function wsDraftOut() {
+  const out = {}, now = Date.now();
+  for (const [k, v] of Object.entries(WS.drafts || {})) if (k !== CLIENT && v && v.at && now - Date.parse(v.at) < DRAFT_KEEP_MS) out[k] = v;   // 닫힌 탭의 초안은 7일 뒤 정리
+  if (draftCount() > 0) out[CLIENT] = { at: S.draftAt || new Date().toISOString(), draft: S.draft };
+  WS.drafts = out; return out;
+}
+function draftStale(e) { const cur = currentValueOf(e); return cur == null || Math.abs(cur - e.old) > 1e-9; }
+function sanitizeDraft(d) {   // 복원한 초안 중 지금 원본과 맞지 않는 항목(저장·외부 변경으로 old 가 달라짐)은 버린다
+  const out = emptyDraft(); let dropped = 0;
+  if (Array.isArray(d.edits)) { out.edits = d.edits.filter(e => { const bad = draftStale(e); if (bad) dropped++; return !bad; }); }
+  if (Array.isArray(d.cfgEdits)) { out.cfgEdits = d.cfgEdits.filter(c => { const bad = BASE_CFG[c.path] == null || Math.abs(BASE_CFG[c.path] - c.old) > 1e-9; if (bad) dropped++; return !bad; }); }
+  if (d.cfgSet && typeof d.cfgSet === "object") out.cfgSet = d.cfgSet;
+  return { draft: out, dropped };
+}
+function wsRestoreDraft(st) {
+  WS.drafts = (st && st.draft && typeof st.draft === "object" && !Array.isArray(st.draft)) ? st.draft : {};
+  const mine = WS.drafts[CLIENT];
+  if (mine && mine.draft && !draftCount()) {
+    const r = sanitizeDraft(mine.draft); S.draft = r.draft; S.draftAt = mine.at; draftNorm();
+    if (r.dropped) setTimeout(() => flash(`복원한 초안 중 ${r.dropped}개는 원본이 바뀌어 버렸습니다`), 0);
+  }
+}
+function wsOtherDrafts() {   // 다른(이전) 탭의 저장 안 된 초안
+  const now = Date.now();
+  return Object.entries(WS.drafts || {}).filter(([k, v]) => k !== CLIENT && v && v.draft && v.at && now - Date.parse(v.at) < DRAFT_KEEP_MS && draftCount(v.draft) > 0);
+}
+function wsImportDraft() {
+  const o = wsOtherDrafts().sort((a, b) => (b[1].at || "").localeCompare(a[1].at || ""))[0]; if (!o) return;
+  const r = sanitizeDraft(o[1].draft);
+  pushUndo(); S.draft = r.draft; S.draftAt = new Date().toISOString(); delete WS.drafts[o[0]];
+  if (r.dropped) flash(`가져온 초안 중 ${r.dropped}개는 원본이 바뀌어 버렸습니다`);
+  wsBannerRender(); afterDraftChange(true);
+}
+async function baseReload() {   // 다른 탭이 저장한 원본을 불러온다 — 초안은 원본과 맞는 항목만 남긴다
+  try {
+    await reloadServerTable();
+    if (draftCount()) { const r = sanitizeDraft(S.draft); S.draft = r.draft; draftNorm(); if (r.dropped) flash(`초안 중 ${r.dropped}개는 원본이 바뀌어 버렸습니다`); }
+    COMBO.res = null; MM.key = null; MM.want = null; update(); if (needsCompute()) scheduleRecompute(); mmCheck(true);
+  } catch (e) { flash("불러오지 못함: " + e.message); }
+}
+function wsDropOtherDrafts() { for (const [k] of wsOtherDrafts()) delete WS.drafts[k]; wsBannerRender(); WS.sig = null; wsTouch(); }
+
 function applyView(v) {
   v = v || {};
   if (Array.isArray(v.sel)) S.sel = v.sel.filter(id => BYID[id]).slice(0, MAX_SEL);
@@ -2417,6 +2966,7 @@ function wsApply(w) {   // 서버의 저장본(+충돌 검사 결과)을 화면 
   const st = w.state, r = w.restore;
   S.edits = r.edits; S.cfgEdits = r.cfg_edits; S.cfgSet = r.cfg_set;
   S.undo = st.undo || []; S.redo = st.redo || [];
+  wsRestoreDraft(st);
   WS.held = r.held || [];
   applyView(st.view);
   readHash(HASH0);                                      // URL 해시가 있으면 해시가 우선 (링크 공유 호환)
@@ -2438,6 +2988,7 @@ function wsBannerRender() {
   const el = $("wsBanner"); if (!el) return;
   const parts = [], r = WS.restored;
   if (r && (r.edits || r.cfg || r.files)) parts.push(`<span id="wsRestored">이전 작업을 복원했습니다 — 변경 ${r.edits} · 설정 ${r.cfg} · 원문 ${r.files}</span> <button class="btn" id="wsReset">초기화</button>`);
+  const od = wsOtherDrafts(); if (od.length && SRV && srvOK && !immediateEdits()) parts.push(`<span id="wsOtherDraft">이전 탭의 저장 안 된 초안 ${od.reduce((n, [, v]) => n + draftCount(v.draft), 0)}개</span> <button class="btn" id="wsDraftImport">가져오기</button> <button class="btn" id="wsDraftDrop">버리기</button>`);
   if (WS.held.length) parts.push(`<span id="wsHeld">보류 ${WS.held.length}건</span> <button class="btn" id="wsHeldBtn">보류 ${WS.held.length}건 보기</button>`);
   const c = WS.cache;
   if (c) parts.push(`<span id="wsCache">저장된 계산 불러옴 · 미계산 ${c.missing_count}점${c.partial ? ` · 판 수 부족 ${c.partial}점` : ""}</span>${c.missing_count || c.partial ? ' <button class="btn" id="wsRest">나머지 계산</button>' : ""}`);
@@ -2568,6 +3119,9 @@ document.addEventListener("click", e => {
   else if (id === "wsForce") wsSave({ force: true });
   else if (id === "wsReset") wsReset();
   else if (id === "wsHeldBtn") wsHeldModal();
+  else if (id === "baseReload") baseReload();
+  else if (id === "wsDraftImport") wsImportDraft();
+  else if (id === "wsDraftDrop") wsDropOtherDrafts();
   else if (id === "wsRest") startRecompute();
   else if (id === "wsScanSave") wsScanSave();
   else if (id === "wsBannerX") { WS.restored = null; WS.cache = null; WS.saveOffer = null; wsBannerRender(); }
@@ -2644,7 +3198,7 @@ function exClient(id, o) {   // 서버 없이(또는 화면 표 그대로) 만�
 }
 const SERVER_ONLY = ["edits", "runs", "workspace", "results", "bundle"];
 function fmtFor(id, fmt) { return id === "runs" ? (fmt === "json" ? "ndjson" : fmt) : id === "reach" ? "csv" : id === "workspace" ? "json" : fmt; }
-function exBody(id, o) { return { id, format: fmtFor(id, o.format || "csv"), bom: o.bom !== false, scope: o.scope, datasets: o.datasets, edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet }; }
+function exBody(id, o) { const st = o.snap || { edits: S.edits, cfgEdits: S.cfgEdits, cfgSet: S.cfgSet }; return { id, format: fmtFor(id, o.format || "csv"), bom: o.bom !== false, scope: o.scope, datasets: o.datasets, edits: st.edits, cfg_edits: st.cfgEdits, cfg_set: st.cfgSet }; }
 async function exServer(id, o) {
   const body = exBody(id, o), est = await post("/api/export/estimate", body);
   if (est.too_big) throw new Error(`행이 ${est.rows.toLocaleString()}개로 한 요청 상한(500만)을 넘습니다 — 범위를 줄이세요`);
@@ -2719,7 +3273,7 @@ document.addEventListener("change", e => {
   const id = e.target && e.target.id;
   if (id === "skillIn") {
     const v = +e.target.value, old = BASE_CFG["player.skill"];
-    if (e.target.value === "" || !isFinite(v) || old == null) { update(); return; }
+    if (e.target.value === "" || !isFinite(v) || old == null) { update(); topControls(); return; }
     setCfgEdit("player.skill", old, v);
   } else if (id === "runsIn") {
     const v = Math.round(+e.target.value); S.simN = e.target.value === "" || !isFinite(v) || v < 10 ? null : Math.min(v, 10000000); update();

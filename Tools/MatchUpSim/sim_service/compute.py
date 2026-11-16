@@ -88,6 +88,8 @@ class Progress:
         self.call_done = 0
         self._last = 0.0
         self._last_log = 0.0
+        self.last_snap = None       # 마지막으로 내보낸 진행 신호와 그 시각 (v4.5 F18 D2: 새로고침 뒤에도 서버가 마지막 줄을 그대로 보여 준다)
+        self.last_at = None
         self._lock = threading.Lock()
 
     def plan(self, total, cached=None):
@@ -123,6 +125,13 @@ class Progress:
                 self.carry += self.call_done
         self._emit(force=True)
 
+    def line(self):
+        """서버 콘솔과 같은 형식의 마지막 진행 줄 (없으면 None)."""
+        return format_progress(self.last_snap, self.label) if self.last_snap is not None else None
+
+    def line_age_s(self):
+        return round(time.perf_counter() - self.last_at, 1) if self.last_at is not None else None
+
     def snapshot(self):
         with self._lock:
             total = self.planned if self.planned is not None else self.total
@@ -147,6 +156,7 @@ class Progress:
             return
         self._last = now
         snap = self.snapshot()
+        self.last_snap, self.last_at = snap, now
         if self.emit_fn:
             self.emit_fn(snap)
         if self.log_fn and (force and snap["done"] == 0 or now - self._last_log >= self.log_interval):

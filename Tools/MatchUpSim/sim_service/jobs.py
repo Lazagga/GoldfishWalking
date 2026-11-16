@@ -22,6 +22,7 @@ from . import store as st
 
 BASE = "__baseline__"
 LIGHT_KINDS = ("monster_metrics",)
+STALE_CLIENT_S = 30.0       # 이 시간 넘게 /api/progress 를 부르지 않은 클라이언트의 끝나지 않은 작업은 취소 대상
 PROGRESS_LOG = True      # 서버 콘솔에 진행 상황을 ~10초마다 한 줄 찍는다 (테스트에서는 끈다)
 
 
@@ -36,6 +37,8 @@ class Job:
         self.cond = threading.Condition()
         self.cancelled = False
         self.done = False
+        self.state = "queued"          # queued → running → done | error | cancelled (v4.5 F18 D1)
+        self.client = None
         self.t0 = time.perf_counter()
         self.t_cancel = None
         # 진행 집계 (v4.3 F12): 계산 호출부가 progress=job.progress 로 넘기면 `progress` 이벤트가 흘러나간다.
@@ -52,6 +55,7 @@ class Job:
     def finish(self, type_="done", **data):
         self.emit(type_, **data)
         with self.cond:
+            self.state = type_ if type_ in ("done", "error", "cancelled") else "done"
             self.done = True
             self.cond.notify_all()
 
@@ -77,6 +81,7 @@ class JobManager:
         self.run_lock = threading.Lock()
         self.light_lock = threading.Lock()      # 가벼운 표시용 작업(monster_metrics)은 긴 계산 뒤에서 기다리지 않는다 — 자기들끼리만 차례로
         self.pending = 0         # 실행 대기 중인 인터랙티브 작업 수 (학습 작업이 보고 양보한다, v4.1 F10.4)
+        self.seen = {}            # client → 마지막으로 /api/progress 를 부른 시각 (v4.5 F18 D4: 닫힌 탭의 작업 정리)
 
     def submit(self, kind, params):
         fn = JOB_KINDS.get(kind)
@@ -84,7 +89,13 @@ class JobManager:
             raise ValueError(f"알 수 없는 작업 종류: {kind}")
         job = Job(kind, params)
         client = params.get("client") if isinstance(params, dict) else None
+        job.client = client
         with self.lock:
+            now = time.time()          # 30초 넘게 진행 확인이 없는 클라이언트(닫힌 탭)의 끝나지 않은 작업은 새 작업이 올라올 때 취소
+            for old in list(self.jobs.values()):
+                if not old.done and old.client and old.client != client and old.client in self.seen \
+                        and now - self.seen[old.client] > STALE_CLIENT_S:
+                    old.cancel()
             # 기기(브라우저 탭)마다 자기 이전 작업만 취소한다 — 여러 기기가 한 서버를 같이 쓸 때 서로 끊지 않게.
             # client 가 없으면(구버전 뷰어·CLI) 예전처럼 진행 중인 작업을 취소한다. 실행은 run_lock 으로 차례대로.
             prev = self.by_client.get(client) if client else self.current
@@ -114,6 +125,7 @@ class JobManager:
             if job.cancelled:
                 job.finish("cancelled")
                 return
+            job.state = "running"
             job.emit("started", kind=job.kind)
             try:
                 result = fn(self.app, job)
@@ -136,6 +148,26 @@ class JobManager:
             rs.save(self.app.results, job.kind, p, dh_of(cfg, h), rs.cfg_tag_of(p.get("cfg_edits"), p.get("cfg_set")), result)
         except Exception as e:  # noqa: BLE001
             print(f"[results] {job.kind} 결과 저장 실패: {e}", flush=True)
+
+    def touch(self, client):
+        if client:
+            self.seen[client] = time.time()
+            if len(self.seen) > 500:
+                for k in sorted(self.seen, key=self.seen.get)[:-300]:
+                    del self.seen[k]
+
+    def unfinished(self):
+        """끝나지 않은 작업을 실행 중 → 대기 순으로, 각각 같은 잠금 그룹에서 앞에 있는 작업 수와 함께."""
+        with self.lock:
+            live = [j for j in self.jobs.values() if not j.done]
+        live.sort(key=lambda j: (j.state != "running", int(j.id[1:])))
+        out = []
+        for j in live:
+            grp = j.kind in LIGHT_KINDS
+            ahead = sum(1 for o in out if (o.kind in LIGHT_KINDS) == grp)
+            out.append(j)
+            j._ahead = ahead
+        return out
 
     def cancel(self, job_id):
         job = self.jobs.get(job_id)
@@ -721,7 +753,8 @@ def monster_metrics_setup(app, p):
             raise ValueError("x 는 유한한 숫자여야 함")
         ms.set_path(cfg, app.x_key, x)
     seed = str(p.get("seed") or "mon1")
-    ckey = hashlib.sha1(json.dumps([cfg, seed, ms.SIM_VERSION], sort_keys=True, default=str).encode("utf-8")).hexdigest()
+    from . import monsters as mo
+    ckey = hashlib.sha1(json.dumps([cfg, seed, ms.SIM_VERSION, mo.MON_CHUNK_SCHEMA], sort_keys=True, default=str).encode("utf-8")).hexdigest()
     return cfg, h, mdata, seed, ckey, dh_of(cfg, h)
 
 
@@ -778,8 +811,12 @@ def job_monster_metrics(app, job):
             _pool_run(app, job, tasks, mo.chunk_metrics, on_done)
         finally:
             job.progress.end(0)
-        agg, deaths, runs, wins = mo.merge([parts[s] for s in sorted(parts)])
-        res = mo.build_result(cfg, agg, deaths, runs, wins, monster_table=mdata)
+        plist = [parts[s] for s in sorted(parts)]
+        agg, deaths, runs, wins = mo.merge(plist)
+        final = si == len(stages) - 1                       # 표본은 마지막 단계의 이벤트·저장본에만 싣는다 (앞 단계는 samples_stage: pending)
+        res = mo.build_result(cfg, agg, deaths, runs, wins, monster_table=mdata, with_samples=final,
+                              samples=mo.bl_.samples_merge([x.get("samples") for x in plist]) if final else None,
+                              outlier=(app.balance_targets() or {}).get("outlier"), seed=seed)
         last = {"meta": {**mo.meta_of(cfg, seed, n), "x_param": app.x_key, "x": p.get("x")}, **res}
         try:
             rs.mon_save(app.results, dh, seed, ckey, last)

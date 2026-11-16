@@ -1185,7 +1185,8 @@ def fight_table(cfg, st, tier, act, rng):
     taken0 = stats["dmg_taken"]
     if tr is not None:
         tr.append({"ev": "battle", "tier": tier, "act": act, "monster": mon["id"] if mon else f"{tier}(평균)",
-                   "mhp": mhp0, "hp": st.hp, "temp_copy": temp_copy, "fx": fx_contributors(st, temp_copy)})
+                   "mhp": mhp0, "hp": st.hp, "temp_copy": temp_copy, "fx": fx_contributors(st, temp_copy),
+                   "matches": st.matches, "erasers": st.erasers})
 
     def per_hit_in(kind, per_hit, mon_base, base):
         if kind != "attack":
@@ -1211,6 +1212,7 @@ def fight_table(cfg, st, tier, act, rng):
         outcome = "timeout"
         max_hit = 0
         taken_turn = 0
+        taken_cap_sum = 0     # 체력 한도 받은 피해 (v4.5 F16)
         mon_state = st.ctx.new_monster_state(mon) if mon is not None else None
 
         def monster_acts(kind, per_hit, hits, mon_base, base, str_gain):
@@ -1424,6 +1426,7 @@ def fight_table(cfg, st, tier, act, rng):
                         res = "death"
                 if res is None and not enemy_first:
                     res = monster_acts(kind, per_hit, hits, mon_base, base, str_gain)
+            taken_cap_sum += max(0, min(taken_turn, hp_before))
             if tr is not None:
                 tr.append({"ev": "turn", "t": turn, "intent": kind, "mon_dmg": mon_base, "hits": hits,
                            "base": base, "moves": moves, "att": n_att, "def": used - n_att, "items": n_items,
@@ -1437,7 +1440,8 @@ def fight_table(cfg, st, tier, act, rng):
         if st.battle_log is not None:
             st.battle_log.append({"monster": mon["id"] if mon else tier, "tier": tier, "act": act,
                                   "turns": turn, "taken": stats["dmg_taken"] - taken0, "outcome": outcome,
-                                  "max_hit": int(max_hit), "floor": (getattr(st, "floor_pos", None) or (None, None))[1]})
+                                  "max_hit": int(max_hit), "floor": (getattr(st, "floor_pos", None) or (None, None))[1],
+                                  "hp0": hp_start, "hp1": st.hp, "taken_cap": taken_cap_sum, "nfant": len(st.owned)})
         if outcome == "death" and revives > 0:
             # 게자리류: 전투 시작 시점으로 되감기 (전투당 횟수 제한)
             revives -= 1

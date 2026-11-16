@@ -282,6 +282,7 @@ class ExternalEditUI(unittest.TestCase):
     def test_list_shows_current_disk_values(self):
         self.set_amount(5)                       # 스캔(값 2) 이후 원본을 고친 상태로 연다
         ctx = self.browser.new_context(viewport={"width": 1400, "height": 1000})
+        ctx.add_init_script("window.__IMMEDIATE_EDITS = true")   # v4.5 F17: 이 테스트는 즉시 반영 흐름을 검증한다
         pg = ctx.new_page()
         errs = []
         pg.on("pageerror", lambda e: errs.append(str(e)))
@@ -299,6 +300,7 @@ class ExternalEditUI(unittest.TestCase):
     def test_name_click_shows_edit_panel(self):
         """환상 이름을 누르면 편집 패널이 차트 바로 아래에 열리고 화면 안으로 스크롤된다."""
         ctx = self.browser.new_context(viewport={"width": 1400, "height": 900})
+        ctx.add_init_script("window.__IMMEDIATE_EDITS = true")   # v4.5 F17: 이 테스트는 즉시 반영 흐름을 검증한다
         pg = ctx.new_page()
         errs = []
         pg.on("pageerror", lambda e: errs.append(str(e)))

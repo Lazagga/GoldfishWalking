@@ -147,7 +147,7 @@ class Battle(unittest.TestCase):
         fired = 0
         for tr in fights([spec(trigger=False)], n=40, patterns=("Str_1", "Str_1", "2_Single")):
             for t in tr:
-                self.assertEqual(t.get("notes"), [])                                       # 규칙이 없으면 notes 도 비어 있다
+                self.assertFalse([n for n in t.get("notes", []) if n["k"] in ("reset", "reset_check")])   # 규칙이 없으면 초기화 notes 가 없다 (힘 변화 notes 는 F16 부터 남는다)
         c = cfg_of(g="on", skill=0.0, hp=10 ** 9)
         for i in range(30):
             _, st, _ = battle(c, mon_of(("Str_1", "Str_1", "2_Single"), hp=10 ** 9, sim=[spec(trigger=False)]), f"lg{i}", hp=10 ** 9)

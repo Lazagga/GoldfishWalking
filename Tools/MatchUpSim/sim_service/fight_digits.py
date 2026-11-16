@@ -403,7 +403,7 @@ def fight_digits(cfg, st, tier, act, rng):
     if tr is not None:
         tr.append({"ev": "battle", "tier": tier, "act": act, "monster": mon["id"], "mhp": mhp0, "hp": st.hp,
                    "temp_copy": temp_copy, "fx": ms.fx_contributors(st, temp_copy), "model": "digits",
-                   "gimmicks": G})
+                   "gimmicks": G, "matches": st.matches, "erasers": st.erasers})
 
     attempt = 0
     while True:
@@ -415,6 +415,7 @@ def fight_digits(cfg, st, tier, act, rng):
         rs_spec = sp("strength_reset")
         rs_trig = rs_spec.get("trigger") if rs_spec else None      # 원본 JSON passive.trigger (없으면 옛 정책 방식)
         rs_state = {"n": None, "d": None}                           # 칸의 수 N 과 그 자릿수
+        taken_cap_sum = 0                                           # 체력 한도 받은 피해 = 턴마다 min(받은 피해, 그 턴 시작 체력) 의 합 (v4.5 F16)
         p = PState(st.hp)
         cap = sp("cap_per_hit")
         if cap:
@@ -894,6 +895,8 @@ def fight_digits(cfg, st, tier, act, rng):
             taken_turn = 0
             res = None
             etd_real = 0
+            cd0, ph0 = m.countdown, m.phase                         # 턴 로그 notes 용 스냅샷 (트레이스를 켰을 때만 쓴다 — 상태·난수에 영향 없음)
+            str_why, heal_log = [], []
 
             def monster_acts():
                 nonlocal pstr, str_blocks, delayed, taken_turn, res
@@ -925,10 +928,15 @@ def fight_digits(cfg, st, tier, act, rng):
                         if st.hp <= 0:
                             return "death"
                     if G and total == 0 and sp("zero_damage_str_down"):
+                        s0 = m.strength
                         m.strength += int(sp("zero_damage_str_down")["amount"])
+                        str_why.append({"k": "str", "from": s0, "to": m.strength, "why": "zero_damage"})
                     ls = sp("lifesteal")
                     if ls and total > 0:
-                        m.hp += int(math.floor(total * float(ls["rate"])))
+                        hh = int(math.floor(total * float(ls["rate"])))
+                        m.hp += hh
+                        if hh:
+                            heal_log.append({"k": "heal", "amount": hh, "why": "lifesteal"})
                     if m.hp <= 0:
                         return "win"
                 elif kind == "str" and not (G and pt.get("source") == "pattern"):
@@ -936,14 +944,21 @@ def fight_digits(cfg, st, tier, act, rng):
                     if gain > 0 and str_blocks > 0:
                         str_blocks -= 1
                     else:
+                        s0 = m.strength
                         m.strength += gain
                         pstr += gain * mirror_str
+                        str_why.append({"k": "str", "from": s0, "to": m.strength, "why": "pattern"})
                 if G:
                     for ef in pt.get("effects") or ():
                         if ef.get("timing", "immediate") == "next_turn":
                             m.scheduled.append((turn + 1, ef))
                             continue
+                        s0, h0 = m.strength, m.hp
                         r = _apply_effect(ef, m, p, st, env, turn, roll, total, heal_box, struct_next, Pp, p_hits, stats)
+                        if m.strength != s0:
+                            str_why.append({"k": "str", "from": s0, "to": m.strength, "why": "gimmick"})
+                        if m.hp > h0:
+                            heal_log.append({"k": "heal", "amount": m.hp - h0, "why": "effect"})
                         if r:
                             taken_turn += r
                         if st.hp <= 0:
@@ -1055,7 +1070,15 @@ def fight_digits(cfg, st, tier, act, rng):
                             res = "death"
                         elif m.hp <= 0:
                             res = "win"
+            taken_cap_sum += max(0, min(taken_turn, hp_before))
             if tr is not None:
+                if heal_log:
+                    turn_notes.append({"k": "heal", "amount": sum(h["amount"] for h in heal_log), "why": heal_log[0]["why"]})
+                turn_notes.extend(str_why)
+                if m.countdown != cd0 and (m.countdown is not None or cd0 is not None):
+                    turn_notes.append({"k": "countdown", "from": cd0, "to": m.countdown})
+                if m.phase != ph0:
+                    turn_notes.append({"k": "phase", "from": ph0, "to": m.phase})
                 tr.append({"ev": "turn", "t": turn, "intent": kind, "pattern": pt.get("key"), "mon_dmg": D, "mon_dmg_edit": Dp, "mon_dmg_eff": eff_d(Dp),
                            "hits": H, "hits_edit": Hp, "base": Pv, "base_edit": Pp, "moves": M, "K": K, "used": used,
                            "items": n_items, "p_hits": hits, "cand": ncand, "beam": beam, "dealt": mhp_before - m.hp, "etd": etd_real,
@@ -1069,7 +1092,8 @@ def fight_digits(cfg, st, tier, act, rng):
         if st.battle_log is not None:
             st.battle_log.append({"monster": mon["id"], "tier": tier, "act": act, "turns": turn,
                                   "floor": (getattr(st, "floor_pos", None) or (None, None))[1],
-                                  "taken": stats["dmg_taken"] - taken0, "outcome": outcome, "max_hit": int(max_hit)})
+                                  "taken": stats["dmg_taken"] - taken0, "outcome": outcome, "max_hit": int(max_hit),
+                                  "hp0": hp_start, "hp1": st.hp, "taken_cap": taken_cap_sum, "nfant": len(st.owned)})
         if outcome == "death" and revives > 0:
             revives -= 1
             attempt += 1

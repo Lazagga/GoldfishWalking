@@ -50,6 +50,7 @@ class V42UI(unittest.TestCase):
     def page(self, sb=None, hash_="#t=curve", scheme="light"):
         sb = sb or self.sb
         ctx = self.browser.new_context(viewport={"width": 1400, "height": 1000}, color_scheme=scheme)
+        ctx.add_init_script("window.__IMMEDIATE_EDITS = true")   # v4.5 F17: 이 테스트는 즉시 반영 흐름을 검증한다
         pg = ctx.new_page()
         errs = []
         pg.on("pageerror", lambda e: errs.append(str(e)))
@@ -146,6 +147,7 @@ class V42UILegacy(unittest.TestCase):
 
     def test_h3_legacy_badge(self):
         ctx = self.browser.new_context(viewport={"width": 1400, "height": 1000})
+        ctx.add_init_script("window.__IMMEDIATE_EDITS = true")   # v4.5 F17: 이 테스트는 즉시 반영 흐름을 검증한다
         pg = ctx.new_page()
         errs = []
         pg.on("pageerror", lambda e: errs.append(str(e)))

@@ -44,6 +44,7 @@ class V4UI(unittest.TestCase):
 
     def page(self, hash_="#t=curve&x=600", scheme="light"):
         ctx = self.browser.new_context(viewport={"width": 1400, "height": 1000}, color_scheme=scheme)
+        ctx.add_init_script("window.__IMMEDIATE_EDITS = true")   # v4.5 F17: 이 테스트는 즉시 반영 흐름을 검증한다
         pg = ctx.new_page()
         errs = []
         pg.on("pageerror", lambda e: errs.append(str(e)))

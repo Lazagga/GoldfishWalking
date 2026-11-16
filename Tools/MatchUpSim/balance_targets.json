@@ -1,6 +1,7 @@
 {
   "_comment": "임시값 — 등급별 목표 Δ승률 밴드는 기획자가 정한다 (명세 v2 F1, §11 Q3). 값은 승률 비율(0.02 = +2%p).",
   "x_mode": "selected",
+  "outlier": {"taken_ratio": 3, "max_hit_mult": 100},
   "bands": {
     "white": [
       0.005,

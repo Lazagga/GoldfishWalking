@@ -10,6 +10,10 @@ from datetime import datetime
 
 import matchup_sim as ms
 
+from . import battlelog as bl_
+
+MON_CHUNK_SCHEMA = 2     # 청크 결과의 모양(표본·히스토그램 추가). jobs 의 청크 캐시 키에 들어가 옛 청크가 섞이지 않게 한다 (SIM_VERSION 은 그대로)
+
 # 기획 문서(보완 우선순위 S4·M3)의 목표 전투 턴 수
 TURN_TARGETS = {"easy": [3, 4], "normal": [3, 4], "elite": [5, 6], "boss": [7, 9]}
 
@@ -18,11 +22,13 @@ def chunk_metrics(task):
     cfg, seed, start, end = task
     ctx = ms.SimContext(cfg)
     agg = {}
+    samples = {}
     deaths = runs = wins = 0
     for i in range(start, end):
         log = []
         r = ms.simulate_run(cfg, f"{seed}-{i}", ctx=ctx, battle_log=log)
         runs += 1
+        ords = {}
         for b in log:
             a = agg.setdefault(b["monster"], {"tier": b["tier"], "act": b["act"], "battles": 0, "turns": 0, "turns_sq": 0,
                                               "taken": 0, "deaths": 0, "max_hit_sum": 0, "max_hit_max": 0, "timeouts": 0})
@@ -33,12 +39,21 @@ def chunk_metrics(task):
             a["max_hit_sum"] += b["max_hit"]
             a["max_hit_max"] = max(a["max_hit_max"], b["max_hit"])
             a.setdefault("escapes", 0)
+            a["taken_cap"] = a.get("taken_cap", 0) + b.get("taken_cap", 0)
+            a["hp0_sum"] = a.get("hp0_sum", 0) + b.get("hp0", 0)
+            bl_.hist_add(a.setdefault("h_taken", {}), b["taken"])
+            bl_.hist_add(a.setdefault("h_max", {}), b["max_hit"])
             if b["outcome"] == "death":
                 a["deaths"] += 1
+                if b["taken"] > 2 * max(1, b.get("hp0", 1)):
+                    a["overkill_deaths"] = a.get("overkill_deaths", 0) + 1
             elif b["outcome"] == "escape":
                 a["escapes"] += 1
             elif b["outcome"] == "timeout":
                 a["timeouts"] += 1
+            o = ords.get(b["monster"], 0)
+            ords[b["monster"]] = o + 1
+            bl_.sample_add(samples, {**b, "run": i, "ord": o}, seed)       # v4.5 F16: 표본 후보 (분류별 상위 N)
         won = r["result"] == "win"
         for mid in {b["monster"] for b in log}:      # 런 단위: 이 몬스터를 한 번이라도 만난 런
             a = agg[mid]
@@ -47,7 +62,7 @@ def chunk_metrics(task):
         if r["result"] == "lose":
             deaths += 1
         wins += won
-    return {"agg": agg, "deaths": deaths, "runs": runs, "wins": wins}
+    return {"agg": agg, "deaths": deaths, "runs": runs, "wins": wins, "samples": samples}
 
 
 def merge(parts):
@@ -59,10 +74,14 @@ def merge(parts):
         for k, a in p["agg"].items():
             t = agg.setdefault(k, {**a, **{f: 0 for f in ("battles", "turns", "turns_sq", "taken", "deaths",
                                                              "max_hit_sum", "max_hit_max", "timeouts", "escapes",
-                                                             "runs_met", "runs_met_won")}})
+                                                             "runs_met", "runs_met_won", "taken_cap", "hp0_sum", "overkill_deaths")},
+                                           "h_taken": {}, "h_max": {}})
             for f in ("battles", "turns", "turns_sq", "taken", "deaths", "max_hit_sum", "timeouts", "escapes",
-                      "runs_met", "runs_met_won"):
+                      "runs_met", "runs_met_won", "taken_cap", "hp0_sum", "overkill_deaths"):
                 t[f] += a.get(f, 0)
+            for hk in ("h_taken", "h_max"):
+                for bin_, n_ in (a.get(hk) or {}).items():
+                    t[hk][bin_] = t[hk].get(bin_, 0) + n_
             t["max_hit_max"] = max(t["max_hit_max"], a["max_hit_max"])
     return agg, deaths, runs, wins
 
@@ -99,11 +118,14 @@ def warning_for(cfg, m):
 def run_metrics(cfg, seed, n, pool=None, chunk=250, monster_table=None):
     tasks = [(cfg, seed, s, min(n, s + chunk)) for s in range(0, n, chunk)]
     parts = pool.map(chunk_metrics, tasks) if pool is not None else [chunk_metrics(t) for t in tasks]
-    return build_result(cfg, *merge(parts), monster_table=monster_table)
+    return build_result(cfg, *merge(parts), monster_table=monster_table, samples=bl_.samples_merge([p.get("samples") for p in parts]),
+                        seed=seed)
 
 
-def build_result(cfg, agg, deaths, runs, wins, monster_table=None):
-    """merge() 결과 → 몬스터별 지표 행. 서버 작업(monster_metrics)도 같은 함수를 쓴다."""
+def build_result(cfg, agg, deaths, runs, wins, monster_table=None, samples=None, with_samples=True, outlier=None, seed=None):
+    """merge() 결과 → 몬스터별 지표 행. 서버 작업(monster_metrics)도 같은 함수를 쓴다.
+    samples: battlelog.samples_merge 결과(없으면 표본 없음). with_samples=False 면 행에 samples_stage='pending'(앞 단계 이벤트용)."""
+    ol = {**bl_.OUTLIER_DEFAULT, **(outlier or {})}
     info = {}
     if monster_table:
         info = {m["id"]: m for m in monster_table.get("monsters", [])}
@@ -137,9 +159,25 @@ def build_result(cfg, agg, deaths, runs, wins, monster_table=None):
             "runs_met": a.get("runs_met", 0),
             "run_win_rate_met": rate_ci(a.get("runs_met_won", 0), a.get("runs_met", 0))[0],
             "run_win_ci_met": rate_ci(a.get("runs_met_won", 0), a.get("runs_met", 0))[1],
+            # v4.5 F16.5: 이상치 대응 열 (기존 열의 정의는 그대로, 끝에 추가)
+            "avg_taken_cap": round(a.get("taken_cap", 0) / b, 2),
+            "taken_p50": bl_.hist_quantile(a.get("h_taken") or {}, 0.5), "taken_p90": bl_.hist_quantile(a.get("h_taken") or {}, 0.9),
+            "max_hit_p50": bl_.hist_quantile(a.get("h_max") or {}, 0.5), "max_hit_p90": bl_.hist_quantile(a.get("h_max") or {}, 0.9),
+            "overkill_share": round(a.get("overkill_deaths", 0) / a["deaths"], 4) if a["deaths"] else None,
+            "hp0_mean": round(a.get("hp0_sum", 0) / b, 1),
         })
+        row = rows[-1]
+        row["outlier"] = bool((row["avg_taken_cap"] > 0 and row["avg_taken"] >= ol["taken_ratio"] * row["avg_taken_cap"])
+                              or (row["hp0_mean"] > 0 and row["max_hit_max"] >= ol["max_hit_mult"] * row["hp0_mean"]))
+        if with_samples:
+            row["samples"] = bl_.samples_final(samples or {}, mid)
+        else:
+            row["samples_stage"] = "pending"
     rows.sort(key=lambda r: (r["act"], ["easy", "normal", "elite", "boss"].index(r["tier"]), r["name"]))
-    return {"runs": runs, "deaths": deaths, "wins": wins, "win_rate": round(wins / max(1, runs), 4), "monsters": rows}
+    out = {"runs": runs, "deaths": deaths, "wins": wins, "win_rate": round(wins / max(1, runs), 4), "monsters": rows}
+    if seed is not None:
+        out["seed"] = seed
+    return out
 
 
 def meta_of(cfg, seed, n):

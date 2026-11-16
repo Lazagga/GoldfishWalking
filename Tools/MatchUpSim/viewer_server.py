@@ -24,6 +24,7 @@ import gzip
 import hashlib
 import json
 import os
+import re
 import secrets
 import socket
 import sys
@@ -46,6 +47,7 @@ from sim_service import results as rs  # noqa: E402
 from sim_service import surrogate as sg  # noqa: E402
 from sim_service import surrogate_train as sgt  # noqa: E402
 import matchup_sim as ms  # noqa: E402
+from sim_service import battlelog as bl_  # noqa: E402
 from sim_service import compute as cp  # noqa: E402
 from sim_service import edits as ed  # noqa: E402
 from sim_service import export as exp  # noqa: E402
@@ -55,6 +57,20 @@ from sim_service import store as st  # noqa: E402
 from sim_service import trace as trc  # noqa: E402
 from sim_service import workspace as wsp  # noqa: E402
 from sim_service import writeback as wb  # noqa: E402
+
+class ReplayBusy(Exception):
+    pass
+
+
+class ReplayTimeout(Exception):
+    pass
+
+
+REPLAY_MAX = 2                 # 동시에 처리하는 재생 수
+REPLAY_CTX_MAX = 4             # SimContext 재사용 한도 (설정·몬스터 테이블 해시별)
+REPLAY_TIMEOUT_S = 5.0
+SEED_RE = re.compile(r"^[0-9A-Za-z_-]{1,64}$")
+_replay_sem = threading.BoundedSemaphore(REPLAY_MAX)
 
 REPO = os.path.dirname(os.path.dirname(HERE))
 DEFAULT_SRC = os.path.join(REPO, "Assets", "Data", "Json", "fantasies")
@@ -493,17 +509,26 @@ class App:
     def changed(self):
         return rf.changed_set(self.ref, self.table_data, self.monster_data, self.base_cfg)
 
-    def progress_info(self):
-        """진행 중인 작업의 계산 진행 (v4.3 F12). 다른 기기(폰 등)에서 서버의 계산 상황만 볼 때 쓴다.
-        작업이 없으면 {"job": None}. 학습 작업이 돌고 있으면 "training" 에 따로 담는다."""
+    def progress_info(self, client=None):
+        """진행 중인 작업의 계산 진행 (v4.3 F12, v4.5 F18). 다른 기기·새로고침한 탭이 서버의 계산 상황을 볼 때 쓴다.
+        jobs = 끝나지 않은 작업 전부(실행 중 → 대기), 각각 state·finished·서버 콘솔과 같은 마지막 진행 줄(line)과 그 줄의 나이(line_age_s).
+        job = 하위 호환용: 끝나지 않은 첫 작업(없으면 가장 최근 작업). done 은 이제 종료 여부(불리언)이고 처리한 판 수는 runs_done 이다."""
+        self.jobs.touch(client)
+
         def one(job):
             if job is None:
                 return None
-            return {"id": job.id, "kind": job.kind, "done": job.done, "cancelled": job.cancelled,
-                    "age_s": round(time.perf_counter() - job.t0, 1), **job.progress.snapshot()}
+            snap = job.progress.snapshot()
+            queued = job.state == "queued"
+            line = f"대기 중(앞 작업 {getattr(job, '_ahead', 0)}개)" if queued else job.progress.line()
+            return {"id": job.id, "kind": job.kind, "state": job.state, "finished": bool(job.done), "done": bool(job.done),
+                    "cancelled": job.cancelled, "age_s": round(time.perf_counter() - job.t0, 1),
+                    "line": line, "line_age_s": None if queued else job.progress.line_age_s(), "client": job.client,
+                    **{("runs_done" if k == "done" else k): v for k, v in snap.items()}}
+        live = [one(j) for j in self.jobs.unfinished()]
         cur = self.jobs.current
         tr = getattr(self.trainer, "current", None)
-        return {"job": one(cur), "training": one(tr),
+        return {"jobs": live, "job": live[0] if live else one(cur), "training": one(tr),
                 "engine": {"workers": self.engine.workers, "rate": self.engine.rate,
                            "runs_computed": self.engine.runs_computed}}
 
@@ -535,6 +560,54 @@ class App:
                 "sim_reflected_by_model": {"gauss": ed.SIM_REFLECTED, "digits": ed.SIM_REFLECTED_DIGITS},
                 "gimmick_schema": ed.GIMMICK_SCHEMA,
                 "ambiguous_rules": m.get("ambiguous_rules", [])}
+
+    def monster_log(self, body):
+        """v4.5 F16.3: 몬스터 지표 때의 한 판을 같은 시드로 다시 돌려 그 몬스터의 ord 번째 전투 로그를 만든다. run_lock 을 쓰지 않는다."""
+        mid, seed, run = body.get("mid"), str(body.get("seed") or "mon1"), body.get("run")
+        ord_, expect = body.get("ord"), body.get("expect")
+        if not isinstance(mid, str) or not mid:
+            raise ValueError("mid 필요")
+        if not SEED_RE.match(seed):
+            raise ValueError("seed 는 영숫자·-_ 64자 이하")
+        if isinstance(run, bool) or not isinstance(run, int) or not 0 <= run < 10_000_000:
+            raise ValueError("run 은 0 이상 10,000,000 미만 정수")
+        if ord_ is not None and (isinstance(ord_, bool) or not isinstance(ord_, int) or not 0 <= ord_ < 10_000):
+            raise ValueError("ord 는 0 이상 정수")
+        if expect is not None and (not isinstance(expect, dict) or not set(expect) <= {"turns", "taken", "max_hit", "outcome", "floor"}):
+            raise ValueError("expect 는 turns·taken·max_hit·outcome·floor 만")
+        with self.lock:
+            self.refresh_from_disk()
+            cfg, h, mdata, seed, ckey, dh = jb.monster_metrics_setup(self, {"edits": body.get("edits"), "cfg_edits": body.get("cfg_edits"),
+                                                                           "cfg_set": body.get("cfg_set"), "x": body.get("x"), "seed": seed})
+            if mid not in {m["id"] for m in mdata["monsters"]}:
+                raise ValueError(f"몬스터 테이블에 없는 mid: {mid}")
+            fants = {e["id"]: e for e in self.table_data["fantasies"]}
+            cache = self.__dict__.setdefault("replay_ctx", {})
+            ctx = cache.get(ckey)
+            if ctx is None:
+                ctx = cache[ckey] = ms.SimContext(cfg)
+                while len(cache) > REPLAY_CTX_MAX:
+                    cache.pop(next(iter(cache)))
+        if not _replay_sem.acquire(blocking=False):
+            raise ReplayBusy("재생은 동시에 %d개까지 — 잠시 뒤 다시 시도하세요" % REPLAY_MAX)
+        box = {}
+
+        def work():
+            try:
+                box["res"] = bl_.replay(cfg, fants, mid, seed, run, ord_, expect, ctx)
+            except BaseException as e:  # noqa: BLE001
+                box["err"] = e
+            finally:
+                _replay_sem.release()
+        th = threading.Thread(target=work, daemon=True)
+        th.start()
+        th.join(REPLAY_TIMEOUT_S)
+        if th.is_alive():
+            raise ReplayTimeout(f"재생이 {REPLAY_TIMEOUT_S:.0f}초를 넘음")
+        if "err" in box:
+            raise box["err"]
+        box["res"]["data_hash"] = dh
+        return box["res"]
 
     def file_api(self, method, kind, fid, sub, body):
         """JSON 편집기: 종류 + ID 로만 파일을 고른다 (경로는 서버가 해석). 새 파일 생성·삭제 없음."""
@@ -750,7 +823,9 @@ class Handler(BaseHTTPRequestHandler):
                                    "current_job": a.jobs.current.id if a.jobs.current else None,
                                    "base_cfg": {k: ed.get_path(a.base_cfg, k) for k in ed.CFG_EDITABLE}})
             if path == "/api/progress":
-                return self._json({**self.app.progress_info(), **self.app.build_info()})
+                cl = (parse_qs(urlparse(self.path).query).get("client") or [None])[0]
+                return self._json({**self.app.progress_info(cl), **self.app.build_info(), "data_hash": self.app.data_hash,
+                                   "disk_sig": self.app.disk_sig_str()})
             if path == "/api/fantasies":
                 return self._json(self.app.fantasies_payload())
             if path == "/api/reference":
@@ -758,6 +833,8 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/api/workspace":
                 self.app.refresh_from_disk()
                 return self._json(self.app.workspace_get())
+            if path == "/api/apply/history":
+                return self._json({"history": self.app.wb.history()})
             if path == "/api/workspace/history":
                 return self._json({"history": self.app.workspace.history()})
             if path == "/api/scans":
@@ -932,6 +1009,15 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json({"id": job.id})
             if path.startswith("/api/surrogate/"):
                 return self._json(self._surrogate_post(path, body))
+            if path == "/api/monster_log":
+                try:
+                    return self._json(a.monster_log(body))
+                except ReplayBusy as e:
+                    return self._deny(429, str(e))
+                except ReplayTimeout as e:
+                    return self._deny(504, str(e))
+                except LookupError as e:
+                    return self._deny(400, f"{e}")
             if path == "/api/export/estimate":
                 a.refresh_from_disk()
                 return self._json(exp.estimate(a, body.get("id"), body))
