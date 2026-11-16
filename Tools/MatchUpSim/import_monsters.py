@@ -220,6 +220,36 @@ def norm_condition(c):
 
 
 # 기믹별 시뮬 사양과 충실도 (v4 F9.3, 사용자 확인 Q24·Q25). tier: GA 상태형 / GB 구조형 / GC 의미 확인
+RESET_COMPARE = ("equal", "atLeast", "greater")
+RESET_REROLL = ("every_turn", "battle_start", "digit_change")
+RESET_COMPARE_KO = {"equal": "정확히 같을", "atLeast": "이상일", "greater": "초과할"}
+RESET_REROLL_KO = {"every_turn": "매 턴", "battle_start": "전투 시작 때 한 번", "digit_change": "자릿수가 바뀔 때"}
+
+
+def _reset_trigger(raw):
+    """once_per_battle_strength_reset 의 trigger(JSON) → 시뮬 규칙. 없으면 (None, None) = 옛 정책 방식. 오류면 (None, 이유).
+    trigger: {"compare": equal|atLeast|greater, "number": {"reroll": every_turn|battle_start|digit_change,
+              "digitsBase": 2, "addPlayerStrength": true, "minDigits": 1}}  — 칸의 수 N 의 자릿수 = max(minDigits, digitsBase + 플레이어 힘)"""
+    if raw is None:
+        return None, None
+    if not isinstance(raw, dict):
+        return None, "trigger 는 객체여야 함"
+    num = raw.get("number") if raw.get("number") is not None else {}
+    if not isinstance(num, dict):
+        return None, "trigger.number 는 객체여야 함"
+    compare, reroll = raw.get("compare", "equal"), num.get("reroll", "every_turn")
+    if compare not in RESET_COMPARE:
+        return None, f"compare 는 {'/'.join(RESET_COMPARE)} 중 하나: {compare!r}"
+    if reroll not in RESET_REROLL:
+        return None, f"number.reroll 은 {'/'.join(RESET_REROLL)} 중 하나: {reroll!r}"
+    base, mn, add = num.get("digitsBase", 2), num.get("minDigits", 1), num.get("addPlayerStrength", True)
+    if not all(isinstance(v, int) and not isinstance(v, bool) for v in (base, mn)) or not 0 <= base <= 9 or not 1 <= mn <= 9:
+        return None, "number.digitsBase 는 0~9, minDigits 는 1~9 정수여야 함"
+    if not isinstance(add, bool):
+        return None, "number.addPlayerStrength 는 true/false"
+    return {"compare": compare, "reroll": reroll, "digits_base": base, "min_digits": mn, "add_player_strength": add}, None
+
+
 def passive_specs(mon):
     out = []
     for pz in mon.get("passives") or []:
@@ -317,10 +347,22 @@ def passive_specs(mon):
             out.append({"kind": "zero_damage_str_down", "amount": (pz.get("reaction") or {}).get("amount", -1),
                         "tier": "GA", "fidelity": "exact", "reason": "몬스터가 입힌 피해가 0 이면 힘 감소"})
         elif op == "once_per_battle_strength_reset":
-            out.append({"kind": "strength_reset", "lock_all": pz.get("lockAllPlayerMatches", False), "tier": "GB",
-                        "fidelity": "approx",
-                        "reason": "플레이어가 1회 힘 초기화(이후 플레이어 성냥 전체 잠금). 사용 시점은 정책: 힘이 기본보다 "
-                                  "player.policy.reset_at_strength 이상 높으면 사용"})
+            trig, why = _reset_trigger(pz.get("trigger"))
+            if why:
+                out.append({"kind": "unknown", "op": op, "tier": "GC", "fidelity": "none", "reason": f"{op} trigger 오류 — {why}"})
+                continue
+            entry = {"kind": "strength_reset", "lock_all": pz.get("lockAllPlayerMatches", False), "tier": "GB", "fidelity": "approx",
+                     "reason": "플레이어가 1회 힘 초기화(이후 플레이어 성냥 전체 잠금). 사용 시점은 정책: 힘이 기본보다 "
+                               "player.policy.reset_at_strength 이상 높으면 사용"}
+            if trig is not None:
+                entry["trigger"] = trig
+                entry["reason"] = (f"칸의 수({RESET_REROLL_KO[trig['reroll']]} 굴림, 자릿수 {trig['digits_base']}"
+                                   f"{' + 플레이어 힘' if trig['add_player_strength'] else ''}, 최소 {trig['min_digits']}자리)와 "
+                                   f"그 턴 입힌 피해가 {RESET_COMPARE_KO[trig['compare']]} 때 전투당 1회 몬스터 힘 초기화"
+                                   "(이후 플레이어 성냥 전체 잠금). 규칙은 원본 JSON passive.trigger 에서 읽는다. "
+                                   "게임(Unity)은 아직 버튼 구현이라 approx. 시뮬 플레이어는 힘이 "
+                                   "player.policy.reset_at_strength 이상 높으면 N 을 맞추는 배분을 우선한다")
+            out.append(entry)
         elif op == "require_player_suffix":
             out.append({"kind": "suffix", "digits": pz.get("digits", 2), "tier": "GC", "fidelity": "exact",
                         "reason": "사용자 규칙(Q25): 1페이즈에 고래 상자 2자리 제시, 기본 피해 끝 2자리가 같을 때만 피해"})

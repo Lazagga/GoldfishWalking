@@ -39,7 +39,16 @@
                      },
                      {
                          "operation":  "once_per_battle_strength_reset",
-                         "lockAllPlayerMatches":  true
+                         "lockAllPlayerMatches":  true,
+                         "trigger":  {
+                                         "compare":  "equal",
+                                         "number":  {
+                                                        "reroll":  "every_turn",
+                                                        "digitsBase":  2,
+                                                        "addPlayerStrength":  true,
+                                                        "minDigits":  1
+                                                    }
+                                     }
                      }
                  ]
 }

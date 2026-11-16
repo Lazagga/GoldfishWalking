@@ -23,7 +23,13 @@ import matchup_sim as ms
 
 from . import box_moves as bm
 
-VERSION = 2          # 2: 큰 상자는 이동 수별 최선 값 DP (메모리 폭주 수정)
+VERSION = 3          # 2: 큰 상자는 이동 수별 최선 값 DP (메모리 폭주 수정) / 3: 세계수 힘 초기화 = 칸의 수와 입힌 피해 비교 (v4.5 F19)
+RESET_AIM_BONUS = 0.25   # 힘 초기화 조건을 맞추는 배분에 주는 가산점 (생존 우선 순서는 그대로 — objective 의 J 항만 움직인다)
+
+
+def reset_hit(compare, dealt, n):
+    """힘 초기화 조건: 그 턴 입힌 피해(dealt)와 칸의 수(n) 비교. equal = 정확히 같을 때만 (v4.5 Q80)."""
+    return dealt == n if compare == "equal" else dealt >= n if compare == "atLeast" else dealt > n
 BEAM_LIMIT = 100000
 
 
@@ -406,6 +412,9 @@ def fight_digits(cfg, st, tier, act, rng):
             return ms.rng_for(*parts)
 
         m = Mon(mhp0, int(mon.get("strength") or 0))
+        rs_spec = sp("strength_reset")
+        rs_trig = rs_spec.get("trigger") if rs_spec else None      # 원본 JSON passive.trigger (없으면 옛 정책 방식)
+        rs_state = {"n": None, "d": None}                           # 칸의 수 N 과 그 자릿수
         p = PState(st.hp)
         cap = sp("cap_per_hit")
         if cap:
@@ -541,6 +550,16 @@ def fight_digits(cfg, st, tier, act, rng):
             if not G and kind not in ("attack", "str"):
                 kind = "skip"
             mod = sum(ef.get("value", 0) * c for ef, c in str_add if ms._when_ok(ef.get("when"), turn, 0)) if str_add else 0
+            # 힘 초기화 칸의 수 N (원본 JSON 규칙): 자릿수 = max(minDigits, digitsBase + 플레이어 힘). 전용 난수 태그라 다른 난수에 영향 없음
+            reset_n, turn_notes = None, []
+            if rs_trig and not m.once_used:
+                dN = max(int(rs_trig["min_digits"]), int(rs_trig["digits_base"]) + (max(0, int(pstr)) if rs_trig["add_player_strength"] else 0))
+                rr = rs_trig["reroll"]
+                if rr == "every_turn" or rs_state["n"] is None or (rr == "digit_change" and rs_state["d"] != dN):
+                    rs_state["n"] = roll(turn, f"cosmic_reset.N.{dN}").randint(dmin(dN), dmax(dN))
+                    rs_state["d"] = dN
+                reset_n = rs_state["n"]
+            reset_aim = reset_n is not None and m.strength - m.base_strength >= pol["reset_at"]    # 힘이 충분히 올랐으면 N 을 맞추는 배분을 노린다
             D = H = 0
             dD = hD = 0
             heal_box = None
@@ -775,12 +794,14 @@ def fight_digits(cfg, st, tier, act, rng):
                 hits = p_hits + (ms._consecutive_pairs(vals["P"], vals.get("D", D)) * pairs_c if pairs_c else 0)
                 dealt, shield = 0, m.shield
                 hp_left = mhp_now
+                dsum = 0
                 for _ in range(hits):
                     if d1 <= 0 or hp_left <= 0:
                         break
                     a, shield = m.sim_hit(d1, m.cap, shield)
                     dealt += a
                     hp_left -= a
+                    dsum += d1
                 taken = 0
                 if kind == "attack" and not stunned:
                     taken = per_hit_in(vals) * vals.get("H", H)
@@ -805,6 +826,8 @@ def fight_digits(cfg, st, tier, act, rng):
                             base_v = {"P": Pv, "D": D, "H": H}[name]
                             if vals[name] != base_v:
                                 pen += react_cost
+                if reset_aim and reset_hit(rs_trig["compare"], dsum, reset_n):
+                    pen -= RESET_AIM_BONUS              # 조건을 맞추는 배분을 우선 (같은 생존 등급 안에서만)
                 return objective(dealt, taken, hp_now, mhp_now, not enemy_first, w, pen, heal, doom)
 
             beam = False
@@ -837,7 +860,7 @@ def fight_digits(cfg, st, tier, act, rng):
             last_moves = used
             # CosmicTree: 힘 초기화 (1회, 플레이어 판단)
             sr = sp("strength_reset")
-            if sr and not m.once_used and m.strength - m.base_strength >= pol["reset_at"]:
+            if sr and not rs_trig and not m.once_used and m.strength - m.base_strength >= pol["reset_at"]:    # trigger 가 없는 옛 JSON: 정책 방식
                 m.once_used = True
                 m.strength = m.base_strength
                 if tr is not None:
@@ -934,6 +957,7 @@ def fight_digits(cfg, st, tier, act, rng):
                     m.uses[pt["key"]] = m.uses.get(pt["key"], 0) + 1
                 return None
 
+            dealt_sum = 0
             if enemy_first:
                 res = monster_acts()
             if res is None:
@@ -949,11 +973,31 @@ def fight_digits(cfg, st, tier, act, rng):
                     if d <= 0:
                         continue
                     m.apply_damage(d)
+                    dealt_sum += d
                     if heal_deal:
                         st.hp += heal_deal
                         stats["hp_healed"] += heal_deal
                     if m.hp <= 0:
                         break
+                if rs_trig and reset_n is not None and not m.once_used and m.hp > 0:
+                    # v4.5 F19: 이 턴 입힌 피해가 칸의 수와 (compare 규칙으로) 맞으면 전투당 1회 힘 초기화. 몬스터가 행동하기 전에 처리
+                    if reset_hit(rs_trig["compare"], dealt_sum, reset_n):
+                        m.once_used = True
+                        str_from = m.strength
+                        m.strength = m.base_strength
+                        if tr is not None:
+                            tr.append({"ev": "strength_reset", "t": turn, "n": reset_n, "dealt": dealt_sum})
+                            turn_notes.append({"k": "reset", "n": reset_n, "dealt": dealt_sum, "lock": bool(rs_spec.get("lock_all"))})
+                            turn_notes.append({"k": "str", "from": str_from, "to": m.strength, "why": "threshold_reset"})
+                        # 같은 턴의 몬스터 공격은 초기화된 힘으로 (명세 13.3 3번): 피해 숫자를 새 자릿수로 다시 굴린다
+                        if not enemy_first and kind == "attack" and not stunned and not pt.get("dynamic"):
+                            dD2 = max(1, int(pt.get("dmg_digits") or 2) + m.strength + int(mod))
+                            if dD2 != dD:
+                                D2 = roll(turn, "mdmg.reset").randint(dmin(dD2), dmax(dD2))
+                                Dp = D2
+                                per_in = per_hit_in({"P": Pp, "D": D2, "X": vals.get("X")})
+                    elif tr is not None:
+                        turn_notes.append({"k": "reset_check", "n": reset_n, "dealt": dealt_sum})
                 if has_etd:
                     etd_real = end_turn_dmg()
                     m.hp -= etd_real
@@ -1017,7 +1061,7 @@ def fight_digits(cfg, st, tier, act, rng):
                            "items": n_items, "p_hits": hits, "cand": ncand, "beam": beam, "dealt": mhp_before - m.hp, "etd": etd_real,
                            "taken": taken_turn, "hp_change": st.hp - hp_before, "hp": st.hp, "mhp": m.hp, "end": res,
                            "aim": aim, "special": (m.special or {}).get("value"), "countdown": m.countdown,
-                           "phase": m.phase, "mstr": m.strength})
+                           "phase": m.phase, "mstr": m.strength, "notes": turn_notes})
             if res:
                 outcome = res
                 break

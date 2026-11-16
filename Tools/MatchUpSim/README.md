@@ -204,7 +204,7 @@ digits 는 이 PC 에서 초당 약 17판이라 느리다. 계산은 빠른 PC(�
 | 그림자 | 잠금 디버프 누적 | **사용자 규칙**: 턴 t 의 이동 한도 = 기본 − (t − 1), 0 하한 ("매 턴 이동 1씩 감소"를 누적 감소로 해석) | approx |
 | 별관찰자 | 상자 분리 + 턴마다 성냥 3개 잠금 + 별 숫자 0 처리 + 유성우 | **사용자 규칙 = 코드**: 플레이어 상자 항상 분할, 매 턴 3개 잠금, `StargazerSingle` 마다 별 상자에 0~9 추가, 별 상자에 든 숫자는 기본 피해에서 0 취급(피해 × 0 처리 값/원래 값), 4턴째 `StargazerSkill` = 별 숫자를 이은 값 × 3타(코드 `Stargazing_Multi_3`, 3×3 대체 불필요) | exact |
 | 고래 | 접미 2자리 + 2페이즈(체력 50%) | **사용자 규칙 = 코드**: 1페이즈에 고래 상자 2자리(10~99, 고래 공격 다음 턴은 무작위 두 숫자), 기본 피해 끝 2자리가 같을 때만 피해. 2페이즈: 모든 상자 분할, 이동 2회 고정 | exact |
-| 세계수 | 0 피해면 힘 −1, 1회 힘 초기화(이후 플레이어 성냥 전체 잠금) | 초기화는 플레이어 선택 → 정책: 힘이 기본보다 `player.policy.reset_at_strength`(2) 이상이면 사용 | approx |
+| 세계수 | 0 피해면 힘 −1, 1회 힘 초기화(이후 플레이어 성냥 전체 잠금) | **v4.5**: 매 턴 규칙대로 굴린 칸의 수 N(자릿수 `2 + 플레이어 힘`)과 그 턴 입힌 피해가 **정확히 같을 때만** 발동(전투당 1회, 발동한 뒤에만 플레이어 성냥 잠금, 같은 턴의 몬스터 공격은 초기화된 힘으로 다시 굴림). 규칙은 원본 JSON `passive.trigger` 에 적혀 있다(아래). 시뮬 플레이어는 힘이 `player.policy.reset_at_strength`(2) 이상 높으면 N 을 맞추는 배분을 우선 | approx |
 | 천체투영기 | 숨은 숫자 2개, 개수 × 0.5 | 발견 전 배분은 "포함될 기대 개수"로 판단, 포함되면 발견 | approx |
 | 초롱아귀 | 반응 상자(힘 +1, 상자별 1회) | 반응 상자 편집 시 힘 +1. 정책은 다음 턴 피해 증가 기대값을 벌점으로 | approx |
 | 슬라임·유령·사냥꾼 | 다음 턴 상자 분할(사냥꾼은 지속시간 없음) + 앞자리 잠금 | 다음 턴 1턴 동안 분할로 근사 | approx |
@@ -358,6 +358,20 @@ python tools/bench.py --profile       # 속도 벤치마크
 - **S3 적응형**: 더미 30종 검증에서 판 수 71.8% 절감, 95% CI의 0 포함률 유지. 워커 수와 무관하게 같은 결과.
 - **S4 격자 세밀화**: 거친 격자(6점) + 교차 구간 중점 2회가 촘촘한 격자(21점)의 교차 X와 일치.
 - 트레이스를 끈 상태의 오버헤드는 2% 이내(측정 0.3~0.7%).
+
+## 세계수 힘 초기화 규칙 (v4.5 F19) — 원본 JSON 에 적힌 규칙
+`Assets/Data/Json/monsters/mob_30302_cosmictree.json` 의 패시브 `once_per_battle_strength_reset` 에 `trigger` 를 적어 두고 시뮬레이터가 그대로 읽는다(코드 수정 없이 JSON 만 바꿔도 규칙이 바뀐다).
+```json
+"trigger": { "compare": "equal",
+             "number": { "reroll": "every_turn", "digitsBase": 2, "addPlayerStrength": true, "minDigits": 1 } }
+```
+- `number` — 초기화 칸에 표시되는 수 N. 자릿수 = `max(minDigits, digitsBase + (addPlayerStrength ? 플레이어 힘 : 0))`, 그 자릿수의 정수를 균등하게 굴린다. `reroll`: `every_turn`(**매 턴 다시 굴림**, 기본) / `battle_start`(전투 시작 때 한 번) / `digit_change`(자릿수가 바뀔 때만).
+- `compare` — 그 턴 플레이어가 입힌 피해(내 수식의 최종 결과 합, 몬스터 회복 반영 전)와 N 의 비교: `equal`(**정확히 같을 때만**, 기본) / `atLeast`(이상) / `greater`(초과).
+- 전투당 1회. 발동은 플레이어 공격 직후, 몬스터가 행동하기 전. 발동하면 몬스터 힘이 기본 힘으로 돌아가고 그 턴 몬스터 공격 피해 숫자를 새 자릿수로 다시 굴린다(그 숫자에 대한 내 이동 편집은 사라진다). `lockAllPlayerMatches` 가 true 면 **발동한 뒤 턴부터** 플레이어 성냥이 모두 잠긴다.
+- `trigger` 가 없는 JSON 은 옛 정책 방식(힘이 기본보다 `reset_at_strength` 이상 높으면 사용)으로 돈다. 값이 잘못되면(알 수 없는 `compare` 등) 규칙을 조용히 무시하지 않고 `fidelity: none` 으로 표시한다.
+- 시뮬 플레이어: 힘이 기본보다 `player.policy.reset_at_strength` 이상 높고 아직 안 썼다면, 같은 생존 등급 안에서 조건을 맞추는 배분에 가산점(`RESET_AIM_BONUS`)을 준다.
+- 트레이스: 턴 이벤트의 `notes` 에 `reset`(발동)·`reset_check`(발동 안 함)·`str`(힘 변화) — `n`(칸의 수)·`dealt`(입힌 피해)가 남는다. `fight_digits.VERSION` 이 3 으로 올라 digits 모델의 점 캐시는 새로 만들어진다(몬스터 데이터가 바뀌어 `data_hash` 도 바뀜 → 전체 재계산 필요).
+- 게임(Unity)은 아직 버튼(`RESET STR`) 구현이라 충실도는 `approx` 다. Unity 의 JSON 읽기는 모르는 필드를 무시하므로 이 필드가 있어도 게임 동작은 바뀌지 않는다.
 
 ## 불씨 획득 시스템 (v3 §7) — v4.4 부터 기본값
 - **기본 획득 방식이 `ember`(불씨)로 바뀌었다**: `matchup_sim.DEFAULT_CONFIG["rewards"]["normal_battle"]["mode"] = "ember"`. `--preset presets/ember_v1.json` 없이도 불씨로 돈다(프리셋은 그대로 써도 된다).

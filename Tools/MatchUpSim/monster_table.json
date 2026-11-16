@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "generated_at": "2026-11-12T18:58:44",
+  "generated_at": "2026-11-16T19:56:57",
   "source": "Assets/Data/Json/monsters + patterns (import_monsters.py)",
-  "source_hash": "5deb13ef6d2007f9",
+  "source_hash": "edee7737e107ecb3",
   "damage_model_supported": [
     "gauss",
     "digits"
@@ -5662,7 +5662,14 @@
           "lock_all": true,
           "tier": "GB",
           "fidelity": "approx",
-          "reason": "플레이어가 1회 힘 초기화(이후 플레이어 성냥 전체 잠금). 사용 시점은 정책: 힘이 기본보다 player.policy.reset_at_strength 이상 높으면 사용"
+          "reason": "칸의 수(매 턴 굴림, 자릿수 2 + 플레이어 힘, 최소 1자리)와 그 턴 입힌 피해가 정확히 같을 때 전투당 1회 몬스터 힘 초기화(이후 플레이어 성냥 전체 잠금). 규칙은 원본 JSON passive.trigger 에서 읽는다. 게임(Unity)은 아직 버튼 구현이라 approx. 시뮬 플레이어는 힘이 player.policy.reset_at_strength 이상 높으면 N 을 맞추는 배분을 우선한다",
+          "trigger": {
+            "compare": "equal",
+            "reroll": "every_turn",
+            "digits_base": 2,
+            "min_digits": 1,
+            "add_player_strength": true
+          }
         }
       ],
       "gimmick_report": [
@@ -5676,7 +5683,7 @@
           "gimmick": "strength_reset",
           "tier": "GB",
           "fidelity": "approx",
-          "reason": "플레이어가 1회 힘 초기화(이후 플레이어 성냥 전체 잠금). 사용 시점은 정책: 힘이 기본보다 player.policy.reset_at_strength 이상 높으면 사용"
+          "reason": "칸의 수(매 턴 굴림, 자릿수 2 + 플레이어 힘, 최소 1자리)와 그 턴 입힌 피해가 정확히 같을 때 전투당 1회 몬스터 힘 초기화(이후 플레이어 성냥 전체 잠금). 규칙은 원본 JSON passive.trigger 에서 읽는다. 게임(Unity)은 아직 버튼 구현이라 approx. 시뮬 플레이어는 힘이 player.policy.reset_at_strength 이상 높으면 N 을 맞추는 배분을 우선한다"
         },
         {
           "gimmick": "CosmictreeSingle:add_status(strength)",
