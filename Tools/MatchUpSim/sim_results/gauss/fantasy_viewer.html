@@ -127,6 +127,13 @@ table.rank tr { cursor: pointer; }
 table.rank tr:hover td { background: var(--surface-2); }
 .rankwrap { max-height: 60vh; overflow: auto; }
 .blocked { margin: 40px auto; max-width: 640px; text-align: center; font-size: 16px; padding: 24px; background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; }
+.wschip { font-size: 12px; padding: 2px 8px; border-radius: 10px; background: var(--surface-2); color: var(--ink-2); font-weight: 400; display: inline-flex; gap: 6px; align-items: center; }
+.wschip.fail, .wschip.conflict { background: #fde8e8; color: #a11; }
+.wschip.bad { background: #c33; color: #fff; }
+#wsBanner { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; background: var(--edit-bg); border: 1px solid var(--accent); border-radius: 8px; padding: 4px 10px; font-size: 12px; }
+.exgrid label { display: inline-block; margin-right: 12px; }
+.banner h1 .spacer { flex: 1; }
+.exbtns { display: inline-flex; gap: 6px; margin-left: 8px; }
 .hidden { display: none !important; }
 .detail { display: grid; gap: 8px; }
 .efx { border: 1px solid var(--ring); border-radius: 6px; padding: 6px 8px; }
@@ -336,8 +343,8 @@ function curVer() { return liveActive() ? (LIVE.hash ? LIVE.hash + "|" + cfgTag(
 function ptVer(p) { return (p.data_hash || p.table_hash || BASE_HASH || "") + "|" + (p.cfg_tag || ""); }
 function curSystem() { return S.cfgSet["rewards.normal_battle.mode"] || SCAN_SYSTEM; }
 
-function readHash() {
-  const h = new URLSearchParams(location.hash.replace(/^#/, ""));
+function readHash(src) {   // src 를 주지 않으면 지금 주소의 해시
+  const h = new URLSearchParams((src != null ? src : location.hash).replace(/^#/, ""));
   if (h.has("f")) S.sel = h.get("f").split(",").filter(id => BYID[id]).slice(0, MAX_SEL);
   if (h.has("m") && ["win", "delta", "floor", "death"].includes(h.get("m"))) S.metric = h.get("m");
   if (h.has("a")) S.act = Math.min(3, Math.max(1, +h.get("a") || 1));
@@ -364,7 +371,8 @@ function writeHash() {
   const s = "#" + p.toString().replace(/%2C/g, ",");
   if (location.hash !== s) history.replaceState(null, "", s);
 }
-readHash();
+const HASH0 = location.hash;      // 페이지를 연 시점의 해시 — 복원한 보기 상태보다 우선 (이후 writeHash 가 쓴 해시와 구분)
+readHash(HASH0);
 
 // ---------------- 점 접근 ----------------
 function staticPts(fid, fc = S.facet) { return fid === BASE_ID ? facetBase(fc) : facetCurve(fid, fc); }
@@ -396,7 +404,7 @@ const TABS = [["curve", "승률 곡선"], ["surv", "생존 곡선"], ["rank", "�
   .concat([["guide", "해석 가이드"]]);
 app.innerHTML = `
 <header class="banner" id="banner">
-  <h1>환상별 승률 곡선 <span class="mode" id="modeBadge">읽기 전용</span></h1>
+  <h1>환상별 승률 곡선 <span class="mode" id="modeBadge">읽기 전용</span><span id="wsChip" class="wschip hidden"></span><span class="spacer"></span><button class="btn" id="btnExport">내보내기 ▾</button><button class="btn hidden" id="btnWs">작업 공간 ▾</button></h1>
   <div class="meta num">
     <span>시드 <b>${esc(META.master_seed)}</b></span>
     <span>점당 <b>${(META.runs_per_point || 0).toLocaleString()}판${ad.enabled ? " (적응형 최대)" : ""}</b></span>
@@ -415,6 +423,7 @@ app.innerHTML = `
   </div>
   <div class="caveat">환상 효과는 추상화된 근사입니다. 절대 수치보다 <b>환상 간 상대 비교와 방향</b>에 의미를 두세요. 모델링 수준: 정확 ${nFid.exact || 0} · 근사 ${nFid.approx || 0} · 미모델링 ${nFid.none || 0}.
   Δ는 같은 시드끼리 짝지은 차이이며, 점당 ${NPT.toLocaleString()}판에서 대략 <span id="minDetect"></span> 보다 작은 Δ는 구분할 수 없습니다.</div>
+  <div id="wsBanner" class="hidden"></div>
 </header>
 <div class="layout">
   <aside>
@@ -447,6 +456,7 @@ app.innerHTML = `
       <button class="btn" id="btnFull">전체 재계산</button>
       <button class="btn primary" id="btnApply">원본에 반영</button>
       <button class="btn" id="btnUnapply" title="마지막 반영 되돌리기">반영 되돌리기</button>
+      <button class="btn csvBtn" data-ds="edits" title="변경 목록 CSV">변경 CSV</button>
       <span class="status" id="jobStatus"></span>
       <span class="refchip" id="refChip"></span>
       <label class="small" title="편집 후 실제 재계산 시점 (v4.1 Q33)">편집 후 재계산 <select id="rcMode"><option value="release">놓을 때</option><option value="button">버튼만</option></select></label>
@@ -473,6 +483,7 @@ app.innerHTML = `
     <div id="panelChip"></div>
     <div class="tabs" role="tablist">${TABS.map(([t, l]) => `<button class="tab" role="tab" data-t="${t}">${l}</button>`).join("")}</div>
     <section class="panel" id="tab-curve">
+      <div class="chips small" id="curveExport"><span class="exbtns"><button class="btn csvBtn" data-ds="curves">곡선 CSV 받기</button> <button class="btn csvBtn" data-ds="reach">층 도달률 CSV</button> <button class="btn csvBtn" data-ds="runs" title="선택한 환상·현재 X 의 판별 원자료(서버 전용)">판별 데이터 받기</button></span></div>
       <div class="legend" id="legend"></div>
       <div id="noneNotes"></div>
       <svg class="chart" id="chart" role="img" aria-label="승률 곡선"></svg>
@@ -492,7 +503,7 @@ app.innerHTML = `
       <div class="chips small" style="margin-bottom:6px">
         <button class="chip" id="rkX" aria-pressed="true">선택한 X 기준</button>
         <button class="chip" id="rkAvg" aria-pressed="false">전 구간 평균</button>
-        <span id="rkNote"></span>
+        <span id="rkNote"></span><span class="exbtns"><button class="btn csvBtn" data-ds="ranking">랭킹 CSV 받기</button></span>
       </div>
       <div id="cands"></div>
       <div class="rankwrap"><table class="rank" id="rank"><thead></thead><tbody></tbody></table></div>
@@ -1077,7 +1088,7 @@ async function api(path, opts = {}) {
   const r = await fetch(path, Object.assign({}, opts, { headers: Object.assign({ "X-MatchUp-Token": SRV.token, "Content-Type": "application/json" }, opts.headers || {}) }));
   const txt = await r.text();
   let j; try { j = JSON.parse(txt); } catch (e) { j = { error: txt }; }
-  if (!r.ok) { const err = new Error(j.error || r.statusText); err.status = r.status; err.path = path; throw err; }
+  if (!r.ok) { const err = new Error(j.error || r.statusText); err.status = r.status; err.path = path; err.body = j; throw err; }
   return j;
 }
 // 연결 오류 문구: 어떤 호출이 왜 실패했는지 (HTTP 상태·메시지, 네트워크 오류)
@@ -1154,9 +1165,9 @@ async function runJob(body, onPoint, label) {
     if (ev.type === "point") { if (window.__lastJob.first == null && ev.series === "after") window.__lastJob.first = performance.now(); onPoint && onPoint(ev); scheduleRender(); }
     if (ev.type === "progress") showProgress(ev, label, false);
     if (ev.type === "stage") setStatus(`${label}: 단계 ${ev.stage} (시드 ${ev.n}개) 완료`);
-    if (["sweep_point", "solve_eval", "combo", "cell", "plan", "tune_point"].includes(ev.type)) { onPoint && onPoint(ev); }
+    if (["sweep_point", "solve_eval", "combo", "cell", "plan", "tune_point", "cache_summary"].includes(ev.type)) { onPoint && onPoint(ev); }
     if (["done", "cancelled", "error"].includes(ev.type)) {
-      window.__lastJob.end = performance.now(); window.__lastJob.result = ev;
+      window.__lastJob.end = performance.now(); ev.jobId = id; window.__lastJob.result = ev;
       LIVE.busy = false; if (LIVE.job === id) LIVE.job = null;
       hideProgress();
       setStatus(ev.type === "done" ? `${label}: 완료 (${ev.t}s)` : ev.type === "cancelled" ? `${label}: 취소됨` : `${label}: 오류 — ${ev.message}`);
@@ -1175,6 +1186,7 @@ function pruneLive(hash, tag, refHash) {
 }
 window.__pruneLive = pruneLive;
 function storeLive(ev) {
+  if (ev.type !== "point") return;      // plan·cache_summary 같은 이벤트는 곡선 점이 아님
   const p = Object.assign({}, ev.point, { cfg_tag: ev.series === "after" ? cfgTag(S.cfgEdits, S.cfgSet) : "" });
   const fid = ev.fid;
   (LIVE[ev.series][fid] = LIVE[ev.series][fid] || new Map()).set(ev.x, p);
@@ -1192,7 +1204,7 @@ async function startRecompute() {
 function startFull() {
   cancelJob();
   const order = FANTS.slice().sort((a, b) => Math.abs((ptAt(curPts(b.id), S.x) || {}).delta || 0) - Math.abs((ptAt(curPts(a.id), S.x) || {}).delta || 0)).map(f => f.id);
-  runJob({ kind: "scan", edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet, fids: order, adaptive: true }, storeLive, "전체 재계산").catch(e => setStatus("오류: " + e.message));
+  runJob({ kind: "scan", edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet, fids: order, adaptive: true }, storeLive, "전체 재계산").then(scanSaveFlow).catch(e => setStatus("오류: " + e.message));
 }
 
 // 수치 스윕 / 목표 Δ 역산
@@ -1259,11 +1271,8 @@ function renderCands(rows) {
     <div><h4>버프 후보 (확실히 아래) ${dn.length}</h4><ol>${dn.map(li).join("") || '<li class="small">없음</li>'}</ol></div></div>
     <div class="small">판정 제외 ${excl.length}종 (${[...new Set(excl.map(r => r.v.why))].join(", ")}). 밴드(${esc(SYS_KO[curSystem()] || curSystem())}): ${Object.entries(targetBands()).map(([g, b]) => `${GRADE_KO[g]} ${pp(b[0])}~${pp(b[1])}`).join(" · ")}${TARGETS._comment ? " — " + esc(TARGETS._comment) : ""}</div>`;
 }
-function renderRank() {
-  $("rkX").setAttribute("aria-pressed", S.rankMode === "x"); $("rkAvg").setAttribute("aria-pressed", S.rankMode === "avg");
-  $("rkNote").textContent = (S.rankMode === "x" ? `${xName(META.x_param)} = ${fmtX(S.x)}` : "전 구간 평균 (CI는 X점끼리 독립 가정한 근사)") + (FACETS ? ` · 패싯 ${S.facet}` : "");
+function rankSortedRows() {
   const rows = rankRows();
-  renderCands(rows);
   const key = S.rankSort, dir = S.rankDir;
   const VORD = { above: 4, unsure: 2, in: 3, below: 1, excl: 0 };
   const val = r => ({ name: r.f.name, grade: GRADE_ORDER[r.f.grade], delta: r.p.delta, ci: r.p.delta_ci[0], z: r.z,
@@ -1271,6 +1280,14 @@ function renderRank() {
     eq: r.eq.gain != null ? r.eq.gain : ((r.eq.c.dir || 0) * gainSign() === 1 ? 1e9 : -1e9), badge: (r.f.fidelity === "none" ? -1 : 0) + (r.zero ? 0 : 1) + (r.z >= strongZ ? 1 : 0), eff: r.f.summary,
     verdict: r.v ? VORD[r.v.k] * 10 + (r.v.dist || 0) : 0, gap: r.gap ? r.gap.gap : -1e9 }[key]);
   rows.sort((a, b) => { const x = val(a), y = val(b); return (typeof x === "string" ? x.localeCompare(y, "ko") : x - y) * dir; });
+  return rows;
+}
+function renderRank() {
+  $("rkX").setAttribute("aria-pressed", S.rankMode === "x"); $("rkAvg").setAttribute("aria-pressed", S.rankMode === "avg");
+  $("rkNote").textContent = (S.rankMode === "x" ? `${xName(META.x_param)} = ${fmtX(S.x)}` : "전 구간 평균 (CI는 X점끼리 독립 가정한 근사)") + (FACETS ? ` · 패싯 ${S.facet}` : "");
+  const rows = rankSortedRows();
+  renderCands(rows);
+  const key = S.rankSort, dir = S.rankDir;
   $("rank").tHead.innerHTML = `<tr>${rankCols().map(([k, l]) => `<th data-k="${k}" aria-sort="${k === key ? (dir > 0 ? "ascending" : "descending") : "none"}">${l}${k === key ? (dir > 0 ? " ▲" : " ▼") : ""}</th>`).join("")}</tr>`;
   $("rank").tBodies[0].innerHTML = rows.map(r => {
     const badges = [];
@@ -1443,7 +1460,7 @@ function mmRender() {
 function renderMon() {
   const el = $("tab-mon"); const D = DATA.monster_metrics;
   if (SRV && srvOK) {
-    el.innerHTML = `<h4 style="margin:0 0 4px">몬스터·패턴 편집</h4><div id="monEditBox">${renderMonEdit()}</div>${MON ? renderHpReport(monsWithEdits()) : ""}<h4 style="margin:12px 0 4px">몬스터별 지표 (런 전체 시뮬)</h4><div id="monMetrics"></div>`;
+    el.innerHTML = `<h4 style="margin:0 0 4px">몬스터·패턴 편집 ${exportBtns("monsters", "monster_hp")}</h4><div id="monEditBox">${renderMonEdit()}</div>${MON ? renderHpReport(monsWithEdits()) : ""}<h4 style="margin:12px 0 4px">몬스터별 지표 (런 전체 시뮬)</h4><div id="monMetrics"></div>`;
     if (MON) bindMonEdit(el);
     mmRender();
     mmCheck();
@@ -1451,6 +1468,7 @@ function renderMon() {
   }
   if (!D) { el.innerHTML = ""; return; }
   renderMonMetrics(el, D);
+  el.insertAdjacentHTML("afterbegin", `<div class="chips small">${exportBtns("monsters", "monster_hp")}</div>`);
   if (D.monsters.some(m => m.hp != null)) el.insertAdjacentHTML("afterbegin", renderHpReport(D.monsters));
 }
 // v4.2 F11.5: 몬스터 체력 리포트 (원본에서 계산, 읽기 전용) — 막 × 등급 요약, 등급 간·막 간 비율, 설계 목표 비율 대조
@@ -1650,7 +1668,8 @@ async function unapply() {
 async function saveScenario() {
   const name = prompt("시나리오 이름", lastScenario || "새 시나리오"); if (!name) return;
   const note = prompt("메모 (선택)", "") || "";
-  try { const r = await post("/api/scenarios", { name, note, edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet, results: LIVE.hash ? { data_hash: LIVE.hash } : null }); lastScenario = name; flash(`시나리오 저장: ${r.saved}`); } catch (e) { flash("저장 실패: " + e.message); }
+  const withView = confirm("보기 상태(탭·선택한 환상·X 등)도 함께 저장할까요?");
+  try { const r = await post("/api/scenarios", { name, note, edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet, results: LIVE.hash ? { data_hash: LIVE.hash } : null, view: withView ? wsView() : null }); lastScenario = name; flash(`시나리오 저장: ${r.saved}`); } catch (e) { flash("저장 실패: " + e.message); }
 }
 async function loadScenario() {
   let list; try { list = (await api("/api/scenarios")).scenarios; } catch (e) { flash(e.message); return; }
@@ -1669,12 +1688,14 @@ async function loadScenario() {
       for (const fe of (r.scenario.file_edits || [])) { if (fconf.has(fe.kind + "/" + fe.id)) continue; try { await api(`/api/files/${fe.kind}/${encodeURIComponent(fe.id)}`, { method: "PUT", body: JSON.stringify({ text: fe.new_text }) }); } catch (e) { flash("원문 편집 복원 실패: " + e.message); } }
       if ((r.scenario.file_edits || []).length) await reloadServerTable();
       lastScenario = r.scenario.name;
+      if (r.scenario.view) applyView(r.scenario.view);
       S.edits.forEach(e => { if (e.fid && !S.sel.includes(e.fid) && S.sel.length < MAX_SEL) { const used = new Set(Object.values(S.slot)); let s = 0; while (used.has(s)) s++; S.slot[e.fid] = s; S.sel.push(e.fid); } });
       modal(`<h3 style="margin:0 0 6px">'${esc(r.scenario.name)}' 불러옴</h3><div>변경 ${S.edits.length}개 · 설정 ${S.cfgEdits.length}개 복원</div>
         ${r.conflicts.length ? `<div class="notice" id="scConflicts">충돌 ${r.conflicts.length}개 (현재 원본 값이 시나리오의 old 와 다름 — 불러오지 않음):<br>${r.conflicts.map(c => `${esc(c.fid || c.path)} ${esc(c.key || "")}: ${esc(c.reason)}`).join("<br>")}</div>` : ""}
         <div class="chips" style="margin-top:8px"><button class="btn" id="scOk">닫기</button></div>`);
       $("scOk").onclick = closeModal;
       afterEditChange();
+      startCacheRestore();       // 시나리오의 계산 결과는 점 캐시에서 되살린다 (F14.7)
     } catch (e) { flash("불러오기 실패: " + e.message); }
   });
 }
@@ -1918,6 +1939,7 @@ async function jsonLoad() {
   try {
     const r = await post(`/api/files/${JS.kind}/${encodeURIComponent(JS.id)}/view`, { edits: S.edits });
     JS.info = r; JS.text = r.text; JS.loaded = key; JS.msgs = null; JS.dry = null; window.__jsonInfo = r;
+    if (JS.pendingDraft && JS.pendingDraft.kind === JS.kind && JS.pendingDraft.id === JS.id) { JS.text = JS.pendingDraft.text; JS.pendingDraft = null; }   // 저장하지 않은 원문 초안 복원
   } catch (e) { JS.info = null; JS.text = ""; JS.loaded = key; JS.msgs = [{ level: "error", msg: e.message }]; }
   renderJson();
 }
@@ -1941,7 +1963,7 @@ function renderJson() {
     <div class="chips" style="margin-top:6px"><button class="btn" id="jsCheck">검증</button><button class="btn" id="jsDiff">원본과 비교(diff)</button><button class="btn primary" id="jsSave">시나리오에 저장(작업 사본)</button><button class="btn" id="jsRevert">이 파일 되돌리기</button></div>
     ${JS.note ? `<div class="notice" id="jsNote">${esc(JS.note)}</div>` : ""}<div id="jsMsgs">${msgs}</div>${dry}<pre id="jsDiffOut" class="hidden" style="background:var(--surface-2);padding:8px;border-radius:6px;overflow:auto;max-height:260px;font-size:12px"></pre>`;
   const ta = $("jsText"); ta.value = JS.text;
-  ta.oninput = () => { JS.text = ta.value; const n = ta.value.split("\n").length; $("jsLn").textContent = Array.from({ length: n }, (_, i) => i + 1).join("\n"); };
+  ta.oninput = () => { JS.text = ta.value; wsTouch(); const n = ta.value.split("\n").length; $("jsLn").textContent = Array.from({ length: n }, (_, i) => i + 1).join("\n"); };
   ta.onscroll = () => { $("jsLn").scrollTop = ta.scrollTop; };
   $("jsKind").onchange = e => { JS.kind = e.target.value; JS.id = null; JS.loaded = null; JS.note = ""; renderJson(); };
   $("jsId").onchange = e => { JS.id = e.target.value; JS.loaded = null; JS.note = ""; renderJson(); };
@@ -2124,6 +2146,10 @@ function update() {
   $("mixBadge").innerHTML = mixed ? '<span class="badge stale" id="mixWarn">획득 시스템 혼합 — 일부 곡선은 ' + esc(SYS_KO[SCAN_SYSTEM] || SCAN_SYSTEM) + ' 규칙 기준</span>' : "";
   renderRefChip();
   renderModeBadge();
+  $("btnWs").classList.toggle("hidden", !(SRV && srvOK));
+  document.querySelectorAll('.csvBtn[data-ds="runs"], .csvBtn[data-ds="edits"]').forEach(b => { b.disabled = !(SRV && srvOK); });
+  if (!(SRV && srvOK) && $("wsChip")) $("wsChip").classList.add("hidden");
+  wsTouch();
   $("modelWrap").classList.toggle("hidden", !(SRV && srvOK));
   $("dmodel").value = curModel() === "digits" ? (curGimmicks() === "on" ? "digits+g" : "digits") : "gauss";
   // 스캔·랭킹·고스트는 스캔의 모델, 재계산한 곡선은 현재 모델 → 모델이 다르면 화면에 두 모델이 섞인다
@@ -2287,6 +2313,389 @@ applyModelFidelity(); FANTS.forEach(summarize);
 update();
 
 // ---------------- 서버 연결 (v4.3 F13.5: 필수·부가 분리, 원인 표시, 다시 연결 / F13.6: build 확인) ----------------
+// ════════ v4.4 F14: 작업 공간 — 뷰어에서 바꾼 것은 전부 서버에 자동 저장 ════════
+const WS = { rev: 0, ready: false, saving: false, again: false, dirty: false, sig: null, timer: null, retry: null, failN: 0, status: "idle", at: null,
+  err: null, held: [], restored: null, conflict: null, diskSig: null, cache: null, saveOffer: null, draftSig: "" };
+window.__WS = WS;
+const WS_BACKOFF = [5, 10, 30, 60];
+const TAB_IDS = ["curve", "surv", "rank", "mon", "cal", "trace", "ember", "guide", "json"];
+function wsView() {
+  return { sel: S.sel.slice(), focus: S.focus, metric: S.metric, act: S.act, x: S.x, tab: S.tab, T: S.T, ci: S.ci, smooth: S.smooth, facet: S.facet,
+    overlay: S.overlay, rankMode: S.rankMode, rankSort: S.rankSort, rankDir: S.rankDir, q: S.q, grades: S.grades, sort: S.sort,
+    sweepMetric: S.sweepMetric, rcMode: S.rcMode || "release" };
+}
+function wsDraft() { return JS.loaded && JS.info && JS.id && typeof JS.text === "string" && JS.text !== (JS.info.text || "") ? { kind: JS.kind, id: JS.id, text: JS.text } : null; }
+function wsDraftSig() {   // 원문 초안은 JSON 탭에서만 바뀌므로 그때만 해시를 다시 계산한다
+  if (S.tab === "json") { const d = wsDraft(); let h = 5381; if (d) for (let i = 0; i < d.text.length; i++) h = ((h << 5) + h + d.text.charCodeAt(i)) | 0; WS.draftSig = d ? `${d.kind}/${d.id}:${d.text.length}:${h}` : ""; }
+  return WS.draftSig;
+}
+function wsState() {
+  return { schema: 1, base: { data_hash: BASE_HASH, sim_version: SRVC.sim, disk_signature: WS.diskSig }, edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet,
+    undo: S.undo.slice(-50), redo: S.redo.slice(-50), view: wsView(), reference: { source: REF ? REF.source : "disk", pinned_file: null },
+    last_scenario: lastScenario, json_draft: wsDraft(), held: WS.held };
+}
+function wsSig() { return JSON.stringify([S.edits, S.cfgEdits, S.cfgSet, S.undo.length, S.redo.length, wsView(), WS.held.length, wsDraftSig(), lastScenario]); }
+function wsChip(status) {
+  WS.status = status;
+  const el = $("wsChip"); if (!el) return;
+  if (!(SRV && srvOK)) { el.classList.add("hidden"); return; }
+  const dly = WS_BACKOFF[Math.min(Math.max(WS.failN, 1) - 1, 3)];
+  el.className = "wschip " + status + (status === "fail" && WS.failN >= 3 ? " bad" : "");
+  el.innerHTML = status === "saving" ? "저장 중…" : status === "saved" ? `저장됨 ✓ ${(WS.at || new Date()).toTimeString().slice(0, 8)}` : status === "dirty" ? "저장 대기…"
+    : status === "fail" ? `저장 실패 — ${dly}초 뒤 재시도 <button class="btn" id="wsRetry">지금 재시도</button>${WS.failN >= 3 ? " (계속 실패 중)" : ""}`
+    : status === "conflict" ? '다른 기기에서 수정됨 <button class="btn" id="wsTake">불러오기</button> <button class="btn" id="wsForce">덮어쓰기</button>' : "";
+}
+function wsTouch() {   // update() 마다 부른다 — 상태가 실제로 바뀌었을 때만 800ms 디바운스로 저장
+  if (!(SRV && srvOK) || !WS.ready) return;
+  const sig = wsSig();
+  if (sig === WS.sig) return;
+  WS.sig = sig; WS.dirty = true;
+  if (WS.status === "conflict") return;
+  clearTimeout(WS.timer); WS.timer = setTimeout(() => wsSave(), 800);
+  if (WS.status !== "fail") wsChip("dirty");
+}
+async function wsSave(o = {}) {
+  clearTimeout(WS.timer); clearTimeout(WS.retry);
+  if (!(SRV && srvOK) || !WS.ready) return;
+  if (WS.status === "conflict" && !o.force) return;
+  if (WS.saving) { WS.again = true; return; }
+  WS.saving = true; wsChip("saving");
+  const sent = WS.sig, body = JSON.stringify({ rev: WS.rev, client: CLIENT, state: wsState(), force: !!o.force });
+  try {
+    const r = await api("/api/workspace", { method: "PUT", body, keepalive: !!o.keepalive && body.length < 60000 });
+    WS.rev = r.rev; WS.diskSig = r.disk_signature; WS.failN = 0; WS.err = null; WS.conflict = null; WS.at = new Date(); WS.dirty = WS.sig !== sent;
+    wsChip("saved");
+  } catch (e) {
+    if (e.status === 409) { WS.conflict = e.body; wsChip("conflict"); }
+    else { WS.failN++; WS.err = e.message; wsChip("fail"); WS.retry = setTimeout(() => wsSave(), WS_BACKOFF[Math.min(WS.failN - 1, 3)] * 1000); }   // 편집은 막지 않는다
+  } finally {
+    WS.saving = false;
+    if (WS.again) { WS.again = false; if (WS.status === "saved" || WS.status === "dirty") wsSave(); }
+  }
+}
+function wsFlush() { if (WS.ready && WS.dirty && WS.status !== "conflict") wsSave({ keepalive: true }); }
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") wsFlush(); });
+window.addEventListener("pagehide", wsFlush);
+
+function applyView(v) {
+  v = v || {};
+  if (Array.isArray(v.sel)) S.sel = v.sel.filter(id => BYID[id]).slice(0, MAX_SEL);
+  if (v.focus && BYID[v.focus]) S.focus = v.focus;
+  if (["win", "delta", "floor", "death"].includes(v.metric)) S.metric = v.metric;
+  if ([1, 2, 3].includes(+v.act)) S.act = +v.act;
+  if (v.x != null) { const k = XS.findIndex(z => Math.abs(z - v.x) < 1e-9); if (k >= 0) S.x = XS[k]; }
+  if (TAB_IDS.includes(v.tab) && (v.tab === "guide" || TABS.some(t => t[0] === v.tab))) S.tab = v.tab;
+  if (v.T > 0 && v.T < 1) S.T = v.T;
+  ["ci", "smooth", "overlay"].forEach(k => { if (typeof v[k] === "boolean") S[k] = v[k]; });
+  if (["x", "avg"].includes(v.rankMode)) S.rankMode = v.rankMode;
+  if (typeof v.rankSort === "string") S.rankSort = v.rankSort;
+  if (v.rankDir === 1 || v.rankDir === -1) S.rankDir = v.rankDir;
+  if (typeof v.q === "string") { S.q = v.q; if ($("q")) $("q").value = v.q; }
+  if (v.grades && typeof v.grades === "object") S.grades = Object.assign({ white: true, blue: true, red: true }, v.grades);
+  if (typeof v.sort === "string" && $("sort") && [...$("sort").options].some(o => o.value === v.sort)) { S.sort = v.sort; $("sort").value = v.sort; }
+  if (typeof v.sweepMetric === "string") S.sweepMetric = v.sweepMetric;
+  if (["release", "button"].includes(v.rcMode)) { S.rcMode = v.rcMode; if ($("rcMode")) $("rcMode").value = v.rcMode; }
+  if (FACETS && v.facet && FACETS.values.includes(v.facet)) S.facet = v.facet;
+  S.slot = {}; S.sel.forEach((id, k) => (S.slot[id] = k));
+}
+function wsApply(w) {   // 서버의 저장본(+충돌 검사 결과)을 화면 상태로
+  const st = w.state, r = w.restore;
+  S.edits = r.edits; S.cfgEdits = r.cfg_edits; S.cfgSet = r.cfg_set;
+  S.undo = st.undo || []; S.redo = st.redo || [];
+  WS.held = r.held || [];
+  applyView(st.view);
+  readHash(HASH0);                                      // URL 해시가 있으면 해시가 우선 (링크 공유 호환)
+  if (st.last_scenario) lastScenario = st.last_scenario;
+  if (st.json_draft && st.json_draft.id) { JS.kind = st.json_draft.kind; JS.id = st.json_draft.id; JS.pendingDraft = st.json_draft; JS.loaded = null; }
+  applyModelFidelity(); FANTS.forEach(summarize);
+  WS.restored = { edits: S.edits.length, cfg: S.cfgEdits.length + Object.keys(S.cfgSet).length, files: S.fileEdits.length };
+}
+async function wsRestore() {
+  WS.ready = false;
+  const w = await api("/api/workspace");
+  WS.rev = w.rev || 0; WS.diskSig = w.disk_signature;
+  if (w.exists && w.state && w.restore) {
+    try { wsApply(w); } catch (e) { console.error("[MatchUp] 작업 공간 복원 중 오류(나머지는 계속 복원)", e); }
+  }
+  WS.at = new Date(); WS.ready = true; WS.sig = wsSig(); WS.dirty = false;
+}
+function wsBannerRender() {
+  const el = $("wsBanner"); if (!el) return;
+  const parts = [], r = WS.restored;
+  if (r && (r.edits || r.cfg || r.files)) parts.push(`<span id="wsRestored">이전 작업을 복원했습니다 — 변경 ${r.edits} · 설정 ${r.cfg} · 원문 ${r.files}</span> <button class="btn" id="wsReset">초기화</button>`);
+  if (WS.held.length) parts.push(`<span id="wsHeld">보류 ${WS.held.length}건</span> <button class="btn" id="wsHeldBtn">보류 ${WS.held.length}건 보기</button>`);
+  const c = WS.cache;
+  if (c) parts.push(`<span id="wsCache">저장된 계산 불러옴 · 미계산 ${c.missing_count}점${c.partial ? ` · 판 수 부족 ${c.partial}점` : ""}</span>${c.missing_count || c.partial ? ' <button class="btn" id="wsRest">나머지 계산</button>' : ""}`);
+  if (WS.saveOffer) parts.push('<span id="wsScanOffer">전체 재계산이 끝났습니다.</span> <button class="btn" id="wsScanSave">스캔으로 저장</button>');
+  el.classList.toggle("hidden", !parts.length || !(SRV && srvOK));
+  el.innerHTML = parts.join(" · ") + (parts.length ? ' <button class="btn" id="wsBannerX" title="알림 닫기">×</button>' : "");
+}
+function wsHeldDesc(h) {
+  const it = h.item || {};
+  if (h.type === "edit") {
+    if ((it.target || "fantasy") === "fantasy") return `${(BYID[it.fid] || {}).name || it.fid} effects[${it.effect}].${it.key}: ${fmtNum(it.old)} → ${fmtNum(it.new)}`;
+    return `${it.mid || it.pid} ${it.target} ${it.key}: ${fmtNum(it.old)} → ${fmtNum(it.new)}`;
+  }
+  if (h.type === "cfg_edit") return `설정 ${it.path}: ${fmtNum(it.old)} → ${fmtNum(it.new)}`;
+  if (h.type === "cfg_set") return `설정 전환 ${it.path} = ${JSON.stringify(it.value)}`;
+  return `원문 편집 ${it.kind}/${it.id}`;
+}
+function currentValueOf(e) {   // 보류 항목을 '그래도 적용'할 때 old 를 맞출 현재 값
+  const t = e.target || "fantasy";
+  if (t === "fantasy") { const k = editableKeys(e.fid).find(k => k.effect === e.effect && k.key === e.key); return k ? k.value : null; }
+  const mons = MON ? MON.monsters : [], PF = { digits: "dmg_digits", hits: "hit_digits", n: "str_units" };
+  if (t === "monster") { const m = mons.find(m => m.id === e.mid); return m ? m[e.key] : null; }
+  if (t === "pattern") {
+    if (e.mid) { const m = mons.find(m => m.id === e.mid); const p = m && m.patterns[e.step]; return p ? p[PF[e.key]] : null; }
+    for (const m of mons) for (const p of m.patterns) if (p.key === e.pid) return p[PF[e.key]];
+    return null;
+  }
+  if (t === "gimmick") { const m = mons.find(m => m.id === e.mid); const s = m && (m.sim || [])[e.gi]; return s ? s[e.key] : null; }
+  return null;
+}
+function wsHeldModal() {
+  if (!WS.held.length) { closeModal(); wsBannerRender(); return; }
+  modal(`<h3 style="margin:0 0 6px">보류한 항목 ${WS.held.length}건</h3><div class="small">복원하지 못한 항목입니다. 어느 쪽도 누르지 않으면 다음 세션에도 보류로 남습니다.</div>
+    ${WS.held.map((h, i) => `<div class="efx held" data-i="${i}"><b>${esc(wsHeldDesc(h))}</b><div class="small">${esc(h.reason || "")}</div>
+      <button class="btn heldApply" data-i="${i}">그래도 적용</button> <button class="btn heldDrop" data-i="${i}">버리기</button></div>`).join("")}
+    <div class="chips" style="margin-top:8px"><button class="btn" id="heldClose">닫기</button></div>`);
+  $("heldClose").onclick = () => { closeModal(); wsBannerRender(); };
+  document.querySelectorAll(".heldApply").forEach(b => b.onclick = () => wsApplyHeld(+b.dataset.i));
+  document.querySelectorAll(".heldDrop").forEach(b => b.onclick = () => { WS.held.splice(+b.dataset.i, 1); wsBannerRender(); afterEditChange(); wsHeldModal(); });
+}
+function sameEditTarget(a, b) { return (a.target || "fantasy") === (b.target || "fantasy") && a.fid === b.fid && a.effect === b.effect && a.mid === b.mid && a.pid === b.pid && a.step === b.step && a.gi === b.gi && a.key === b.key; }
+async function wsApplyHeld(i) {
+  const h = WS.held[i]; if (!h) return;
+  try {
+    if (h.type === "edit") {
+      const e = Object.assign({}, h.item), cur = currentValueOf(e);
+      if (cur == null) throw new Error("대상의 현재 값을 찾지 못함 (이미 없는 환상·몬스터일 수 있음)");
+      e.old = cur; pushUndo(); S.edits = S.edits.filter(x => !sameEditTarget(x, e)); if (e.new !== e.old) S.edits.push(e);
+    } else if (h.type === "cfg_edit") {
+      const cur = BASE_CFG[h.item.path]; if (cur == null) throw new Error("설정 키가 없음");
+      pushUndo(); S.cfgEdits = S.cfgEdits.filter(c => c.path !== h.item.path); S.cfgEdits.push(Object.assign({}, h.item, { old: cur }));
+    } else if (h.type === "cfg_set") {
+      pushUndo(); S.cfgSet[h.item.path] = h.item.value;
+    } else {
+      await api(`/api/files/${h.item.kind}/${encodeURIComponent(h.item.id)}`, { method: "PUT", body: JSON.stringify({ text: h.item.new_text }) });
+      await reloadServerTable();
+    }
+    WS.held.splice(i, 1); wsBannerRender(); afterEditChange(); wsHeldModal();
+  } catch (e) { flash("적용하지 못함: " + e.message); }
+}
+async function wsTake() {   // 다른 기기가 먼저 저장했을 때: 서버 값을 채택하고 내 미저장 변경은 보류로 옮긴다
+  const mine = wsState();
+  let w; try { w = await api("/api/workspace"); } catch (e) { flash("불러오지 못함: " + e.message); return; }
+  const j = JSON.stringify, R = w.restore || { edits: [], cfg_edits: [], cfg_set: {} };
+  const have = new Set(R.edits.map(j)), haveC = new Set(R.cfg_edits.map(j)), why = "다른 기기에서 먼저 저장해 보류됨(내 변경)", held = [];
+  mine.edits.forEach(e => { if (!have.has(j(e))) held.push({ type: "edit", item: e, reason: why }); });
+  mine.cfg_edits.forEach(c => { if (!haveC.has(j(c))) held.push({ type: "cfg_edit", item: c, reason: why }); });
+  Object.entries(mine.cfg_set).forEach(([k, v]) => { if (R.cfg_set[k] !== v) held.push({ type: "cfg_set", item: { path: k, value: v }, reason: why }); });
+  if (w.exists && w.state && w.restore) wsApply(w);
+  WS.held = WS.held.concat(held); WS.rev = w.rev; WS.conflict = null; WS.status = "dirty"; WS.dirty = true;   // 충돌 해소 → 저장 재개
+  wsBannerRender(); afterEditChange(); wsSave();
+}
+async function wsReset() {
+  if (!confirm("작업 공간을 초기화할까요? (현재 상태는 이력에 보관됩니다)")) return;
+  try { await api("/api/workspace", { method: "DELETE" }); history.replaceState(null, "", location.pathname + location.search); location.reload(); } catch (e) { flash("초기화 실패: " + e.message); }
+}
+async function wsMenu() {
+  let hist = [], scans = [];
+  try { hist = (await api("/api/workspace/history")).history; } catch (e) { /* 목록 없이 계속 */ }
+  try { scans = (await api("/api/scans")).scans; } catch (e) { /* 목록 없이 계속 */ }
+  modal(`<h3 style="margin:0 0 6px">작업 공간</h3>
+    <div class="chips"><button class="btn" id="wsMReset">초기화</button><button class="btn" id="wsMDl">JSON으로 내려받기</button><button class="btn" id="wsMClose">닫기</button></div>
+    <h4 style="margin:10px 0 4px">이전 작업 공간 열기</h4>
+    ${hist.length ? hist.map(h => `<div class="small"><button class="btn wsHist" data-id="${esc(h.id)}">열기</button> ${esc(h.saved_at || h.id)} · 변경 ${h.edits} · 설정 ${h.cfg_edits + h.cfg_set} · 원문 ${h.file_edits}</div>`).join("") : '<div class="small">보관된 이전 작업 공간 없음</div>'}
+    <h4 style="margin:10px 0 4px">저장된 스캔 (이 목록에서 올릴 스캔을 고릅니다)</h4>
+    ${scans.length ? scans.map(s => `<div class="small"><button class="btn wsScan" data-id="${esc(s.scan_id)}" ${s.active ? "disabled" : ""}>${s.active ? "올라와 있음" : "올리기"}</button> ${esc(s.scan_id)} ${s.match ? '<span class="badge link">원본 해시와 일치</span>' : '<span class="badge stale">이전 데이터</span>'}</div>`).join("") : '<div class="small">fantasy_scans/ 에 저장된 스캔 없음</div>'}`);
+  $("wsMClose").onclick = closeModal;
+  $("wsMReset").onclick = () => { closeModal(); wsReset(); };
+  $("wsMDl").onclick = () => exportOne("workspace", { format: "json" }).catch(e => flash("내려받기 실패: " + e.message));
+  document.querySelectorAll(".wsHist").forEach(b => b.onclick = async () => { try { await post(`/api/workspace/history/${encodeURIComponent(b.dataset.id)}/restore`, { client: CLIENT }); location.reload(); } catch (e) { flash("열기 실패: " + e.message); } });
+  document.querySelectorAll(".wsScan").forEach(b => b.onclick = async () => { try { await post(`/api/scans/${encodeURIComponent(b.dataset.id)}/activate`, {}); location.reload(); } catch (e) { flash("스캔 올리기 실패: " + e.message); } });
+}
+// F14.5a: 저장된 계산 복원 — 점 캐시에서 읽기만 한다 (새로 돌리지 않음)
+async function startCacheRestore() {
+  if (!(SRV && srvOK)) return;
+  if (!needsCompute() && !isStale(curPts(BASE_ID))) return;   // 편집이 없고 스캔 파일이 곧 결과면 요청하지 않는다
+  try {
+    await runJob({ kind: "recompute", edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet, fids: S.sel, x_sel: S.x, cache_only: true },
+      ev => { if (ev.type === "point") storeLive(ev); else if (ev.type === "cache_summary") WS.cache = ev; }, "저장된 계산 불러오기");
+    wsBannerRender(); update();
+  } catch (e) { setStatus("오류: " + e.message); }
+}
+// F14.5c: 전체 재계산 결과를 스캔으로 저장 (원본 해시와 같고 미반영 편집이 없을 때만 자동)
+async function scanSaveFlow(res) {
+  if (!res || res.type !== "done" || !res.jobId) return;
+  if (!liveActive() && !S.fileEdits.length) {
+    try { const r = await post(`/api/jobs/${res.jobId}/save`, { as_current: true }); flash(r.current ? "전체 재계산 결과를 현재 스캔으로 저장했습니다" : "전체 재계산 결과를 fantasy_scans/ 에 저장했습니다"); return; } catch (e) { /* 아래 버튼으로 */ }
+  }
+  WS.saveOffer = res.jobId; wsBannerRender();
+}
+async function wsScanSave() {
+  const id = WS.saveOffer; if (!id) return;
+  const name = prompt("스캔 이름 (선택 — 비워도 됩니다)", "") || undefined;
+  try {
+    const r = await post(`/api/jobs/${id}/save`, { as_current: true, name });
+    flash(r.current ? "현재 스캔으로 저장했습니다 (fantasy_curves.json 갱신)" : `fantasy_scans/${r.scan_id}.json 에 저장했습니다 — ${r.reason || "현재 스캔은 그대로"}`);
+    WS.saveOffer = null; wsBannerRender();
+  } catch (e) { flash("스캔 저장 실패: " + e.message); }
+}
+document.addEventListener("click", e => {
+  const id = e.target && e.target.id;
+  if (id === "wsRetry") wsSave();
+  else if (id === "wsTake") wsTake();
+  else if (id === "wsForce") wsSave({ force: true });
+  else if (id === "wsReset") wsReset();
+  else if (id === "wsHeldBtn") wsHeldModal();
+  else if (id === "wsRest") startRecompute();
+  else if (id === "wsScanSave") wsScanSave();
+  else if (id === "wsBannerX") { WS.restored = null; WS.cache = null; WS.saveOffer = null; wsBannerRender(); }
+  else if (id === "btnWs") wsMenu();
+  else if (id === "btnExport") openExport();
+  const b = e.target.closest && e.target.closest(".csvBtn");
+  if (b) exportQuick(b.dataset.ds);
+});
+
+// ════════ v4.4 F15: 시뮬레이션 데이터 내려받기 ════════
+const CURVE_HDR = ["series", "fantasy_id", "fantasy_name", "grade", "fidelity", "facet", "x_param", "x", "n", "wins", "win_rate", "delta", "delta_se", "delta_ci_lo", "delta_ci_hi",
+  "delta_n", "mde", "flips_up", "flips_down", "mean_reached_floor", "mean_fantasies", "mean_reach_delta", "mean_reach_delta_se", "death_act1_rate", "death_act2_rate",
+  "death_act3_rate", "stage", "table_hash", "data_hash", "cfg_tag", "stale"];
+const MON_HDR = ["id", "name", "act", "tier", "hp", "fidelity", "battles", "avg_turns", "turns_ci_lo", "turns_ci_hi", "turn_target", "turn_verdict", "avg_taken", "death_rate_in_battle",
+  "death_share", "timeouts", "max_hit_avg", "max_hit_max", "escapes", "battle_wins", "battle_win_rate", "battle_win_ci_lo", "battle_win_ci_hi", "runs_met", "run_win_rate_met",
+  "run_win_ci_met_lo", "run_win_ci_met_hi", "gimmicks", "warning"];
+const RANK_HDR = ["fantasy_id", "fantasy_name", "grade", "fidelity", "delta", "delta_ci_lo", "delta_ci_hi", "z", "flips_up", "flips_down", "mde", "eq_gain", "verdict", "stale", "effect_text"];
+const HP_HDR = ["act", "tier", "count", "mean_hp", "min_hp", "max_hp", "ratio_vs_normal"];
+const CSV_TEXT = new Set(["fantasy_name", "name", "gimmicks", "warning", "key", "path", "id", "fantasy_id", "arm", "turn_verdict", "facet", "verdict", "effect_text"]);
+function csvCell(v, text) {
+  if (v == null || v === "") return "";
+  if (typeof v === "boolean") return v ? "1" : "0";
+  if (typeof v === "number") return Number.isFinite(v) ? String(v) : "";
+  let s = String(v);
+  if (text && /^[=+\-@\t\r]/.test(s)) s = "'" + s;           // CSV 주입 방지: 문자열 열만
+  return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function csvText(cols, rows, bom) { return (bom ? "﻿" : "") + [cols.join(",")].concat(rows.map(r => cols.map(c => csvCell(r[c], CSV_TEXT.has(c))).join(","))).join("\r\n") + "\r\n"; }
+function stamp() { const d = new Date(), p = n => String(n).padStart(2, "0"); return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`; }
+function clientName(id, ext) { return `matchup_${id}_${(BASE_HASH || "nohash").slice(0, 8)}_${stamp()}.${ext}`; }
+function saveBlob(blob, name) {
+  const a = document.createElement("a"), url = URL.createObjectURL(blob);
+  a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+function ptRow(series, fid, p) {
+  const f = fid === BASE_ID ? { name: "기준선", grade: "", fidelity: "" } : (BYID[fid] || {}), ci = p.delta_ci || [null, null], da = p.death_by_act || [];
+  return { series, fantasy_id: fid, fantasy_name: f.name, grade: f.grade, fidelity: f.fidelity, facet: FACETS ? S.facet : "", x_param: META.x_param, x: p.x, n: p.n, wins: p.wins,
+    win_rate: p.win_rate, delta: p.delta, delta_se: p.delta_se, delta_ci_lo: ci[0], delta_ci_hi: ci[1], delta_n: p.delta_n, mde: p.mde, flips_up: p.flips_up, flips_down: p.flips_down,
+    mean_reached_floor: p.mean_reached_floor, mean_fantasies: p.mean_fantasies, mean_reach_delta: p.mean_reach_delta, mean_reach_delta_se: p.mean_reach_delta_se,
+    death_act1_rate: da[0], death_act2_rate: da[1], death_act3_rate: da[2], stage: "", table_hash: p.table_hash, data_hash: p.data_hash, cfg_tag: p.cfg_tag || "", stale: isStale([p]) ? 1 : 0 };
+}
+function scopePoints(sc) {
+  const ids = [BASE_ID].concat(sc.fids === "all" ? FANTS.map(f => f.id) : sc.fids), xs = sc.x === "all" ? XS : [sc.x], out = [];
+  for (const fid of ids) for (const p of staticPts(fid, S.facet)) if (xs.some(x => Math.abs(x - p.x) < 1e-9)) out.push([fid, p]);
+  return out;
+}
+function monRowsClient() {
+  const D = MM.data || DATA.monster_metrics; if (!D) return [];
+  return D.monsters.map(m => Object.assign({}, m, { turns_ci_lo: (m.turns_ci || [])[0], turns_ci_hi: (m.turns_ci || [])[1], turn_target: (m.turn_target || []).join("-"),
+    battle_win_ci_lo: (m.battle_win_ci || [])[0], battle_win_ci_hi: (m.battle_win_ci || [])[1], run_win_ci_met_lo: (m.run_win_ci_met || [])[0],
+    run_win_ci_met_hi: (m.run_win_ci_met || [])[1], gimmicks: (m.gimmicks || []).join(", ") }));
+}
+function rankCsvRows() {
+  return rankSortedRows().map(r => ({ fantasy_id: r.f.id, fantasy_name: r.f.name, grade: r.f.grade, fidelity: r.f.fidelity, delta: r.p.delta, delta_ci_lo: r.p.delta_ci[0],
+    delta_ci_hi: r.p.delta_ci[1], z: r.z, flips_up: r.p.flips_up, flips_down: r.p.flips_down, mde: r.p.mde, eq_gain: r.eq.gain, verdict: r.v ? r.v.label : "",
+    stale: r.stale ? 1 : 0, effect_text: r.f.summary }));
+}
+function monHpRows() {
+  const mons = (SRV && srvOK && MON) ? monsWithEdits() : ((DATA.monster_metrics || {}).monsters || []), R = hpReportData(mons), out = [];
+  for (const a of R.acts) for (const t of HP_TIERS) { const c = R.cell[a + "|" + t]; if (c) out.push({ act: a, tier: t, count: c.n, mean_hp: c.mean, min_hp: c.min, max_hp: c.max, ratio_vs_normal: R.tierRatio[a][t] }); }
+  return out;
+}
+function exClient(id, o) {   // 서버 없이(또는 화면 표 그대로) 만드는 데이터 집합
+  const sc = o.scope || {}, bom = o.bom !== false;
+  if (id === "ranking") return [clientName(id, "csv"), csvText(RANK_HDR, rankCsvRows(), bom)];
+  if (id === "monster_hp") return [clientName(id, "csv"), csvText(HP_HDR, monHpRows(), bom)];
+  if (id === "monsters") return [clientName(id, "csv"), csvText(MON_HDR, monRowsClient(), bom)];
+  if (id === "curves") return [clientName(id, "csv"), csvText(CURVE_HDR, scopePoints(sc).map(([f, p]) => ptRow("scan", f, p)), bom)];
+  if (id === "reach") {
+    const rows = []; for (const [f, p] of scopePoints(sc)) (p.reach_rate || []).forEach((v, i) => rows.push({ series: "scan", fantasy_id: f, facet: FACETS ? S.facet : "", x: p.x, floor: i + 1, reach_rate: v }));
+    return [clientName(id, "csv"), csvText(["series", "fantasy_id", "facet", "x", "floor", "reach_rate"], rows, bom)];
+  }
+  return null;
+}
+const SERVER_ONLY = ["edits", "runs", "workspace", "results", "bundle"];
+function fmtFor(id, fmt) { return id === "runs" ? (fmt === "json" ? "ndjson" : fmt) : id === "reach" ? "csv" : id === "workspace" ? "json" : fmt; }
+function exBody(id, o) { return { id, format: fmtFor(id, o.format || "csv"), bom: o.bom !== false, scope: o.scope, datasets: o.datasets, edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet }; }
+async function exServer(id, o) {
+  const body = exBody(id, o), est = await post("/api/export/estimate", body);
+  if (est.too_big) throw new Error(`행이 ${est.rows.toLocaleString()}개로 한 요청 상한(500만)을 넘습니다 — 범위를 줄이세요`);
+  if (est.bytes_est > 100 * 1024 * 1024) {      // 큰 파일은 브라우저가 직접 받게 한다 (1회용 티켓)
+    const t = await post("/api/export/ticket", body), a = document.createElement("a");
+    a.href = t.url; a.download = ""; document.body.appendChild(a); a.click(); a.remove(); flash("큰 파일 — 브라우저가 직접 받습니다"); return;
+  }
+  const r = await fetch(`/api/export/${encodeURIComponent(id)}`, { method: "POST", headers: { "X-MatchUp-Token": SRV.token, "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  if (!r.ok) { let m = r.statusText; try { m = (await r.json()).error || m; } catch (e) { /* 본문 없음 */ } throw new Error(m); }
+  const blob = await r.blob(), cd = r.headers.get("Content-Disposition") || "", name = decodeURIComponent((/filename\*=UTF-8''([^;]+)/.exec(cd) || [])[1] || `matchup_${id}.dat`), miss = +r.headers.get("X-MatchUp-Missing") || 0;
+  saveBlob(blob, name); window.__lastExport = { id, name, size: blob.size, missing: miss };
+  flash(`${name} (${Math.max(1, Math.round(blob.size / 1024))}KB)${miss ? ` · 캐시에 없는 점 ${miss}개는 빠졌습니다(계산하지 않음)` : ""}`);
+}
+async function exportOne(id, o) {
+  const serverOK = SRV && srvOK;
+  if (["ranking", "monster_hp"].includes(id) || (!serverOK && ["curves", "reach", "monsters"].includes(id))) {
+    const [name, text] = exClient(id, o); saveBlob(new Blob([text], { type: "text/csv;charset=utf-8" }), name);
+    window.__lastExport = { id, name, size: text.length, text, missing: 0 }; flash(`${name} (${Math.max(1, Math.round(text.length / 1024))}KB)`); return;
+  }
+  if (!serverOK) throw new Error("이 데이터 집합은 서버 모드에서만 받을 수 있습니다");
+  await exServer(id, o);
+}
+function defaultScope() { return { fids: S.sel.slice(), x: S.x, series: ["after"] }; }
+async function exportQuick(ds) { try { await exportOne(ds, { format: "csv", bom: true, scope: defaultScope() }); } catch (e) { flash("내려받기 실패: " + e.message); } }
+function exportBtns(...ids) { const L = { curves: "곡선 CSV", reach: "층 도달률 CSV", ranking: "랭킹 CSV", monsters: "몬스터 지표 CSV", monster_hp: "체력 리포트 CSV", edits: "변경 CSV", runs: "판별 데이터" };
+  return `<span class="exbtns">${ids.map(i => `<button class="btn csvBtn" data-ds="${i}">${L[i]}</button>`).join(" ")}</span>`; }
+async function openExport() {
+  const server = SRV && srvOK;
+  const DS = [["curves", "곡선 점", true], ["reach", "층 도달률", true], ["ranking", "랭킹 표 (현재 정렬)", true], ["edits", "변경 목록", server], ["monsters", "몬스터별 지표", true],
+    ["monster_hp", "몬스터 체력 리포트", true], ["runs", "판별 원자료 (용량 큼)", server], ["workspace", "작업 공간(JSON)", server]];
+  modal(`<h3 style="margin:0 0 6px">데이터 내려받기</h3>
+    <div class="exgrid">${DS.map(([id, l, ok]) => `<label title="${ok ? "" : "서버 모드에서만 받을 수 있습니다"}"><input type="checkbox" class="exds" value="${id}" ${ok && ["curves", "edits", "monsters"].includes(id) ? "checked" : ""} ${ok ? "" : "disabled"}> ${l}${ok ? "" : " (서버 전용)"}</label>`).join("")}</div>
+    <div style="margin-top:6px">형식 <select id="exFmt"><option value="csv">CSV</option><option value="json">JSON(runs 는 NDJSON)</option></select>
+      <label><input type="checkbox" id="exBom" checked> CSV 에 UTF-8 BOM (엑셀에서 바로 열기)</label>
+      <label><input type="checkbox" id="exZip" ${server ? "" : "disabled"}> 하나의 zip 으로 묶기${server ? "" : " (서버 전용)"}</label></div>
+    <div style="margin-top:6px">범위 — 환상 <select id="exFids"><option value="sel">선택한 환상${S.sel.length ? ` (${S.sel.length})` : " (없음: 기준선만)"}</option><option value="all">모든 환상</option></select>
+      X <select id="exX"><option value="cur">현재 X (${fmtX(S.x)})</option><option value="all">모든 X</option></select>
+      <label><input type="checkbox" class="exser" value="after" checked> 수정 후</label> <label><input type="checkbox" class="exser" value="before" ${server ? "" : "disabled"}> 수정 전</label>
+      <label><input type="checkbox" class="exser" value="scan" ${server ? "" : "checked disabled"}> 저장된 스캔</label></div>
+    <div class="small" id="exEst">예상: 계산 중…</div>
+    <div class="chips" style="margin-top:8px"><button class="btn primary" id="exGo">내려받기</button><button class="btn" id="exClose">닫기</button></div>`);
+  const picked = () => [...document.querySelectorAll(".exds")].filter(c => c.checked).map(c => c.value);
+  const scope = () => ({ fids: $("exFids").value === "all" ? "all" : S.sel.slice(), x: $("exX").value === "all" ? "all" : S.x,
+    series: [...document.querySelectorAll(".exser")].filter(c => c.checked).map(c => c.value) });
+  const opts = () => ({ format: $("exFmt").value, bom: $("exBom").checked, scope: scope() });
+  const estimate = async () => {
+    const out = $("exEst"); if (!out) return;
+    if (!server) { out.textContent = "정적 HTML — 화면에 들어 있는 데이터만 받을 수 있습니다."; return; }
+    try {
+      let rows = 0, bytes = 0, miss = 0;
+      for (const id of picked().filter(i => !["ranking", "monster_hp"].includes(i) && i !== "workspace")) { const e = await post("/api/export/estimate", exBody(id, opts())); rows += e.rows; bytes += e.bytes_est; miss += e.missing_count; }
+      if ($("exEst")) $("exEst").textContent = `예상 ${rows.toLocaleString()}행 · 약 ${(bytes / 1048576).toFixed(1)} MB · 캐시에 없는 점 ${miss}개(계산하지 않고 빠짐)${picked().includes("runs") ? " — 판별 원자료는 용량이 커질 수 있습니다" : ""}`;
+    } catch (e) { if ($("exEst")) $("exEst").textContent = "예상 실패: " + e.message; }
+  };
+  document.querySelectorAll(".exds,#exFmt,#exBom,#exFids,#exX,.exser,#exZip").forEach(el => el.onchange = estimate);
+  $("exClose").onclick = closeModal;
+  $("exGo").onclick = async () => {
+    const ids = picked(), o = opts(); if (!ids.length) { flash("내려받을 데이터 집합을 고르세요"); return; }
+    try {
+      if ($("exZip").checked && server) {
+        const srv = ids.filter(i => !["ranking", "monster_hp"].includes(i));
+        if (srv.length) await exServer("bundle", Object.assign({}, o, { datasets: srv }));
+        for (const i of ids.filter(i => ["ranking", "monster_hp"].includes(i))) await exportOne(i, o);
+      } else for (const i of ids) await exportOne(i, o);
+      closeModal();
+    } catch (e) { flash("내려받기 실패: " + e.message); }
+  };
+  estimate();
+}
+
 async function connectServer() {
   if (!(SRV && location.protocol.startsWith("http"))) { renderModeBadge(); return; }
   SRVC.fail = null; SRVC.partial = [];
@@ -2312,6 +2721,7 @@ async function connectServer() {
     try { absorbFantasies(fj); } catch (e) { part("환상 정보 반영", e); }
     if (state.has_monsters) part("/api/monsters", await loadMonsters());
     part("/api/reference", await loadRef());
+    try { await wsRestore(); } catch (e) { WS.ready = true; WS.sig = wsSig(); part("/api/workspace", e); }   // v4.4 F14
     try { await loadSG(); } catch (e) { part("/api/surrogate/models", e); }
   } catch (e) {
     srvOK = false;
@@ -2325,7 +2735,9 @@ window.__connectServer = connectServer;
 (async () => {
   await connectServer();
   update();
+  if (SRV && srvOK) { wsChip("saved"); wsBannerRender(); }
   window.__viewerReady = true;
+  if (SRV && srvOK) startCacheRestore();     // 저장된 계산(점 캐시)을 읽어 곡선 복원 — 새로 돌리지 않는다
 })();
 })();
 </script>

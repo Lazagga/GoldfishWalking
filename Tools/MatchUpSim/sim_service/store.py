@@ -214,6 +214,26 @@ class PointStore:
             self._mem[key] = rec
         return rec
 
+    def exists(self, key):
+        with self._lock:
+            if key in self._mem:
+                return True
+        return os.path.exists(self.path(key))
+
+    def read(self, key):
+        """load 와 같지만 메모리 캐시에 올리지 않는다 — 많은 점을 훑는 내보내기용 (v4.4 F15.8). 없거나 옛 버전이면 None."""
+        with self._lock:
+            if key in self._mem:
+                return self._mem[key]
+        try:
+            with gzip.open(self.path(key), "rt", encoding="utf-8") as fp:
+                rec = json.load(fp)
+        except (OSError, ValueError, EOFError):
+            return None
+        if rec.get("sim_version") != ms.SIM_VERSION or len(rec.get("wins", "")) != rec.get("n") or "agg" not in rec:
+            return None
+        return rec
+
     def save(self, rec):
         p = self.path(rec["key"])
         os.makedirs(os.path.dirname(p), exist_ok=True)

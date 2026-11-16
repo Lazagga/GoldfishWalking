@@ -128,6 +128,7 @@ class MonsterTabUI(unittest.TestCase):
         errs = []
         pg.on("pageerror", lambda e: errs.append(str(e)))
         pg.add_init_script("window.__MMSTAGES = [40, 80];")                          # 테스트용으로 판 수를 줄임
+        self.sb.req("DELETE", "/api/workspace")   # v4.4: 앞 테스트의 자동 저장 상태가 복원되지 않게
         pg.goto(f"http://127.0.0.1:{self.sb.port}/#t=mon")
         pg.wait_for_function("window.__viewerReady === true", timeout=90000)
         return ctx, pg, errs

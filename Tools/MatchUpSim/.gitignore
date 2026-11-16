@@ -16,3 +16,8 @@ sim_results/batches.csv
 sim_results/floor_reach.csv
 sim_results/configs/
 sim_results/surrogate/
+# v4.4 서버 실행 상태 (작업 공간 자동 저장·작업 결과·몬스터 지표 저장본·기준 핀)
+sim_results/workspace/
+sim_results/**/workspace/
+sim_results/job_results/
+sim_results/monster_metrics/

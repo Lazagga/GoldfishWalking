@@ -205,6 +205,11 @@ class Engine:
         return self.store.load(req["key"]) or st.empty_record(req["key"], req["fids"], req["seed"], req["thash"],
                                                               req.get("dhash"), req.get("banned", ()))
 
+    def peek(self, reqs):
+        """점 캐시에 있는 판만 읽는다 — 새로 계산하지 않고 워커·진행 보고·runs_computed 에 영향이 없다 (v4.4 F14.5a·F15).
+        반환 {key: rec} (캐시에 없으면 n=0 인 빈 레코드)."""
+        return {r["key"]: self.record(r) for r in reqs}
+
     def ensure(self, reqs, n_target, on_point=None, cancel=None, n_targets=None, chunk=None, progress=None):
         """reqs 를 각각 n_target(또는 n_targets[key]) 판까지 채운다. 반환 {key: rec}.
         on_point(req, rec): 요청이 목표에 도달할 때(이미 도달했으면 즉시). cancel(): True 면 Cancelled.

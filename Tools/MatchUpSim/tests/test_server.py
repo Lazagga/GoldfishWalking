@@ -315,6 +315,7 @@ class ServerUI(unittest.TestCase):
         pg = ctx.new_page()
         errs = []
         pg.on("pageerror", lambda e: errs.append(str(e)))
+        self.sb.req("DELETE", "/api/workspace")   # v4.4: 앞 테스트의 자동 저장 상태가 복원되지 않게
         pg.goto(f"http://127.0.0.1:{self.sb.port}/{hash_}")
         pg.wait_for_function("window.__viewerReady === true")
         self.assertIn("서버 모드", pg.inner_text("#modeBadge"))

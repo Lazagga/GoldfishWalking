@@ -16,6 +16,7 @@ import matchup_sim as ms
 
 from . import compute as cp
 from . import edits as ed
+from . import results as rs
 from . import stats as S
 from . import store as st
 
@@ -119,11 +120,22 @@ class JobManager:
                 if job.cancelled:
                     job.finish("cancelled")
                 else:
+                    if job.kind in rs.KINDS:
+                        self._save_result(job, result)
                     job.finish("done", result=result)
             except cp.Cancelled:
                 job.finish("cancelled", after_s=round(time.perf_counter() - (job.t_cancel or job.t0), 3))
             except Exception as e:  # noqa: BLE001
                 job.finish("error", message=str(e), trace=traceback.format_exc()[-2000:])
+
+    def _save_result(self, job, result):
+        """결과를 내는 작업의 최종 결과를 results/job_results/ 에 남긴다 (v4.4 F14.6). 실패해도 작업은 끝낸다."""
+        p = job.params
+        try:
+            cfg, h = prepare(self.app, p.get("edits"), p.get("cfg_edits"), p.get("cfg_set"))
+            rs.save(self.app.results, job.kind, p, dh_of(cfg, h), rs.cfg_tag_of(p.get("cfg_edits"), p.get("cfg_set")), result)
+        except Exception as e:  # noqa: BLE001
+            print(f"[results] {job.kind} 결과 저장 실패: {e}", flush=True)
 
     def cancel(self, job_id):
         job = self.jobs.get(job_id)
@@ -206,6 +218,35 @@ class SeriesSet:
                 p["edit_effect_ci"] = e["delta_ci"]
         return p
 
+    def peek(self, items, n_target):
+        """점 캐시에 있는 만큼만 읽어 점 이벤트를 보낸다 (새로 계산하지 않음, v4.4 F14.5a).
+        목표 판 수에 못 미친 점은 partial 로 표시하고, 쌍 Δ 는 같은 판 수끼리만 계산한다."""
+        job, eng = self.job, self.app.engine
+        missing = []
+        for it in items:
+            rec = eng.record(self.req(*it))
+            if rec["n"] <= 0:
+                missing.append({"series": it[0], "fid": it[1], "x": it[2]})
+            else:
+                self.recs[it] = rec
+        found = partial = 0
+        for tag, rec in list(self.recs.items()):
+            series, fid, x = tag
+            n = min(rec["n"], n_target)
+            b = self.recs.get((series, BASE, x))
+            if fid != BASE and b is not None:
+                n = min(n, b["n"])
+            if n <= 0:
+                continue
+            p = self.point(series, fid, x, n)
+            p["partial"] = rec["n"] < n_target
+            partial += p["partial"]
+            found += 1
+            job.emit("point", series=series, fid=fid, x=x, stage=0, point=p)
+        job.emit("cache_summary", found=found, partial=partial, missing=missing[:500], missing_count=len(missing),
+                 target=n_target)
+        return {"found": found, "partial": partial, "missing": len(missing)}
+
     def run(self, items, stages):
         """items: [(series, fid, x)] 우선순위 순서. 단계마다 모두 채우고 점마다 이벤트를 보낸다."""
         job = self.job
@@ -277,8 +318,11 @@ def job_recompute(app, job):
     job.emit("plan", table_hash=h_after, data_hash=dh_of(cfg_after, h_after), base_data_hash=app.data_hash,
              ref_hash=ref["data_hash"] if ref else None, changed=changed, ghost=ghost,
              fids=fids, edited=edited, x_values=xs, stages=stages, points=len(items))
-    ss.run(items, stages)
-    return {"table_hash": h_after, "data_hash": dh_of(cfg_after, h_after)}
+    if p.get("cache_only"):                       # v4.4 F14.5a: 저장된 계산만 불러온다 (새로 돌리지 않음)
+        ss.peek(items, stages[-1])
+    else:
+        ss.run(items, stages)
+    return {"table_hash": h_after, "data_hash": dh_of(cfg_after, h_after), "cache_only": bool(p.get("cache_only"))}
 
 
 def job_scan(app, job):
@@ -293,6 +337,13 @@ def job_scan(app, job):
     job.emit("plan", table_hash=h, data_hash=dh_of(cfg, h), fids=fids, x_values=app.x_values, stages=stages,
              facet_key=facet_key, facet_values=facet_values)
 
+    if p.get("cache_only"):                       # v4.4 F14.5a
+        ss = SeriesSet(app, job, app.x_key, app.seed)
+        ss.add_series("after", cfg, h)
+        items = [("after", BASE, x) for x in app.x_values] + [("after", f, x) for f in fids for x in app.x_values]
+        ss.peek(items, stages[-1])
+        return {"table_hash": h, "cache_only": True}
+
     def on_point(fv, fid, x, pt):
         pt["table_hash"] = h
         job.emit("point", series="after", fid=fid, x=x, facet=fs.facet_label(fv), point=pt)
@@ -301,13 +352,17 @@ def job_scan(app, job):
                       adaptive=bool(p.get("adaptive", True)), epsilon=float(p.get("epsilon", app.epsilon)),
                       facet_key=facet_key, facet_values=facet_values, cancel=lambda: job.cancelled,
                       on_point=on_point, log=lambda *a, **k: None, progress=job.progress)
-    if p.get("save"):
+    def assemble():
         ctx = ms.SimContext(cfg)
-        data = fs.assemble(res, cfg, fids, ctx, h, seed=app.seed, x_key=app.x_key, fixed=app.fixed,
+        return fs.assemble(res, cfg, fids, ctx, h, seed=app.seed, x_key=app.x_key, fixed=app.fixed,
                            target=app.target, stages=stages, adaptive=bool(p.get("adaptive", True)),
                            epsilon=float(p.get("epsilon", app.epsilon)), facet_key=facet_key,
                            facet_values=facet_values, forced_at=None, n_max=stages[-1])
-        app.save_scan(data, p.get("save_name"))
+
+    job.assemble = assemble                       # v4.4 F14.5c: 완료된 작업의 결과를 나중에 스캔으로 저장 (POST /api/jobs/<id>/save)
+    job.data_hash = dh_of(cfg, h)
+    if p.get("save"):
+        app.save_scan(assemble(), p.get("save_name"))
     if getattr(app, "surrogate_auto", "manual") == "after_scan" and hasattr(app, "trainer"):
         app.trainer.submit("surrogate_fit", {"auto": True})    # v4.1 Q30: 스캔 직후 후보 전체 (최하위 우선순위)
     return {"table_hash": h}
@@ -609,13 +664,8 @@ def _pool_run(app, job, tasks, fn, on_done):
         raise cp.Cancelled()
 
 
-def job_monster_metrics(app, job):
-    """몬스터별 지표를 현재 편집(환상·몬스터·패턴·설정)을 반영해 다시 계산한다 (런 전체 시뮬, 몬스터 테이블 모델).
-    판 수를 단계(기본 500 → 1500 → 3000)로 늘리며 단계마다 `metrics` 이벤트로 전체 표를 보낸다.
-    같은 설정·시드의 조각(≤250판)은 서버 메모리에 캐시해 단계가 올라가거나 같은 상태로 다시 열 때 다시 돌리지 않는다.
-    CLI monster_metrics.py 와 같은 조각 집계·시드 규칙(f"{seed}-{i}")을 쓴다 (설정은 서버의 현재 작업 사본 기준)."""
-    from . import monsters as mo
-    p = job.params
+def monster_metrics_setup(app, p):
+    """몬스터별 지표의 설정·키 (작업과 내려받기가 같이 쓴다): (cfg, table_hash, 편집된 몬스터 테이블, seed, 설정 키, data_hash)."""
     if app.monster_data is None:
         raise ValueError("몬스터 데이터 없음")
     edits = p.get("edits") or []
@@ -627,11 +677,21 @@ def job_monster_metrics(app, job):
     cfg["monsters"]["model"] = "table"          # 몬스터별 지표는 실제 몬스터 테이블로만 의미가 있다 (CLI 와 같음)
     cfg["monsters"]["table_file"] = app.materialize_monsters(mdata)
     seed = str(p.get("seed") or "mon1")
+    ckey = hashlib.sha1(json.dumps([cfg, seed, ms.SIM_VERSION], sort_keys=True, default=str).encode("utf-8")).hexdigest()
+    return cfg, h, mdata, seed, ckey, dh_of(cfg, h)
+
+
+def job_monster_metrics(app, job):
+    """몬스터별 지표를 현재 편집(환상·몬스터·패턴·설정)을 반영해 다시 계산한다 (런 전체 시뮬, 몬스터 테이블 모델).
+    판 수를 단계(기본 500 → 1500 → 3000)로 늘리며 단계마다 `metrics` 이벤트로 전체 표를 보낸다.
+    같은 설정·시드의 조각(≤250판)은 서버 메모리에 캐시해 단계가 올라가거나 같은 상태로 다시 열 때 다시 돌리지 않는다.
+    CLI monster_metrics.py 와 같은 조각 집계·시드 규칙(f"{seed}-{i}")을 쓴다 (설정은 서버의 현재 작업 사본 기준)."""
+    from . import monsters as mo
+    p = job.params
+    cfg, h, mdata, seed, ckey, dh = monster_metrics_setup(app, p)
     stages = sorted(set(int(s) for s in (p.get("stages") or [500, 1500, 3000])))
     chunk = max(1, int(p.get("chunk") or 250))
-    ckey = hashlib.sha1(json.dumps([cfg, seed, ms.SIM_VERSION], sort_keys=True, default=str).encode("utf-8")).hexdigest()
     cache = app.__dict__.setdefault("mon_cache", {})
-    dh = dh_of(cfg, h)
 
     def chunks(n):
         return [(s, min(n, s + chunk)) for s in range(0, n, chunk)]
@@ -639,6 +699,15 @@ def job_monster_metrics(app, job):
     need_all = {(s, e) for n in stages for s, e in chunks(n) if (ckey, s, e) not in cache}
     have_all = {(s, e) for n in stages for s, e in chunks(n) if (ckey, s, e) in cache}
     job.emit("plan", stages=stages, seed=seed, data_hash=dh, cached_runs=sum(e - s for s, e in have_all))
+    # v4.4 F14.6: 같은 상태(data_hash·설정·시드)로 저장된 결과가 있으면 서버를 껐다 켠 뒤에도 바로 보여 준다
+    saved = rs.mon_load(app.results, dh, seed, ckey)
+    if saved and saved["data"].get("runs", 0) >= stages[-1]:
+        job.emit("metrics", stage=len(stages), n=saved["data"]["runs"], data=saved["data"], data_hash=dh, from_saved=True,
+                 saved_at=saved.get("saved_at"))
+        return {"data_hash": dh, "n": saved["data"]["runs"], "runs": saved["data"]["runs"], "from_saved": True}
+    if saved:
+        job.emit("metrics", stage=0, n=saved["data"].get("runs", 0), data=saved["data"], data_hash=dh, from_saved=True,
+                 saved_at=saved.get("saved_at"))
     job.progress.plan(sum(e - s for s, e in need_all), cached=sum(e - s for s, e in have_all))
     last = None
     for si, n in enumerate(stages):
@@ -666,6 +735,10 @@ def job_monster_metrics(app, job):
         agg, deaths, runs, wins = mo.merge([parts[s] for s in sorted(parts)])
         res = mo.build_result(cfg, agg, deaths, runs, wins, monster_table=mdata)
         last = {"meta": mo.meta_of(cfg, seed, n), **res}
+        try:
+            rs.mon_save(app.results, dh, seed, ckey, last)
+        except OSError as e:
+            print(f"[results] 몬스터 지표 저장 실패: {e}", flush=True)
         job.emit("metrics", stage=si + 1, n=n, data=last, data_hash=dh)
     return {"data_hash": dh, "n": stages[-1], "runs": last["runs"] if last else 0}
 

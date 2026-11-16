@@ -354,7 +354,7 @@ def scenario_path(scen_dir, name):
 
 
 def save_scenario(scen_dir, name, edits, cfg_edits, base_hash, note="", results=None, applied=None,
-                  file_edits=None, cfg_set=None):
+                  file_edits=None, cfg_set=None, view=None):
     os.makedirs(scen_dir, exist_ok=True)
     path = scenario_path(scen_dir, name)
     now = datetime.now().isoformat(timespec="seconds")
@@ -368,7 +368,7 @@ def save_scenario(scen_dir, name, edits, cfg_edits, base_hash, note="", results=
     data = {"schema": 2, "name": name, "note": note, "created_at": created, "updated_at": now,
             "base": {"data_hash": base_hash, "sim_version": ms.SIM_VERSION},
             "edits": edits, "cfg_edits": cfg_edits, "cfg_set": cfg_set or {}, "file_edits": file_edits or [],
-            "applied": applied, "results": results}
+            "applied": applied, "results": results, "view": view}
     tmp = path + ".tmp"
     with open(tmp, "w", encoding="utf-8") as fp:
         json.dump(data, fp, ensure_ascii=False, indent=2)

@@ -38,6 +38,33 @@ digits 는 이 PC 에서 초당 약 17판이라 느리다. 계산은 빠른 PC(�
 - **조우한 런 승률** = 이 몬스터를 한 번이라도 만난 런이 끝까지 클리어한 비율. 뒤쪽 막 몬스터일수록 거기까지 살아남은 런만 만나므로 높게 나온다 — 같은 막·등급끼리, 그리고 전체 승률과 견준다. 요정은 모든 런의 첫 전투라 조우한 런 승률 = 전체 승률이다.
 - 결과 파일 필드: `battle_win_rate`·`battle_win_ci`·`battle_wins`, `run_win_rate_met`·`run_win_ci_met`·`runs_met`, 최상위 `wins`·`win_rate`.
 
+## 작업 공간 (v4.4 F14) — 뷰어에서 바꾼 것은 서버에 자동 저장
+- **서버가 진실의 원천**이다. 새로고침·브라우저 종료·서버 재시작 뒤에도 같은 작업 상태로 돌아온다. 저장 버튼은 없다(자동). 시나리오는 그대로 '이름 붙인 스냅샷'이다.
+- 파일: `<results>/workspace/current.json` (`--workspace` 로 위치 변경). 쓰기는 임시 파일 → `os.replace`(OneDrive 잠김은 짧게 재시도). 갱신 때 이전 파일을 `workspace/history/` 에 보관(최대 20개; 자동 저장이 잦아 **30초에 한 번만** 보관). 크기 상한 5 MB(넘으면 실행 취소 단계를 먼저 버리고, 그래도 넘으면 413).
+- 저장하는 것: 숫자 편집·설정 편집·설정 스위치, 실행 취소/다시 실행(최근 50단계), 보기 상태(선택 환상·지표·막·X·탭·목표 승률·신뢰구간·평활·랭킹 정렬·검색어·등급 필터·정렬·편집 후 재계산 시점 …), 마지막 시나리오, **저장하지 않은 JSON 원문 초안**, 보류 목록. URL 해시가 있으면 해시가 보기 상태보다 우선한다(링크 공유).
+- **서버가 직접 남기는 것**(뷰어가 보내도 무시): JSON 편집 작업 사본(`file_edits`; 서버 재시작 때 되살림, 디스크 원본이 그 사이 바뀌었으면 복원하지 않고 보류), 마지막 원본 반영 기록(가장 최근 백업의 `manifest.json` 이 가리키는 파일이 아직 반영된 그대로일 때만 `반영 되돌리기` 복원), 비교 기준 핀(`workspace/reference_<해시>.json.gz`).
+- 복원 절차: 연결에 성공하면 `GET /api/workspace` → 편집을 **항목별로** 현재 원본 위에 적용해 보고, 충돌(`old` 값이 다르거나 대상이 없음)·오류 항목은 `held` 로 분리, 나머지는 그대로 복원한다. 위쪽 알림: `이전 작업을 복원했습니다 — 변경 N · 설정 M · 원문 K [초기화] [보류 R건 보기]`. 보류 항목마다 `그래도 적용`(현재 값에 `old` 를 맞춰 적용)·`버리기`, 어느 쪽도 안 누르면 다음 세션에도 남는다.
+- 저장 상태 칩(배너 오른쪽): `저장됨 ✓ 14:02:31` / `저장 중…` / `저장 대기…` / `저장 실패 — N초 뒤 재시도 [지금 재시도]`(5→10→30→60초, 3회 넘으면 붉게) / `다른 기기에서 수정됨 [불러오기] [덮어쓰기]`. 변경 800 ms 뒤 저장하고, 탭이 숨겨지거나 닫힐 때는 `fetch(keepalive)` 로 마지막 저장을 보낸다(본문이 60 KB 를 넘으면 일반 요청). 저장 실패 중에도 편집은 막지 않는다.
+- 여러 기기·탭: 작업 공간은 서버에 **하나**(Q51)이고 `rev` 로 낙관적 동시성 제어를 한다. 409 가 나면 `불러오기`(서버 값 채택, 내 미저장 변경은 보류로) 또는 `덮어쓰기`. 3자 병합·실시간 동기화는 없다.
+- API: `GET/PUT/DELETE /api/workspace`(PUT 본문 `{rev, client, state, force}`, 409 응답에 서버 `{rev, state}`), `GET /api/workspace/history`, `POST /api/workspace/history/<id>/restore`. 인증은 기존 토큰·Host/Origin·Content-Type 규칙 그대로.
+- `작업 공간 ▾` 메뉴: 초기화(JSON 편집 작업 사본도 비움, 이력에 보관), 이전 작업 공간 열기, JSON 으로 내려받기, 저장된 스캔 올리기.
+
+### 계산 결과 복원
+- **저장된 계산 불러오기**: `recompute`·`scan` 작업에 `cache_only: true`(`Engine.peek`). 점 캐시에서 있는 판만 읽고 새로 돌리지 않는다(`runs_computed` 불변). 목표 판 수에 못 미치면 `partial`, 없는 점은 `cache_summary.missing`. 편집이 있거나 화면의 곡선이 옛 데이터일 때 뷰어가 열 때·시나리오를 불러올 때 자동으로 요청하고, `저장된 계산 불러옴 · 미계산 K점 [나머지 계산]` 을 보여 준다.
+- **스캔 선택**: `fantasy_scans/index.json`(파일 수정 시각이 바뀐 것만 다시 읽음). 서버를 켤 때 현재 `data_hash` 와 맞는 가장 최근 스캔을 올린다(기본 `fantasy_curves.json` 이 이미 맞으면 그대로) → 원본이 그대로인데 전부 '이전'으로 뜨던 문제가 없어진다. `GET /api/scans`, `POST /api/scans/<scan_id>/activate`(형식 `^\d{8}-\d{6}-[0-9a-f]{6}$`).
+- **전체 재계산 결과 저장**: `POST /api/jobs/<id>/save`. 원본 해시와 같고 미반영 편집이 없으면 자동으로 `fantasy_curves.json`(현재 스캔)과 `fantasy_scans/` 에 저장하고, 아니면 `스캔으로 저장` 버튼으로 `fantasy_scans/` 에만 저장한다(현재 스캔은 그대로; 서버가 해시를 다시 확인한다).
+- **작업 결과 저장**: 결과를 내는 작업(`combo`·`ember_sweep`·`tune`·`value_sweep`·`solve_value`)의 최종 결과를 `job_results/<kind>/<key>.json` 에 남긴다(종류별 30개·전체 200 MB, 현재 `data_hash` 보호). `GET /api/results?kind=`, `GET /api/results/<kind>/<key>`, `POST /api/results/lookup`. **몬스터별 지표**는 `monster_metrics/<data_hash>-<seed>-<설정 8자>.json` 에 단계마다 저장하고, 서버를 껐다 켠 뒤 같은 상태면 다시 계산하지 않고 바로 보여 준다(파일 이름에 설정 해시를 붙인 것은 같은 `data_hash` 에서 피해 모델·기믹만 다른 결과가 섞이지 않게 하려는 것).
+- **시나리오 결함 3건 수정**(F14.7): 반영 기록이 `scen["base"]["table_hash"]` KeyError 로 한 번도 안 붙던 것, 재저장 때 `cfg_set`·`file_edits` 가 지워지던 것, 실패를 삼키던 것(`scenario_update_error` 로 응답). 시나리오에 `view`(보기 상태)를 선택 저장하고(저장할 때 확인창), 불러오면 저장된 계산을 캐시에서 되살린다.
+
+## 데이터 내려받기 (v4.4 F15)
+- 배너의 `내보내기 ▾` 대화상자(데이터 집합·형식·범위 선택, 예상 행 수·용량·캐시에 없는 점 수 표시)와 패널별 `CSV 받기` 버튼(승률 곡선·층 도달률·판별 데이터, 랭킹, 몬스터 탭, 변경 바). 서버 모드가 아닌 정적 HTML 에서는 이미 들어 있는 데이터(곡선·층 도달률·랭킹·몬스터 지표·체력 리포트)만 뷰어에서 만들어 내려받고 `runs`·zip 은 비활성(이유 표시).
+- 데이터 집합: `curves`(곡선 점) · `reach`(층 도달률, 긴 형식) · `edits`(변경 목록) · `monsters`(몬스터별 지표) · `runs`(**판별 원자료**: 점 캐시의 판마다 한 행, `seed` 는 `f"{master_seed}-{run_index}"` 라 런 재생에 그대로 넣을 수 있음) · `scans`(저장된 스캔 원본) · `workspace` · `results` · `bundle`(zip + `meta.json` + `README.txt`). `ranking`·`monster_hp` 는 화면 표에서 뷰어가 만든다.
+- **캐시는 읽기만 한다**: 캐시에 없는 점은 계산하지 않고 `X-MatchUp-Missing` 헤더와 `meta.missing` 으로 알린다. 점 캐시를 메모리에 쌓지 않고(`PointStore.read`) 행 제너레이터로 스트리밍한다. 한 요청 최대 500만 행(초과 413), 동시 내보내기 2개(초과 429), 응답 `Cache-Control: no-store`.
+- 형식: CSV 는 UTF-8 **BOM**(대화상자에서 끌 수 있음)·쉼표·`\r\n`·영문 snake_case 헤더, 숫자는 반올림하지 않음, 없는 값은 빈칸, 불리언 0/1. 문자열 열이 `= + - @` 탭으로 시작하면 앞에 `'` 를 붙인다(CSV 주입 방지). 파일명 `matchup_<id>_<data_hash 8자>_<YYYYMMDD-HHMMSS>.<확장자>`, 응답 헤더 `X-MatchUp-Meta`(생성 시각·build·SIM_VERSION·시드·X축·해시·편집 요약·범위·누락 수), zip 은 `meta.json`.
+- 범위(`scope`): `{fids: [...]|"all", x: 숫자|"all", series: ["after","before","scan"], n}`. 기본 = 선택한 환상 + 현재 X + 수정 후(+ 기준선). 편집 상태(`edits`·`cfg_edits`·`cfg_set`)를 본문으로 받고, 없으면 작업 공간의 현재 값을 쓴다.
+- API: `GET /api/export`(목록·열 설명), `POST /api/export/estimate`, `POST /api/export/<id>`, `POST /api/export/ticket` → `GET /api/export/dl/<t>`(60초·1회용 티켓 — 큰 파일(100 MB 초과)을 브라우저가 직접 받음, 헤더 없이 티켓이 인증). 클라이언트가 보낸 경로는 받지 않는다(`id` 는 레지스트리, 스캔은 `scan_id` 형식만).
+- **명세에서 달리 한 것·아직 안 한 것**: ① 점을 눌렀을 때 뜨는 상세 대신 곡선 탭의 `판별 데이터 받기` 버튼(선택 환상 + 현재 X)으로 `runs` 를 받는다. ② 시나리오의 `보기 상태 포함` 은 별도 체크박스 대화상자 대신 저장할 때 확인창으로 물어본다(기존 `prompt` 흐름 유지). ③ 작업 공간·시나리오 **가져오기**(P2), 점 캐시 묶음(Q57), 나머지 작업 결과(조합·스윕·튜닝·보정)를 패널이 열릴 때 자동으로 불러오는 UI 는 넣지 않았다(저장·조회 API 는 있음). ④ 100만 행 메모리 상한(AC-X4)은 자동 테스트로 재지 않았다(스트리밍 구조로 만족).
+
 ## 몬스터별 지표 — 편집을 바로 반영 (서버 모드)
 - 이전: 몬스터 탭의 '몬스터별 지표' 표는 스캔 때 저장한 `monster_metrics.json` 을 그대로 보여 줘서, 몬스터 체력·환상·설정을 고쳐도(또는 원본 JSON 이 바뀌어도) 바뀌지 않았다. 위쪽 '체력 리포트'만 즉시 갱신됐다.
 - 지금: 서버 모드에서 몬스터 탭을 열거나 편집이 바뀌면(0.5초 대기) 서버 작업 `monster_metrics`을 돌려 표를 다시 계산한다. 판 수를 **500 → 1500 → 3000** 단계로 늘리며 단계마다 표가 갱신된다. 환상·몬스터·패턴·설정 편집과 원본 JSON 변경이 모두 반영된다.
@@ -477,6 +504,10 @@ python -m unittest test_v43_panel           # v4.3 F13 AC-D1~D7, 재계산 사�
 python -m unittest test_v43_remote          # 원격 모드 토큰·Origin, 외부 수정 반영(서버·뷰어), 기기별 취소, 조합 k+2 팔   ~1분
 python -m unittest test_v43_digit_cap        # 몬스터 피해 숫자 상한: 화면 숫자 유지·상한 기준 최적 배치·DP 대조   ~1초
 python -m unittest test_v43_monmetrics      # 몬스터별 지표 서버 작업(단계·편집 반영·캐시·취소)과 몬스터 탭 갱신(Playwright)   ~30초
+python -m unittest test_v44_workspace       # v4.4 F14 작업 공간 API·재시작 복원·충돌·시나리오 결함 (AC-W2·W4~W8·W13)   ~40초
+python -m unittest test_v44_results         # v4.4 cache_only·스캔 선택/저장·작업 결과·몬스터 지표 영속 (AC-W9~W11·W15)   ~40초
+python -m unittest test_v44_export          # v4.4 F15 내려받기 서버 수준 (AC-X1~X10)                                  ~5초
+python -m unittest test_v44_ui              # v4.4 뷰어 자동 저장·복원·409·내려받기 UI (AC-W1·W3·W12·W13·X11, Playwright)   ~1분
 ```
 테스트는 `tests/fixtures/`의 사본을 임시 폴더에 복사해 쓰고, 실제 `Assets/` 아래 쓰기를 막는 가드(`MATCHUPSIM_FORBID_PATH`)를 건다.
 시뮬레이션 의미가 바뀌는 수정을 하면 `matchup_sim.SIM_VERSION`을 올려 캐시를 무효화한다.

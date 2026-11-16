@@ -20,6 +20,8 @@ from __future__ import annotations
 
 import argparse
 import copy
+import gzip
+import hashlib
 import json
 import os
 import secrets
@@ -40,15 +42,18 @@ import import_fantasies  # noqa: E402
 import import_monsters  # noqa: E402
 from sim_service import overlay as ovl  # noqa: E402
 from sim_service import reference as rf  # noqa: E402
+from sim_service import results as rs  # noqa: E402
 from sim_service import surrogate as sg  # noqa: E402
 from sim_service import surrogate_train as sgt  # noqa: E402
 import matchup_sim as ms  # noqa: E402
 from sim_service import compute as cp  # noqa: E402
 from sim_service import edits as ed  # noqa: E402
+from sim_service import export as exp  # noqa: E402
 from sim_service import jobs as jb  # noqa: E402
 from sim_service import stats as S  # noqa: E402
 from sim_service import store as st  # noqa: E402
 from sim_service import trace as trc  # noqa: E402
+from sim_service import workspace as wsp  # noqa: E402
 from sim_service import writeback as wb  # noqa: E402
 
 REPO = os.path.dirname(os.path.dirname(HERE))
@@ -128,24 +133,34 @@ class App:
                                extra_allowed=[self.scen_dir, self.results, os.path.dirname(self.monster_table_path)],
                                dirs={"monster": self.mon_dir, "pattern": self.pat_dir}, overlay=self.overlay)
         self.monster_data = None
+        self.workspace_dir = os.path.realpath(getattr(args, "workspace", None) or os.path.join(self.results, "workspace"))
+        self.workspace = wsp.Workspace(self.workspace_dir)
         self.build = code_build()                                   # v4.3 F13.6: 서버·뷰어 버전 확인
         self.started_at = time.strftime("%Y-%m-%dT%H:%M:%S")
         self.load_scan()
         self._disk_sig = self.disk_signature()
+        self.restore_file_edits()                 # v4.4 F14.3: JSON 편집 작업 사본(overlay)을 서버 재시작 뒤에도 되살림
         self.load_table()
+        self.choose_scan()                        # v4.4 F14.5b: 원본 해시와 맞는 스캔을 우선 올림
         self.wb.snapshot()
-        self.set_reference("disk")
+        self.set_reference("disk", persist=False)
+        self.restore_reference()                  # F14.3: 기준 핀
+        self.restore_last_apply()                 # F14.3: 마지막 원본 반영 기록
         self.jobs = jb.JobManager(self)
         # v4.1 F10: 한계효과 학습 (백그라운드, 최하위 우선순위). 근사값은 어디에도 저장하지 않는다.
         self.surrogate_auto = getattr(args, "surrogate_auto", "after_scan")
         self.trainer = sgt.Trainer(self)
 
     # --- 데이터
-    def load_scan(self):
+    def load_scan(self, path=None):
         self.scan = None
-        if os.path.exists(self.scan_path):
-            with open(self.scan_path, encoding="utf-8") as fp:
+        p = path or self.scan_path
+        if os.path.exists(p):
+            with open(p, encoding="utf-8") as fp:
                 self.scan = json.load(fp)
+        self._derive_scan_settings()
+
+    def _derive_scan_settings(self):
         m = (self.scan or {}).get("meta", {})
         if self.scan is None:      # 스캔 파일이 없으면 v4.2 기본 (몬스터 JSON 체력, X = 시작 체력)
             self.x_key = "player.start_hp"
@@ -168,6 +183,75 @@ class App:
             }
             if self.scan_base["monsters.model"] == "tier_avg" and not self.fixed:
                 self.fixed = {"monsters.act_hp_growth": 2.0}    # v4.1 까지의 동작 그대로 (고정값이 비면 이 값)
+
+    # --- v4.4 F14.5b: 스캔 색인·선택
+    def active_scan_id(self):
+        return ((self.scan or {}).get("meta") or {}).get("scan_id")
+
+    def _hash_under(self, meta):
+        """그 스캔의 설정(X축·고정값·피해 모델)으로 지금 원본의 data_hash 를 계산한다 (파일을 올리지 않고 meta 만 쓴다)."""
+        keep = (self.scan, self.x_key, self.x_values, self.fixed, self.seed, self.target, self.scan_base)
+        try:
+            self.scan = {"meta": meta}
+            self._derive_scan_settings()
+            cfg = self.cfg_for(self.table_data, self.monster_data)
+            return st.data_hash(self.table_hash, st.monster_hash(cfg))
+        finally:
+            self.scan, self.x_key, self.x_values, self.fixed, self.seed, self.target, self.scan_base = keep
+
+    def scans_listing(self):
+        act = self.active_scan_id()
+        out = []
+        for ent in rs.scan_index(self.results):
+            meta = {**ent, "fixed_overrides": ent.get("fixed_overrides") or {}}
+            try:
+                match = bool(ent.get("data_hash")) and ent["data_hash"] == self._hash_under(meta)
+            except Exception:  # noqa: BLE001
+                match = False
+            out.append({"scan_id": ent["scan_id"], "generated_at": ent.get("generated_at"), "data_hash": ent.get("data_hash"),
+                        "x_param": ent.get("x_param"), "match": match, "active": ent["scan_id"] == act})
+        return out
+
+    def activate_scan(self, scan_id):
+        path = rs.scan_path(self.results, scan_id)
+        with self.lock:
+            self.load_scan(path)
+            self.load_table()
+            ref = getattr(self, "ref", None)
+            if ref is not None and ref.get("source") == "disk":
+                self.set_reference("disk", persist=False)
+        return {"scan_id": self.active_scan_id(), "data_hash": self.data_hash}
+
+    def choose_scan(self):
+        """현재 data_hash 와 맞는 가장 최근 스캔을 올린다 (기본 파일이 이미 맞으면 그대로). 맞는 것이 없으면 아무것도 안 함."""
+        try:
+            cur = (self.scan or {}).get("meta")
+            if cur and cur.get("data_hash") and cur["data_hash"] == self._hash_under(cur):
+                return None
+            for ent in rs.scan_index(self.results)[:8]:
+                if ent.get("data_hash") and ent["data_hash"] == self._hash_under({**ent, "fixed_overrides": ent.get("fixed_overrides") or {}}):
+                    self.activate_scan(ent["scan_id"])
+                    return ent["scan_id"]
+        except Exception as e:  # noqa: BLE001
+            print(f"[scans] 스캔 선택 실패(기본 파일 유지): {e}", flush=True)
+        return None
+
+    def save_job_scan(self, job, as_current=True, name=None):
+        """완료된 전체 재계산 작업의 결과를 스캔으로 저장 (v4.4 F14.5c). 원본 해시와 같을 때만 현재 스캔으로 올린다."""
+        if job is None or job.kind != "scan" or not job.done or getattr(job, "assemble", None) is None:
+            raise ValueError("저장할 수 있는 완료된 전체 재계산 작업이 아님")
+        data = job.assemble()
+        if name:
+            data["meta"]["save_name"] = str(name)[:80]
+        current = bool(as_current) and getattr(job, "data_hash", None) == self.data_hash
+        if current:
+            self.save_scan(data, None)
+        else:
+            d = rs.scans_dir(self.results)
+            os.makedirs(d, exist_ok=True)
+            rs._atomic_write(os.path.join(d, f"{data['meta']['scan_id']}.json"), json.dumps(data, ensure_ascii=False, separators=(",", ":")))
+        return {"scan_id": data["meta"]["scan_id"], "current": current, "data_hash": getattr(job, "data_hash", None),
+                "reason": None if current else ("원본 해시와 달라 현재 스캔으로 올리지 않음" if as_current else None)}
 
     def materialize_monsters(self, mdata):
         h = st.monster_hash_of(mdata)
@@ -260,8 +344,9 @@ class App:
             pass
         return out
 
-    def set_reference(self, source="disk"):
-        """source = "disk": 디스크 원본(작업 사본 무시)을 임포트한 결과, "pinned": 현재 작업 사본."""
+    def set_reference(self, source="disk", persist=True):
+        """source = "disk": 디스크 원본(작업 사본 무시)을 임포트한 결과, "pinned": 현재 작업 사본.
+        persist: 핀을 workspace/reference_<해시>.json.gz 로 남긴다 (F14.3) — 서버를 다시 켜도 고스트 기준이 유지된다."""
         with self.lock:
             if source == "disk":
                 ot = {}
@@ -274,7 +359,134 @@ class App:
             cfg = self.cfg_for(tdata, mdata)
             th = st.table_hash(tdata)
             self.ref = rf.make(source, tdata, mdata, cfg, st.data_hash(th, st.monster_hash(cfg)), th, self.disk_files())
+            if persist:
+                self._persist_reference()
         return self.ref
+
+    # --- v4.4 F14.3 영속화
+    def _persist_reference(self):
+        try:
+            if self.ref["source"] != "pinned":
+                self.workspace.set_reference("disk", None)
+                self._prune_pins(None)
+                return
+            name = f"reference_{self.ref['data_hash']}.json.gz"
+            path = os.path.join(self.workspace_dir, name)
+            os.makedirs(self.workspace_dir, exist_ok=True)
+            tmp = path + f".{os.getpid()}.tmp"
+            with gzip.open(tmp, "wt", encoding="utf-8", compresslevel=6) as fp:
+                json.dump(self.ref, fp, ensure_ascii=False, separators=(",", ":"))
+            os.replace(tmp, path)
+            self.workspace.set_reference("pinned", name)
+            self._prune_pins(name)
+        except (OSError, wsp.WorkspaceError) as e:
+            print(f"[workspace] 기준 핀 저장 실패: {e}", flush=True)
+
+    def _prune_pins(self, keep):
+        try:
+            for fn in os.listdir(self.workspace_dir):
+                if fn.startswith("reference_") and fn.endswith(".json.gz") and fn != keep:
+                    os.remove(os.path.join(self.workspace_dir, fn))
+        except OSError:
+            pass
+
+    def restore_reference(self):
+        info = self.workspace.reference()
+        if info.get("source") != "pinned" or not info.get("pinned_file"):
+            return False
+        name = os.path.basename(info["pinned_file"])
+        try:
+            with gzip.open(os.path.join(self.workspace_dir, name), "rt", encoding="utf-8") as fp:
+                ref = json.load(fp)
+            if not all(k in ref for k in ("table_data", "cfg", "data_hash", "table_hash", "disk_files")):
+                raise ValueError("형식 오류")
+        except (OSError, ValueError, EOFError) as e:
+            print(f"[workspace] 기준 핀을 복원하지 못해 디스크 원본 기준으로 시작: {e}", flush=True)
+            return False
+        ref["source"] = "pinned"
+        self.ref = ref
+        return True
+
+    def disk_sig_str(self):
+        return hashlib.sha1(repr(self.disk_signature()).encode("utf-8")).hexdigest()[:16]
+
+    def file_edits_payload(self):
+        out = []
+        for kind, fid in self.overlay.dirty():
+            d = self.overlay.disk(kind, fid)
+            out.append({"kind": kind, "id": fid, "base_sha1": self.overlay.base.get((kind, fid)) or d["sha1"],
+                        "new_text": self.overlay.work[(kind, fid)]})
+        return out
+
+    def sync_workspace_files(self):
+        """JSON 편집 작업 사본이 바뀔 때마다 작업 공간 파일의 file_edits 를 같이 갱신한다 (서버가 소유)."""
+        try:
+            self.workspace.set_file_edits(self.file_edits_payload())
+        except (OSError, wsp.WorkspaceError) as e:
+            print(f"[workspace] 작업 사본 저장 실패: {e}", flush=True)
+
+    def apply_file_edits(self, items):
+        """저장된 작업 사본을 overlay 에 되돌린다. 복원하지 못한 항목은 held 로 돌려준다."""
+        held = []
+        for fe in items or []:
+            try:
+                kind, fid, text = fe["kind"], fe["id"], fe["new_text"]
+                d = self.overlay.disk(kind, fid)
+                if d["sha1"] != fe.get("base_sha1"):
+                    held.append({"type": "file", "item": fe, "reason": "원본 파일이 편집 시작 때와 다름(base_sha1 불일치)"})
+                    continue
+                text, obj, msgs = self.overlay.validate(kind, fid, text)
+                if obj is None or any(m["level"] == "error" for m in msgs):
+                    held.append({"type": "file", "item": fe, "reason": "저장된 원문이 지금 검증을 통과하지 못함"})
+                    continue
+                self.overlay.set_text(kind, fid, text)
+            except (KeyError, OSError, ovl.OverlayError) as e:
+                held.append({"type": "file", "item": fe, "reason": f"{type(e).__name__}: {e}"})
+        return held
+
+    def restore_file_edits(self):
+        items = self.workspace.file_edits()
+        if not items:
+            return
+        held = self.apply_file_edits(items)
+        if held:
+            self.workspace.add_held(held)
+        self.sync_workspace_files()
+
+    def restore_last_apply(self):
+        """가장 최근 백업의 manifest 가 가리키는 파일들이 아직 반영된 그대로일 때만 '반영 되돌리기'를 되살린다."""
+        try:
+            names = sorted(n for n in os.listdir(self.backup_dir) if os.path.isfile(os.path.join(self.backup_dir, n, "manifest.json")))
+        except OSError:
+            return
+        if not names:
+            return
+        bdir = os.path.join(self.backup_dir, names[-1])
+        try:
+            with open(os.path.join(bdir, "manifest.json"), encoding="utf-8") as fp:
+                files = (json.load(fp).get("files") or {})
+            ok = bool(files)
+            for v in files.values():
+                with open(v["path"], "rb") as fp:
+                    if not v.get("new_sha1") or hashlib.sha1(fp.read()).hexdigest() != v["new_sha1"]:
+                        ok = False
+                        break
+        except (OSError, ValueError, KeyError):
+            return
+        if ok:
+            self.wb.last = bdir
+
+    def workspace_get(self):
+        w = self.workspace.get()
+        st = w.get("state")
+        out = {**w, "disk_signature": self.disk_sig_str(), "data_hash": self.data_hash, "restore": None}
+        if st:
+            held_before = st.get("held") or []
+            chk = wsp.check_state(st, self.table_data, self.base_cfg, self.monster_data)
+            out["restore"] = {"edits": chk["edits"], "cfg_edits": chk["cfg_edits"], "cfg_set": chk["cfg_set"],
+                              "held": held_before + chk["held"],
+                              "signature_changed": (st.get("base") or {}).get("disk_signature") not in (None, self.disk_sig_str())}
+        return out
 
     def changed(self):
         return rf.changed_set(self.ref, self.table_data, self.monster_data, self.base_cfg)
@@ -308,6 +520,7 @@ class App:
         self.overlay.reindex()
         self.load_table()
         self._disk_sig = self.disk_signature()
+        self.sync_workspace_files()
         self.set_reference("disk")     # 반영 후 기준 = 반영된 디스크 원본 (§6.8)
         return self.table_data
 
@@ -333,6 +546,7 @@ class App:
             with self.lock:
                 ov.revert(kind, fid)
                 self.load_table()
+                self.sync_workspace_files()
             return {**ov.info(kind, fid), "data_hash": self.data_hash, "reference": self.reference_info()}
         if sub == "view":   # 숫자 UI 편집을 텍스트에 반영해 보여 주기 (양방향 동기화)
             pv = self.wb.preview(self.table_data, body.get("edits", []), self.monster_data)
@@ -372,6 +586,7 @@ class App:
                 prev = self.data_hash
                 ov.set_text(kind, fid, text)
                 self.load_table()
+                self.sync_workspace_files()
             out["saved"] = True
             out["data_hash"] = self.data_hash
             # 공백·키 순서·이름처럼 시뮬 값이 같은 변경 → 재계산 불필요 (AC-R2)
@@ -508,9 +723,13 @@ class Handler(BaseHTTPRequestHandler):
             return
         if not path.startswith("/api/"):
             return self._deny(404, "없음")
+        if path.startswith("/api/export/dl/"):        # 큰 파일: 1회용 티켓이 인증을 대신한다 (브라우저가 직접 받으므로 헤더를 못 붙임)
+            return self._export_dl(path.split("/")[4])
         if not self._guard_api():
             return
         try:
+            if path == "/api/export":
+                return self._json(exp.catalog())
             if path in ("/api/ping", "/api/state", "/api/fantasies", "/api/monsters"):
                 self.app.refresh_from_disk()
             if path == "/api/ping":
@@ -522,7 +741,7 @@ class Handler(BaseHTTPRequestHandler):
                                    "dirty_files": [{"kind": k, "id": i} for k, i in a.overlay.dirty()],
                                    "has_monsters": a.monster_data is not None,
                                    "monster_model": a.base_cfg["monsters"].get("model"),
-                                   "scan_meta": (a.scan or {}).get("meta"),
+                                   "scan_meta": (a.scan or {}).get("meta"), "scan_id": a.active_scan_id(),
                                    "x_key": a.x_key, "x_values": a.x_values, "seed": a.seed,
                                    "stages": a.progressive_stages, "adaptive_stages": a.adaptive_stages,
                                    "epsilon": a.epsilon, "last_apply": a.wb.last,
@@ -534,6 +753,21 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(self.app.fantasies_payload())
             if path == "/api/reference":
                 return self._json(self.app.reference_info())
+            if path == "/api/workspace":
+                self.app.refresh_from_disk()
+                return self._json(self.app.workspace_get())
+            if path == "/api/workspace/history":
+                return self._json({"history": self.app.workspace.history()})
+            if path == "/api/scans":
+                return self._json({"scans": self.app.scans_listing(), "active": self.app.active_scan_id()})
+            if path == "/api/results":
+                kind = (parse_qs(urlparse(self.path).query).get("kind") or [""])[0]
+                return self._json({"kind": kind, "results": rs.list_(self.app.results, kind)})
+            if path.startswith("/api/results/"):
+                parts = [unquote(x) for x in path.split("/")[3:]]
+                if len(parts) != 2:
+                    return self._deny(400, "형식: /api/results/<kind>/<key>")
+                return self._json(rs.get(self.app.results, parts[0], parts[1]))
             if path.startswith("/api/surrogate/"):
                 return self._json(self._surrogate_get(path, parse_qs(urlparse(self.path).query)))
             if path == "/api/monsters":
@@ -569,8 +803,10 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_PUT(self):
         path = urlparse(self.path).path
+        if path == "/api/workspace":
+            return self._workspace_put()
         if not path.startswith("/api/files/"):
-            return self._deny(405, "PUT 은 /api/files/<kind>/<id> 만 허용")
+            return self._deny(405, "PUT 은 /api/files/<kind>/<id> 와 /api/workspace 만 허용")
         if not self._guard_api(write=True):
             return
         try:
@@ -586,10 +822,83 @@ class Handler(BaseHTTPRequestHandler):
         except (ValueError, KeyError, TypeError) as e:
             return self._deny(400, f"{type(e).__name__}: {e}")
 
+    # --- v4.4 F15 내려받기
+    def _export_dl(self, t):
+        if not self._host_ok():
+            return self._deny(403, "Host/Origin 거부")
+        v = exp.use_ticket(unquote(t))
+        if v is None:
+            return self._deny(403, "티켓이 없거나 만료됨·이미 사용됨")
+        try:
+            return self._export_send(v["dataset"], v["body"])
+        except (ValueError, KeyError, TypeError, FileNotFoundError) as e:
+            return self._deny(400, f"{type(e).__name__}: {e}")
+
+    def _export_send(self, dataset, body):
+        a = self.app
+        try:
+            exp.acquire()
+        except exp.ExportBusy as e:
+            return self._deny(429, str(e))
+        try:
+            a.refresh_from_disk()
+            try:
+                with a.lock:                                  # 서버 잠금은 설정·계획을 준비하는 동안만
+                    ex = exp.build(a, dataset, body)
+            except exp.ExportError as e:
+                return self._deny(e.code, str(e))
+            meta = {k: v for k, v in ex.meta.items() if k != "missing"}
+            mh = json.dumps(meta, ensure_ascii=True, separators=(",", ":"))
+            if len(mh) > 6000:
+                mh = json.dumps({k: meta.get(k) for k in ("dataset", "generated_at", "build", "sim_version", "master_seed",
+                                                           "x_param", "base_data_hash", "view_data_hash", "rows", "missing_count")},
+                                ensure_ascii=True, separators=(",", ":"))
+            self.send_response(200)
+            self.send_header("Content-Type", ex.ctype)
+            self.send_header("Content-Disposition", f"attachment; filename=\"{ex.filename}\"; filename*=UTF-8''{ex.filename}")
+            self.send_header("X-MatchUp-Meta", mh)
+            self.send_header("X-MatchUp-Missing", str(ex.missing))
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("Connection", "close")
+            self.end_headers()
+            try:
+                for ch in ex.chunks:
+                    self.wfile.write(ch)
+            except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
+                return
+        finally:
+            exp.release()
+
+    def _workspace_put(self):
+        if not self._guard_api(write=True):
+            return
+        try:
+            body = self._body()
+            a = self.app
+            try:
+                res = a.workspace.put(int(body.get("rev") or 0), str(body.get("client") or ""), body.get("state"),
+                                      force=bool(body.get("force")))
+            except wsp.WorkspaceConflict as c:
+                return self._json({"error": str(c), **c.cur}, 409)
+            except wsp.WorkspaceTooLarge as e:
+                return self._deny(413, str(e))
+            except wsp.WorkspaceError as e:
+                return self._deny(400, str(e))
+            return self._json({**res, "disk_signature": a.disk_sig_str()})
+        except (ValueError, KeyError, TypeError) as e:
+            return self._deny(400, f"{type(e).__name__}: {e}")
+
     def do_DELETE(self):
         path = urlparse(self.path).path
         if not self._guard_api():
             return
+        if path == "/api/workspace":
+            a = self.app
+            with a.lock:
+                res = a.workspace.clear(self.headers.get("X-MatchUp-Client"))
+                a.overlay.clear()                       # 초기화는 JSON 편집 작업 사본도 비운다
+                a.load_table()
+            return self._json({**res, "data_hash": a.data_hash})
         if path.startswith("/api/files/"):
             return self._deny(405, "파일 삭제는 지원하지 않음")
         if path.startswith("/api/jobs/"):
@@ -621,6 +930,35 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json({"id": job.id})
             if path.startswith("/api/surrogate/"):
                 return self._json(self._surrogate_post(path, body))
+            if path == "/api/export/estimate":
+                a.refresh_from_disk()
+                return self._json(exp.estimate(a, body.get("id"), body))
+            if path == "/api/export/ticket":
+                return self._json(exp.make_ticket(body.get("id"), body))
+            if path.startswith("/api/export/"):
+                return self._export_send(unquote(path.split("/")[3]), body)
+            if path.startswith("/api/scans/") and path.endswith("/activate"):
+                with a.lock:
+                    return self._json(a.activate_scan(unquote(path.split("/")[3])))
+            if path.startswith("/api/jobs/") and path.endswith("/save"):
+                return self._json(a.save_job_scan(a.jobs.jobs.get(path.split("/")[3]), body.get("as_current", True), body.get("name")))
+            if path == "/api/results/lookup":
+                kind = body.get("kind")
+                cfg, h = jb.prepare(a, body.get("edits"), body.get("cfg_edits"), body.get("cfg_set"))
+                hit = rs.lookup(a.results, kind, body.get("params") or {}, jb.dh_of(cfg, h),
+                                rs.cfg_tag_of(body.get("cfg_edits"), body.get("cfg_set")))
+                return self._json({"found": hit is not None, "result": hit})
+            if path.startswith("/api/workspace/history/") and path.endswith("/restore"):
+                hid = unquote(path.split("/")[4])
+                with a.lock:
+                    res = a.workspace.restore(hid, body.get("client"))
+                    a.overlay.clear()
+                    held = a.apply_file_edits(res["file_edits"])
+                    if held:
+                        a.workspace.add_held(held)
+                    a.load_table()
+                    a.sync_workspace_files()
+                return self._json({"rev": res["rev"], "data_hash": a.data_hash})
             if path == "/api/reference/pin":
                 a.set_reference("disk" if body.get("source") == "disk" else "pinned")
                 return self._json(a.reference_info())
@@ -637,7 +975,7 @@ class Handler(BaseHTTPRequestHandler):
                       for k, i in a.overlay.dirty()]
                 p, data = ed.save_scenario(a.scen_dir, body.get("name", ""), body.get("edits", []),
                                            body.get("cfg_edits", []), a.data_hash, body.get("note", ""),
-                                           body.get("results"), body.get("applied"), fe, body.get("cfg_set"))
+                                           body.get("results"), body.get("applied"), fe, body.get("cfg_set"), body.get("view"))
                 return self._json({"saved": os.path.basename(p), "scenario": data})
             if path == "/api/apply/preview":
                 pv = a.wb.preview(a.table_data, body.get("edits", []), a.monster_data)
@@ -673,11 +1011,13 @@ class Handler(BaseHTTPRequestHandler):
                 if body.get("scenario"):
                     try:
                         scen = ed.load_scenario(a.scen_dir, body["scenario"])
+                        base = scen.get("base") or {}
                         ed.save_scenario(a.scen_dir, scen["name"], scen.get("edits", []), scen.get("cfg_edits", []),
-                                         scen["base"]["table_hash"], scen.get("note", ""), scen.get("results"),
-                                         {"at": res["at"], "files": res["files"], "backup_dir": res["backup_dir"]})
-                    except (OSError, ValueError, KeyError):
-                        pass
+                                         base.get("data_hash") or base.get("table_hash") or a.data_hash, scen.get("note", ""),
+                                         scen.get("results"), {"at": res["at"], "files": res["files"], "backup_dir": res["backup_dir"]},
+                                         scen.get("file_edits"), scen.get("cfg_set"), scen.get("view"))
+                    except (OSError, ValueError, KeyError, TypeError) as ex:     # 조용히 삼키지 않는다 (v4.4 F14.7)
+                        res["scenario_update_error"] = f"{type(ex).__name__}: {ex}"
                 return self._json({**res, "table_hash": a.table_hash, "data_hash": a.data_hash})
             if path == "/api/apply/revert":
                 with a.lock:
@@ -848,6 +1188,7 @@ def parse_args(argv=None):
     ap.add_argument("--monster-table", default=os.path.join(HERE, "monster_table.json"))
     ap.add_argument("--overrides", default=os.path.join(HERE, "fantasy_effects.overrides.json"))
     ap.add_argument("--scenarios", default=os.path.join(HERE, "scenarios"))
+    ap.add_argument("--workspace", help="작업 공간(자동 저장) 폴더 (기본 <results>/workspace) — v4.4 F14")
     ap.add_argument("--backup", default=os.path.join(HERE, ".matchupsim_backup"))
     ap.add_argument("--targets", default=os.path.join(HERE, "balance_targets.json"))
     ap.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 2) - 1))
