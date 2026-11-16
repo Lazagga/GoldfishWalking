@@ -82,6 +82,20 @@ class ServerJob(unittest.TestCase):
         evs = self.run_metrics(stages=[10], edits=[{"target": "monster", "mid": "NoSuchMonster", "key": "hp", "old": 1, "new": 2}])
         self.assertEqual(evs[-1]["type"], "error")
 
+    def test_not_blocked_by_long_job(self):
+        """전체 재계산처럼 오래 걸리는 작업이 도는 동안에도 몬스터 지표는 바로 계산된다 (예전에는 그 뒤에 줄을 서서 표가 안 바뀌었다)."""
+        big = self.sb.job({"kind": "recompute", "client": "other", "x_values": [500, 600, 700], "stages": [300000]})
+        try:
+            time.sleep(1.0)
+            t0 = time.perf_counter()
+            evs = self.run_metrics(client="meB", stages=[40], chunk=40, edits=[hp_edit(444)])
+            self.assertEqual(evs[-1]["type"], "done")
+            self.assertLess(time.perf_counter() - t0, 60)
+            self.assertFalse(self.sb.app.jobs.jobs[big].done)               # 긴 작업은 아직 돌고 있다
+        finally:
+            self.sb.req("DELETE", f"/api/jobs/{big}")
+            self.sb.events(big)
+
     def test_other_client_not_cancelled(self):
         # 같은 기기의 곡선 재계산(client=A)과 몬스터 지표(client=Am)는 서로 취소하지 않는다
         j1 = self.sb.job({"kind": "monster_metrics", "client": "Am", "stages": [60], "chunk": 30, "edits": [hp_edit(333)]})

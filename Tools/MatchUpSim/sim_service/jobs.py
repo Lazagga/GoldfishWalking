@@ -20,6 +20,7 @@ from . import stats as S
 from . import store as st
 
 BASE = "__baseline__"
+LIGHT_KINDS = ("monster_metrics",)
 PROGRESS_LOG = True      # 서버 콘솔에 진행 상황을 ~10초마다 한 줄 찍는다 (테스트에서는 끈다)
 
 
@@ -73,7 +74,8 @@ class JobManager:
         self.by_client = {}
         self.lock = threading.Lock()
         self.run_lock = threading.Lock()
-        self.pending = 0          # 실행 대기 중인 인터랙티브 작업 수 (학습 작업이 보고 양보한다, v4.1 F10.4)
+        self.light_lock = threading.Lock()      # 가벼운 표시용 작업(monster_metrics)은 긴 계산 뒤에서 기다리지 않는다 — 자기들끼리만 차례로
+        self.pending = 0         # 실행 대기 중인 인터랙티브 작업 수 (학습 작업이 보고 양보한다, v4.1 F10.4)
 
     def submit(self, kind, params):
         fn = JOB_KINDS.get(kind)
@@ -103,7 +105,9 @@ class JobManager:
         return job
 
     def _run(self, job, fn):
-        with self.run_lock:  # 이전 작업이 조각을 마치고 빠질 때까지 대기 (조각 ≤250판 → 1초 이내)
+        # 이전 작업이 조각을 마치고 빠질 때까지 대기 (조각 ≤250판 → 1초 이내). 단, 몬스터 지표는 전체 재계산·스캔처럼
+        # 몇 시간 걸리는 작업 뒤에 줄 서면 편집이 표에 반영되지 않으므로 별도 잠금으로 바로 돈다(워커 풀은 같이 쓴다).
+        with (self.light_lock if job.kind in LIGHT_KINDS else self.run_lock):
             with self.lock:
                 self.pending -= 1
             if job.cancelled:
