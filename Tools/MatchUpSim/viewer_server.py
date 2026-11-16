@@ -180,6 +180,8 @@ class App:
                 "monsters.model": m.get("monster_model") or legacy["model"],
                 "monsters.damage_model": m.get("damage_model") or legacy["damage_model"],
                 "monsters.gimmicks": m.get("monsters_gimmicks") or legacy["gimmicks"],
+                # 저장된 스캔은 그 스캔이 쓴 획득 방식으로 이어서 계산한다 (필드가 없는 옛 스캔 = 환상 확정). 스캔이 없으면 새 기본(불씨)
+                "rewards.normal_battle.mode": m.get("reward_system") or m.get("reward_mode") or "fantasy",
             }
             if self.scan_base["monsters.model"] == "tier_avg" and not self.fixed:
                 self.fixed = {"monsters.act_hp_growth": 2.0}    # v4.1 까지의 동작 그대로 (고정값이 비면 이 값)

@@ -204,7 +204,7 @@ def mon_save(root, data_hash, seed, cfg_digest, data, keep=PER_KIND_MAX):
 # 스캔 색인 (F14.5b)
 # ---------------------------------------------------------------------------
 META_KEYS = ("scan_id", "data_hash", "table_hash", "x_param", "x_values", "damage_model", "monster_model", "monsters_gimmicks",
-             "generated_at", "master_seed", "runs_per_point", "fixed_overrides", "target_win_rate", "effect_mode")
+             "generated_at", "master_seed", "runs_per_point", "fixed_overrides", "target_win_rate", "effect_mode", "reward_system", "reward_mode")
 
 
 def scans_dir(root):

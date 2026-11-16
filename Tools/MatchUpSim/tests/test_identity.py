@@ -16,6 +16,8 @@ def _legacy(mod):
     cfg = _c.deepcopy(mod.DEFAULT_CONFIG)
     if hasattr(mod, "LEGACY_MONSTERS"):
         cfg["monsters"].update(mod.LEGACY_MONSTERS)
+    if "rewards" in cfg:      # v1 원본 모듈에는 rewards 설정이 없다 (보상 = 환상 확정)
+        cfg["rewards"]["normal_battle"]["mode"] = "fantasy"      # v4.4 부터 기본 획득 방식이 ember — v1 과 같은 환상 확정 보상으로 비교
     return cfg
 
 HERE = os.path.dirname(os.path.abspath(__file__))

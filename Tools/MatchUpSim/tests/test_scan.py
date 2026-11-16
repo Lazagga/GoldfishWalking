@@ -68,6 +68,7 @@ class AC5NullHarness(unittest.TestCase):
             res = fantasy_scan.main(["--effects", path, "--x", self.X,
                                      "--fantasies", ",".join(d["id"] for d in dummies),
                                      "--runs", str(self.RUNS), "--seed", "null", "--set", "monsters.act_hp_growth=2.0", "--set", 'monsters.model="tier_avg"',
+                                     "--set", 'rewards.normal_battle.mode="fantasy"',     # 이 하네스의 승률 구간은 환상 확정 보상 기준
                                      "--workers", str(WORKERS), "--out", tmp, "--quiet"])
         cover, total, deltas, widths = 0, 0, [], []
         for fid, cur in res["curves"].items():

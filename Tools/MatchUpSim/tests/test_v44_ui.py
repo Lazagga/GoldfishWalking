@@ -117,6 +117,29 @@ class WorkspaceUI(unittest.TestCase):
         self.assertEqual(errs, [])
         ctx2.close()
 
+    def test_reload_after_full_recompute_has_no_stale_badges(self):
+        """편집 + 전체 재계산 뒤 새로고침해도 모든 환상이 '이전 데이터'가 되지 않는다 (저장된 계산을 전부 불러온다)."""
+        ctx, pg, _ = self.open("#t=curve")
+        self.edit(pg, SCYTHE, 1)
+        pg.wait_for_function("window.__lastJob && window.__lastJob.kind === 'recompute' && window.__lastJob.result", timeout=120000)
+        pg.click("#btnFull")
+        pg.wait_for_function("window.__lastJob && window.__lastJob.kind === 'scan' && window.__lastJob.result", timeout=180000)
+        pg.wait_for_function(SAVED, timeout=20000)
+        pg.click('.tab[data-t="rank"]')
+        self.assertEqual(len(pg.query_selector_all("#rank .badge.stale")), 0)           # 전체 재계산 직후는 이전 배지 없음
+        before = self.sb.app.engine.runs_computed
+        ctx.close()
+        ctx2, pg2, errs = self.open("#t=rank")
+        pg2.wait_for_function("window.__lastJob && window.__lastJob.kind === 'recompute' && window.__lastJob.result", timeout=120000)
+        pg2.wait_for_timeout(800)
+        self.assertEqual(self.sb.app.engine.runs_computed, before)                       # 저장된 계산만 읽었다
+        stale = len(pg2.query_selector_all("#rank .badge.stale"))
+        total = len(pg2.query_selector_all("#rank tbody tr"))
+        self.assertGreater(total, 50)
+        self.assertEqual(stale, 0, f"새로고침 뒤 이전 배지 {stale}/{total}")
+        self.assertEqual(errs, [])
+        ctx2.close()
+
     # --- AC-W12
     def test_w12_save_failure_retry_and_no_loss(self):
         ctx, pg, errs = self.open()

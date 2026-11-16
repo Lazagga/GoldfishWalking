@@ -217,11 +217,11 @@ DEFAULT_CONFIG = {
         "softmax_temp": 0.02,         # softmax_value 온도 (가치 단위 = Δ승률)
     },
     "rewards": {
-        # 일반 전투 보상 구조 (v2 F5). fantasy = 환상 확정(기본, v1 동작)
+        # 일반 전투 보상 구조 (v2 F5). ember = 불씨 획득 시스템(v4.4 부터 기본 — 도입 예정안, v3 §7)
+        #   fantasy: 환상 확정 (v1~v4.3 기본, legacy_config() 가 이 값을 명시한다)
         #   chance: fantasy_chance 확률로만 환상 / choice: 체력 < policy.rest_below_hp 면 회복,
         #   아니면 환상(후보 없으면 아이템 2개)
-        #   ember: 불씨 획득 시스템 (v3 §7, 게임 미반영 변경안 — 시뮬레이터 전용)
-        "normal_battle": {"mode": "fantasy", "fantasy_chance": 1.0, "heal_amount": 40},
+        "normal_battle": {"mode": "ember", "fantasy_chance": 1.0, "heal_amount": 40},
         # 불씨: 일반 전투 승리마다 불씨 1개, slot_size 개가 모이면 백색 환상 3택1.
         #   blue_mode  replace = 불씨가 확률 blue_chance 로 푸른색 / extra = 하얀 불씨 + 확률로 푸른 불씨 추가
         #   blue_reward offer = 푸른 불씨가 든 슬롯은 후보 중 min(푸른 수, blue_offer_cap)개가 청색 / direct = 청색 즉시 획득
@@ -246,10 +246,11 @@ TABLE_UNUSED = ("monsters.hp_base", "monsters.act_hp_growth", "monsters.tier_hp_
 
 
 def legacy_config(**monsters):
-    """v4.1 까지의 기본 설정 (tier_avg + gauss + 기믹 끔). 구버전 결과 재현·회귀 테스트용."""
+    """v4.1 까지의 기본 설정 (tier_avg + gauss + 기믹 끔 + 환상 확정 보상). 구버전 결과 재현·회귀 테스트용."""
     cfg = copy.deepcopy(DEFAULT_CONFIG)
     cfg["monsters"].update(LEGACY_MONSTERS)
     cfg["monsters"].update(monsters)
+    cfg["rewards"]["normal_battle"]["mode"] = "fantasy"       # v4.3 까지의 기본 획득 방식 (기본값이 ember 로 바뀐 뒤에도 옛 결과 재현)
     return cfg
 
 

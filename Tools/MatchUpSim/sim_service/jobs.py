@@ -325,6 +325,48 @@ def job_recompute(app, job):
     return {"table_hash": h_after, "data_hash": dh_of(cfg_after, h_after), "cache_only": bool(p.get("cache_only"))}
 
 
+def _scan_peek(app, job, cfg, h, fids, stages, adaptive):
+    """점 캐시에서 환상 전부의 '수정 후' 점을 읽어 점 이벤트로 보낸다. 점마다 바로 보내고 레코드를 메모리에 쌓지 않는다
+    (store.read). 적응형 재계산은 점마다 판 수가 다르므로 첫 단계(예: 500판) 이상이면 부분 결과가 아니다."""
+    ss = SeriesSet(app, job, app.x_key, app.seed)
+    ss.add_series("after", cfg, h)
+    store, n_t = app.store, stages[-1]
+    low = stages[0] if adaptive else n_t
+    found = partial = 0
+    missing = []
+
+    def point(rec, x, n, base):
+        p = S.point_stats(rec, x, n)
+        p["table_hash"] = h
+        p["layer"] = "current"
+        if base is not None and n > 0:
+            p.update(S.paired_delta(rec, base, min(n, base["n"])))
+        p["partial"] = rec["n"] < low
+        return p
+    for x in app.x_values:
+        if job.cancelled:
+            raise cp.Cancelled()
+        base = store.read(ss.req("after", BASE, x)["key"])
+        if base is None:
+            missing.append({"series": "after", "fid": BASE, "x": x})
+        else:
+            p = point(base, x, min(base["n"], n_t), None)
+            partial += p["partial"]
+            found += 1
+            job.emit("point", series="after", fid=BASE, x=x, stage=0, point=p)
+        for fid in fids:
+            rec = store.read(ss.req("after", fid, x)["key"])
+            if rec is None:
+                missing.append({"series": "after", "fid": fid, "x": x})
+                continue
+            p = point(rec, x, min(rec["n"], n_t, base["n"] if base else rec["n"]), base)
+            partial += p["partial"]
+            found += 1
+            job.emit("point", series="after", fid=fid, x=x, stage=0, point=p)
+    job.emit("cache_summary", found=found, partial=partial, missing=missing[:500], missing_count=len(missing), target=n_t)
+    return {"table_hash": h, "cache_only": True}
+
+
 def job_scan(app, job):
     """전체 재계산 / 패싯 스캔: fantasy_scan.run_scan 으로 모든(또는 지정) 환상을 계산."""
     import fantasy_scan as fs
@@ -337,12 +379,8 @@ def job_scan(app, job):
     job.emit("plan", table_hash=h, data_hash=dh_of(cfg, h), fids=fids, x_values=app.x_values, stages=stages,
              facet_key=facet_key, facet_values=facet_values)
 
-    if p.get("cache_only"):                       # v4.4 F14.5a
-        ss = SeriesSet(app, job, app.x_key, app.seed)
-        ss.add_series("after", cfg, h)
-        items = [("after", BASE, x) for x in app.x_values] + [("after", f, x) for f in fids for x in app.x_values]
-        ss.peek(items, stages[-1])
-        return {"table_hash": h, "cache_only": True}
+    if p.get("cache_only"):                       # v4.4 F14.5a: 저장된 전체 재계산 결과를 환상 전부에 대해 읽는다 (새로 돌리지 않음)
+        return _scan_peek(app, job, cfg, h, fids, stages, bool(p.get("adaptive", True)))
 
     def on_point(fv, fid, x, pt):
         pt["table_hash"] = h
@@ -615,7 +653,8 @@ def job_ember_sweep(app, job):
     return {"x": x, "n": n, "cells": cells, "slot_sizes": slots, "blue_chances": chances}
 
 
-MON_CACHE_MAX = 800       # 몬스터 지표 조각(≤250판) 캐시 항목 수 — 한 항목은 몬스터 수십 종의 합계라 작다
+MON_CACHE_MAX = 2500      # 몬스터 지표 조각(≤250판) 캐시 항목 수 — 한 항목은 몬스터 수십 종의 합계라 작다 (30만 판 = 1200조각)
+MON_STAGES = (500, 3000, 30000, 300000)     # 몬스터별 지표 판 수 단계 (v4.4: 선택 X 에서 최대 30만 판)
 
 
 def _pool_run(app, job, tasks, fn, on_done):
@@ -676,6 +715,11 @@ def monster_metrics_setup(app, p):
         raise ValueError("몬스터 편집 적용 실패: " + "; ".join(str(x.get("reason")) for x in c + e))
     cfg["monsters"]["model"] = "table"          # 몬스터별 지표는 실제 몬스터 테이블로만 의미가 있다 (CLI 와 같음)
     cfg["monsters"]["table_file"] = app.materialize_monsters(mdata)
+    x = p.get("x")                              # v4.4: 뷰어에서 선택한 X(예: 시작 체력)에서 계산한다. 없으면 서버 기본 설정
+    if x is not None:
+        if isinstance(x, bool) or not isinstance(x, (int, float)) or x != x or abs(x) == float("inf"):
+            raise ValueError("x 는 유한한 숫자여야 함")
+        ms.set_path(cfg, app.x_key, x)
     seed = str(p.get("seed") or "mon1")
     ckey = hashlib.sha1(json.dumps([cfg, seed, ms.SIM_VERSION], sort_keys=True, default=str).encode("utf-8")).hexdigest()
     return cfg, h, mdata, seed, ckey, dh_of(cfg, h)
@@ -683,13 +727,15 @@ def monster_metrics_setup(app, p):
 
 def job_monster_metrics(app, job):
     """몬스터별 지표를 현재 편집(환상·몬스터·패턴·설정)을 반영해 다시 계산한다 (런 전체 시뮬, 몬스터 테이블 모델).
-    판 수를 단계(기본 500 → 1500 → 3000)로 늘리며 단계마다 `metrics` 이벤트로 전체 표를 보낸다.
+    판 수를 단계(기본 500 → 3000 → 3만 → 30만)로 늘리며 단계마다 `metrics` 이벤트로 전체 표를 보낸다.
     같은 설정·시드의 조각(≤250판)은 서버 메모리에 캐시해 단계가 올라가거나 같은 상태로 다시 열 때 다시 돌리지 않는다.
     CLI monster_metrics.py 와 같은 조각 집계·시드 규칙(f"{seed}-{i}")을 쓴다 (설정은 서버의 현재 작업 사본 기준)."""
     from . import monsters as mo
     p = job.params
     cfg, h, mdata, seed, ckey, dh = monster_metrics_setup(app, p)
-    stages = sorted(set(int(s) for s in (p.get("stages") or [500, 1500, 3000])))
+    stages = sorted(set(int(s) for s in (p.get("stages") or MON_STAGES)))
+    if not stages or stages[0] < 1 or stages[-1] > 10_000_000:
+        raise ValueError("stages: 1 ~ 10,000,000 판")
     chunk = max(1, int(p.get("chunk") or 250))
     cache = app.__dict__.setdefault("mon_cache", {})
 
@@ -734,7 +780,7 @@ def job_monster_metrics(app, job):
             job.progress.end(0)
         agg, deaths, runs, wins = mo.merge([parts[s] for s in sorted(parts)])
         res = mo.build_result(cfg, agg, deaths, runs, wins, monster_table=mdata)
-        last = {"meta": mo.meta_of(cfg, seed, n), **res}
+        last = {"meta": {**mo.meta_of(cfg, seed, n), "x_param": app.x_key, "x": p.get("x")}, **res}
         try:
             rs.mon_save(app.results, dh, seed, ckey, last)
         except OSError as e:

@@ -289,7 +289,8 @@ FANTS.forEach(summarize);
 const S = { sel: [], slot: {}, metric: "win", act: 1, x: XS[Math.floor(XS.length / 2)], tab: "curve", T: META.target_win_rate ?? 0.1,
   ci: true, smooth: false, q: "", grades: { white: true, blue: true, red: true }, sort: "delta_desc", rankMode: "x", rankSort: "delta", rankDir: -1,
   facet: FACETS ? FACETS.default : null, overlay: false, focus: null,
-  edits: [], cfgEdits: [], cfgSet: {}, fileEdits: [], undo: [], redo: [], sweepMetric: "win_rate" };
+  edits: [], cfgEdits: [], cfgSet: {}, fileEdits: [], undo: [], redo: [], sweepMetric: "win_rate",
+  simN: null, monN: 300000 };   // simN: 점당 최대 판 수(null = 서버 기본), monN: 몬스터별 지표 최대 판 수
 const COMBO = { res: null, busy: false, est: null, cache: {} };   // cache: 조합 키 → 결과 (체크를 바꿨다 돌아와도 유지)
 const CLIENT = Math.random().toString(36).slice(2, 12);           // 이 탭의 작업만 취소하도록 서버에 보내는 ID (여러 기기 공용 서버)
 const COMBO_SLOT = 5;                                              // 조합 곡선 색 (단독 선택은 0~3)
@@ -477,6 +478,8 @@ app.innerHTML = `
       <span id="mixBadge"></span>
       <label id="modelWrap" class="hidden">피해 모델 <select id="dmodel"><option value="gauss">gauss (등급 평균)</option><option value="digits">digits (자릿수)</option><option value="digits+g">digits + 기믹</option></select><a class="info" data-g="13">ⓘ</a></label>
       <span id="modelBadge"></span>
+      <label id="skillWrap" class="hidden" title="플레이어 실력 player.skill (0~1). 곡선과 몬스터별 지표에 모두 반영 — 의미는 피해 모델마다 다름(해석 가이드)">플레이어 스킬 <input type="number" id="skillIn" min="0" max="1" step="0.05" style="width:70px" class="num"></label>
+      <label id="runsWrap" class="hidden" title="재계산·전체 재계산의 점당 최대 판 수. 비우면 서버 기본 단계. 단계는 최대값의 1/10 → 1/3 → 최대값">점당 최대 판 수 <input type="number" id="runsIn" min="10" step="100" placeholder="서버 기본" style="width:90px" class="num"></label>
       ${FACETS ? `<label>${esc(FACETS.key)} <select id="facet">${FACETS.values.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join("")}</select></label>
       <label><input type="checkbox" id="overlay"> 패싯 겹쳐 그리기</label>` : ""}
     </div>
@@ -1198,13 +1201,21 @@ async function startRecompute() {
   cancelJob();
   // 이전 결과를 지우지 않는다: 새 작업의 plan 이벤트(해시)를 받으면 그 해시와 다른 점만 버린다 (pruneLive)
   if (S.preview) S.preview.pending = true;
-  runJob({ kind: "recompute", edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet, fids: S.sel, x_sel: S.x }, storeLive, "재계산")
+  runJob({ kind: "recompute", edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet, fids: S.sel, x_sel: S.x, stages: simStages() }, storeLive, "재계산")
     .then(sgOnRecomputeDone).catch(e => setStatus("오류: " + e.message));
+}
+function simStages() {   // 재계산 단계: 최대 판 수 N → [N/10, N/3, N]. 비우면 null (서버 기본)
+  const n = S.simN; if (!n || n < 10) return null;
+  return [...new Set([Math.max(1, Math.round(n / 10)), Math.max(1, Math.round(n / 3)), n])].sort((a, b) => a - b);
+}
+function monStages() {   // 몬스터별 지표 단계: 기본 단계 중 최대 판 수 이하 + 최대 판 수
+  const N = S.monN || 300000, base = [500, 3000, 30000, 300000].filter(v => v < N);
+  return base.concat([N]);
 }
 function startFull() {
   cancelJob();
   const order = FANTS.slice().sort((a, b) => Math.abs((ptAt(curPts(b.id), S.x) || {}).delta || 0) - Math.abs((ptAt(curPts(a.id), S.x) || {}).delta || 0)).map(f => f.id);
-  runJob({ kind: "scan", edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet, fids: order, adaptive: true }, storeLive, "전체 재계산").then(scanSaveFlow).catch(e => setStatus("오류: " + e.message));
+  runJob({ kind: "scan", edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet, fids: order, adaptive: true, stages: simStages() }, storeLive, "전체 재계산").then(scanSaveFlow).catch(e => setStatus("오류: " + e.message));
 }
 
 // 수치 스윕 / 목표 Δ 역산
@@ -1407,7 +1418,7 @@ function sgMonPreview(input, e0) {
 const MM = { key: null, want: null, timer: null, job: null, seq: 0, data: null, dataKey: null, prog: null, err: null, running: false, stage: 0,
   stages: window.__MMSTAGES || null };   // 판 수 단계 (null = 서버 기본 500 → 1500 → 3000). 테스트가 줄일 수 있게 둔 훅
 window.__MM = MM;
-function mmKey() { return JSON.stringify([BASE_HASH, S.edits, S.cfgEdits, S.cfgSet, S.fileEdits]); }
+function mmKey() { return JSON.stringify([BASE_HASH, S.edits, S.cfgEdits, S.cfgSet, S.fileEdits, S.x, S.monN]); }   // 선택 X 도 키에 포함 — X 를 바꾸면 그 X 에서 다시 계산
 function mmCheck(force) {
   if (!(SRV && srvOK) || !MON) return;
   const key = mmKey();
@@ -1425,7 +1436,7 @@ async function startMetrics() {
   if (MM.job) { const old = MM.job; MM.job = null; api(`/api/jobs/${old}`, { method: "DELETE" }).catch(() => {}); }
   MM.key = key; MM.err = null; MM.prog = null; MM.running = true; mmBanner();
   try {
-    const { id } = await post("/api/jobs", { kind: "monster_metrics", client: CLIENT + "m", edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet, stages: MM.stages });
+    const { id } = await post("/api/jobs", { kind: "monster_metrics", client: CLIENT + "m", edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet, stages: MM.stages || monStages(), x: S.x });
     if (my !== MM.seq) { api(`/api/jobs/${id}`, { method: "DELETE" }).catch(() => {}); return; }
     MM.job = id;
     await streamJob(id, ev => {
@@ -1460,7 +1471,7 @@ function mmRender() {
 function renderMon() {
   const el = $("tab-mon"); const D = DATA.monster_metrics;
   if (SRV && srvOK) {
-    el.innerHTML = `<h4 style="margin:0 0 4px">몬스터·패턴 편집 ${exportBtns("monsters", "monster_hp")}</h4><div id="monEditBox">${renderMonEdit()}</div>${MON ? renderHpReport(monsWithEdits()) : ""}<h4 style="margin:12px 0 4px">몬스터별 지표 (런 전체 시뮬)</h4><div id="monMetrics"></div>`;
+    el.innerHTML = `<h4 style="margin:0 0 4px">몬스터·패턴 편집 ${exportBtns("monsters", "monster_hp")} <label class="small" title="몬스터별 지표를 계산할 최대 판 수 (기본 30만). 단계적으로 늘며 표가 갱신됨">몬스터 지표 최대 판 수 <input type="number" id="monNIn" min="100" step="1000" value="${S.monN}" style="width:100px" class="num"></label></h4><div id="monEditBox">${renderMonEdit()}</div>${MON ? renderHpReport(monsWithEdits()) : ""}<h4 style="margin:12px 0 4px">몬스터별 지표 (런 전체 시뮬)</h4><div id="monMetrics"></div>`;
     if (MON) bindMonEdit(el);
     mmRender();
     mmCheck();
@@ -1508,7 +1519,7 @@ function renderMonMetrics(el, D) {
   const maxT = Math.max(10, ...D.monsters.map(m => m.turns_ci[1]));
   const sc = v => (v / maxT * 160).toFixed(1);
   const rateCell = (r, ci, cls) => r == null ? `<td class="n ${cls}">–</td>` : `<td class="n ${cls}">${pct(r)} <span class="small">[${pct(ci[0])}–${pct(ci[1])}]</span></td>`;
-  el.innerHTML = `<div class="small">${esc(D.meta.note || "")} · ${D.meta.runs}판${D.win_rate != null ? ` · 전체 승률 <b id="monWinAll">${pct(D.win_rate)}</b>` : ""} · 몬스터 모델 ${esc(D.meta.monster_model)} · 피해 모델 ${esc(D.meta.damage_model)}. 목표 턴 수: 일반 3~4, 엘리트 5~6, 보스 7~9 (기획 문서). ⚠ = 미모델링 기믹(지표가 실제와 다를 수 있음)</div>
+  el.innerHTML = `<div class="small">${esc(D.meta.note || "")} · ${D.meta.runs.toLocaleString()}판${D.meta.x != null ? ` · ${esc(xName(D.meta.x_param))} = <b id="monX">${fmtX(D.meta.x)}</b>` : ""}${D.win_rate != null ? ` · 전체 승률 <b id="monWinAll">${pct(D.win_rate)}</b>` : ""} · 몬스터 모델 ${esc(D.meta.monster_model)} · 피해 모델 ${esc(D.meta.damage_model)}. 목표 턴 수: 일반 3~4, 엘리트 5~6, 보스 7~9 (기획 문서). ⚠ = 미모델링 기믹(지표가 실제와 다를 수 있음)</div>
   <div class="small" id="monWinNote"><b>조우 시 전투 승률</b> = 이 몬스터와 싸운 전투 중 이긴 비율(사망·카운트다운 도주·시간 초과 제외). <b>조우한 런 승률</b> = 이 몬스터를 한 번이라도 만난 런이 끝까지 클리어한 비율 — 뒤쪽 막 몬스터일수록 거기까지 살아남은 런만 만나므로 높게 나온다. 같은 막·등급끼리 비교하고, 전체 승률과 견준다. 사망 비중 = 전체 사망 중 이 몬스터에게 죽은 비율.</div>
   <div class="rankwrap"><table class="rank" id="monTable"><thead><tr><th>막</th><th>등급</th><th>몬스터</th><th>체력</th><th>평균 턴 [95% CI] · 목표 밴드</th><th>판정</th><th>전투당 받은 피해</th><th>사망 비중</th><th>조우 시 전투 승률 [95% CI]</th><th>조우한 런 승률 [95% CI]</th><th>최대 1타(평균/최대)</th><th>전투 수</th></tr></thead><tbody>
   ${D.monsters.map(m => `<tr title="${esc(m.warning)}"><td>${m.act}</td><td>${esc(m.tier)}</td><td>${esc(m.name)}${m.warning ? ' <span class="badge stale">⚠ 기믹</span>' : ""}</td><td class="n">${m.hp ?? "–"}</td>
@@ -2147,6 +2158,8 @@ function update() {
   renderRefChip();
   renderModeBadge();
   $("btnWs").classList.toggle("hidden", !(SRV && srvOK));
+  $("skillWrap").classList.toggle("hidden", !(SRV && srvOK)); $("runsWrap").classList.toggle("hidden", !(SRV && srvOK));
+  if (SRV && srvOK) { const sk = $("skillIn"), rn = $("runsIn"); if (document.activeElement !== sk) { const e = S.cfgEdits.find(c => c.path === "player.skill"); sk.value = e ? e.new : (BASE_CFG["player.skill"] ?? ""); } if (document.activeElement !== rn) rn.value = S.simN || ""; }
   document.querySelectorAll('.csvBtn[data-ds="runs"], .csvBtn[data-ds="edits"]').forEach(b => { b.disabled = !(SRV && srvOK); });
   if (!(SRV && srvOK) && $("wsChip")) $("wsChip").classList.add("hidden");
   wsTouch();
@@ -2322,7 +2335,7 @@ const TAB_IDS = ["curve", "surv", "rank", "mon", "cal", "trace", "ember", "guide
 function wsView() {
   return { sel: S.sel.slice(), focus: S.focus, metric: S.metric, act: S.act, x: S.x, tab: S.tab, T: S.T, ci: S.ci, smooth: S.smooth, facet: S.facet,
     overlay: S.overlay, rankMode: S.rankMode, rankSort: S.rankSort, rankDir: S.rankDir, q: S.q, grades: S.grades, sort: S.sort,
-    sweepMetric: S.sweepMetric, rcMode: S.rcMode || "release" };
+    sweepMetric: S.sweepMetric, rcMode: S.rcMode || "release", simN: S.simN, monN: S.monN };
 }
 function wsDraft() { return JS.loaded && JS.info && JS.id && typeof JS.text === "string" && JS.text !== (JS.info.text || "") ? { kind: JS.kind, id: JS.id, text: JS.text } : null; }
 function wsDraftSig() {   // 원문 초안은 JSON 탭에서만 바뀌므로 그때만 해시를 다시 계산한다
@@ -2394,6 +2407,8 @@ function applyView(v) {
   if (v.grades && typeof v.grades === "object") S.grades = Object.assign({ white: true, blue: true, red: true }, v.grades);
   if (typeof v.sort === "string" && $("sort") && [...$("sort").options].some(o => o.value === v.sort)) { S.sort = v.sort; $("sort").value = v.sort; }
   if (typeof v.sweepMetric === "string") S.sweepMetric = v.sweepMetric;
+  if (v.simN === null || (Number.isInteger(v.simN) && v.simN >= 10)) S.simN = v.simN;
+  if (Number.isInteger(v.monN) && v.monN >= 100) S.monN = v.monN;
   if (["release", "button"].includes(v.rcMode)) { S.rcMode = v.rcMode; if ($("rcMode")) $("rcMode").value = v.rcMode; }
   if (FACETS && v.facet && FACETS.values.includes(v.facet)) S.facet = v.facet;
   S.slot = {}; S.sel.forEach((id, k) => (S.slot[id] = k));
@@ -2520,7 +2535,11 @@ async function startCacheRestore() {
   if (!(SRV && srvOK)) return;
   if (!needsCompute() && !isStale(curPts(BASE_ID))) return;   // 편집이 없고 스캔 파일이 곧 결과면 요청하지 않는다
   try {
-    await runJob({ kind: "recompute", edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet, fids: S.sel, x_sel: S.x, cache_only: true },
+    // 1) 전체 재계산 결과: 모든 환상의 '수정 후' 점 (선택한 환상만 불러오면 나머지가 전부 '이전'으로 남는다)
+    await runJob({ kind: "scan", edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet, fids: FANTS.map(f => f.id), adaptive: true, cache_only: true, stages: simStages() },
+      ev => { if (ev.type === "point") storeLive(ev); }, "저장된 계산 불러오기");
+    // 2) 수정한 환상·선택한 환상 + 수정 전 고스트 (scan 의 plan 은 고스트를 지우므로 뒤에 한다)
+    await runJob({ kind: "recompute", edits: S.edits, cfg_edits: S.cfgEdits, cfg_set: S.cfgSet, fids: S.sel, x_sel: S.x, cache_only: true, stages: simStages() },
       ev => { if (ev.type === "point") storeLive(ev); else if (ev.type === "cache_summary") WS.cache = ev; }, "저장된 계산 불러오기");
     wsBannerRender(); update();
   } catch (e) { setStatus("오류: " + e.message); }
@@ -2696,6 +2715,18 @@ async function openExport() {
   estimate();
 }
 
+document.addEventListener("change", e => {
+  const id = e.target && e.target.id;
+  if (id === "skillIn") {
+    const v = +e.target.value, old = BASE_CFG["player.skill"];
+    if (e.target.value === "" || !isFinite(v) || old == null) { update(); return; }
+    setCfgEdit("player.skill", old, v);
+  } else if (id === "runsIn") {
+    const v = Math.round(+e.target.value); S.simN = e.target.value === "" || !isFinite(v) || v < 10 ? null : Math.min(v, 10000000); update();
+  } else if (id === "monNIn") {
+    const v = Math.round(+e.target.value); S.monN = isFinite(v) && v >= 100 ? Math.min(v, 10000000) : 300000; update(); mmCheck(true);
+  }
+});
 async function connectServer() {
   if (!(SRV && location.protocol.startsWith("http"))) { renderModeBadge(); return; }
   SRVC.fail = null; SRVC.partial = [];

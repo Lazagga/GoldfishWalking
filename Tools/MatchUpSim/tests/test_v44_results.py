@@ -81,6 +81,28 @@ class CacheOnly(unittest.TestCase):
         self.assertFalse([k for k in points(none) if k[0] == BOOTS])                                # 점도 만들어 내지 않는다
 
 
+    def test_scan_cache_only_restores_all_fantasies_without_computing(self):
+        """전체 재계산 결과(적응형 포함)를 환상 전부에 대해 캐시에서 읽는다 — 새로고침 뒤 '이전' 배지가 남지 않게."""
+        sb = self.sb
+        old = boots_old(sb)
+        body = {"kind": "scan", "fids": [BOOTS, "fan_damage_slingshot"], "stages": [20, 30], "adaptive": True, "client": "sc",
+                "edits": [{"fid": BOOTS, "effect": 0, "key": "value", "old": old, "new": old + 3}]}
+        real = sb.events(sb.job(body))
+        self.assertEqual(real[-1]["type"], "done")
+        before = sb.app.engine.runs_computed
+        peek = sb.events(sb.job({**body, "cache_only": True}))
+        self.assertEqual(peek[-1]["type"], "done")
+        self.assertEqual(sb.app.engine.runs_computed, before)                       # 새로 돌린 판 없음
+        a, b = points(real), points(peek)
+        self.assertTrue(b)
+        self.assertEqual(set(a), set(b))                                             # 같은 (환상, X) 점들
+        for k in a:
+            self.assertEqual(b[k]["wins"], a[k]["wins"])
+            self.assertEqual(b[k]["n"], a[k]["n"])
+            self.assertFalse(b[k]["partial"])                                        # 적응형이 첫 단계에서 멈춘 점도 부분 결과가 아님
+        self.assertEqual(next(e for e in peek if e["type"] == "cache_summary")["missing_count"], 0)
+
+
 class ScansAndResults(unittest.TestCase):
     def setUp(self):
         self.sb = Sandbox(xs="500:700:200", runs="30", stages="20,30", start_hp=True)
@@ -182,6 +204,27 @@ class ScansAndResults(unittest.TestCase):
         self.assertTrue(look["found"])
         self.assertEqual(sb.req("GET", "/api/results/combo/..%2F..%2Fx")[0], 400)
         self.assertEqual(sb.req("GET", "/api/results?kind=evil")[0], 400)
+
+    def test_monster_metrics_uses_selected_x_and_goes_up_to_300k(self):
+        """몬스터별 지표는 선택한 X(시작 체력)에서 계산하고, 기본 단계는 최대 30만 판이다 (v4.4)."""
+        from sim_service import jobs as jb
+        self.assertEqual(jb.MON_STAGES[-1], 300000)
+        self.assertEqual(list(jb.MON_STAGES), sorted(jb.MON_STAGES))
+        sb = self.sb
+
+        def run(**kw):
+            evs = sb.events(sb.job({"kind": "monster_metrics", "stages": [200], "chunk": 100, "client": "mx", **kw}))
+            return evs, [e for e in evs if e["type"] == "metrics"]
+        _, lo = run(x=20)
+        _, hi = run(x=700)
+        a, b = lo[-1]["data"], hi[-1]["data"]
+        self.assertEqual((a["meta"]["x_param"], a["meta"]["x"]), ("player.start_hp", 20))
+        self.assertEqual(b["meta"]["x"], 700)
+        self.assertGreater(a["deaths"], b["deaths"])                                 # 시작 체력이 낮을수록 많이 죽는다 → X 가 실제로 반영됨
+        evs, _ = run(x="abc")
+        self.assertEqual(evs[-1]["type"], "error")
+        evs, none = run()                                                            # x 를 안 주면 서버 기본 설정 (X 표시 없음)
+        self.assertIsNone(none[-1]["data"]["meta"]["x"])
 
     def test_results_prune_limits_per_kind(self):
         root = self.sb.results

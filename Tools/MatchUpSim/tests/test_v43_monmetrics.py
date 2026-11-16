@@ -140,6 +140,7 @@ class MonsterTabUI(unittest.TestCase):
         ctx, pg, errs = self.open()
         pg.wait_for_function(self.FRESH, timeout=120000)                              # 처음 열면 현재 데이터로 서버 계산
         self.assertIn("80판", pg.inner_text("#mmBanner"))
+        self.assertTrue(pg.inner_text("#monX").strip())                               # 어느 X 에서 계산한 표인지 표시
         self.assertNotIn("5000", pg.evaluate(self.HPCELLS))
         hp = f'#monEdit tr[data-mid="{MID}"] input.monIn'
         pg.fill(hp, "5000")

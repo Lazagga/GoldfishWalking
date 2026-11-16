@@ -386,7 +386,9 @@ def monster_rows(app, ctx):
     """몬스터별 지표: 지금 상태로 저장된 결과 → 없으면 CLI 가 만든 monster_metrics.json."""
     data, src = None, None
     try:
-        cfg, h, mdata, seed, ckey, dh = jb.monster_metrics_setup(app, {"edits": ctx.edits, "cfg_edits": ctx.cfg_edits, "cfg_set": ctx.cfg_set})
+        xs = ctx.scope["x"]
+        cfg, h, mdata, seed, ckey, dh = jb.monster_metrics_setup(app, {"edits": ctx.edits, "cfg_edits": ctx.cfg_edits, "cfg_set": ctx.cfg_set,
+                                                                      "x": xs[0] if len(xs) == 1 else None})
         saved = rs.mon_load(app.results, dh, seed, ckey)
         if saved:
             data, src = saved["data"], "server_saved"
