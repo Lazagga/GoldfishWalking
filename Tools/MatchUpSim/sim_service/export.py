@@ -98,11 +98,16 @@ TURN_COLS = [("t", "턴"), ("intent", "몬스터 행동"), ("pattern", "패턴 �
              ("items", "아이템 사용"), ("dealt", "내가 준 피해"), ("mhp", "몬스터 체력(턴 끝)"), ("taken", "내가 받은 피해"),
              ("taken_cap", "체력 한도 받은 피해"), ("over", "체력 한도를 넘은 초과 피해"), ("hp_change", "내 체력 변화"), ("hp", "내 체력(턴 끝)"),
              ("mstr", "몬스터 힘"), ("countdown", "카운트다운"), ("phase", "페이즈"), ("aim", "조준 숫자"), ("special", "접미 숫자"),
-             ("notes", "기믹 주석(JSON)"), ("end", "종료 사유")]
+             ("notes", "기믹 주석(JSON)"), ("end", "종료 사유"),
+             ("calc_json", "턴 피해 분해(JSON, v4.5 F21 — battle_calc 데이터셋에 행으로 펼친 것과 같음)")]
+CALC_COLS = [("t", "턴"), ("side", "구분: dealt(내가 준 피해)·taken(내가 받은 피해)"), ("part", "분류: step·hits·extra·over·reduced·ablate·over_ablate"),
+             ("n", "분류 안 순번"), ("kind", "단계 종류(move·mult·flat·def·…)·extra 종류"), ("source", "출처: 환상 ID·move·mon:<기믹>·base_roll"),
+             ("source_name", "출처 이름"), ("effect_type", "효과 타입"), ("before", "전"), ("after", "후"), ("delta", "증감(제거 시 차이는 delta)"),
+             ("over", "초과 기여")]
 OWNED_COLS = [("n", "획득 순번"), ("fid", "환상 ID"), ("name", "이름"), ("grade", "등급"), ("floor_act", "획득 막"), ("floor", "획득 층"),
               ("source", "경로"), ("fx", "이 전투에서 효과가 관여한 환상 1/0")]
 TEXT_COLS = {"fantasy_name", "name", "gimmicks", "warning", "key", "path", "id", "fantasy_id", "arm", "turn_verdict", "facet", "notes",
-             "pattern", "intent", "fid", "mid", "category", "source", "grade"}
+             "pattern", "intent", "fid", "mid", "category", "source", "grade", "calc_json", "source_name", "kind", "side", "part", "effect_type"}
 
 DATASETS = {
     "curves": {"title": "곡선 점", "formats": ["csv", "json"], "columns": CURVE_COLS},
@@ -111,6 +116,7 @@ DATASETS = {
     "monsters": {"title": "몬스터별 지표", "formats": ["csv", "json"], "columns": MON_COLS},
     "battles": {"title": "몬스터 전투 표본 목록", "formats": ["csv", "json"], "columns": BATTLE_COLS},
     "battle_log": {"title": "선택한 전투의 턴 로그", "formats": ["csv", "json", "zip"], "columns": TURN_COLS},
+    "battle_calc": {"title": "선택한 전투의 턴 피해 분해(단계·출처)", "formats": ["csv", "json"], "columns": CALC_COLS},
     "runs": {"title": "판별 원자료", "formats": ["csv", "ndjson"], "columns": RUNS_COLS},
     "scans": {"title": "저장된 스캔(원본 그대로)", "formats": ["json", "csv"], "columns": []},
     "workspace": {"title": "작업 공간", "formats": ["json"], "columns": []},
@@ -512,6 +518,8 @@ def build(app, dataset, body):
         return _table(dataset, fm, ctx.after_hash, BATTLE_COLS, iter(rows), meta, len(rows), 0, _bom(body))
     if dataset == "battle_log":
         return _battle_log(app, ctx, body, fm)
+    if dataset == "battle_calc":
+        return _battle_calc(app, ctx, body, fm)
     if dataset == "monsters":
         rows, src, mm = monster_rows(app, ctx)
         meta = {**_meta(app, ctx, dataset, [], len(rows)), "source": src, "monster_meta": mm}
@@ -551,7 +559,8 @@ def _battle_log(app, ctx, body, fm):
     res = app.monster_log({"mid": sc.get("mid"), "seed": sc.get("seed") or "mon1", "run": sc.get("run"), "ord": sc.get("ord"),
                            "x": sc.get("x_value"), "edits": ctx.edits, "cfg_edits": ctx.cfg_edits, "cfg_set": ctx.cfg_set})
     meta = {**_meta(app, ctx, "battle_log", [], len(res["turns"])), "mid": res["mid"], "seed": res["seed"], "replay_match": res["replay_match"]}
-    turn_rows = [{**t, "notes": json.dumps(t.get("notes") or [], ensure_ascii=False)} for t in res["turns"]]
+    turn_rows = [{**{k: v for k, v in t.items() if k != "calc"}, "notes": json.dumps(t.get("notes") or [], ensure_ascii=False),
+                  "calc_json": json.dumps(t.get("calc"), ensure_ascii=False, separators=(",", ":")) if t.get("calc") else ""} for t in res["turns"]]
     owned_rows = [{**o, "floor_act": (o.get("floor") or [None, None])[0], "floor": (o.get("floor") or [None, None])[1]} for o in res["owned"]]
     h = ctx.after_hash
     if fm == "json":
@@ -563,9 +572,56 @@ def _battle_log(app, ctx, body, fm):
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
         zf.writestr("turns.csv", b"".join(csv_stream(TURN_COLS, iter(turn_rows), _bom(body))))
         zf.writestr("owned.csv", b"".join(csv_stream(OWNED_COLS, iter(owned_rows), _bom(body))))
+        zf.writestr("calc.csv", b"".join(csv_stream(CALC_COLS, iter(calc_rows(app, res)), _bom(body))))
         zf.writestr("battle.json", json.dumps({k: res[k] for k in ("mid", "seed", "run", "battle", "items", "replay_match", "data_hash")}, ensure_ascii=False, indent=1))
         zf.writestr("meta.json", json.dumps(meta, ensure_ascii=False, indent=1))
     return Export(_fname("battle_log", h, "zip"), "application/zip", meta, iter([buf.getvalue()]), len(turn_rows))
+
+
+def calc_rows(app, res):
+    """턴 피해 분해를 행으로 펼친다 (F21 battle_calc): 단계·타수·extra·초과 기여·초과 감소·제거 시 차이."""
+    names = {e["id"]: e.get("name", e["id"]) for e in (app.table_data or {}).get("fantasies", [])}
+
+    def srcs(src):
+        if src.get("kind") == "fx":
+            return [(f[0], names.get(f[0], f[0])) for f in src.get("fids") or ()] or [("", "")]
+        k = src.get("kind", "")
+        return [("mon:" + src.get("sim", "") if k == "monster" else k, k)]
+    for t in res["turns"]:
+        c = t.get("calc")
+        if not c or "error" in c:
+            continue
+        for side in ("dealt", "taken"):
+            s = c[side]
+            yield {"t": t["t"], "side": side, "part": "step", "n": 0, "kind": "base", "source": "base_roll", "source_name": "굴림", "after": s.get("base"), "delta": ""}
+            for i, st in enumerate(s["steps"], 1):
+                for sid, sn in srcs(st["src"]):
+                    yield {"t": t["t"], "side": side, "part": "step", "n": i, "kind": st["k"], "source": sid, "source_name": sn, "effect_type": st["src"].get("type", ""),
+                           "before": st["from"], "after": st["to"], "delta": st["to"] - st["from"]}
+            for i, st in enumerate(s["hits"].get("steps", ()), 1):
+                for sid, sn in srcs(st["src"]):
+                    yield {"t": t["t"], "side": side, "part": "hits", "n": i, "kind": "hits", "source": sid, "source_name": sn, "effect_type": st["src"].get("type", ""),
+                           "before": st["from"], "after": st["to"], "delta": st["to"] - st["from"]}
+            for i, e in enumerate(s["extra"], 1):
+                for sid, sn in (srcs(e["src"]) if e.get("src") else [("", "")]):
+                    yield {"t": t["t"], "side": side, "part": "extra", "n": i, "kind": e["k"], "source": sid, "source_name": sn or e.get("label", ""), "delta": e["amount"]}
+            for i, b in enumerate(s["over"]["by"], 1):
+                yield {"t": t["t"], "side": side, "part": "over", "n": i, "kind": "over", "source": b["src"], "source_name": names.get(b["src"], b["src"]), "over": b["n"]}
+            for i, b in enumerate(s["over"]["reduced"], 1):
+                yield {"t": t["t"], "side": side, "part": "reduced", "n": i, "kind": "over_reduced", "source": b["src"], "source_name": names.get(b["src"], b["src"]), "over": -b["n"]}
+            for i, a in enumerate(s["ablate"], 1):
+                yield {"t": t["t"], "side": side, "part": "ablate", "n": i, "kind": "ablate", "source": a["src"], "source_name": names.get(a["src"], a["src"]), "before": a["without"], "after": s["total"], "delta": a["delta"]}
+            for i, a in enumerate(s["over"]["ablate"], 1):
+                yield {"t": t["t"], "side": side, "part": "over_ablate", "n": i, "kind": "ablate", "source": a["src"], "source_name": names.get(a["src"], a["src"]), "delta": a["delta"], "over": s["over"]["n"]}
+
+
+def _battle_calc(app, ctx, body, fm):
+    sc = body.get("scope") or {}
+    res = app.monster_log({"mid": sc.get("mid"), "seed": sc.get("seed") or "mon1", "run": sc.get("run"), "ord": sc.get("ord"),
+                           "x": sc.get("x_value"), "edits": ctx.edits, "cfg_edits": ctx.cfg_edits, "cfg_set": ctx.cfg_set})
+    rows = list(calc_rows(app, res))
+    meta = {**_meta(app, ctx, "battle_calc", [], len(rows)), "mid": res["mid"], "seed": res["seed"], "replay_match": res["replay_match"], "has_calc": res.get("has_calc")}
+    return _table("battle_calc", fm, ctx.after_hash, CALC_COLS, iter(rows), meta, len(rows), 0, _bom(body))
 
 
 def _file_chunks(path, size=1 << 20):
@@ -672,8 +728,8 @@ def estimate(app, dataset, body):
         return {"rows": n, "bytes_est": n * 90, "missing_count": 0, "missing": []}
     if dataset == "monsters":
         return {"rows": len((app.monster_data or {}).get("monsters", [])), "bytes_est": 60 * 220, "missing_count": 0, "missing": []}
-    if dataset in ("battles", "battle_log"):
-        n = len((app.monster_data or {}).get("monsters", [])) * 64 if dataset == "battles" else 20
+    if dataset in ("battles", "battle_log", "battle_calc"):
+        n = len((app.monster_data or {}).get("monsters", [])) * 64 if dataset == "battles" else (20 if dataset == "battle_log" else 400)
         return {"rows": n, "bytes_est": n * 120, "missing_count": 0, "missing": []}
     present, missing = ctx.plan()
     pts = len(present) + len(ctx.scan_points())

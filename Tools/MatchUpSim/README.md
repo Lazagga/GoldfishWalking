@@ -388,6 +388,14 @@ python tools/bench.py --profile       # 속도 벤치마크
 - CLI: `python monster_log.py --monster <몬스터ID> --seed mon1 --run <번호> [--ord 0] [--set key=value] [--json]` (서버 없이 같은 재생). 내려받기 데이터 집합 `battles`·`battle_log`(CSV/JSON/zip).
 - 서버 없는 정적 HTML 과 `tier_avg` 지표에서는 `로그` 버튼이 비활성이고 이유가 보인다. 편집을 바꿔 지표가 이전 값이 되면 열어 둔 패널에 `이전` 이 붙고 `표본 다시 수집` 으로 새 지표 계산을 시작한다. 지표 계산에 로그 추가 비용은 없다(요약 기록만 더 모음, 결과 불변 테스트 AC-L6).
 
+## 턴 피해 분해 (v4.5 F21) — 전투 로그에서 턴을 누르면 피해가 어떻게 만들어졌는지
+- 전투 상세의 턴 행을 누르면(Enter) 그 행 아래에 **분해 패널**이 열린다(한 번에 한 턴, `↑`·`↓` 이전·다음 턴, `Esc` 닫기). 맨 위 한 줄 요약 + 두 열(내가 준 피해 / 내가 받은 피해): 단계표(굴림 → 성냥 이동 → 배율 → 고정 피해 → 최종 배율 → 기믹 규칙 / 몬스터 숫자 → 자릿수 상한 → 조준 → 방어 → 고정 감소 → 조건부 배율, 각 단계의 `전 → 후`·증감·출처), 타수, 그 밖의 요인(`extra`), **출처 요약**(값이 0이 아닌 모든 출처를 하나도 빼지 않고 막대로 — 많으면 패널 안에서 스크롤), 초과 피해 블록, 조건 불충족으로 계산에 안 쓰인 효과(접힘).
+- 출처 요약의 정렬은 **제거 시 차이**(그 출처만 빼고 같은 입력으로 공식을 다시 계산한 값, 다시 시뮬레이션하지 않음), 단계표는 **순차 증감**(적용 순서대로 `후 − 전`). 배율은 곱으로 겹치므로 둘이 다를 수 있다. 같은 환상은 한 줄로 합치고 `×개수`.
+- **초과 피해**(체력을 넘은 양)도 출처별로 적는다 — 비례 귀속(치명 타격 한 번을 만든 단계 증감의 비율, 합 = 초과), 초과를 줄인 출처, 제거 시 차이. 받은 초과 = `받은 피해 − 그 턴 시작 체력`(사망 턴), 준 초과 = 몬스터가 쓰러진 턴의 `준 피해(원본) − 턴 시작 몬스터 체력`. 초과가 있는 턴에만 `초과` 열을 보인다.
+- 구현: `sim_service/turncalc.py` (순수 함수 — 환상 효과 목록과 전투가 기록한 입력만 받는다). `fight_digits` 가 **트레이스를 켰을 때만** 입력을 모아 `turn` 이벤트의 `calc` 를 만든다(상태·난수 불변, AC-T3). 합계가 트레이스의 `dealt`·`taken` 과 같아야 하고(AC-T2), 표에 없는 요인은 이름 붙은 항목(`unapplied`·`combo`·`cap`·`shield`·`etd`·`reflect`·`heal`·`delay`·`delayed_paid`·`status`·`direct`)으로 적으며 남는 차이는 `미분류`로 드러난다. `total` 은 트레이스의 `dealt`/`taken`(체력 한도 적용 전 원본)과 같고 초과는 별도(`over`)로 적는다.
+- API: `POST /api/monster_log` 응답의 `turns[].calc`(`"calc": false` 로 생략), `has_calc`(gauss 전투는 false → 패널 비활성·이유 표시). 내려받기: `battle_log` 의 `calc_json` 열·zip 의 `calc.csv`, 새 데이터셋 `battle_calc`(턴·구분·분류·출처·전·후·증감·초과 기여).
+- 근사 항목: 몬스터 기믹 규칙 단계(`rule`)는 규칙 이후 값만 한 단계로 적고(어떤 규칙이 걸렸는지 이름 표시), 제거 시 차이는 규칙 전 비율로 환산한 근사다. 아이템은 F20 전이라 "성냥 이동 n회 · 아이템 m" 으로 표시한다.
+
 ## 몬스터 지표 갱신과 새로고침 진행 표시 (v4.5 F18)
 - 지표가 단계(500 → … → N판)마다 갱신돼도 표를 통째로 지우지 않고 행만 고쳐서 **페이지·표 스크롤, 열어 둔 로그 패널, 선택이 유지된다**.
 - 새로고침하면 서버가 아직 계산 중인 작업(곡선·지표)의 진행 줄을 서버 콘솔과 같은 문자열로 보여 준다(`GET /api/progress?client=` → `jobs[].state(queued|running|done|error|cancelled)·runs_done·line·line_age_s`, 줄 서 있는 작업은 `대기 중(앞 작업 1개)`). 끝난 작업이 진행 중으로 남던 `done` 키 충돌을 고쳤고(`finished`·`runs_done` 추가, `done` 은 하위 호환 불리언), 진행 확인이 끊긴 탭(30초)의 작업은 새 작업이 올라올 때 취소한다.
@@ -549,6 +557,7 @@ python -m unittest test_v44_ui              # v4.4 뷰어 자동 저장·복원�
 python -m unittest test_v45_cosmictree      # v4.5 F19 세계수 힘 초기화 규칙 (AC-G1~G4)                                 ~10초
 python -m unittest test_v45_monster_log     # v4.5 F16 전투 로그 서버 수준 (표본·재생·내려받기·결과 불변)                  ~1분
 python -m unittest test_v45_progress        # v4.5 F18 진행 표시 서버 수준 (AC-P2~P6)와 저장 이력 API                    ~1분
+python -m unittest test_v45_turn_calc      # v4.5 F21 턴 피해 분해 (AC-T2~T6·T8~T12, 성능 T9)                                   ~10초
 python -m unittest test_v45_ui              # v4.5 F17 편집 초안·저장 (AC-M1~M12), F18 지표 갱신 스크롤(AC-P1), F16 로그 패널(AC-L1·L10·L12) (Playwright)   ~2분
 ```
 테스트는 `tests/fixtures/`의 사본을 임시 폴더에 복사해 쓰고, 실제 `Assets/` 아래 쓰기를 막는 가드(`MATCHUPSIM_FORBID_PATH`)를 건다.

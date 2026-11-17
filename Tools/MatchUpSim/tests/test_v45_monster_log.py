@@ -154,12 +154,48 @@ class ServerLog(unittest.TestCase):
         self.assertEqual(len(lines) - 1, s["turns"])                                   # 행 수 = 화면 턴 수
         st, b = raw("/api/export/battle_log", {"scope": scope, "format": "zip"})
         zf = zipfile.ZipFile(io.BytesIO(b))
-        self.assertEqual({"turns.csv", "owned.csv", "battle.json", "meta.json"}, set(zf.namelist()))
+        self.assertEqual({"turns.csv", "owned.csv", "calc.csv", "battle.json", "meta.json"}, set(zf.namelist()))   # calc.csv = F21 턴 피해 분해
         st, b = raw("/api/export/battles", {"format": "csv"})
         self.assertEqual(st, 200)
         rows = b[3:].decode("utf-8").strip().split("\r\n")
         self.assertGreater(len(rows), 1)
         self.assertTrue(rows[0].startswith("mid,name,category,run,ord"))
+
+    # F21: 재생 응답의 calc, calc:false 로 생략, battle_calc 내려받기, battle_log 의 calc_json 열
+    def test_f21_api_and_export(self):
+        dig = {"monsters.damage_model": "digits", "monsters.gimmicks": "on"}                # 분해는 digits 피해 모델에만 있다
+        evs, mets = metrics(self.sb, x=self.x, cfg_set=dig, seed="f21")
+        data = mets[-1]["data"]
+        m = max(data["monsters"], key=lambda r: r["battles"])
+        s = m["samples"]["long"][0]
+        st, r = self.log(mid=m["id"], run=s["run"], ord=s["ord"], x=self.x, cfg_set=dig, seed="f21")
+        self.assertEqual(st, 200)
+        self.assertTrue(r["has_calc"])
+        gst, g = self.log(mid=self.pick()["id"], run=0, x=self.x)                              # gauss 전투: 분해 없음
+        if gst == 200:
+            self.assertFalse(g["has_calc"])
+        for t in r["turns"]:
+            self.assertEqual(t["calc"]["dealt"]["total"], t["dealt"])
+            self.assertEqual(t["calc"]["taken"]["total"], t["taken"])
+        st, r2 = self.log(mid=m["id"], run=s["run"], ord=s["ord"], x=self.x, cfg_set=dig, seed="f21", calc=False)
+        self.assertEqual(st, 200)
+        self.assertTrue(all("calc" not in t for t in r2["turns"]))
+        self.assertEqual(self.log(mid=m["id"], run=s["run"], calc="no")[0], 400)
+
+        def raw(path, body):
+            c = http.client.HTTPConnection("127.0.0.1", self.sb.port, timeout=60)
+            c.request("POST", path, body=json.dumps(body).encode(), headers={"Host": f"127.0.0.1:{self.sb.port}", "X-MatchUp-Token": self.sb.token, "Content-Type": "application/json"})
+            rr = c.getresponse()
+            return rr.status, rr.read()
+        scope = {"mid": m["id"], "seed": "f21", "run": s["run"], "ord": s["ord"], "x_value": self.x}
+        st, b = raw("/api/export/battle_calc", {"scope": scope, "format": "csv", "cfg_set": dig})
+        self.assertEqual(st, 200)
+        rows = b[3:].decode("utf-8").strip().split("\r\n")
+        self.assertTrue(rows[0].startswith("t,side,part,n,kind,source"))
+        self.assertGreater(len(rows), 2 * s["turns"])                                    # 턴마다 dealt·taken 행이 있다
+        self.assertTrue(any(",dealt,step," in x for x in rows) and any(",taken,step," in x for x in rows))
+        st, b = raw("/api/export/battle_log", {"scope": scope, "format": "json", "cfg_set": dig})
+        self.assertIn("calc", json.loads(b)["turns"][0])
 
     def test_cli_replays(self):
         res = cli.main(["--monster", "Mob_10101_Fairy", "--run", "3", "--json"])

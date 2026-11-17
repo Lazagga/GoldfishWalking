@@ -398,5 +398,63 @@ class MetricsUI(unittest.TestCase):
         ctx.close()
 
 
+@unittest.skipIf(sync_playwright is None, "playwright 미설치")
+class TurnCalcUI(unittest.TestCase):
+    """F21 AC-T1: 전투 로그의 턴 행을 누르면 분해 패널이 열리고, 같은 행을 다시 누르면 닫히며, ↑↓·Esc 로 넘기고 닫는다."""
+
+    @classmethod
+    def setUpClass(cls):
+        os.makedirs(SHOTS, exist_ok=True)
+        cls.pw = sync_playwright().start()
+        ch = os.environ.get("VIEWER_BROWSER_CHANNEL", "msedge")
+        cls.browser = cls.pw.chromium.launch(**({"channel": ch} if ch else {}))
+        cls.sb = Sandbox(xs="500:700:200", runs="60", stages="30,60")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.browser.close()
+        cls.pw.stop()
+        cls.sb.stop()
+        cls.sb.cleanup()
+
+    def test_t1_open_close_navigate(self):
+        ctx = self.browser.new_context(viewport={"width": 1400, "height": 1000})
+        ctx.add_init_script("window.__IMMEDIATE_EDITS = true")
+        pg = ctx.new_page()
+        errs = []
+        pg.on("pageerror", lambda e: errs.append(str(e)))
+        pg.add_init_script("window.__MMSTAGES = [40, 80];")
+        self.sb.req("DELETE", "/api/workspace")
+        pg.goto(f"http://127.0.0.1:{self.sb.port}/#t=mon")
+        pg.wait_for_function("window.__viewerReady === true", timeout=90000)
+        pg.select_option("#dmodel", "digits+g")                                              # 분해는 digits 피해 모델에만 있다
+        pg.wait_for_function(FRESH, timeout=120000)
+        pg.wait_for_function("!window.__MM.running", timeout=120000)
+        pg.wait_for_selector(f'.mlOpen[data-mid="{MID}"]')
+        pg.click(f'.mlOpen[data-mid="{MID}"]')
+        pg.wait_for_selector("#mlSamples tbody tr.mlRow")
+        pg.click("#mlSamples tbody tr.mlRow")
+        pg.wait_for_selector("#mlTurns tr.mlturn.mlclick", timeout=60000)
+        first = "#mlTurns tr.mlturn.mlclick >> nth=0"
+        pg.click(first)
+        pg.wait_for_selector(".calcpanel")
+        self.assertEqual(pg.evaluate("document.querySelectorAll('.calcpanel').length"), 1)       # 한 번에 한 턴
+        self.assertEqual(pg.get_attribute(first, "aria-expanded"), "true")
+        self.assertIn("준 피해", pg.inner_text("#calcSum"))
+        self.assertIn("순차 증감", pg.inner_text(".calcpanel"))
+        if pg.evaluate("document.querySelectorAll('#mlTurns tr.mlturn').length") > 1:
+            t0 = pg.evaluate("window.__MLOG.turn")
+            pg.keyboard.press("ArrowDown")
+            self.assertGreater(pg.evaluate("window.__MLOG.turn"), t0)
+            self.assertEqual(pg.evaluate("document.querySelectorAll('.calcpanel').length"), 1)
+        pg.keyboard.press("Escape")
+        self.assertEqual(pg.evaluate("document.querySelectorAll('.calcpanel').length"), 0)
+        pg.click(first)
+        pg.click(first)                                                                      # 같은 행을 다시 누르면 닫힘
+        self.assertEqual(pg.evaluate("document.querySelectorAll('.calcpanel').length"), 0)
+        self.assertEqual(errs, [])
+        ctx.close()
+
+
 if __name__ == "__main__":
     unittest.main()

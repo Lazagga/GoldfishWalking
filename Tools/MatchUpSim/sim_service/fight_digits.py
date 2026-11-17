@@ -22,6 +22,7 @@ import random
 import matchup_sim as ms
 
 from . import box_moves as bm
+from . import turncalc as tcalc
 
 VERSION = 3          # 2: 큰 상자는 이동 수별 최선 값 DP (메모리 폭주 수정) / 3: 세계수 힘 초기화 = 칸의 수와 입힌 피해 비교 (v4.5 F19)
 RESET_AIM_BONUS = 0.25   # 힘 초기화 조건을 맞추는 배분에 주는 가산점 (생존 우선 순서는 그대로 — objective 의 J 항만 움직인다)
@@ -400,9 +401,10 @@ def fight_digits(cfg, st, tier, act, rng):
     joint_pd = any(cond in ("base_eq_monster_dmg",) for cond, _ in final_list) or \
         any(cond == "monster_dmg_ge_player_base" for cond, _ in taken_mult)
 
+    fxc = ms.fx_contributors(st, temp_copy) if tr is not None else None      # F21: 턴 분해의 출처 귀속에 쓴다
     if tr is not None:
         tr.append({"ev": "battle", "tier": tier, "act": act, "monster": mon["id"], "mhp": mhp0, "hp": st.hp,
-                   "temp_copy": temp_copy, "fx": ms.fx_contributors(st, temp_copy), "model": "digits",
+                   "temp_copy": temp_copy, "fx": fxc, "model": "digits",
                    "gimmicks": G, "matches": st.matches, "erasers": st.erasers})
 
     attempt = 0
@@ -563,10 +565,12 @@ def fight_digits(cfg, st, tier, act, rng):
             reset_aim = reset_n is not None and m.strength - m.base_strength >= pol["reset_at"]    # 힘이 충분히 올랐으면 N 을 맞추는 배분을 노린다
             D = H = 0
             dD = hD = 0
+            str_at_roll = m.strength
             heal_box = None
             if not stunned and kind == "attack":
                 dyn = pt.get("dynamic") if G else None
                 dD = max(1, int(pt.get("dmg_digits") or 2) + m.strength + int(mod))
+                str_at_roll = m.strength
                 if dyn:
                     D = max(0, int(math.floor(eval_value(dyn, env(0, turn)))))
                     dD = max(1, int(pt.get("dmg_digits") or 1), ndig(D))
@@ -605,6 +609,7 @@ def fight_digits(cfg, st, tier, act, rng):
             if st_now.get("box_lock"):
                 locked_digits = tuple(range(min(dPb, int(st_now["box_lock"]))))
             # ---- 2. 배분
+            inv_hits = (st.matches + st.erasers + temp_items) if tr is not None else 0     # F21: 타수 계산 때의 보유 아이템 수 (분해용)
             p_hits = 1 + hits_plain
             for ef, c in hits_other:
                 if not ms._when_ok(ef.get("when"), turn, Pv):
@@ -872,12 +877,30 @@ def fight_digits(cfg, st, tier, act, rng):
             hits = p_hits + (ms._consecutive_pairs(Pp, Dp) * pairs_c if pairs_c else 0)
             mon_vals = {"P": Pp, "D": Dp, "X": vals.get("X")}
             per_in = per_hit_in(mon_vals) if (kind == "attack" and not stunned) else 0
+            Dp_alloc, reroll_d = Dp, None
+            if tr is not None:       # F21: 분해용 스냅샷 (트레이스를 켰을 때만 — 상태·난수에 영향 없음)
+                xv = vals_real.get("X", p.debuff["value"]) if p.debuff else None
+                aim_s = str(Pp) + str(p_hits) + (str(xv) if p.debuff else "")
+                rules_on = []
+                if G:
+                    if p.debuff is not None:
+                        rules_on.append("debuff")
+                    if cond:
+                        rules_on.append("formula_condition")
+                    if hidden:
+                        rules_on.append("hidden_digits")
+                    if sf and m.phase == 1:
+                        rules_on.append("suffix")
+                    if zero_set and Pp > 0:
+                        rules_on.append("zero_special_digits")
+                d_eff0 = eff_d(vals_real.get("D", D))
+                pairs_now = ms._consecutive_pairs(Pp, Dp) if pairs_c else 0
             if eff_d(Dp) > max_hit:
                 max_hit = eff_d(Dp)
 
             def end_turn_dmg():
                 total = 0
-                for wh, per, v, c in etd_list:
+                for ei, (wh, per, v, c) in enumerate(etd_list):
                     if not ms._when_ok(wh, turn, Pp):
                         continue
                     if per == "items_held":
@@ -889,6 +912,8 @@ def fight_digits(cfg, st, tier, act, rng):
                     elif per == "digit8":
                         v *= (str(Pp) + str(Dp)).count("8")
                     total += v * c
+                    if tr is not None:
+                        etd_raw.append((ei, v * c))
                 return int(total)
 
             mhp_before, hp_before = m.hp, st.hp
@@ -897,21 +922,31 @@ def fight_digits(cfg, st, tier, act, rng):
             etd_real = 0
             cd0, ph0 = m.countdown, m.phase                         # 턴 로그 notes 용 스냅샷 (트레이스를 켰을 때만 쓴다 — 상태·난수에 영향 없음)
             str_why, heal_log = [], []
+            tk = {"n": 0, "deferred": 0, "delayed_paid": 0, "status": 0, "direct": [], "death_in": None, "why": "none"} if tr is not None else None
+            hit_log, refl_by, etd_raw = [], {}, []                  # F21 분해용 누적 (트레이스를 켰을 때만 채운다)
 
             def monster_acts():
                 nonlocal pstr, str_blocks, delayed, taken_turn, res
                 if m.dead:
+                    if tk is not None:
+                        tk["why"] = "dead"
                     return None
                 if stunned:
                     m.stun = max(0, m.stun - 1)
+                    if tk is not None:
+                        tk["why"] = "stun"
                     return None
                 skip = skip_add > 0 and frng.random() < skip_add
                 if skip:
+                    if tk is not None:
+                        tk["why"] = "skip"
                     return None
                 total = 0
                 if kind == "attack":
                     for _ in range(Hp):
                         if per_in <= 0:
+                            if tk is not None:
+                                tk["why"] = "zero"
                             break
                         now = per_in - int(per_in * delay_frac)
                         delayed += per_in - now
@@ -919,13 +954,22 @@ def fight_digits(cfg, st, tier, act, rng):
                         stats["dmg_taken"] += now
                         taken_turn += now
                         total += now
-                        for rv, rp, c in reflect:
-                            m.hp -= int((rv + rp * per_in) * c)
+                        if tk is not None:
+                            tk["n"] += 1
+                            tk["deferred"] += per_in - now
+                        for ri, (rv, rp, c) in enumerate(reflect):
+                            ra = int((rv + rp * per_in) * c)
+                            m.hp -= ra
+                            if tk is not None and ra:
+                                refl_by[ri] = refl_by.get(ri, 0) + ra
                         for hper, hv, c in heal_take:
                             h = int(per_in // hper) * hv * c
                             st.hp += h
                             stats["hp_healed"] += h
                         if st.hp <= 0:
+                            if tk is not None:
+                                tk["death_in"] = "hit"
+                                tk["why"] = "death"
                             return "death"
                     if G and total == 0 and sp("zero_damage_str_down"):
                         s0 = m.strength
@@ -961,7 +1005,11 @@ def fight_digits(cfg, st, tier, act, rng):
                             heal_log.append({"k": "heal", "amount": m.hp - h0, "why": "effect"})
                         if r:
                             taken_turn += r
+                            if tk is not None:
+                                tk["direct"].append((str(ef.get("op")) + ":" + str(ef.get("type") or ef.get("expr") or ""), r))
                         if st.hp <= 0:
+                            if tk is not None:
+                                tk["death_in"] = "direct"
                             return "death"
                     m.uses[pt["key"]] = m.uses.get(pt["key"], 0) + 1
                     if pt.get("self_destruct"):
@@ -987,7 +1035,12 @@ def fight_digits(cfg, st, tier, act, rng):
                         d += combo
                     if d <= 0:
                         continue
-                    m.apply_damage(d)
+                    if tr is not None:
+                        cap0, shield0 = m.cap, m.shield
+                    actual_d = m.apply_damage(d)
+                    if tr is not None:
+                        after_cap = min(d, cap0) if cap0 > 0 else d
+                        hit_log.append({"d": d, "cap": d - after_cap, "shield": after_cap - actual_d})
                     dealt_sum += d
                     if heal_deal:
                         st.hp += heal_deal
@@ -1010,6 +1063,7 @@ def fight_digits(cfg, st, tier, act, rng):
                             if dD2 != dD:
                                 D2 = roll(turn, "mdmg.reset").randint(dmin(dD2), dmax(dD2))
                                 Dp = D2
+                                reroll_d = D2
                                 per_in = per_hit_in({"P": Pp, "D": D2, "X": vals.get("X")})
                     elif tr is not None:
                         turn_notes.append({"k": "reset_check", "n": reset_n, "dealt": dealt_sum})
@@ -1028,8 +1082,12 @@ def fight_digits(cfg, st, tier, act, rng):
                     st.hp -= delayed
                     stats["dmg_taken"] += delayed
                     taken_turn += delayed
+                    if tk is not None:
+                        tk["delayed_paid"] = delayed
                     delayed = 0
                     if st.hp <= 0:
+                        if tk is not None:
+                            tk["death_in"] = "delayed"
                         res = "death"
                 if res is None and not enemy_first:
                     res = monster_acts()
@@ -1040,11 +1098,15 @@ def fight_digits(cfg, st, tier, act, rng):
                     st.hp -= sd
                     stats["dmg_taken"] += sd
                     taken_turn += sd
+                    if tk is not None:
+                        tk["status"] = sd
                 p.bleed = 0
                 p.bleed += p.pbleed
                 p.poison += p.ppoison
                 p.pbleed = p.ppoison = 0
                 if st.hp <= 0:
+                    if tk is not None and tk["death_in"] is None:
+                        tk["death_in"] = "status"
                     res = "death"
             # ---- 10. 지속시간
             if res is None:
@@ -1066,7 +1128,11 @@ def fight_digits(cfg, st, tier, act, rng):
                             r = _apply_effect(ef, m, p, st, env, turn, roll, 0, None, struct_next, Pp, p_hits, stats)
                             if r:
                                 taken_turn += r
+                                if tk is not None:
+                                    tk["direct"].append((str(ef.get("op")) + ":" + str(ef.get("type") or ef.get("expr") or ""), r))
                         if st.hp <= 0:
+                            if tk is not None and tk["death_in"] is None:
+                                tk["death_in"] = "direct"
                             res = "death"
                         elif m.hp <= 0:
                             res = "win"
@@ -1079,12 +1145,30 @@ def fight_digits(cfg, st, tier, act, rng):
                     turn_notes.append({"k": "countdown", "from": cd0, "to": m.countdown})
                 if m.phase != ph0:
                     turn_notes.append({"k": "phase", "from": ph0, "to": m.phase})
+                try:
+                    etd_fids = [e["fid"] for e in fxc.get("end_turn_dmg", ())]
+                    refl_f = {fxc["reflect_on_hit"][i]["fid"]: a for i, a in refl_by.items()} if refl_by else {}
+                    ep = tcalc.round_parts([x for _, x in etd_raw], etd_real) if etd_raw else []
+                    mdead = m.hp <= 0
+                    calc = tcalc.build({
+                        "idx": fxc, "when_ok": ms._when_ok, "digits_map": ms._digits_map,
+                        "act": act, "turn": turn, "P0": P0, "Pv": Pv, "Pp": Pp, "d_eff": d_eff0, "d1": d1, "hits": hits, "used": used, "n_items": n_items,
+                        "dP": dP, "pstr": pstr, "rules": rules_on, "inv0": inv_hits, "pairs": pairs_now,
+                        "hit_log": hit_log, "dealt": mhp_before - m.hp, "mhp_before": mhp_before, "m_dead": mdead,
+                        "dealt_stop": "kill" if mdead and hit_log else ("death" if res == "death" and not hit_log else "none"),
+                        "etd_parts": [(i, a) for (i, _), a in zip(etd_raw, ep)], "etd_fids": etd_fids, "refl": refl_f, "m_heals": heal_log,
+                        "attack": kind == "attack" and not stunned, "D": D, "Dp0": Dp_alloc, "reroll": reroll_d, "Dfin": Dp, "H": H, "Hp": Hp,
+                        "per_in": per_in, "aim": aim, "amul": amul, "aim_s": aim_s, "def_cap": F["def_cap"], "hp_before": hp_before, "res": res,
+                        "taken": taken_turn, "tk": tk, "approx": G and any(r.get("fidelity") == "approx" for r in (mon.get("gimmick_report") or ())),
+                        "roll": {"digits": dD, "pattern_digits": int(pt.get("dmg_digits") or 2), "strength": str_at_roll, "mod": int(mod), "base_strength": m.base_strength}})
+                except Exception as ex_:      # 분해 실패가 재생 전체를 막지 않게 — 테스트는 calc_error 가 없음을 검사한다
+                    calc = {"error": f"{type(ex_).__name__}: {ex_}"}
                 tr.append({"ev": "turn", "t": turn, "intent": kind, "pattern": pt.get("key"), "mon_dmg": D, "mon_dmg_edit": Dp, "mon_dmg_eff": eff_d(Dp),
                            "hits": H, "hits_edit": Hp, "base": Pv, "base_edit": Pp, "moves": M, "K": K, "used": used,
                            "items": n_items, "p_hits": hits, "cand": ncand, "beam": beam, "dealt": mhp_before - m.hp, "etd": etd_real,
                            "taken": taken_turn, "hp_change": st.hp - hp_before, "hp": st.hp, "mhp": m.hp, "end": res,
                            "aim": aim, "special": (m.special or {}).get("value"), "countdown": m.countdown,
-                           "phase": m.phase, "mstr": m.strength, "notes": turn_notes})
+                           "phase": m.phase, "mstr": m.strength, "notes": turn_notes, "calc": calc})
             if res:
                 outcome = res
                 break

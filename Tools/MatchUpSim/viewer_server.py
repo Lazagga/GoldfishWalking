@@ -565,6 +565,9 @@ class App:
         """v4.5 F16.3: 몬스터 지표 때의 한 판을 같은 시드로 다시 돌려 그 몬스터의 ord 번째 전투 로그를 만든다. run_lock 을 쓰지 않는다."""
         mid, seed, run = body.get("mid"), str(body.get("seed") or "mon1"), body.get("run")
         ord_, expect = body.get("ord"), body.get("expect")
+        with_calc = body.get("calc", True)
+        if not isinstance(with_calc, bool):
+            raise ValueError("calc 는 true/false")
         if not isinstance(mid, str) or not mid:
             raise ValueError("mid 필요")
         if not SEED_RE.match(seed):
@@ -607,6 +610,10 @@ class App:
         if "err" in box:
             raise box["err"]
         box["res"]["data_hash"] = dh
+        box["res"]["has_calc"] = any("calc" in t and "error" not in (t["calc"] or {}) for t in box["res"]["turns"])   # F21: gauss 모델 전투는 분해가 없다
+        if not with_calc:
+            for t in box["res"]["turns"]:
+                t.pop("calc", None)
         return box["res"]
 
     def file_api(self, method, kind, fid, sub, body):
