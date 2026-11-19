@@ -24,7 +24,8 @@ import matchup_sim as ms
 from . import box_moves as bm
 from . import turncalc as tcalc
 
-VERSION = 3          # 2: 큰 상자는 이동 수별 최선 값 DP (메모리 폭주 수정) / 3: 세계수 힘 초기화 = 칸의 수와 입힌 피해 비교 (v4.5 F19)
+VERSION = 4          # 2: 큰 상자는 이동 수별 최선 값 DP (메모리 폭주 수정) / 3: 세계수 힘 초기화 = 칸의 수와 입힌 피해 비교 (v4.5 F19)
+                     # 4: 목적함수(선공 처치·후공 처치·초과 피해, F22-B) / 평가형 변환 천칭자리(F22-A) / 게임 수치 소수점 버림(F22-D)
 RESET_AIM_BONUS = 0.25   # 힘 초기화 조건을 맞추는 배분에 주는 가산점 (생존 우선 순서는 그대로 — objective 의 J 항만 움직인다)
 
 
@@ -243,10 +244,18 @@ def pick_segments(rng, masks, n):
 # ---------------------------------------------------------------------------
 # 배분 (F8.4)
 # ---------------------------------------------------------------------------
+ORACLE = None     # F22-C 점검용 훅 (None 이면 꺼짐 — 평소 동작에 영향 없음): {"log": [...], "raw": [], "ignore_rank": bool}
+
+
 def prune(reach, better, feat=None, keep_all=False, rank=None):
     """reach = {값: 최소 이동}. 특징이 같은 값끼리 (이동 수 오름차순) 파레토 프런트만 남긴다.
     better = +1 이면 큰 값이 좋음, -1 이면 작은 값이 좋음.
     rank 가 있으면 값의 좋고 나쁨을 rank(값) 으로 비교한다 (값 자체는 화면 숫자 그대로 유지)."""
+    if ORACLE is not None:
+        if not ORACLE.get("busy"):
+            ORACLE["raw"].append((dict(reach), better))
+        if ORACLE.get("ignore_rank"):
+            rank = None          # F22-A 이전의 가지치기(값 대소만) 재현 — 점검 테스트가 불일치를 잡는지 확인하는 용도
     rk = rank or (lambda v: v)
     if keep_all:
         return sorted(((v, c) for v, c in reach.items()), key=lambda x: (x[1], -better * rk(x[0]), x[0]))
@@ -292,16 +301,20 @@ def allocate(boxes, K, evaluate):
     return best, best_key, best_cost, n
 
 
-def objective(dealt, taken, hp, mhp, kill_first, w, extra_pen=0.0, heal=0, doom=False):
-    """결정적 목적함수 키 (클수록 좋음). 생존 우선 → 처치 우선 → J."""
+def objective(dealt, taken, hp, mhp, enemy_first, w, extra_pen=0.0, heal=0, doom=False, item_pen=0.0):
+    """결정적 목적함수 키 (클수록 좋음). v4.5 F22-B.
+    선공 처치(내가 먼저 움직여 처치) → 몬스터가 행동하지 못하므로 받는 피해·카운트다운과 무관하게 최상위.
+    그 외 생존 우선 → (후공) 맞고 살아남은 뒤 처치 → J. J 의 준 피해는 몬스터 체력으로 자른다(초과 피해는 가치 없음)."""
+    kill = dealt >= mhp
+    if kill and not enemy_first:
+        return (1, 1, -item_pen, 0.0)
     if doom:
         taken = float("inf")
     alive = taken < hp
-    kill = kill_first and dealt >= mhp
-    J = w * (dealt - heal) / max(1, mhp) - (1 - w) * (taken if taken != float("inf") else 1e9) / max(1, hp) - extra_pen
+    J = w * (min(dealt, mhp) - heal) / max(1, mhp) - (1 - w) * (taken if taken != float("inf") else 1e9) / max(1, hp) - extra_pen
     if not alive:
         return (0, 0, -taken, J)
-    if kill:
+    if kill:                                   # 후공: 맞고 살아남은 뒤 처치
         return (1, 1, -taken, J)
     return (1, 0, J, -taken)
 
@@ -370,6 +383,10 @@ def fight_digits(cfg, st, tier, act, rng):
     def eff_d(v):
         return v if digit_cap is None else ms._digits_map(v, lambda d: min(d, digit_cap))
     has_transform = fx.has("base_dmg_transform")
+    has_eval = ms.has_eval_base(fx)      # 평가형 변환(천칭자리): 편집이 끝난 최종 값에 적용 (F22-A)
+
+    def Pe_of(v):
+        return ms.eval_base(v, fx) if has_eval else v
     pstr_list = list(fx.items("player_str_add"))
     hits_plain = sum(int(ef.get("value", 0)) * c for ef, c in fx.items("hits_add") if not ef.get("when") and not ef.get("per"))
     hits_other = [(ef, c) for ef, c in fx.items("hits_add") if ef.get("when") or ef.get("per")]
@@ -677,10 +694,12 @@ def fight_digits(cfg, st, tier, act, rng):
                 return tuple(f)
 
             boxes = []
+            if ORACLE is not None:
+                ORACLE["raw"] = []
             p_keep_all = joint_pd or lib or bool(cond and cond["type"] == "Compare") or bool(zero_set)
             pr = bm.reach_best(dPb, Pv, K if p_movable else 0, +1, split=p_split, locked=locks, locked_digits=locked_digits,
-                               movable=p_movable)
-            boxes.append(("P", prune(pr, +1, p_feat, keep_all=p_keep_all)))
+                               movable=p_movable, rank=Pe_of if has_eval else None)
+            boxes.append(("P", prune(pr, +1, p_feat, keep_all=p_keep_all, rank=Pe_of if has_eval else None)))
             if kind == "attack" and not stunned:
                 d_ok = m_movable and not m_dmg_locked and pt.get("dmg_editable", True)
                 dr = bm.reach_best(dD, D, K if d_ok else 0, -1, split=m_split, movable=d_ok, cap=digit_cap)
@@ -710,10 +729,11 @@ def fight_digits(cfg, st, tier, act, rng):
 
             def player_per_hit(vals, real=False):
                 Pp = vals["P"]
-                one = max(0, round(Pp * dmg_mult) + flat)
+                Pe = Pe_of(Pp)          # 평가형 변환 후의 값 (없으면 Pp)
+                one = max(0, ms.trunc(Pe * dmg_mult) + flat)
                 fm = 1.0
                 for cnd, factor in final_list:
-                    if cnd == "base_eq_monster_dmg" and Pp != eff_d(vals.get("D", D)):
+                    if cnd == "base_eq_monster_dmg" and Pe != eff_d(vals.get("D", D)):
                         continue
                     fm *= factor
                 d = int(one * fm)
@@ -736,7 +756,7 @@ def fight_digits(cfg, st, tier, act, rng):
                         if cnt != vals.get("C", cond["count"]):
                             d = 0
                     else:
-                        base = int(max(0, round(Pp * dmg_mult) + flat))
+                        base = int(max(0, ms.trunc(Pe_of(Pp) * dmg_mult) + flat))
                         op = cond["op"]
                         ok = base < cond["value"] if op == "<" else base > cond["value"] if op == ">" else base == cond["value"]
                         if not ok:
@@ -775,9 +795,9 @@ def fight_digits(cfg, st, tier, act, rng):
                     s = str(vals["P"]) + str(p_hits) + (str(vals.get("X", p.debuff["value"])) if p.debuff else "")
                     if str(aim) in s:
                         per = int(per * amul)
-                v = max(0, round(per * (1 - def_cut)) + taken_flat)
+                v = max(0, ms.trunc(per * (1 - def_cut)) + taken_flat)
                 for cnd, factor in taken_mult:
-                    if cnd == "monster_dmg_ge_player_base" and not eff_d(vals.get("D", D)) >= vals["P"]:
+                    if cnd == "monster_dmg_ge_player_base" and not eff_d(vals.get("D", D)) >= Pe_of(vals["P"]):
                         continue
                     v = int(v * factor)
                 return v
@@ -834,7 +854,7 @@ def fight_digits(cfg, st, tier, act, rng):
                                 pen += react_cost
                 if reset_aim and reset_hit(rs_trig["compare"], dsum, reset_n):
                     pen -= RESET_AIM_BONUS              # 조건을 맞추는 배분을 우선 (같은 생존 등급 안에서만)
-                return objective(dealt, taken, hp_now, mhp_now, not enemy_first, w, pen, heal, doom)
+                return objective(dealt, taken, hp_now, mhp_now, enemy_first, w, pen, heal, doom, 0.0)
 
             beam = False
             prod = 1
@@ -846,7 +866,16 @@ def fight_digits(cfg, st, tier, act, rng):
                 boxes = [(nm, o[:keep]) for nm, o in boxes]
                 st.beam_turns = getattr(st, "beam_turns", 0) + 1     # 행 키는 바꾸지 않는다
             vals, key, used, ncand = allocate(boxes, K, evaluate)
+            if ORACLE is not None:      # F22-C: 가지치기·빔 없이 모든 후보를 열거한 최적 키와 실제 선택의 키를 비교한다
+                ORACLE["busy"] = True
+                try:
+                    full = [(nm, prune(rw, bt, keep_all=True)) for (nm, _o), (rw, bt) in zip(boxes, ORACLE["raw"])]
+                    okey = allocate(full, K, evaluate)[1]
+                finally:
+                    ORACLE["busy"] = False
+                ORACLE["log"].append({"t": turn, "match": key == okey, "key": key, "okey": okey, "beam": beam, "K": K, "P": Pv})
             Pp = vals["P"]
+            Pe = Pe_of(Pp)
             Dp = vals.get("D", D)
             Hp = vals.get("H", H)
             if p.debuff is not None and "X" in vals:
@@ -1152,7 +1181,7 @@ def fight_digits(cfg, st, tier, act, rng):
                     mdead = m.hp <= 0
                     calc = tcalc.build({
                         "idx": fxc, "when_ok": ms._when_ok, "digits_map": ms._digits_map,
-                        "act": act, "turn": turn, "P0": P0, "Pv": Pv, "Pp": Pp, "d_eff": d_eff0, "d1": d1, "hits": hits, "used": used, "n_items": n_items,
+                        "act": act, "turn": turn, "P0": P0, "Pv": Pv, "Pp": Pp, "Pe": Pe, "d_eff": d_eff0, "d1": d1, "hits": hits, "used": used, "n_items": n_items,
                         "dP": dP, "pstr": pstr, "rules": rules_on, "inv0": inv_hits, "pairs": pairs_now,
                         "hit_log": hit_log, "dealt": mhp_before - m.hp, "mhp_before": mhp_before, "m_dead": mdead,
                         "dealt_stop": "kill" if mdead and hit_log else ("death" if res == "death" and not hit_log else "none"),
@@ -1164,7 +1193,7 @@ def fight_digits(cfg, st, tier, act, rng):
                 except Exception as ex_:      # 분해 실패가 재생 전체를 막지 않게 — 테스트는 calc_error 가 없음을 검사한다
                     calc = {"error": f"{type(ex_).__name__}: {ex_}"}
                 tr.append({"ev": "turn", "t": turn, "intent": kind, "pattern": pt.get("key"), "mon_dmg": D, "mon_dmg_edit": Dp, "mon_dmg_eff": eff_d(Dp),
-                           "hits": H, "hits_edit": Hp, "base": Pv, "base_edit": Pp, "moves": M, "K": K, "used": used,
+                           "hits": H, "hits_edit": Hp, "base": Pv, "base_edit": Pp, "base_eval": Pe, "moves": M, "K": K, "used": used,
                            "items": n_items, "p_hits": hits, "cand": ncand, "beam": beam, "dealt": mhp_before - m.hp, "etd": etd_real,
                            "taken": taken_turn, "hp_change": st.hp - hp_before, "hp": st.hp, "mhp": m.hp, "end": res,
                            "aim": aim, "special": (m.special or {}).get("value"), "countdown": m.countdown,

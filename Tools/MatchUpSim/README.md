@@ -396,6 +396,30 @@ python tools/bench.py --profile       # 속도 벤치마크
 - API: `POST /api/monster_log` 응답의 `turns[].calc`(`"calc": false` 로 생략), `has_calc`(gauss 전투는 false → 패널 비활성·이유 표시). 내려받기: `battle_log` 의 `calc_json` 열·zip 의 `calc.csv`, 새 데이터셋 `battle_calc`(턴·구분·분류·출처·전·후·증감·초과 기여).
 - 근사 항목: 몬스터 기믹 규칙 단계(`rule`)는 규칙 이후 값만 한 단계로 적고(어떤 규칙이 걸렸는지 이름 표시), 제거 시 차이는 규칙 전 비율로 환산한 근사다. 아이템은 F20 전이라 "성냥 이동 n회 · 아이템 m" 으로 표시한다.
 
+## 배분 정책 보정·천칭자리 재모델링·소수점 버림 (v4.5 F22, `v45_f22_policy_libra.md`)
+- **천칭자리**(`fan_damage_libra`)는 한 규칙 `base_dmg_transform` op `zero_else_mult`(`zero_value` 200, `value` 0.5)다. **편집이 끝난 최종 값**에 적용한다(평가형): 값이 0 이면 200 으로 대체하고 끝, 아니면 ×0.5(소수점 버림). 1 → 0 이 돼도 200 으로 다시 바뀌지 않고, 0 → 200 뒤에 ×0.5 도 하지 않는다. 몇 개를 가져도 중첩되지 않는다(D5). 굴림형(큐대·도미노·쌍둥이자리)은 종전처럼 굴림 직후 한 번(A3, 후속 결정).
+- `matchup_sim.eval_base(P, fx)` 가 평가 값을, `transform_base` 는 굴림형만 처리한다. digits 의 피해 계산(`player_per_hit`)·크기 비교 조건(`base_eq_monster_dmg`, `monster_dmg_ge_player_base`)은 평가 값을, 자릿수 모양 특징(조준 자릿수·8의 개수·연속쌍·같은 숫자)은 표시 숫자를 쓴다(A1). gauss 는 편집이 없어 굴림 직후 한 번 평가한다(값은 종전과 같다).
+- AI 가 0 상자를 노린다: P 상자 가지치기에 `rank=eval_base` 를 넘겨 0 후보(평가 200)가 파레토 전선에 남고, `box_moves.reach_best` 의 큰 상자 경로는 `rank` 가 있으면 최소값 경로에서 "0 에 닿는 최소 이동"을 함께 돌려준다(`box_moves.VERSION` 2). 굴림 60·이동 1 이면 `00` 으로 만들어 타격당 200 이다.
+- 턴 이벤트에 `base_eval`(평가 값)이 붙고 F21 단계표에 `최종 값 평가(0 → 200 / ×0.5)` 단계(`eval`)가 보인다. 데이터: `import_fantasies.py` 가 원본의 `set(==0)` + `multiply(!=0)` 쌍을 `zero_else_mult` 하나로 합쳐 읽는다(overrides 도 같은 형태). 편집기에서 `zero_value`(0~999)·`value`(곱)를 고칠 수 있다. 환상 충실도(digits)는 `exact`(비고: 크기 비교 조건은 변환된 값, 자릿수 모양 특징은 표시 숫자 — 가정).
+- **배분 목적함수**(`fight_digits.objective`, 인자 `enemy_first`): 내가 먼저 움직여 처치하는 조합은 몬스터가 행동하지 못하므로 받는 피해·카운트다운(`doom`)과 무관하게 최상위(B1·B3), 후공(`enemy_acts_first`)이면 "맞고 살아남은 뒤 처치"가 처치 등급을 받고 못 살아남으면 사망 등급(B2), J 의 준 피해는 몬스터 체력으로 자른다. 처치가 불가능한 턴의 키는 이전과 같다(AC-B4, 무작위 10000개 검증). `item_pen` 인자는 F20 용(지금은 0).
+- `player.policy.attack_weight`(w, 기본 0.5)를 **뷰어 상단 `배분 가중치` 칸**에서 편집한다(초안·저장·시나리오 흐름은 다른 설정 편집과 같고, 값이 바뀌면 점 캐시 키가 달라진다). w = 0.5·체력 대비 비율 가치는 사용자 확인으로 유지(D4).
+- **소수점 버림**(F22-D): 게임 규칙 계산의 `round` 를 `matchup_sim.trunc`(0 쪽 버림, 부동소수 보정 1e-9, A2)로 통일했다 — 내 타격당 피해(`Pe × 배율`), 몬스터 피해 감소(`per × (1 − 감소)`), 획득 시 회복, 휴식 회복, 상점 가격 배수(gauss·digits 모두). 제외: 표본 근사(`round(rng.gauss(...))`), `hp_scale`, 상점 가격 수정의 확률 표본, 통계·표시용 반올림.
+- **버전·캐시**: `SIM_VERSION` 3, `fight_digits.VERSION` 4, `box_moves.VERSION` 2 — 점 캐시가 모두 무효가 된다(전체 재계산 한 번). **위 천칭자리(−9.8%p 등) 수치와 기존 스캔 결과는 F22 이전 모델 기준**이라 재측정 전까지 참고만 한다(편집 시점 이동·소수점 버림으로 값이 달라진다).
+- **민감도 점검** `policy_scan.py`: `attack_weight ∈ {0.3, 0.4, 0.5, 0.6, 0.7}` 를 같은 조건으로 돌려 기준선 승률·환상 평균 승률·환상별 단독 Δ 순위의 스피어만 상관(w = 0.5 대비)·보스 사망 비중·전투당 평균 턴을 표로 낸다(`sim_results/policy_scan/policy_scan.json·csv`). 참고 정보일 뿐 기본값을 바꾸는 근거가 아니다(D4).
+- 민감도 결과(`python policy_scan.py --runs 500 --metric-runs 1500 --set player.start_hp=150 --set rewards.normal_battle.mode=fantasy`, 환상 69종, 시드 `pol1`, 476초; 점당 500판이라 표본 오차 ±1.6%p 안팎이므로 방향만 본다):
+
+  | w | 기준선 승률 | 환상 평균 승률 | 단독 Δ 순위 스피어만(w=0.5 대비) | 보스 사망 비중 | 평균 턴/전투 |
+  |---|---|---|---|---|---|
+  | 0.3 | 12.8% | 24.0% | 0.987 | 9.0% | 2.60 |
+  | 0.4 | 14.4% | 23.9% | 0.991 | 9.0% | 2.59 |
+  | **0.5** | 15.0% | 23.5% | 1.000 | 9.0% | 2.57 |
+  | 0.6 | 13.8% | 22.4% | 0.985 | 8.7% | 2.58 |
+  | 0.7 | 13.0% | 21.0% | 0.971 | 8.2% | 2.55 |
+
+  w 를 0.3~0.7 로 바꿔도 환상 순위는 거의 같고(스피어만 ≥ 0.97) 기준선 승률은 w = 0.5 근처에서 가장 높다. 공격 가중치를 키울수록 환상 평균 승률이 낮아지는 쪽이다. 기본값(0.5)을 바꿀 근거로 쓰지 않는다(D4). 기본 설정(불씨 획득)에서는 시작 체력 150 의 기준선 승률이 0.5% 라 이 비교가 의미가 없어 환상 획득 방식으로 돌렸다.
+- **AI 효과 활용 점검(oracle)** `tests/test_ai_oracle.py`: `fight_digits.ORACLE` 훅이 켜지면 배분마다 가지치기·빔 없이 모든 후보를 열거한 최적 키와 실제 선택의 키를 비교한다(평소엔 꺼짐). 천칭자리·8의 개수·연속쌍·같은 숫자 상자·`base_eq_monster_dmg`·`monster_dmg_ge_player_base`·조준 사격 모두 턴 2000개에서 **불일치 0%**, 가지치기에서 `rank` 를 무시(F22-A 이전 재현)하면 천칭자리가 약 10% 불일치(P3 재현). 결과: `sim_results/ai_oracle.json`(`ORACLE_N=2000 ORACLE_WRITE=1`). 기본 실행은 환상당 200턴 스모크.
+- 범위 밖: 조우 시 전투 승률이 조우한 런 승률보다 낮게 나오는 현상(게자리류 부활 시도가 별도 전투로 남음)은 별도 명세.
+
 ## 몬스터 지표 갱신과 새로고침 진행 표시 (v4.5 F18)
 - 지표가 단계(500 → … → N판)마다 갱신돼도 표를 통째로 지우지 않고 행만 고쳐서 **페이지·표 스크롤, 열어 둔 로그 패널, 선택이 유지된다**.
 - 새로고침하면 서버가 아직 계산 중인 작업(곡선·지표)의 진행 줄을 서버 콘솔과 같은 문자열로 보여 준다(`GET /api/progress?client=` → `jobs[].state(queued|running|done|error|cancelled)·runs_done·line·line_age_s`, 줄 서 있는 작업은 `대기 중(앞 작업 1개)`). 끝난 작업이 진행 중으로 남던 `done` 키 충돌을 고쳤고(`finished`·`runs_done` 추가, `done` 은 하위 호환 불리언), 진행 확인이 끊긴 탭(30초)의 작업은 새 작업이 올라올 때 취소한다.
@@ -558,6 +582,8 @@ python -m unittest test_v45_cosmictree      # v4.5 F19 세계수 힘 초기화 �
 python -m unittest test_v45_monster_log     # v4.5 F16 전투 로그 서버 수준 (표본·재생·내려받기·결과 불변)                  ~1분
 python -m unittest test_v45_progress        # v4.5 F18 진행 표시 서버 수준 (AC-P2~P6)와 저장 이력 API                    ~1분
 python -m unittest test_v45_turn_calc      # v4.5 F21 턴 피해 분해 (AC-T2~T6·T8~T12, 성능 T9)                                   ~10초
+python -m unittest test_v45_policy_libra   # v4.5 F22 천칭자리(AC-L)·목적함수(AC-B)·소수점 버림(AC-R)                          ~10초
+python -m unittest test_ai_oracle           # v4.5 F22-C AI 효과 활용 점검 (ORACLE_N=2000 으로 전체, 기본 200 스모크)            ~10초
 python -m unittest test_v45_ui              # v4.5 F17 편집 초안·저장 (AC-M1~M12), F18 지표 갱신 스크롤(AC-P1), F16 로그 패널(AC-L1·L10·L12) (Playwright)   ~2분
 ```
 테스트는 `tests/fixtures/`의 사본을 임시 폴더에 복사해 쓰고, 실제 `Assets/` 아래 쓰기를 막는 가드(`MATCHUPSIM_FORBID_PATH`)를 건다.

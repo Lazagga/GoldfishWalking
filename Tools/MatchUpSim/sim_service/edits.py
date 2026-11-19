@@ -25,7 +25,7 @@ EFFECT_SCHEMA = {
     "dmg_mult_add": {"value": R(-1, 10, unit="배율 가산")},
     "dmg_flat": {"value": R(-500, 2000, unit="피해/타")},
     "dmg_final_mult": {"value": MULT},
-    "base_dmg_transform": {"value": R(0, 999), "odd_mult": MULT, "even_value": R(0, 999, True)},
+    "base_dmg_transform": {"value": R(0, 999), "odd_mult": MULT, "even_value": R(0, 999, True), "zero_value": R(0, 999, True, "피해")},
     "hits_add": {"value": R(-5, 20, True, "타"), "divisor": R(1, 100, unit="개", lo_excl=False)},
     "combo_same_dmg_stack": {"value": R(0, 500, unit="피해")},
     "end_turn_dmg": {"value": R(0, 2000, unit="피해")},
@@ -76,6 +76,7 @@ SPECIAL = {
     ("base_dmg_transform", "value", "digit_min"): R(0, 9, True, "숫자"),
     ("base_dmg_transform", "value", "first_digit"): R(0, 9, True, "숫자"),
     ("base_dmg_transform", "value", "zero_set"): R(0, 999, True, "피해"),
+    ("base_dmg_transform", "value", "zero_else_mult"): MULT,
 }
 CFG_EDITABLE = {
     "player.skill": R(0, 1, unit="실력"),
@@ -291,6 +292,7 @@ CFG_EDITABLE.update({
     "rewards.ember.blue_chance": PROB,
     "rewards.ember.blue_offer_cap": R(0, 3, True, "개"),
     "monsters.hp_scale": R(0.05, 20, unit="배"),
+    "player.policy.attack_weight": R(0, 1, unit="공격 가중치"),     # 배분 정책의 공격/방어 비중 w (기본 0.5, F22-B)
 })
 
 

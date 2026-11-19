@@ -39,6 +39,11 @@ def _fids(entries, wf=None):
     return [[f, c, round(w, 6)] for f, c, w in out.values()]
 
 
+def _trunc(x):
+    """소수점 버림 (F22-D) — matchup_sim.trunc 와 같은 식 (이 모듈은 시뮬 모듈을 가져오지 않는다)."""
+    return int(x + 1e-9) if x >= 0 else -int(-x + 1e-9)
+
+
 def _fx_src(t, entries, wf=None):
     return {"kind": "fx", "type": t, "fids": _fids(entries, wf)}
 
@@ -49,7 +54,7 @@ def dealt_chain(idx, c, excl=None):
     Pp = c["Pp"]
     mult_e = [e for e in _ents(idx, "dmg_mult_add", excl) if _plain(e)]
     mult = 1.0 + ssum(idx, "dmg_mult_add", excl)
-    m1 = round(Pp * mult)
+    m1 = _trunc(Pp * mult)
     flat_e = _ents(idx, "dmg_flat", excl)
     fl_plain = sum(e.get("value", 0) * e["count"] * (c["act"] if e.get("act_scaling") else 1) for e in flat_e if not e.get("when"))
     fl_on, fl_off = [], []
@@ -134,7 +139,7 @@ def taken_chain(idx, c, excl=None):
             per = new
     def_e = [e for e in _ents(idx, "def_cut_add", excl) if _plain(e)]
     cut = min(c["def_cap"], ssum(idx, "def_cut_add", excl))
-    a = round(per * (1 - cut))
+    a = _trunc(per * (1 - cut))
     if def_e:
         steps.append({"k": "def", "src": _fx_src("def_cut_add", def_e), "from": per, "to": a})
     tf_e = [e for e in _ents(idx, "dmg_taken_flat", excl) if _plain(e)]
@@ -235,14 +240,19 @@ def _norm(o):
 
 
 def _dealt(c, idx):
-    cc = {"Pp": c["Pp"], "act": c["act"], "turn": c["turn"], "Pv": c["Pv"], "d_eff": c["d_eff"], "when_ok": c["when_ok"]}
+    Pe = c.get("Pe", c["Pp"])      # 평가형 변환(천칭자리) 후의 값 — 배율 단계는 이 값에서 시작한다 (F22-A)
+    cc = {"Pp": Pe, "act": c["act"], "turn": c["turn"], "Pv": c["Pv"], "d_eff": c["d_eff"], "when_ok": c["when_ok"]}
     hc = {"turn": c["turn"], "Pv": c["Pv"], "inv0": c["inv0"], "pairs": c["pairs"], "when_ok": c["when_ok"]}
     ch = dealt_chain(idx, cc)
     steps = []
+    roll_t = [e for e in _ents(idx, "base_dmg_transform") if e.get("op") != "zero_else_mult"]
+    eval_t = [e for e in _ents(idx, "base_dmg_transform") if e.get("op") == "zero_else_mult"]
     if c["P0"] != c["Pv"]:
-        steps.append({"k": "transform", "src": _fx_src("base_dmg_transform", _ents(idx, "base_dmg_transform"), lambda e: 0), "from": c["P0"], "to": c["Pv"]})
+        steps.append({"k": "transform", "src": _fx_src("base_dmg_transform", roll_t, lambda e: 0), "from": c["P0"], "to": c["Pv"]})
     if c["Pp"] != c["Pv"]:
         steps.append({"k": "move", "src": {"kind": "move", "n": c["used"], "items": c["n_items"]}, "from": c["Pv"], "to": c["Pp"]})
+    if eval_t and Pe != c["Pp"]:
+        steps.append({"k": "eval", "src": _fx_src("base_dmg_transform", eval_t[:1], lambda e: 0), "from": c["Pp"], "to": Pe})
     steps += ch["steps"]
     if c["d1"] != ch["d"] or c["rules"]:
         steps.append({"k": "rule", "src": {"kind": "monster", "sim": "+".join(c["rules"]) or "rule"}, "from": ch["d"], "to": c["d1"]})
@@ -337,7 +347,7 @@ def _taken(c, idx):
         by = [{"src": ex[0]["k"] if ex else "unknown", "n": over}] if over else []
         return {"base": 0, "steps": [], "per_hit": 0, "hits": {"base": 0, "n": 0}, "extra": ex, "total": total, "raw": total,
                 "over": {"n": over, "by": by, "reduced": [], "ablate": []}, "ablate": [], "roll": c["roll"], "_off": []}
-    tc = {"D": c["Dfin"], "P": c["Pp"], "digits_map": c["digits_map"], "aim": c["aim"], "amul": c["amul"], "aim_s": c["aim_s"], "def_cap": c["def_cap"]}
+    tc = {"D": c["Dfin"], "P": c.get("Pe", c["Pp"]), "digits_map": c["digits_map"], "aim": c["aim"], "amul": c["amul"], "aim_s": c["aim_s"], "def_cap": c["def_cap"]}
     ch = taken_chain(idx, tc)
     steps = []
     if c["Dp0"] != c["D"]:

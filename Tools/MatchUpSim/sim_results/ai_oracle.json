@@ -1,0 +1,61 @@
+{
+ "n": 2000,
+ "rows": [
+  {
+   "id": "fan_damage_libra",
+   "name": "천칭자리 (0 → 200 / ×0.5)",
+   "turns": 2000,
+   "mismatch": 0,
+   "rate": 0.0
+  },
+  {
+   "id": "fan_end_8ball",
+   "name": "8의 개수 (턴 종료 피해)",
+   "turns": 2000,
+   "mismatch": 0,
+   "rate": 0.0
+  },
+  {
+   "id": "fan_damage_virgo",
+   "name": "연속쌍 (타수)",
+   "turns": 2000,
+   "mismatch": 0,
+   "rate": 0.0
+  },
+  {
+   "id": "fan_damage_mirror",
+   "name": "같은 숫자 상자 (타수)",
+   "turns": 2000,
+   "mismatch": 0,
+   "rate": 0.0
+  },
+  {
+   "id": "fan_end_paperplane",
+   "name": "내 기본 피해 = 몬스터 1타 (최종 배율)",
+   "turns": 2000,
+   "mismatch": 0,
+   "rate": 0.0
+  },
+  {
+   "id": "fan_defend_paperboat",
+   "name": "몬스터 1타 ≥ 내 기본 피해 (받는 피해 배율)",
+   "turns": 2000,
+   "mismatch": 0,
+   "rate": 0.0
+  },
+  {
+   "id": "(환상 없음)",
+   "name": "(환상 없음)",
+   "turns": 2000,
+   "mismatch": 0,
+   "rate": 0.0
+  },
+  {
+   "id": "조준 사격 (몬스터)",
+   "name": "조준 사격 (몬스터)",
+   "turns": 2000,
+   "mismatch": 0,
+   "rate": 0.0
+  }
+ ]
+}

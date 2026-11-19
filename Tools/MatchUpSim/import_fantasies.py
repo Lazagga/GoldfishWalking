@@ -316,6 +316,22 @@ def map_effect(e):
     return None
 
 
+def zero_else_pair(effects):
+    """원본 효과 중 '값 == 0 이면 set_value' + '값 != 0 이면 multiply' 쌍(같은 상자) → (set 인덱스, multiply 인덱스) 또는 None (F22-A)."""
+    zs, ms_ = None, None
+    for j, e in enumerate(effects):
+        tg, c = e.get("target") or {}, _cmp(e.get("condition"))
+        if (e.get("trigger") or {}).get("event") != "value_evaluation" or tg.get("formula") != "player.damage" or tg.get("box") != "base" or not c:
+            continue
+        if c[0] != "current_value" or _num(c[2]) != 0:
+            continue
+        if e.get("operation") == "set_value" and c[1] == "==" and _num(e.get("amount")) is not None and zs is None:
+            zs = j
+        elif e.get("operation") == "modify_value" and e.get("mode") == "multiply" and c[1] == "!=" and _num(e.get("amount")) is not None and ms_ is None:
+            ms_ = j
+    return (zs, ms_) if zs is not None and ms_ is not None else None
+
+
 def convert(src_entry, overrides):
     fid = src_entry["id"]
     out = {
@@ -337,7 +353,18 @@ def convert(src_entry, overrides):
 
     effects, fids, notes, unmapped = [], [], [], 0
     available = True
+    zp = zero_else_pair(src_entry.get("effects", []))
+    if zp:       # 천칭자리형: 두 효과를 한 규칙(zero_else_mult)으로 합쳐 읽는다 — 다시 둘로 풀지 않는다
+        zj, mj = zp
+        f0 = src_entry.get("_file", fid + ".json")
+        zv, mv = _num(src_entry["effects"][zj]["amount"]), _num(src_entry["effects"][mj]["amount"])
+        effects.append({"type": "base_dmg_transform", "op": "zero_else_mult", "zero_value": zv, "value": mv,
+                        "src": [{"file": f0, "effect": zj, **SA("zero_value")}, {"file": f0, "effect": mj, **SA("value")}]})
+        fids.append("exact")
+        notes.append("값이 0 이면 지정값, 아니면 곱하기(버림). 편집이 끝난 최종 값에 적용")
     for j, e in enumerate(src_entry.get("effects", [])):
+        if zp and j in zp:
+            continue
         m = map_effect(e)
         if m is None:
             unmapped += 1
@@ -440,6 +467,8 @@ def digits_fidelity(e):
     best, why = "exact", []
     for ef in e["effects"]:
         f, r = DIGITS_FIDELITY.get(ef["type"], ("keep", ""))
+        if ef["type"] == "base_dmg_transform" and ef.get("op") == "zero_else_mult":
+            f, r = "exact", "평가형 변환: 편집이 끝난 최종 값에 적용(0 → 지정값, 아니면 곱하기 버림). 크기 비교 조건은 변환된 값, 자릿수 모양 특징은 표시 숫자(가정)"
         if f == "keep":
             f, r = e.get("fidelity", "approx"), "전투 밖·획득 효과 — gauss 판정 유지"
         if ef["type"] == "hits_add" and "base_same_digits" in (ef.get("when") or {}):

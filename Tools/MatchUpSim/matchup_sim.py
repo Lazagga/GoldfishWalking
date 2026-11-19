@@ -69,7 +69,7 @@ import time
 from datetime import datetime
 
 # 시뮬레이션 의미가 바뀌는 수정(같은 입력에서 결과가 달라지는 수정)마다 올린다. 스캔 캐시 키에 들어간다.
-SIM_VERSION = 2   # 2: digits 모델 몬스터 피해 숫자 상한(사과파이)을 화면 숫자는 그대로 두고 피해 계산에만 적용
+SIM_VERSION = 3   # 2: digits 모델 몬스터 피해 숫자 상한(사과파이)을 화면 숫자는 그대로 두고 피해 계산에만 적용 / 3: 게임 수치 소수점 버림 통일(F22-D), 천칭자리 재모델링(F22-A)
 
 ACTS = 3
 FLOORS_PER_ACT = 15
@@ -824,7 +824,7 @@ class RunState:
         for ef in entry.get("effects", ()):
             t = ef["type"]
             if t == "on_acquire_heal":
-                heal = round(ef.get("value", 0) + ef.get("pct", 0) * max(self.hp, 0))
+                heal = trunc(ef.get("value", 0) + ef.get("pct", 0) * max(self.hp, 0))
                 self.hp += heal
                 self.stats["hp_healed"] += heal
             elif t == "on_acquire_copy_owned":
@@ -999,7 +999,7 @@ def fight(cfg, st, tier, act, rng):
                 hits = 1
 
         def incoming():
-            return max(0, round(per_hit * (1 - def_cut))) * hits if kind == "attack" else 0
+            return max(0, trunc(per_hit * (1 - def_cut))) * hits if kind == "attack" else 0
 
         # --- 플레이어 수식 (타수 1 고정)
         base = rng.randint(P["base_dmg_min"], P["base_dmg_max"])
@@ -1036,12 +1036,12 @@ def fight(cfg, st, tier, act, rng):
                     hits = 0
                 else:
                     cut = min(1.0, skill * rng.uniform(0, 2 * P["defense_cut_per_move"]))
-                    per_hit = max(0, round(per_hit * (1 - cut)))
+                    per_hit = max(0, trunc(per_hit * (1 - cut)))
             else:
                 pdmg += base * skill * rng.uniform(0, 2 * P["attack_gain_per_move"])
 
         # --- 턴 처리: 플레이어 → 몬스터
-        mhp -= max(0, round(pdmg * dmg_mult))
+        mhp -= max(0, trunc(pdmg * dmg_mult))
         if mhp <= 0:
             return "win"
         if kind == "str":
@@ -1064,9 +1064,23 @@ def _digits_map(n, fn):
     return int("".join(str(fn(int(d))) for d in str(abs(n)))) if n else 0
 
 
+def trunc(x):
+    """소수점 버림 (0 쪽으로). 곱셈의 부동소수 오차로 정수 경계에서 1 모자라지 않게 1e-9 를 보정한다. (F22-D, 가정 A2)"""
+    if LEGACY_ROUNDING:
+        return round(x)
+    return int(x + 1e-9) if x >= 0 else -int(-x + 1e-9)
+
+
+LEGACY_ROUNDING = False      # True 면 trunc 가 파이썬 round 로 돌아간다 — v1 과의 동일성 테스트(변경 전 반올림 규칙) 전용. 평소엔 False
+EVAL_TRANSFORM_OPS = ("zero_else_mult",)     # 평가형 변환: 굴림 직후가 아니라 편집이 끝난 최종 값에 적용한다 (F22-A)
+
+
 def transform_base(base, fx):
+    """굴림형 변환만 적용한다. 평가형(zero_else_mult)은 eval_base 가 처리하므로 건너뛴다."""
     for ef, c in fx.items("base_dmg_transform"):
         op, v = ef["op"], ef.get("value", 0)
+        if op in EVAL_TRANSFORM_OPS:
+            continue
         for _ in range(c):
             if op == "mult":
                 base = int(base * v)
@@ -1082,6 +1096,19 @@ def transform_base(base, fx):
             else:
                 raise ValueError(f"base_dmg_transform op 알 수 없음: {op}")
     return base
+
+
+def has_eval_base(fx):
+    return any(ef.get("op") in EVAL_TRANSFORM_OPS for ef, _c in fx.items("base_dmg_transform"))
+
+
+def eval_base(P, fx):
+    """편집이 끝난 상자 값 P → 피해 계산에 쓰는 값 (평가형 변환만 적용).
+    zero_else_mult: P 가 0 이면 zero_value 로 대체하고 끝, 아니면 ×value (소수점 버림). 보유 수와 무관하게 한 번만 (D5)."""
+    for ef, _c in fx.items("base_dmg_transform"):
+        if ef.get("op") == "zero_else_mult":
+            return int(ef.get("zero_value", 200)) if P == 0 else trunc(P * ef.get("value", 0.5))
+    return P
 
 
 def _consecutive_pairs(*nums):
@@ -1191,7 +1218,7 @@ def fight_table(cfg, st, tier, act, rng):
     def per_hit_in(kind, per_hit, mon_base, base):
         if kind != "attack":
             return 0
-        v = max(0, round(per_hit * (1 - def_cut)) + taken_flat)
+        v = max(0, trunc(per_hit * (1 - def_cut)) + taken_flat)
         for cond, factor in taken_mult:
             if cond == "monster_dmg_ge_player_base" and not mon_base >= base:
                 continue
@@ -1286,7 +1313,7 @@ def fight_table(cfg, st, tier, act, rng):
             # --- 내 수식
             base = rng.randint(bmin, bmax)
             if has_transform:
-                base = transform_base(base, fx)
+                base = eval_base(transform_base(base, fx), fx)     # gauss 는 편집이 없어 굴림 직후 평가형도 한 번 적용 (F22-A 2.6)
 
             # 내 힘 증가: when 이 없으면 전투 첫 턴 시작 시 1회, 있으면 조건이 맞는 턴 시작 시
             for ef, c in pstr_list:
@@ -1359,7 +1386,7 @@ def fight_table(cfg, st, tier, act, rng):
             # --- 성냥개비 이동 배분
             used = n_att = 0
             for _ in range(moves):
-                one = max(0, round(pdmg * dmg_mult) + flat)
+                one = max(0, trunc(pdmg * dmg_mult) + flat)
                 if int(one * final_mult) * p_hits + etd >= mhp:
                     break
                 used += 1
@@ -1375,7 +1402,7 @@ def fight_table(cfg, st, tier, act, rng):
                         hits = 0
                     else:
                         cut = min(1.0, skill * rng.uniform(0, def_span))
-                        per_hit = max(0, round(per_hit * (1 - cut)))
+                        per_hit = max(0, trunc(per_hit * (1 - cut)))
                 else:
                     n_att += 1
                     pdmg += base * skill * rng.uniform(0, att_span)
@@ -1389,7 +1416,7 @@ def fight_table(cfg, st, tier, act, rng):
 
             if res is None:
                 # --- 내 공격 (타수만큼, 0 이하 피해는 타격으로 치지 않음)
-                one = max(0, round(pdmg * dmg_mult) + flat)
+                one = max(0, trunc(pdmg * dmg_mult) + flat)
                 for _ in range(p_hits):
                     d = int(one * final_mult)
                     if has_combo:
@@ -1478,7 +1505,7 @@ def do_rest(cfg, st, act, rng):
             heal += base * skill * rng.uniform(0, 2 * R["edit_gain_per_move"])
         if fx is not None:
             heal = heal * fx.prod("rest_heal_mult") + fx.sum("rest_heal_add")
-        heal = round(heal)
+        heal = trunc(heal)
         st.hp += heal
         st.stats["hp_healed"] += heal
     st.stats["rests"] += 1
@@ -1521,7 +1548,7 @@ def do_shop(cfg, st, rng):
         final = edit_price(cfg, price, moves, rng) if moves else price
         edited = final != price
         if price_mult != 1.0:
-            final = max(1, round(final * price_mult))
+            final = max(1, trunc(final * price_mult))
         return final, edited
 
     # 환상: 등급별 1개 진열, 높은 등급부터 고려

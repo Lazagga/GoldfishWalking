@@ -194,13 +194,14 @@ class Digits(unittest.TestCase):
             self.assertEqual(key, best, (P, D, H, K))
             self.assertLessEqual(used, K)
         # 생존 우선: 살 수 있는 후보가 있으면 처치 가능해도 죽는 후보를 고르지 않는다
-        a = fd.objective(dealt=100, taken=200, hp=150, mhp=90, kill_first=False, w=0.9)
-        b = fd.objective(dealt=10, taken=100, hp=150, mhp=90, kill_first=False, w=0.9)
+        a = fd.objective(dealt=100, taken=200, hp=150, mhp=90, enemy_first=True, w=0.9)
+        b = fd.objective(dealt=10, taken=100, hp=150, mhp=90, enemy_first=True, w=0.9)
         self.assertGreater(b, a)
-        # 처치 우선 (선공일 때): 처치 후보 중 받는 피해 최소
-        k1 = fd.objective(dealt=95, taken=50, hp=150, mhp=90, kill_first=True, w=0.1)
-        k2 = fd.objective(dealt=80, taken=0, hp=150, mhp=90, kill_first=True, w=0.1)
+        # 처치 우선 (내가 먼저 움직일 때): 처치하면 받는 피해와 무관하게 최상위 (F22-B — 몬스터가 행동하지 못한다)
+        k1 = fd.objective(dealt=95, taken=50, hp=150, mhp=90, enemy_first=False, w=0.1)
+        k2 = fd.objective(dealt=80, taken=0, hp=150, mhp=90, enemy_first=False, w=0.1)
         self.assertGreater(k1, k2)
+        self.assertEqual(fd.objective(dealt=95, taken=999, hp=150, mhp=90, enemy_first=False, w=0.1)[:2], (1, 1))
 
     # --- AC-D5
     def test_d5_taken_flat(self):

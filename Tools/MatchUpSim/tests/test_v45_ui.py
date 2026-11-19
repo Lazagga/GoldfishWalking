@@ -184,6 +184,31 @@ class DraftUI(unittest.TestCase):
         self.assertEqual(self.errs, [])
         ctx.close()
 
+    # F22 AC-B5: 배분 가중치 칸 — 초안으로 들어가 저장 전엔 계산하지 않고, 되돌리면 원래 값
+    def test_w1_attack_weight_is_a_draft_setting(self):
+        ctx, pg = self.open()
+        self.quiet(pg)
+        path = "player.policy.attack_weight"
+        self.assertEqual(float(pg.input_value("#wtIn")), 0.5)
+        before = self.jobs()
+        pg.fill("#wtIn", "0.3")
+        pg.press("#wtIn", "Tab")
+        time.sleep(0.8)
+        self.assertEqual(self.jobs(), before)                                              # 초안 — 계산 없음
+        self.assertEqual(pg.evaluate("(window.__S.draft.cfgEdits || []).find(c => c.path === '%s').new" % path), 0.3)
+        self.assertTrue(pg.evaluate("document.querySelector('#wtIn').classList.contains('drafted')"))
+        self.assertIn("저장 안 됨", pg.inner_text("#chgCount"))
+        pg.click("#btnDiscard")
+        time.sleep(0.5)
+        self.assertEqual(float(pg.input_value("#wtIn")), 0.5)
+        self.assertFalse(pg.evaluate("document.querySelector('#wtIn').classList.contains('drafted')"))
+        pg.fill("#wtIn", "1.5")                                                            # 범위 밖은 받지 않는다
+        pg.press("#wtIn", "Tab")
+        time.sleep(0.5)
+        self.assertEqual(float(pg.input_value("#wtIn")), 0.5)
+        self.assertEqual(self.errs, [])
+        ctx.close()
+
     # AC-M8: 환상 편집 패널도 같은 초안 방식 — 곡선 재계산 없음, 입력 칸·포커스 유지
     def test_m8_fantasy_panel_draft(self):
         ctx, pg = self.open("#t=curve")

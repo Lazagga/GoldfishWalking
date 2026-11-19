@@ -266,7 +266,7 @@ function effText(e) {
     case "dmg_flat": return `타격당 피해 ${sg(v)}${cond}`;
     case "dmg_mult_add": return `피해 배율 ${sg(v)}`;
     case "dmg_final_mult": return `피해 x${v}${e.condition ? " (조건부)" : ""}`;
-    case "base_dmg_transform": return { mult: `기본 피해 x${v}`, digit_min: `기본 피해 숫자 최소 ${v}`, first_digit: `기본 피해 첫 자리 ${v}`, odd_even: "기본 피해 홀수 x2 / 짝수 0", zero_set: `기본 피해 0 → ${v}` }[e.op] || "기본 피해 변형";
+    case "base_dmg_transform": return { mult: `기본 피해 x${v}`, digit_min: `기본 피해 숫자 최소 ${v}`, first_digit: `기본 피해 첫 자리 ${v}`, odd_even: "기본 피해 홀수 x2 / 짝수 0", zero_set: `기본 피해 0 → ${v}`, zero_else_mult: `기본 피해 0 → ${e.zero_value}, 아니면 x${v}` }[e.op] || "기본 피해 변형";
     case "hits_add": return e.per ? `타수 +1 / ${per}${e.divisor ? " " + e.divisor + "개" : ""}` : `타수 ${sg(v)}${cond}`;
     case "combo_same_dmg_stack": return `같은 피해 연속 시 +${v} 누적`;
     case "end_turn_dmg": return `턴 종료 피해 ${per ? per + " " : ""}${v}${cond}`;
@@ -511,6 +511,7 @@ app.innerHTML = `
       <label id="modelWrap" class="hidden">피해 모델 <select id="dmodel"><option value="gauss">gauss (등급 평균)</option><option value="digits">digits (자릿수)</option><option value="digits+g">digits + 기믹</option></select><a class="info" data-g="13">ⓘ</a></label>
       <span id="modelBadge"></span>
       <label id="skillWrap" class="hidden" title="플레이어 실력 player.skill (0~1). 곡선과 몬스터별 지표에 모두 반영 — 의미는 피해 모델마다 다름(해석 가이드)">플레이어 스킬 <input type="number" id="skillIn" min="0" max="1" step="0.05" style="width:70px" class="num"></label>
+      <label id="wtWrap" class="hidden" title="성냥 배분 정책의 공격 가중치 player.policy.attack_weight (0~1, 기본 0.5). 클수록 방어보다 피해를 중시. digits 모델의 배분에만 쓰임">배분 가중치 <input type="number" id="wtIn" min="0" max="1" step="0.1" style="width:60px" class="num"></label>
       <label id="runsWrap" class="hidden" title="재계산·전체 재계산의 점당 최대 판 수. 비우면 서버 기본 단계. 단계는 최대값의 1/10 → 1/3 → 최대값">점당 최대 판 수 <input type="number" id="runsIn" min="10" step="100" placeholder="서버 기본" style="width:90px" class="num"></label>
       ${FACETS ? `<label>${esc(FACETS.key)} <select id="facet">${FACETS.values.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join("")}</select></label>
       <label><input type="checkbox" id="overlay"> 패싯 겹쳐 그리기</label>` : ""}
@@ -1198,13 +1199,14 @@ function barFor(root, n) {   // 몬스터 탭·환상 패널 맨 위의 고정 �
 }
 function topControls() {   // 상단 선택 상자·플레이어 실력 칸: 초안 값을 보인다 (선택만으로는 계산하지 않음)
   const vals = (cs, ce) => { const sys = cs["rewards.normal_battle.mode"] || SCAN_SYSTEM, dm = cs["monsters.damage_model"] || SCAN_MODEL, gm = cs["monsters.gimmicks"] || (dm === SCAN_MODEL ? SCAN_GIMMICKS : "off");
-    const sk = ce.find(c => c.path === "player.skill");
+    const sk = ce.find(c => c.path === "player.skill"), wt = ce.find(c => c.path === "player.policy.attack_weight");
     return { system: ce.some(c => c.path.startsWith("rewards.ember")) || cs["rewards.ember.blue_mode"] || cs["rewards.ember.blue_reward"] ? "custom" : (sys === "ember" ? "ember" : sys === "fantasy" ? "fantasy" : "custom"),
-      model: dm === "digits" ? (gm === "on" ? "digits+g" : "digits") : "gauss", skill: sk ? sk.new : BASE_CFG["player.skill"] }; };
+      model: dm === "digits" ? (gm === "on" ? "digits+g" : "digits") : "gauss", skill: sk ? sk.new : BASE_CFG["player.skill"], aw: wt ? wt.new : BASE_CFG["player.policy.attack_weight"] }; };
   const w = vals(wCfgSet(), wCfgEdits()), s = vals(S.cfgSet, S.cfgEdits);
   $("system").value = w.system; $("dmodel").value = w.model;
   $("system").classList.toggle("drafted", w.system !== s.system); $("dmodel").classList.toggle("drafted", w.model !== s.model);
   const sk = $("skillIn"); if (sk) { if (document.activeElement !== sk) sk.value = w.skill ?? ""; sk.classList.toggle("drafted", w.skill !== s.skill); }
+  const wt = $("wtIn"); if (wt) { if (document.activeElement !== wt) wt.value = w.aw ?? ""; wt.classList.toggle("drafted", w.aw !== s.aw); }
 }
 let HPR_H = "";
 function hpReportRefresh() {
@@ -1731,7 +1733,7 @@ function monLogDetailHTML(d) {
     <details class="mlflow"><summary>이 전투 전까지의 런 흐름 (${d.timeline.length}개 노드)</summary><div class="rankwrap" style="max-height:30vh"><table class="rank"><thead><tr><th>위치</th><th>유형</th><th>체력</th><th>결과</th></tr></thead><tbody>${tl}</tbody></table></div></details>`;
 }
 // ════════ v4.5 F21: 턴 피해 분해 패널 — 전투 로그의 턴 행을 누르면 그 턴의 피해가 무엇으로 만들어졌는지 출처별로 보인다 ════════
-const CALC_KIND = { transform: "기본 숫자 변환", move: "성냥 이동", mult: "피해 배율", flat: "고정 피해", clamp: "0 미만 보정", final: "최종 배율", rule: "기믹 규칙",
+const CALC_KIND = { transform: "기본 숫자 변환", move: "성냥 이동", eval: "최종 값 평가(0 → 200 / ×0.5)", mult: "피해 배율", flat: "고정 피해", clamp: "0 미만 보정", final: "최종 배율", rule: "기믹 규칙",
   digit_cap: "숫자 자릿수 상한", aim: "조준 배율", def: "방어", reroll: "몬스터 숫자 다시 굴림" };
 const CALC_EXTRA = { unapplied: "미적용 타수", combo: "연속 같은 피해 가산", cap: "1타 상한으로 깎임", shield: "방어막이 막음", etd: "턴 끝 추가 피해", reflect: "반사 피해",
   heal: "몬스터 회복", delay: "지연(다음 턴으로 미룸)", delayed_paid: "이전 턴에서 미룬 피해", status: "상태 피해(출혈·중독)", direct: "직접 피해 효과", unclassified: "미분류" };
@@ -1891,7 +1893,7 @@ function markMonRows() {
   t.querySelectorAll("tbody tr[data-mid]").forEach(tr => { const open = tr.dataset.mid === MLOG.mid; tr.classList.toggle("open", open); tr.setAttribute("aria-expanded", open ? "true" : "false"); });
 }
 document.addEventListener("keydown", e => {   // 로그 패널이 열려 있으면 위·아래 화살표로 표본을 넘긴다
-  if (!MLOG.mid || !MLOG.detail || /^(INPUT|TEXTAREA|SELECT)$/.test((e.target || {}).tagName || "")) return;
+  if (!MLOG.mid || !MLOG.detail || MLOG.turn != null || /^(INPUT|TEXTAREA|SELECT)$/.test((e.target || {}).tagName || "")) return;   // 턴 분해 패널이 열려 있으면 화살표는 그쪽(이전·다음 턴)
   if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); monLogStep(e.key === "ArrowDown" ? 1 : -1); }
 });
 
@@ -2667,7 +2669,7 @@ function update() {
   renderRefChip();
   renderModeBadge();
   $("btnWs").classList.toggle("hidden", !(SRV && srvOK));
-  $("skillWrap").classList.toggle("hidden", !(SRV && srvOK)); $("runsWrap").classList.toggle("hidden", !(SRV && srvOK));
+  $("skillWrap").classList.toggle("hidden", !(SRV && srvOK)); $("wtWrap").classList.toggle("hidden", !(SRV && srvOK)); $("runsWrap").classList.toggle("hidden", !(SRV && srvOK));
   if (SRV && srvOK) { const sk = $("skillIn"), rn = $("runsIn"); if (document.activeElement !== rn) rn.value = S.simN || ""; }
   document.querySelectorAll('.csvBtn[data-ds="runs"], .csvBtn[data-ds="edits"]').forEach(b => { b.disabled = !(SRV && srvOK); });
   if (!(SRV && srvOK) && $("wsChip")) $("wsChip").classList.add("hidden");
@@ -3398,6 +3400,10 @@ document.addEventListener("change", e => {
     const v = +e.target.value, old = BASE_CFG["player.skill"];
     if (e.target.value === "" || !isFinite(v) || old == null) { update(); topControls(); return; }
     setCfgEdit("player.skill", old, v);
+  } else if (id === "wtIn") {
+    const v = +e.target.value, old = BASE_CFG["player.policy.attack_weight"];
+    if (e.target.value === "" || !isFinite(v) || old == null || v < 0 || v > 1) { update(); topControls(); return; }
+    setCfgEdit("player.policy.attack_weight", old, v);
   } else if (id === "runsIn") {
     const v = Math.round(+e.target.value); S.simN = e.target.value === "" || !isFinite(v) || v < 10 ? null : Math.min(v, 10000000); update();
   } else if (id === "monNIn") {

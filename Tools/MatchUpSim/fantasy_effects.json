@@ -1,7 +1,7 @@
 {
   "version": 1,
   "source": "../../Assets/Data/Json/fantasies 에서 import_fantasies.py 로 생성",
-  "generated_at": "2026-11-12T15:22:14",
+  "generated_at": "2026-11-19T18:52:37",
   "fantasies": [
     {
       "id": "fan_rabbit_head",
@@ -312,7 +312,7 @@
       "name": "닻",
       "grade": "white",
       "source_id": 15,
-      "description": "피해를 입을 때마다 항상 5씩 적게 받음",
+      "description": "피해를 입을 때마다 항상 20씩 적게 받음",
       "fidelity": "exact",
       "effects": [
         {
@@ -968,7 +968,7 @@
       "name": "낫",
       "grade": "blue",
       "source_id": 44,
-      "description": "피해를 입힐 때마다 체력 3씩 회복",
+      "description": "피해를 입힐 때마다 체력 20씩 회복",
       "fidelity": "exact",
       "effects": [
         {
@@ -1372,7 +1372,7 @@
       "name": "포인세티아",
       "grade": "blue",
       "source_id": 60,
-      "description": "피해를 입을 때 마다 항상 10씩 적게 받음",
+      "description": "피해를 입을 때 마다 항상 30씩 적게 받음",
       "fidelity": "exact",
       "effects": [
         {
@@ -1404,22 +1404,16 @@
       "effects": [
         {
           "type": "base_dmg_transform",
-          "op": "mult",
-          "value": 0.5,
-          "surrogate_candidate": true
-        },
-        {
-          "type": "base_dmg_transform",
-          "op": "zero_set",
-          "value": 200,
-          "surrogate_candidate": true
+          "op": "zero_else_mult",
+          "zero_value": 200,
+          "value": 0.5
         }
       ],
-      "notes": "기본 피해 절반. 0 → 200 은 시뮬레이터 기본 피해 범위(10~45)에서 발생하지 않음 — 기본 피해를 0 으로 만드는 조작은 미모델링이라 과소평가됨",
+      "notes": "기본 피해 값이 0 이면 200, 아니면 ×0.5(버림). digits 모델은 편집이 끝난 최종 값에 적용(AI 가 0 상자를 노림). gauss 는 편집이 없어 굴림 직후 적용(기본 피해 10~45 라 0 → 200 은 발생하지 않음 — 과소평가). 복수 보유해도 중첩되지 않음",
       "mapping": "override",
       "available": true,
-      "fidelity_digits": "approx",
-      "notes_digits": "base_dmg_transform: 기본 피해 상자 변형: 게임은 턴 시작(Player_Base_Damage)과 공식 구성(Player_Number) 두 시점이 있으나 시뮬레이터는 굴림 직후 1회 적용 후 배분"
+      "fidelity_digits": "exact",
+      "notes_digits": "base_dmg_transform: 평가형 변환: 편집이 끝난 최종 값에 적용(0 → 지정값, 아니면 곱하기 버림). 크기 비교 조건은 변환된 값, 자릿수 모양 특징은 표시 숫자(가정)"
     },
     {
       "id": "fan_turn_pisces",

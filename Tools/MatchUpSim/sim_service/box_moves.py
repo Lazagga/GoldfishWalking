@@ -24,7 +24,7 @@ DIGIT_MASK = (T | UR | LR | B | LL | UL, UR | LR, T | UR | M | LL | B, T | UR | 
 MASK_DIGIT = {m: d for d, m in enumerate(DIGIT_MASK)}
 EMPTY = 0
 TARGETS = tuple(DIGIT_MASK) + (EMPTY,)
-VERSION = 1
+VERSION = 2          # 2: reach_best 의 rank (평가형 변환 — 0 도달 후보 보존, F22-A)
 
 
 def popcount(x):
@@ -190,16 +190,23 @@ def best_per_cost(masks, k, cons, better, cap=None):
     return out
 
 
-def reach_best(d, v, k, better, split=False, locked=None, locked_digits=(), movable=True, limit=None, cap=None):
+def reach_best(d, v, k, better, split=False, locked=None, locked_digits=(), movable=True, limit=None, cap=None, rank=None):
     """배분 정책용: 작은 상자는 reach() 와 같고(완전 열거), 조합 수가 limit 를 넘는 큰 상자(자릿수·이동이 큰 경우)는
     이동 수별 최선 값만 정확히 구한다 (숫자 내용 특징은 쓰지 않음). 반환 {값: 최소 이동}.
-    cap: 값 비교에만 쓰는 자릿수 상한 (몬스터 피해 숫자 상한 환상). 반환 값은 화면 숫자 그대로."""
+    cap: 값 비교에만 쓰는 자릿수 상한 (몬스터 피해 숫자 상한 환상). 반환 값은 화면 숫자 그대로.
+    rank: 값의 가치를 매기는 함수 (평가형 변환, 예: 0 → 200). 큰 상자 경로는 값의 대소만으로 최선을 고르므로 rank 가 값에 단조가 아닐 때
+          (0 이 가장 좋을 수 있음) 최소값 경로에서 '0 에 닿는 최소 이동'을 함께 돌려준다. 반환 값은 화면 숫자 그대로."""
     d = max(d, len(str(int(v))))
     masks = masks_of(v, d)
     cons = norm_cons(d, split, locked, locked_digits, movable, masks)
     if space_size(masks, int(k), cons) <= (limit or EXACT_LIMIT):
         return dict(_reach(masks, int(k), cons))
-    return best_per_cost(masks, int(k), cons, better, cap)
+    out = best_per_cost(masks, int(k), cons, better, cap)
+    if rank is not None and better > 0 and 0 not in out:
+        lo = best_per_cost(masks, int(k), cons, -better, cap)
+        if 0 in lo:
+            out[0] = lo[0]
+    return out
 
 
 def reach_masks(masks, k, split=False, locked=None, locked_digits=(), movable=True):

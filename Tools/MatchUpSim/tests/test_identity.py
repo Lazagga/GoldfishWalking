@@ -39,19 +39,49 @@ CASES = [
 ]
 
 
+def _identity_effects():
+    """v1 과의 동일성 비교용 효과 테이블: 천칭자리는 뺀다. F22-A 이후 천칭자리는 평가형 한 규칙(zero_else_mult)이고 복수 보유해도 중첩되지 않아(D5)
+    v1(보유 수만큼 반복)과 일부러 다르다 — 값 자체는 test_v45_policy_libra 가 검사한다."""
+    import json
+    import tempfile
+    with open(EFFECTS, encoding="utf-8") as fp:
+        tab = json.load(fp)
+    for f in tab["fantasies"]:
+        if f["id"] == "fan_damage_libra":
+            f["available"] = False
+    p = os.path.join(tempfile.mkdtemp(), "fe_identity.json")
+    with open(p, "w", encoding="utf-8") as fp:
+        json.dump(tab, fp)
+    return p
+
+
+_LEGACY = []
+
+
 def cfg_for(mod, table, hp, forced):
     cfg = _legacy(mod)
     cfg["monsters"]["act_hp_growth"] = 2.0
     cfg["monsters"]["hp_base"] = hp
     if table:
-        cfg["fantasy"]["effects_file"] = EFFECTS
+        if not _LEGACY:
+            _LEGACY.append(_identity_effects())
+        cfg["fantasy"]["effects_file"] = _LEGACY[0]
         cfg["fantasy"]["effect_mode"] = "table"
     cfg["fantasy"]["forced"] = {"ids": list(forced), "at": "start"}
     return cfg
 
 
 def compare(testcase, n=N, extra=None, trace=False):
-    """모든 사례에서 행 dict 가 v1 과 같은지. extra(cfg) 로 새 옵션의 기본값을 명시적으로 넣어 볼 수 있다."""
+    """모든 사례에서 행 dict 가 v1 과 같은지. extra(cfg) 로 새 옵션의 기본값을 명시적으로 넣어 볼 수 있다.
+    v1 은 반올림(round)을 쓰므로(F22-D 이후 현행은 버림) 비교하는 동안만 LEGACY_ROUNDING 을 켠다."""
+    ms.LEGACY_ROUNDING = True
+    try:
+        _compare(testcase, n, extra, trace)
+    finally:
+        ms.LEGACY_ROUNDING = False
+
+
+def _compare(testcase, n=N, extra=None, trace=False):
     for name, table, hp, forced_sets in CASES:
         for forced in forced_sets:
             c_old = cfg_for(v1, table, hp, forced)
